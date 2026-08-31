@@ -20,12 +20,17 @@ import java.util.TimeZone
 
 private const val TAG = "AddPropertyRemoteDataSource"
 
+private const val ARROW = "\u279C"
+private const val TICK = "\u2705"
+private const val CROSS = "\u274C"
+
 class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
 
     private val databases = AppWriteProvider.databases
     private val storage = AppWriteProvider.storage
 
     override suspend fun addProperty(userId: String, form: PropertyForm): Result<String> {
+        Logger.d(TAG, "$ARROW addProperty() called for user: $userId, title: ${form.title}")
         return try {
             val documentId = ID.unique()
             val data = mutableMapOf<String, Any?>(
@@ -64,18 +69,19 @@ class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
                 data = data
             )
 
-            Logger.d(TAG, "Property added successfully: $documentId for user: $userId")
+            Logger.d(TAG, "$TICK addProperty() succeeded: documentId=$documentId for user: $userId")
             Result.Success(documentId)
         } catch (e: AppwriteException) {
-            Logger.e(TAG, "Failed to add property for user: $userId: ${e.message}")
+            Logger.e(TAG, "$CROSS addProperty() failed: ${e.message}")
             Result.Error(e.message ?: "Appwrite error")
         } catch (e: Exception) {
-            Logger.e(TAG, "Unexpected error adding property for user: $userId: ${e.message}")
+            Logger.e(TAG, "$CROSS addProperty() unexpected error: ${e.message}")
             Result.Error("Unexpected error: ${e.message}")
         }
     }
 
     override suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String> {
+        Logger.d(TAG, "$ARROW uploadImage() called: filename=$filename, size=${bytes.size}")
         return try {
             val mimeType = when (filename.substringAfterLast('.', "").lowercase()) {
                 "jpg", "jpeg" -> "image/jpeg"
@@ -102,18 +108,19 @@ class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
                 append(AppWriteConstants.PROJECT_ID)
             }
 
-            Logger.d(TAG, "Image uploaded successfully: $imageUrl")
+            Logger.d(TAG, "$TICK uploadImage() succeeded: $imageUrl")
             Result.Success(imageUrl)
         } catch (e: AppwriteException) {
-            Logger.e(TAG, "Image upload failed for $filename: ${e.message}")
+            Logger.e(TAG, "$CROSS uploadImage() failed for $filename: ${e.message}")
             Result.Error(e.message ?: "Image upload failed")
         } catch (e: Exception) {
-            Logger.e(TAG, "Unexpected image upload error for $filename: ${e.message}")
+            Logger.e(TAG, "$CROSS uploadImage() unexpected error for $filename: ${e.message}")
             Result.Error("Unexpected error: ${e.message}")
         }
     }
 
     override suspend fun getMyProperties(userId: String): Result<List<Property>> {
+        Logger.d(TAG, "$ARROW getMyProperties() called for user: $userId")
         return try {
             val response = databases.listDocuments(
                 databaseId = AppWriteConstants.DATABASE_ID,
@@ -130,12 +137,13 @@ class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
                 PropertyMapper.fromMap(data, doc.id)
             }
 
+            Logger.d(TAG, "$TICK getMyProperties() succeeded: found ${properties.size} properties for user: $userId")
             Result.Success(properties)
         } catch (e: AppwriteException) {
-            Logger.e(TAG, "Failed to get my properties for user: $userId: ${e.message}")
+            Logger.e(TAG, "$CROSS getMyProperties() failed: ${e.message}")
             Result.Error(e.message ?: "Appwrite error")
         } catch (e: Exception) {
-            Logger.e(TAG, "Unexpected error getting my properties for user: $userId: ${e.message}")
+            Logger.e(TAG, "$CROSS getMyProperties() unexpected error: ${e.message}")
             Result.Error("Unexpected error: ${e.message}")
         }
     }

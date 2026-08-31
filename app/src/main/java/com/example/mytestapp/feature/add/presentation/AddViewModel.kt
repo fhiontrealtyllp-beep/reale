@@ -13,8 +13,13 @@ import com.example.mytestapp.feature.search.domain.model.BedroomType
 import com.example.mytestapp.feature.search.domain.model.Facing
 import com.example.mytestapp.feature.search.domain.model.Furnishing
 import com.example.mytestapp.feature.search.domain.model.PropertyType
+import com.example.mytestapp.feature.search.domain.model.Property
 import com.example.mytestapp.feature.search.domain.model.RentBuy
 import com.example.mytestapp.feature.search.domain.model.ResidentialCommercial
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import com.example.mytestapp.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -282,6 +287,7 @@ class AddViewModel(
         viewModelScope.launch {
             when (val result = addPropertyUseCase(userId, form)) {
                 is Result.Success -> {
+                    val newProperty = form.toProperty(result.data, userId)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         isLoggedIn = true,
@@ -291,10 +297,10 @@ class AddViewModel(
                         successMessage = "Property added successfully",
                         form = PropertyForm(),
                         errorMessage = null,
-                        fieldErrors = emptyList()
+                        fieldErrors = emptyList(),
+                        myProperties = listOf(newProperty) + _uiState.value.myProperties
                     )
                     _sideEffect.emit("Property added successfully")
-                    userSession.getUserId()?.let { loadMyProperties(it) }
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
@@ -316,6 +322,44 @@ class AddViewModel(
 
     fun onDismissSuccess() {
         _uiState.value = _uiState.value.copy(isSubmitSuccess = false)
+    }
+
+    private fun PropertyForm.toProperty(documentId: String, userId: String): Property {
+        return Property(
+            id = documentId,
+            documentId = documentId,
+            userId = userId,
+            title = title.trim(),
+            description = description.trim(),
+            price = price.toDoubleOrNull() ?: 0.0,
+            city = city.trim(),
+            locality = locality.trim(),
+            pincode = pincode.trim().ifBlank { null },
+            address = address.trim().ifBlank { null },
+            latitude = latitude.toDoubleOrNull(),
+            longitude = longitude.toDoubleOrNull(),
+            images = images.map { it.trim() }.filter { it.isNotBlank() },
+            agentPhone = agentPhone.trim(),
+            status = "live",
+            createdAt = currentTimestamp(),
+            rentBuy = rentBuy,
+            residentialCommercial = residentialCommercial,
+            propertyType = propertyType,
+            bedroomType = bedroomType,
+            furnishing = furnishing,
+            facing = facing,
+            age = age,
+            amenities = amenities,
+            carpetArea = carpetArea.toDoubleOrNull(),
+            builtUpArea = builtUpArea.toDoubleOrNull(),
+            superBuiltUpArea = superBuiltUpArea.toDoubleOrNull()
+        )
+    }
+
+    private fun currentTimestamp(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.format(Date())
     }
 
     private inline fun updateForm(transform: PropertyForm.() -> PropertyForm) {
