@@ -10,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytestapp.ui.components.BottomNavBar
 import com.example.mytestapp.ui.navigation.AppScreen
+import com.example.mytestapp.feature.search.presentation.SearchScreen
 import com.example.mytestapp.ui.screens.AddScreen
 import com.example.mytestapp.ui.screens.ProfileScreen
 import com.example.mytestapp.ui.screens.SavedScreen
-import com.example.mytestapp.ui.screens.SearchScreen
 import com.example.mytestapp.ui.theme.MyTestAppTheme
 import com.example.mytestapp.ui.viewmodel.MainViewModel
 
