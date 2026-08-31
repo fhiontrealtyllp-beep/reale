@@ -1,4 +1,4 @@
-package com.example.mytestapp.ui.screens
+package com.example.mytestapp.feature.saved.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mytestapp.feature.saved.di.SavedModule
 import com.example.mytestapp.feature.saved.presentation.SavedViewModel
@@ -49,6 +51,8 @@ import com.example.mytestapp.feature.search.presentation.components.PropertyList
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavedScreen(
+    onLoginClick: () -> Unit,
+    loginSuccessVersion: Int = 0,
     modifier: Modifier = Modifier,
     viewModel: SavedViewModel = viewModel(factory = SavedModule.viewModelFactory)
 ) {
@@ -58,6 +62,12 @@ fun SavedScreen(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    LaunchedEffect(loginSuccessVersion) {
+        if (loginSuccessVersion > 0) {
+            viewModel.refresh()
         }
     }
 
@@ -102,6 +112,7 @@ fun SavedScreen(
                 }
 
                 !uiState.isLoggedIn -> LoginPrompt(
+                    onLoginClick = onLoginClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
@@ -192,7 +203,10 @@ private fun EmptySavedResults(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LoginPrompt(modifier: Modifier = Modifier) {
+private fun LoginPrompt(
+    onLoginClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -206,18 +220,29 @@ private fun LoginPrompt(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Log in to view saved properties",
+            text = "Please Login to View your properties",
             color = Color(0xFFFBFBFB),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Your liked properties will appear here.",
-            color = Color(0xFFFBFBFB).copy(alpha = 0.7f),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
+        Spacer(modifier = Modifier.height(24.dp))
+        TextButton(
+            onClick = onLoginClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = Color(0xFFFDD60D),
+                contentColor = Color(0xFF141C3D)
+            )
+        ) {
+            Text(
+                text = "Login",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 

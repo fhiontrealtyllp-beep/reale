@@ -7,4 +7,5 @@ object AppWriteConstants {
     const val PROPERTY_COLLECTION_ID = "682def45001a661495d1"
     const val LIKES_COLLECTION_ID = "683316b70008c3cd16e2"
     const val USER_COLLECTION_ID = "67bb31f7000758c4c8c8"
+    const val STORAGE_BUCKET_ID = "687a559600291124f050"
 }

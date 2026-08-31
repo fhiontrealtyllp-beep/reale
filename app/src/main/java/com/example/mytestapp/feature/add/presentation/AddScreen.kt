@@ -1,4 +1,4 @@
-package com.example.mytestapp.ui.screens
+package com.example.mytestapp.feature.add.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

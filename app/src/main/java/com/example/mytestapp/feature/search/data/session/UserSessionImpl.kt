@@ -1,6 +1,16 @@
 package com.example.mytestapp.feature.search.data.session
 
-class UserSessionImpl : UserSession {
-    // Replace with a real storage-backed session once login is implemented.
-    override fun getUserId(): String? = null
+import com.example.mytestapp.feature.auth.domain.model.User
+
+object UserSessionImpl : UserSession {
+    private var currentUser: User? = null
+
+    override fun getUserId(): String? = currentUser?.id
+    override fun getUser(): User? = currentUser
+    override fun setUser(user: User?) {
+        currentUser = user
+    }
+    override fun clear() {
+        currentUser = null
+    }
 }

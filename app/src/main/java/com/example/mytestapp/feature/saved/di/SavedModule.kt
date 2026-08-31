@@ -15,22 +15,16 @@ import com.example.mytestapp.feature.search.data.session.UserSessionImpl
 
 object SavedModule {
 
-    private lateinit var appContext: Context
-
     fun init(context: Context) {
-        appContext = context.applicationContext
+        AppWriteProvider.init(context.applicationContext)
     }
 
     private val userSession: UserSession by lazy {
-        UserSessionImpl()
-    }
-
-    private val appWriteProvider: AppWriteProvider by lazy {
-        AppWriteProvider(appContext)
+        UserSessionImpl
     }
 
     private val savedRemoteDataSource: SavedRemoteDataSource by lazy {
-        SavedRemoteDataSourceImpl(appWriteProvider, userSession)
+        SavedRemoteDataSourceImpl(userSession)
     }
 
     private val savedRepository: SavedRepository by lazy {

@@ -12,11 +12,10 @@ import io.appwrite.Query
 import io.appwrite.exceptions.AppwriteException
 
 class PropertyRemoteDataSourceImpl(
-    private val appWriteProvider: AppWriteProvider,
     private val userSession: UserSession
 ) : PropertyRemoteDataSource {
 
-    private val databases = appWriteProvider.databases
+    private val databases = AppWriteProvider.databases
 
     override suspend fun getAllProperties(
         filter: PropertyFilter?,
