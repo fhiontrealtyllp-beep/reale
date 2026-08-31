@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MyTestApp"
+rootProject.name = "reale"
 include(":app")
  

@@ -1,0 +1,38 @@
+package com.realeapp.feature.search.domain.model
+
+enum class PropertyType(val label: String, val category: ResidentialCommercial) {
+    APARTMENT("Apartment", ResidentialCommercial.RESIDENTIAL),
+    VILLA("Villa", ResidentialCommercial.RESIDENTIAL),
+    PLOT("Plot", ResidentialCommercial.RESIDENTIAL),
+    LAND("Land", ResidentialCommercial.RESIDENTIAL),
+    FARM_HOUSE("Farm House", ResidentialCommercial.RESIDENTIAL),
+    BUILDER_FLOOR("Builder Floor", ResidentialCommercial.RESIDENTIAL),
+    STUDIO_APARTMENT("Studio Apartment", ResidentialCommercial.RESIDENTIAL),
+    SERVICE_APARTMENT("Service Apartment", ResidentialCommercial.RESIDENTIAL),
+    INDEPENDENT_HOUSE("Independent House", ResidentialCommercial.RESIDENTIAL),
+    PENTHOUSE("Penthouse", ResidentialCommercial.RESIDENTIAL),
+    DUPLEX("Duplex", ResidentialCommercial.RESIDENTIAL),
+    ROW_HOUSE("Row House", ResidentialCommercial.RESIDENTIAL),
+    PAYING_GUEST("Paying Guest (PG)", ResidentialCommercial.RESIDENTIAL),
+    HOSTEL("Hostel", ResidentialCommercial.RESIDENTIAL),
+
+    COMMERCIAL_OFFICE("Office", ResidentialCommercial.COMMERCIAL),
+    SHOP("Shop", ResidentialCommercial.COMMERCIAL),
+    WAREHOUSE("Warehouse", ResidentialCommercial.COMMERCIAL),
+    SHOWROOM("Showroom", ResidentialCommercial.COMMERCIAL),
+    CO_WORKING("Co-working Space", ResidentialCommercial.COMMERCIAL),
+    COMMERCIAL_PLOT("Plot", ResidentialCommercial.COMMERCIAL),
+    COMMERCIAL_LAND("Land", ResidentialCommercial.COMMERCIAL),
+    GODOWN("Godown", ResidentialCommercial.COMMERCIAL),
+    INDUSTRIAL_BUILDING("Industrial Building", ResidentialCommercial.COMMERCIAL),
+    COLD_STORAGE("Cold Storage", ResidentialCommercial.COMMERCIAL),
+    CLOUD_KITCHEN("Cloud Kitchen", ResidentialCommercial.COMMERCIAL),
+    KIOSK("Kiosk", ResidentialCommercial.COMMERCIAL),
+    FOOD_COURT("Food Court", ResidentialCommercial.COMMERCIAL),
+    RESTAURANT("Restaurant", ResidentialCommercial.COMMERCIAL),
+    BANQUET_HALL("Banquet Hall", ResidentialCommercial.COMMERCIAL),
+    CLINIC("Clinic / Health Center", ResidentialCommercial.COMMERCIAL),
+    SCHOOL("School / Educational Institute", ResidentialCommercial.COMMERCIAL),
+    HOTEL("Hotel / Lodge", ResidentialCommercial.COMMERCIAL),
+    PETROL_PUMP("Petrol Pump", ResidentialCommercial.COMMERCIAL)
+}
