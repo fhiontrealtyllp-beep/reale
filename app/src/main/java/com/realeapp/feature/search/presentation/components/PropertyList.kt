@@ -32,6 +32,7 @@ fun PropertyList(
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onLike: (String) -> Unit,
+    onPropertyClick: (Property) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -78,6 +79,7 @@ fun PropertyList(
                     PropertyListItem(
                         property = property,
                         onLike = { onLike(property.documentId ?: property.id) },
+                        onClick = { onPropertyClick(property) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

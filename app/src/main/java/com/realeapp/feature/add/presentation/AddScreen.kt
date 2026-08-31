@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -24,15 +25,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.realeapp.feature.add.di.AddModule
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.PropertyList
 import com.realeapp.ui.components.LoginPrompt
 
@@ -46,6 +52,7 @@ fun AddScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedProperty by remember { mutableStateOf<Property?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
@@ -142,6 +149,25 @@ fun AddScreen(
                     isLoading = uiState.isLoadingMyProperties,
                     errorMessage = uiState.myPropertiesError,
                     onRefresh = viewModel::refresh,
+                    onPropertyClick = { selectedProperty = it },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+
+    selectedProperty?.let { property ->
+        Dialog(
+            onDismissRequest = { selectedProperty = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color(0xFF141C3D)
+            ) {
+                PropertyDetailScreen(
+                    property = property,
+                    onClose = { selectedProperty = null },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -155,6 +181,7 @@ private fun MyPropertiesContent(
     isLoading: Boolean,
     errorMessage: String?,
     onRefresh: () -> Unit,
+    onPropertyClick: (Property) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -178,6 +205,7 @@ private fun MyPropertiesContent(
             onRefresh = onRefresh,
             onLoadMore = {},
             onLike = {},
+            onPropertyClick = onPropertyClick,
             modifier = Modifier.fillMaxSize()
         )
     }

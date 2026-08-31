@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,11 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.realeapp.feature.search.di.SearchModule
 import com.realeapp.feature.search.presentation.components.EmptySearchResults
 import com.realeapp.feature.search.presentation.components.FilterDialog
 import com.realeapp.feature.search.presentation.components.MapViewContent
+import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.components.PropertyList
 import com.realeapp.feature.search.presentation.components.SearchHeader
 
@@ -46,6 +50,7 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showFilterDialog by remember { mutableStateOf(false) }
+    var selectedProperty by remember { mutableStateOf<Property?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
@@ -105,7 +110,7 @@ fun SearchScreen(
 
                     uiState.isMapView -> MapViewContent(
                         properties = uiState.properties,
-                        onPropertyTap = { /* property detail navigation can be wired here */ },
+                        onPropertyTap = { selectedProperty = it },
                         modifier = Modifier.fillMaxSize()
                     )
 
@@ -117,9 +122,29 @@ fun SearchScreen(
                         onRefresh = viewModel::refresh,
                         onLoadMore = viewModel::onLoadMore,
                         onLike = viewModel::onLikeClicked,
+                        onPropertyClick = { selectedProperty = it },
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+            }
+        }
+    }
+
+    selectedProperty?.let { property ->
+        Dialog(
+            onDismissRequest = { selectedProperty = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color(0xFF141C3D)
+            ) {
+                PropertyDetailScreen(
+                    property = property,
+                    onClose = { selectedProperty = null },
+                    onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
