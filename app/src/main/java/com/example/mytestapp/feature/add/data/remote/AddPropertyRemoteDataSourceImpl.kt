@@ -1,12 +1,15 @@
 package com.example.mytestapp.feature.add.data.remote
 
 import com.example.mytestapp.feature.add.domain.model.PropertyForm
+import com.example.mytestapp.feature.search.data.mapper.PropertyMapper
 import com.example.mytestapp.feature.search.data.mapper.jsonName
 import com.example.mytestapp.feature.search.data.remote.AppWriteConstants
 import com.example.mytestapp.feature.search.data.remote.AppWriteProvider
+import com.example.mytestapp.feature.search.domain.model.Property
 import com.example.mytestapp.feature.search.domain.utils.Result
 import com.example.mytestapp.util.Logger
 import io.appwrite.ID
+import io.appwrite.Query
 import io.appwrite.models.InputFile
 import io.appwrite.exceptions.AppwriteException
 import org.json.JSONArray
@@ -106,6 +109,33 @@ class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
             Result.Error(e.message ?: "Image upload failed")
         } catch (e: Exception) {
             Logger.e(TAG, "Unexpected image upload error for $filename: ${e.message}")
+            Result.Error("Unexpected error: ${e.message}")
+        }
+    }
+
+    override suspend fun getMyProperties(userId: String): Result<List<Property>> {
+        return try {
+            val response = databases.listDocuments(
+                databaseId = AppWriteConstants.DATABASE_ID,
+                collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
+                queries = listOf(
+                    Query.equal("userId", listOf(userId)),
+                    Query.orderDesc("\$createdAt")
+                )
+            )
+
+            val properties = response.documents.map { doc ->
+                @Suppress("UNCHECKED_CAST")
+                val data = doc.data as? Map<String, Any?> ?: emptyMap()
+                PropertyMapper.fromMap(data, doc.id)
+            }
+
+            Result.Success(properties)
+        } catch (e: AppwriteException) {
+            Logger.e(TAG, "Failed to get my properties for user: $userId: ${e.message}")
+            Result.Error(e.message ?: "Appwrite error")
+        } catch (e: Exception) {
+            Logger.e(TAG, "Unexpected error getting my properties for user: $userId: ${e.message}")
             Result.Error("Unexpected error: ${e.message}")
         }
     }

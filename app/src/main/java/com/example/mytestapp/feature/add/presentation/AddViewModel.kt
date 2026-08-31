@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytestapp.feature.add.domain.model.PropertyForm
 import com.example.mytestapp.feature.add.domain.usecase.AddPropertyUseCase
+import com.example.mytestapp.feature.add.domain.usecase.GetMyPropertiesUseCase
 import com.example.mytestapp.feature.add.domain.usecase.UploadImageUseCase
 import com.example.mytestapp.feature.search.data.session.UserSession
 import com.example.mytestapp.feature.search.domain.model.Age
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 class AddViewModel(
     private val addPropertyUseCase: AddPropertyUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
+    private val getMyPropertiesUseCase: GetMyPropertiesUseCase,
     private val userSession: UserSession
 ) : ViewModel() {
 
@@ -51,10 +53,56 @@ class AddViewModel(
             successMessage = null,
             errorMessage = null
         )
+        if (!userId.isNullOrEmpty()) {
+            loadMyProperties(userId)
+        }
     }
 
     fun refresh() {
         load()
+    }
+
+    private fun loadMyProperties(userId: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoadingMyProperties = true,
+                myPropertiesError = null
+            )
+            when (val result = getMyPropertiesUseCase(userId)) {
+                is Result.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        myProperties = result.data,
+                        isLoadingMyProperties = false
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        myPropertiesError = result.message,
+                        isLoadingMyProperties = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun onShowAddForm() {
+        _uiState.value = _uiState.value.copy(
+            isShowingAddForm = true,
+            form = PropertyForm(),
+            fieldErrors = emptyList(),
+            errorMessage = null,
+            successMessage = null
+        )
+    }
+
+    fun onHideAddForm() {
+        _uiState.value = _uiState.value.copy(
+            isShowingAddForm = false,
+            form = PropertyForm(),
+            fieldErrors = emptyList(),
+            errorMessage = null,
+            successMessage = null
+        )
     }
 
     fun onRentBuyChanged(rentBuy: RentBuy) {
@@ -234,15 +282,19 @@ class AddViewModel(
         viewModelScope.launch {
             when (val result = addPropertyUseCase(userId, form)) {
                 is Result.Success -> {
-                    _uiState.value = AddUiState(
+                    _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         isLoggedIn = true,
                         isSubmitting = false,
                         isSubmitSuccess = true,
+                        isShowingAddForm = false,
                         successMessage = "Property added successfully",
-                        form = PropertyForm()
+                        form = PropertyForm(),
+                        errorMessage = null,
+                        fieldErrors = emptyList()
                     )
                     _sideEffect.emit("Property added successfully")
+                    userSession.getUserId()?.let { loadMyProperties(it) }
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
