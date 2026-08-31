@@ -19,7 +19,21 @@ class AuthRemoteDataSourceImpl : AuthRemoteDataSource {
             val user = account.get()
             Result.Success(UserMapper.fromAppwrite(user, session))
         } catch (e: AppwriteException) {
-            Result.Error(e.message ?: "Login failed")
+            val message = e.message ?: ""
+            if (message.contains("prohibited", ignoreCase = true) ||
+                message.contains("session is active", ignoreCase = true)
+            ) {
+                try {
+                    val user = account.get()
+                    val sessions = account.listSessions()
+                    val sessionId = sessions.sessions.firstOrNull()?.id.orEmpty()
+                    Result.Success(UserMapper.fromAppwrite(user, sessionId))
+                } catch (fallback: Exception) {
+                    Result.Error(fallback.message ?: "Could not recover existing session")
+                }
+            } else {
+                Result.Error(message.ifEmpty { "Login failed" })
+            }
         } catch (e: Exception) {
             Result.Error("Unexpected error: ${e.message}")
         }

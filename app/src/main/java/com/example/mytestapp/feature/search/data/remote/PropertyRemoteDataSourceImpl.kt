@@ -115,7 +115,7 @@ class PropertyRemoteDataSourceImpl(
             val likedIds = likedResponse.documents
                 .mapNotNull { it.data["propertyId"] as? String }
                 .toSet()
-            properties.map { it.copy(isLiked = likedIds.contains(it.id)) }
+            properties.map { it.copy(isLiked = likedIds.contains(it.documentId ?: it.id)) }
         } catch (e: Exception) {
             properties
         }

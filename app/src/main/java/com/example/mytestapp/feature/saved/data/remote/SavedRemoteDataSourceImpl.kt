@@ -31,11 +31,19 @@ class SavedRemoteDataSourceImpl(
                 return Result.Success(emptyList())
             }
 
-            val propertiesResponse = databases.listDocuments(
+            var propertiesResponse = databases.listDocuments(
                 databaseId = AppWriteConstants.DATABASE_ID,
                 collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
-                queries = listOf(Query.equal("id", likedIds))
+                queries = listOf(Query.equal("\$id", likedIds))
             )
+
+            if (propertiesResponse.documents.isEmpty()) {
+                propertiesResponse = databases.listDocuments(
+                    databaseId = AppWriteConstants.DATABASE_ID,
+                    collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
+                    queries = listOf(Query.equal("id", likedIds))
+                )
+            }
 
             val properties = propertiesResponse.documents.map { doc ->
                 @Suppress("UNCHECKED_CAST")

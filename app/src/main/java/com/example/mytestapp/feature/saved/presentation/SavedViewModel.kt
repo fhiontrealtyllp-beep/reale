@@ -52,6 +52,7 @@ class SavedViewModel(
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        isLoggedIn = true,
                         errorMessage = result.message
                     )
                 }

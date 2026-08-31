@@ -68,7 +68,9 @@ class SearchViewModel(
     }
 
     fun onLikeClicked(propertyId: String) {
-        val index = _uiState.value.properties.indexOfFirst { it.id == propertyId }
+        val index = _uiState.value.properties.indexOfFirst {
+            it.documentId == propertyId || it.id == propertyId
+        }
         if (index == -1) return
 
         val oldProperty = _uiState.value.properties[index]
@@ -76,7 +78,7 @@ class SearchViewModel(
         updatePropertyInList(index, oldProperty.copy(isLiked = newIsLiked))
 
         viewModelScope.launch {
-            val result = updatePropertyLikeUseCase(propertyId, newIsLiked)
+            val result = updatePropertyLikeUseCase(oldProperty.documentId ?: propertyId, newIsLiked)
             when (result) {
                 is Result.Success -> Unit
                 is Result.Error -> {

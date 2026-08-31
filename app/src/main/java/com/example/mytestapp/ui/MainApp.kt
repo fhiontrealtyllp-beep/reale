@@ -58,7 +58,11 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                             onLoginClick = { isLoginOpen = true },
                             loginSuccessVersion = loginSuccessVersion
                         )
-                        AppScreen.Add -> AddScreen(modifier = Modifier.padding(innerPadding))
+                        AppScreen.Add -> AddScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onLoginClick = { isLoginOpen = true },
+                            loginSuccessVersion = loginSuccessVersion
+                        )
                         AppScreen.Profile -> ProfileScreen(
                             modifier = Modifier.padding(innerPadding),
                             onLoginClick = { isLoginOpen = true },

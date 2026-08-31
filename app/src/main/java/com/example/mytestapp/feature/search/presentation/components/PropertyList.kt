@@ -77,7 +77,7 @@ fun PropertyList(
                 ) { index, property ->
                     PropertyListItem(
                         property = property,
-                        onLike = { onLike(property.id) },
+                        onLike = { onLike(property.documentId ?: property.id) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
