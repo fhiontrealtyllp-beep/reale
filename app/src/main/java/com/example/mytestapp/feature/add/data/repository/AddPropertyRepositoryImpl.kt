@@ -12,4 +12,8 @@ class AddPropertyRepositoryImpl(
     override suspend fun addProperty(userId: String, form: PropertyForm): Result<String> {
         return remoteDataSource.addProperty(userId, form)
     }
+
+    override suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String> {
+        return remoteDataSource.uploadImage(bytes, filename)
+    }
 }

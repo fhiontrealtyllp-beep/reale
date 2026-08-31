@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytestapp.feature.add.domain.model.PropertyForm
 import com.example.mytestapp.feature.add.domain.usecase.AddPropertyUseCase
+import com.example.mytestapp.feature.add.domain.usecase.UploadImageUseCase
 import com.example.mytestapp.feature.search.data.session.UserSession
 import com.example.mytestapp.feature.search.domain.model.Age
 import com.example.mytestapp.feature.search.domain.model.Amenity
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 
 class AddViewModel(
     private val addPropertyUseCase: AddPropertyUseCase,
+    private val uploadImageUseCase: UploadImageUseCase,
     private val userSession: UserSession
 ) : ViewModel() {
 
@@ -140,11 +142,55 @@ class AddViewModel(
         updateForm { copy(images = images) }
     }
 
+    fun uploadImage(bytes: ByteArray, filename: String) {
+        uploadImages(listOf(bytes to filename))
+    }
+
+    fun uploadImages(imagesToUpload: List<Pair<ByteArray, String>>) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isUploadingImage = true,
+                imageUploadError = null
+            )
+
+            for ((bytes, filename) in imagesToUpload) {
+                when (val result = uploadImageUseCase(bytes, filename)) {
+                    is Result.Success -> addImageUrl(result.data)
+                    is Result.Error -> {
+                        _uiState.value = _uiState.value.copy(imageUploadError = result.message)
+                        break
+                    }
+                }
+            }
+
+            _uiState.value = _uiState.value.copy(isUploadingImage = false)
+        }
+    }
+
+    fun addImageUrl(url: String) {
+        val trimmed = url.trim()
+        if (trimmed.isNotBlank()) {
+            updateForm {
+                val current = images.toMutableSet()
+                if (current.add(trimmed)) {
+                    copy(images = current.toList())
+                } else this
+            }
+        }
+    }
+
+    fun removeImageUrl(url: String) {
+        updateForm {
+            copy(images = images.filterNot { it == url })
+        }
+    }
+
     fun onLocationPicked(
         latitude: String,
         longitude: String,
         city: String? = null,
         locality: String? = null,
+        pincode: String? = null,
         address: String? = null
     ) {
         updateForm {
@@ -153,6 +199,7 @@ class AddViewModel(
                 longitude = longitude,
                 city = if (!city.isNullOrBlank()) city.trim() else this.city,
                 locality = if (!locality.isNullOrBlank()) locality.trim() else this.locality,
+                pincode = if (!pincode.isNullOrBlank()) pincode.trim() else this.pincode,
                 address = if (!address.isNullOrBlank()) address.trim() else this.address
             )
         }

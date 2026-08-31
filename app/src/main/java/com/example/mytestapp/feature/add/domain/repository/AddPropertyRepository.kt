@@ -5,4 +5,5 @@ import com.example.mytestapp.feature.search.domain.utils.Result
 
 interface AddPropertyRepository {
     suspend fun addProperty(userId: String, form: PropertyForm): Result<String>
+    suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String>
 }

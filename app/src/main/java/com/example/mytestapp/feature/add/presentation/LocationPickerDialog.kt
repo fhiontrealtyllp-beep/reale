@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,8 +55,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,7 +67,7 @@ fun LocationPickerDialog(
     initialLat: String = "",
     initialLng: String = "",
     onDismiss: () -> Unit,
-    onConfirm: (latitude: String, longitude: String, city: String?, locality: String?, address: String?) -> Unit
+    onConfirm: (latitude: String, longitude: String, city: String?, locality: String?, pincode: String?, address: String?) -> Unit
 ) {
     val context = LocalContext.current
     val apiKey = remember { readMapApiKey(context) }
@@ -86,8 +87,9 @@ fun LocationPickerDialog(
         position = CameraPosition.fromLatLngZoom(selectedLatLng, 15f)
     }
 
-    LaunchedEffect(selectedLatLng) {
-        cameraPositionState.move(CameraUpdateFactory.newLatLng(selectedLatLng))
+    LaunchedEffect(cameraPositionState) {
+        snapshotFlow { cameraPositionState.position.target }
+            .collect { selectedLatLng = it }
     }
 
     Dialog(
@@ -153,6 +155,7 @@ fun LocationPickerDialog(
                                     selectedLatLng.longitude.toString(),
                                     geocoded?.city,
                                     geocoded?.locality,
+                                    geocoded?.pincode,
                                     geocoded?.address
                                 )
                                 isGeocoding = false
@@ -199,19 +202,21 @@ fun LocationPickerDialog(
                             myLocationButtonEnabled = false
                         ),
                         onMapClick = { latLng ->
-                            selectedLatLng = latLng
+                            coroutineScope.launch {
+                                cameraPositionState.animate(CameraUpdateFactory.newLatLng(latLng))
+                            }
                         }
-                    ) {
-                        val markerState = remember { MarkerState(position = selectedLatLng) }
-                        LaunchedEffect(selectedLatLng) {
-                            markerState.position = selectedLatLng
-                        }
-                        Marker(
-                            state = markerState,
-                            title = "Selected location",
-                            snippet = "Tap map to move"
-                        )
-                    }
+                    ) {}
+
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Selected location",
+                        tint = Color(0xFFE91E63),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(48.dp)
+                            .offset(y = (-24).dp)
+                    )
                 } else {
                     PlaceholderLocationPicker(
                         initialLat = initialLat,
@@ -225,6 +230,7 @@ fun LocationPickerDialog(
                                     lng.toString(),
                                     geocoded?.city,
                                     geocoded?.locality,
+                                    geocoded?.pincode,
                                     geocoded?.address
                                 )
                                 onDismiss()
@@ -357,6 +363,7 @@ private fun android.location.Address.toGeocodedAddress(): GeocodedAddress {
     return GeocodedAddress(
         city = locality ?: subAdminArea ?: adminArea,
         locality = subLocality ?: subAdminArea ?: locality,
+        pincode = postalCode,
         address = getAddressLine(0) ?: ""
     )
 }
@@ -364,5 +371,6 @@ private fun android.location.Address.toGeocodedAddress(): GeocodedAddress {
 private data class GeocodedAddress(
     val city: String?,
     val locality: String?,
+    val pincode: String?,
     val address: String?
 )

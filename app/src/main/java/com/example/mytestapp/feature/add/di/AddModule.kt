@@ -8,6 +8,8 @@ import com.example.mytestapp.feature.add.data.repository.AddPropertyRepositoryIm
 import com.example.mytestapp.feature.add.domain.repository.AddPropertyRepository
 import com.example.mytestapp.feature.add.domain.usecase.AddPropertyUseCase
 import com.example.mytestapp.feature.add.domain.usecase.AddPropertyUseCaseImpl
+import com.example.mytestapp.feature.add.domain.usecase.UploadImageUseCase
+import com.example.mytestapp.feature.add.domain.usecase.UploadImageUseCaseImpl
 import com.example.mytestapp.feature.add.presentation.AddViewModelFactory
 import com.example.mytestapp.feature.search.data.remote.AppWriteProvider
 import com.example.mytestapp.feature.search.data.session.UserSession
@@ -35,7 +37,11 @@ object AddModule {
         AddPropertyUseCaseImpl(addPropertyRepository)
     }
 
+    private val uploadImageUseCase: UploadImageUseCase by lazy {
+        UploadImageUseCaseImpl(addPropertyRepository)
+    }
+
     val viewModelFactory: ViewModelProvider.Factory by lazy {
-        AddViewModelFactory(addPropertyUseCase, userSession)
+        AddViewModelFactory(addPropertyUseCase, uploadImageUseCase, userSession)
     }
 }

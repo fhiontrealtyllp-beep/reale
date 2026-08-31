@@ -10,5 +10,7 @@ data class AddUiState(
     val isSubmitting: Boolean = false,
     val isSubmitSuccess: Boolean = false,
     val successMessage: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isUploadingImage: Boolean = false,
+    val imageUploadError: String? = null
 )
