@@ -507,7 +507,8 @@ private suspend fun getCurrentLocation(context: Context): Location? = withContex
                         cont.resume(
                             if (task.isSuccessful) task.result else null,
                             onCancellation = { _, _, _ -> }
-                        )    }
+                        )
+                    }
                 }
                 cont.invokeOnCancellation { token.cancel() }
             }

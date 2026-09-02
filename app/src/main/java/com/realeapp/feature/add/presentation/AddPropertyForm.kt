@@ -158,6 +158,7 @@ fun AddPropertyForm(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Section: Listing Type
         item { SectionHeader("Listing Type") }
 
         item {
@@ -194,6 +195,7 @@ fun AddPropertyForm(
             )
         }
 
+        // Section: Basic Details
         item { SectionHeader("Basic Details") }
 
         item {
@@ -231,6 +233,43 @@ fun AddPropertyForm(
                     imeAction = ImeAction.Next
                 )
             )
+        }
+
+        item {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Section: Location
+                SectionHeader("Location")
+
+                Button(
+                    onClick = { showLocationPicker = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1C2755),
+                        contentColor = Color(0xFFFBFBFB)
+                    )
+                ) {
+                    Text(
+                        text = if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
+                            "Change Location"
+                        } else {
+                            "Pick on Map"
+                        },
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
+                    Text(
+                        text = "Lat: ${form.latitude}, Lng: ${form.longitude}",
+                        color = Color(0xFFFBFBFB),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         }
 
         item {
@@ -281,42 +320,7 @@ fun AddPropertyForm(
             )
         }
 
-        item {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SectionHeader("Location")
-
-                Button(
-                    onClick = { showLocationPicker = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1C2755),
-                        contentColor = Color(0xFFFBFBFB)
-                    )
-                ) {
-                    Text(
-                        text = if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
-                            "Change Location"
-                        } else {
-                            "Pick on Map"
-                        },
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
-                    Text(
-                        text = "Lat: ${form.latitude}, Lng: ${form.longitude}",
-                        color = Color(0xFFFBFBFB),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
-
+        // Section: Property Details
         item { SectionHeader("Property Details") }
 
         item {
@@ -642,6 +646,7 @@ private fun ImageUrlsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Section: Property Images
         SectionHeader("Property Images")
 
         Row(
