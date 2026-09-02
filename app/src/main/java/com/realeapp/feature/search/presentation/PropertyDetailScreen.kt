@@ -2,6 +2,7 @@ package com.realeapp.feature.search.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,16 +32,28 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -59,6 +72,7 @@ private val RealeYellow = Color(0xFFFDD60D)
 private val RealeWhite = Color(0xFFFBFBFB)
 private val RealeBlue = Color(0xFF8F9FDC)
 private val RealeGrey = Color(0xFF71737E)
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -206,6 +220,12 @@ fun PropertyDetailScreen(
             if (property.carpetArea != null || property.builtUpArea != null || property.superBuiltUpArea != null) {
                 item {
                     AreasSection(property = property)
+                }
+            }
+
+            if ((property.latitude != null && property.longitude != null) || !property.address.isNullOrBlank() || property.city.isNotBlank()) {
+                item {
+                    MapSection(property = property)
                 }
             }
 
@@ -417,6 +437,92 @@ private fun buildLocationString(property: Property): String {
             if (isNotBlank()) append("\n")
             append(property.address)
         }
+    }
+}
+
+@Composable
+private fun MapSection(property: Property) {
+    val context = LocalContext.current
+    val apiKey = remember { readMapApiKey(context) }
+    val lat = property.latitude
+    val lng = property.longitude
+
+    if (lat != null && lng != null && !apiKey.isNullOrBlank() && apiKey != "YOUR_API_KEY") {
+        val propertyLatLng = LatLng(lat, lng)
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(propertyLatLng, 15f)
+        }
+        var isMapLoaded by remember { mutableStateOf(false) }
+
+        DetailSection(title = "Location") {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            ) {
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    properties = MapProperties(),
+                    uiSettings = MapUiSettings(
+                        zoomControlsEnabled = false,
+                        myLocationButtonEnabled = false
+                    ),
+                    onMapLoaded = { isMapLoaded = true }
+                ) {
+                    Marker(
+                        state = MarkerState(position = propertyLatLng),
+                        title = property.title,
+                        snippet = buildLocationString(property)
+                    )
+                }
+
+                if (!isMapLoaded) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = RealeYellow
+                    )
+                }
+            }
+        }
+    } else if (!property.address.isNullOrBlank() || property.city.isNotBlank()) {
+        DetailSection(title = "Location") {
+            LocationPlaceholder(property = property)
+        }
+    }
+}
+
+@Composable
+private fun LocationPlaceholder(property: Property) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = null,
+            tint = RealeYellow,
+            modifier = Modifier.size(28.dp)
+        )
+        Text(
+            text = buildLocationString(property),
+            color = RealeWhite.copy(alpha = 0.85f),
+            fontSize = 14.sp,
+            lineHeight = 20.sp
+        )
+    }
+}
+
+private fun readMapApiKey(context: Context): String? {
+    return try {
+        val appInfo = context.packageManager.getApplicationInfo(
+            context.packageName,
+            PackageManager.GET_META_DATA
+        )
+        appInfo.metaData?.getString("com.google.android.geo.API_KEY")
+    } catch (e: Exception) {
+        null
     }
 }
 
