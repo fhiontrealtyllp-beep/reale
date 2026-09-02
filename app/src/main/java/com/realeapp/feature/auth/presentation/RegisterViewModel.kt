@@ -7,8 +7,11 @@ import com.realeapp.feature.auth.domain.usecase.RegisterUseCase
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -21,6 +24,9 @@ class RegisterViewModel(
 
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+
+    private val _sideEffect = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val sideEffect: SharedFlow<Unit> = _sideEffect.asSharedFlow()
 
     fun onNameChanged(name: String) {
         _uiState.value = _uiState.value.copy(name = name, errorMessage = null)
@@ -78,14 +84,15 @@ class RegisterViewModel(
         }
 
         Logger.d(TAG, "register() called for name: $name, email: $email")
-        _uiState.value = current.copy(isLoading = true, errorMessage = null, isRegisterSuccess = false)
+        _uiState.value = current.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             when (val result = registerUseCase(name, email, password)) {
                 is Result.Success -> {
                     Logger.d(TAG, "register() success: userId=${result.data.id}")
                     userSession.setUser(result.data)
-                    _uiState.value = RegisterUiState(isRegisterSuccess = true)
+                    _uiState.value = current.copy(isLoading = false, errorMessage = null)
+                    _sideEffect.emit(Unit)
                 }
                 is Result.Error -> {
                     Logger.e(TAG, "register() error: ${result.message}")

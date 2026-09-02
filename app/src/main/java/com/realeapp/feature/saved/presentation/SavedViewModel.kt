@@ -3,6 +3,7 @@ package com.realeapp.feature.saved.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.realeapp.feature.saved.domain.usecase.GetLikedPropertiesUseCase
+import com.realeapp.feature.search.data.session.SessionObserver
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,20 +27,14 @@ class SavedViewModel(
 
     init {
         load()
-        viewModelScope.launch {
-            var wasLoggedIn = userSession.user.value != null
-            userSession.user.collect { user ->
-                val isLoggedIn = user != null
-                if (isLoggedIn != wasLoggedIn) {
-                    wasLoggedIn = isLoggedIn
-                    if (isLoggedIn) {
-                        load()
-                    } else {
-                        _uiState.value = SavedUiState(isLoading = false, isLoggedIn = false)
-                    }
-                }
+        SessionObserver(
+            userSession = userSession,
+            scope = viewModelScope,
+            onLogin = { load() },
+            onLogout = {
+                _uiState.value = SavedUiState(isLoading = false, isLoggedIn = false)
             }
-        }
+        )
     }
 
     fun load() {

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,32 +26,38 @@ import com.realeapp.util.Logger
 
 private const val TAG = "MainApp"
 
+private enum class AuthScreen {
+    Main,
+    Login,
+    Register
+}
+
 @Composable
 fun MainApp(mainViewModel: MainViewModel = viewModel()) {
-    val selectedTab by mainViewModel.selectedTab.collectAsState()
-    var authScreen by rememberSaveable { mutableStateOf("main") }
+    val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
+    var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
 
     RealeTheme {
         Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
             when (screen) {
-                "login" -> LoginScreen(
+                AuthScreen.Login -> LoginScreen(
                     onLoginSuccess = {
                         Logger.d(TAG, "onLoginSuccess: navigating to main")
-                        authScreen = "main"
+                        authScreen = AuthScreen.Main
                     },
-                    onBack = { authScreen = "main" },
-                    onRegisterClick = { authScreen = "register" }
+                    onBack = { authScreen = AuthScreen.Main },
+                    onRegisterClick = { authScreen = AuthScreen.Register }
                 )
 
-                "register" -> RegisterScreen(
+                AuthScreen.Register -> RegisterScreen(
                     onRegisterSuccess = {
-                        authScreen = "main"
+                        authScreen = AuthScreen.Main
                     },
-                    onBack = { authScreen = "login" },
-                    onLoginClick = { authScreen = "login" }
+                    onBack = { authScreen = AuthScreen.Login },
+                    onLoginClick = { authScreen = AuthScreen.Login }
                 )
 
-                else -> Scaffold(
+                AuthScreen.Main -> Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         BottomNavBar(
@@ -65,15 +71,15 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                         AppScreen.Search -> SearchScreen(modifier = Modifier.padding(innerPadding))
                         AppScreen.Saved -> SavedScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" }
+                            onLoginClick = { authScreen = AuthScreen.Login }
                         )
                         AppScreen.Add -> AddScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" }
+                            onLoginClick = { authScreen = AuthScreen.Login }
                         )
                         AppScreen.Profile -> ProfileScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" }
+                            onLoginClick = { authScreen = AuthScreen.Login }
                         )
                     }
                 }

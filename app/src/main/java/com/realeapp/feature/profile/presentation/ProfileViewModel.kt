@@ -7,6 +7,7 @@ import com.realeapp.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.realeapp.feature.profile.domain.usecase.LogoutUseCase
 import com.realeapp.feature.profile.domain.usecase.UpdateProfileUseCase
 import com.realeapp.feature.profile.domain.usecase.UploadImageUseCase
+import com.realeapp.feature.search.data.session.SessionObserver
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,20 +34,14 @@ class ProfileViewModel(
 
     init {
         load()
-        viewModelScope.launch {
-            var wasLoggedIn = userSession.user.value != null
-            userSession.user.collect { user ->
-                val isLoggedIn = user != null
-                if (isLoggedIn != wasLoggedIn) {
-                    wasLoggedIn = isLoggedIn
-                    if (isLoggedIn) {
-                        load()
-                    } else {
-                        _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
-                    }
-                }
+        SessionObserver(
+            userSession = userSession,
+            scope = viewModelScope,
+            onLogin = { load() },
+            onLogout = {
+                _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
             }
-        }
+        )
     }
 
     fun load() {

@@ -3,6 +3,8 @@ package com.realeapp.feature.search.data.session
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ object UserSessionImpl : UserSession {
     private const val KEY_SESSION_ID = "session_id"
     private const val KEY_IMAGE = "image"
 
+    private var appContext: Context? = null
     private var preferences: SharedPreferences? = null
     private var currentUser: User? = null
 
@@ -33,10 +36,52 @@ object UserSessionImpl : UserSession {
     override val user: StateFlow<User?> = _user.asStateFlow()
 
     fun init(context: Context) {
-        this.preferences = context.applicationContext
-            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        appContext = context.applicationContext
+        preferences = createPrefs()
         restore()
         _user.value = currentUser
+    }
+
+    private fun createPrefs(): SharedPreferences? {
+        val context = appContext ?: return null
+        return try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            EncryptedSharedPreferences.create(
+                context,
+                PREFS_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to open encrypted prefs, resetting", e)
+            deletePrefsFile(context)
+            try {
+                val masterKey = MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
+                EncryptedSharedPreferences.create(
+                    context,
+                    PREFS_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+            } catch (retry: Exception) {
+                Logger.e(TAG, "Failed to recreate encrypted prefs", retry)
+                null
+            }
+        }
+    }
+
+    private fun deletePrefsFile(context: Context) {
+        try {
+            context.deleteSharedPreferences(PREFS_NAME)
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to delete corrupted prefs file", e)
+        }
     }
 
     override fun getUserId(): String? = getUser()?.id
@@ -105,8 +150,14 @@ object UserSessionImpl : UserSession {
 
     private fun clearPrefs() {
         val prefs = preferences ?: return
-        prefs.edit {
-            clear()
+        try {
+            prefs.edit {
+                clear()
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to clear encrypted prefs, resetting", e)
+            appContext?.let { deletePrefsFile(it) }
+            preferences = createPrefs()
         }
-    } 
+    }
 }
