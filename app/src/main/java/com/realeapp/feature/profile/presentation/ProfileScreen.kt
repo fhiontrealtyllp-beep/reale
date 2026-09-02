@@ -76,6 +76,7 @@ import coil.compose.AsyncImage
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.feature.profile.di.ProfileModule
 import com.realeapp.feature.profile.presentation.ProfileViewModel
+import com.realeapp.util.Logger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -473,6 +474,9 @@ private fun ProfileListItem(
     }
 }
 
+
+private const val PROFILE_LOGIN_PROMPT_TAG = "ProfileLoginPrompt"
+
 @Composable
 private fun ProfileLoginPrompt(
     onLoginClick: () -> Unit,
@@ -498,7 +502,10 @@ private fun ProfileLoginPrompt(
         )
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(
-            onClick = onLoginClick,
+            onClick = {
+                Logger.d(PROFILE_LOGIN_PROMPT_TAG, "Login button clicked from profile screen")
+                onLoginClick()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),

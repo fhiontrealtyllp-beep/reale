@@ -24,6 +24,9 @@ import com.realeapp.ui.components.BottomNavBar
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.viewmodel.MainViewModel
+import com.realeapp.util.Logger
+
+private const val TAG = "MainApp"
 
 @Composable
 fun MainApp(mainViewModel: MainViewModel = viewModel()) {
@@ -36,6 +39,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
             when (screen) {
                 "login" -> LoginScreen(
                     onLoginSuccess = {
+                        Logger.d(TAG, "onLoginSuccess: navigating to main")
                         authScreen = "main"
                         loginSuccessVersion++
                     },

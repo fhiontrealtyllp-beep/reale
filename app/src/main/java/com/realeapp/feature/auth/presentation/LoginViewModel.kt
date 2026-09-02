@@ -38,6 +38,8 @@ class LoginViewModel(
         val email = current.email.trim()
         val password = current.password.trim()
 
+        Logger.d(TAG, "login() invoked from UI: email=$email")
+
         if (email.isEmpty()) {
             Logger.w(TAG, "login() validation failed: email is empty")
             _uiState.value = current.copy(errorMessage = "Email is required")

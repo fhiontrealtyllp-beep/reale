@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import com.realeapp.util.Logger
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+private const val TAG = "LoginPrompt"
 
 @Composable
 fun LoginPrompt(
@@ -51,7 +54,10 @@ fun LoginPrompt(
         )
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(
-            onClick = onLoginClick,
+            onClick = {
+                Logger.d(TAG, "Login button clicked: \"$title\"")
+                onLoginClick()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),

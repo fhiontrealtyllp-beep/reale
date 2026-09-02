@@ -52,6 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.realeapp.feature.auth.di.LoginModule
+import com.realeapp.util.Logger
+
+private const val TAG = "LoginScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -190,7 +193,10 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 TextButton(
-                    onClick = viewModel::login,
+                    onClick = {
+                        Logger.d(TAG, "Login button clicked: email=${uiState.email}")
+                        viewModel.login()
+                    },
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
