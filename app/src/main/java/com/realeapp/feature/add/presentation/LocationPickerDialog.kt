@@ -70,6 +70,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -98,6 +99,7 @@ fun LocationPickerDialog(
     var selectedLatLng by remember { mutableStateOf(initialLatLng) }
     var isGeocoding by remember { mutableStateOf(false) }
     var isLocating by remember { mutableStateOf(false) }
+    var selectedGeocodedAddress by remember { mutableStateOf<GeocodedAddress?>(null) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(selectedLatLng, 15f)
@@ -106,6 +108,15 @@ fun LocationPickerDialog(
     LaunchedEffect(cameraPositionState) {
         snapshotFlow { cameraPositionState.position.target }
             .collect { selectedLatLng = it }
+    }
+
+    LaunchedEffect(selectedLatLng) {
+        val latLng = selectedLatLng
+        delay(300)
+        val geocoded = reverseGeocode(context, latLng.latitude, latLng.longitude)
+        if (latLng == selectedLatLng) {
+            selectedGeocodedAddress = geocoded
+        }
     }
 
     val requestCurrentLocation: () -> Unit = {
@@ -170,12 +181,11 @@ fun LocationPickerDialog(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
+                    val selectedAddress = selectedGeocodedAddress?.address
+                        ?.takeIf { it.isNotBlank() }
+                        ?: "Selected location"
                     Text(
-                        text = "Selected: %.4f, %.4f".format(
-                            Locale.US,
-                            selectedLatLng.latitude,
-                            selectedLatLng.longitude
-                        ),
+                        text = selectedAddress,
                         color = Color(0xFFFBFBFB),
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -443,12 +453,27 @@ private suspend fun reverseGeocode(
     }
 }
 
+private fun android.location.Address.toFormattedAddress(): String? {
+    getAddressLine(0)?.takeIf { it.isNotBlank() }?.let { return it }
+    return listOfNotNull(
+        subLocality,
+        locality,
+        subAdminArea,
+        adminArea,
+        postalCode,
+        countryName
+    )
+        .filter { it.isNotBlank() }
+        .joinToString(", ")
+        .takeIf { it.isNotBlank() }
+}
+
 private fun android.location.Address.toGeocodedAddress(): GeocodedAddress {
     return GeocodedAddress(
         city = locality ?: subAdminArea ?: adminArea,
         locality = subLocality ?: subAdminArea ?: locality,
         pincode = postalCode,
-        address = getAddressLine(0) ?: ""
+        address = toFormattedAddress() ?: ""
     )
 }
 
