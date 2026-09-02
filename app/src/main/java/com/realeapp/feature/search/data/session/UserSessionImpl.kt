@@ -1,6 +1,8 @@
 package com.realeapp.feature.search.data.session
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.util.Logger
 
@@ -21,11 +23,12 @@ object UserSessionImpl : UserSession {
     private const val KEY_SESSION_ID = "session_id"
     private const val KEY_IMAGE = "image"
 
-    private var context: Context? = null
+    private var preferences: SharedPreferences? = null
     private var currentUser: User? = null
 
     fun init(context: Context) {
-        this.context = context.applicationContext
+        this.preferences = context.applicationContext
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         restore()
     }
 
@@ -55,8 +58,8 @@ object UserSessionImpl : UserSession {
     }
 
     private fun save(user: User) {
-        val ctx = context ?: return
-        ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().apply {
+        val prefs = preferences ?: return
+        prefs.edit {
             putString(KEY_ID, user.id)
             putString(KEY_NAME, user.name)
             putString(KEY_EMAIL, user.email)
@@ -68,13 +71,11 @@ object UserSessionImpl : UserSession {
             putString(KEY_PASSWORD, user.password)
             putString(KEY_SESSION_ID, user.sessionId)
             putString(KEY_IMAGE, user.image)
-            apply()
         }
     }
 
     private fun restore() {
-        val ctx = context ?: return
-        val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = preferences ?: return
         val id = prefs.getString(KEY_ID, null) ?: return
 
         currentUser = User(
@@ -93,7 +94,9 @@ object UserSessionImpl : UserSession {
     }
 
     private fun clearPrefs() {
-        val ctx = context ?: return
-        ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit().clear().apply()
-    }
+        val prefs = preferences ?: return
+        prefs.edit {
+            clear()
+        }
+    } 
 }
