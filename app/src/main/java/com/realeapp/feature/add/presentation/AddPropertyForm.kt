@@ -78,6 +78,7 @@ import com.realeapp.feature.search.domain.model.Furnishing
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
+import com.realeapp.util.isDebug
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -89,6 +90,7 @@ fun AddPropertyForm(
 ) {
     val form = uiState.form
     val context = LocalContext.current
+    val isDebug = context.isDebug
     var showLocationPicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
 
@@ -262,7 +264,7 @@ fun AddPropertyForm(
                     )
                 }
 
-                if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
+                if (isDebug && form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
                     Text(
                         text = "Lat: ${form.latitude}, Lng: ${form.longitude}",
                         color = Color(0xFFFBFBFB),
