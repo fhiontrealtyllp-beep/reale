@@ -33,6 +33,20 @@ class ProfileViewModel(
 
     init {
         load()
+        viewModelScope.launch {
+            var wasLoggedIn = userSession.user.value != null
+            userSession.user.collect { user ->
+                val isLoggedIn = user != null
+                if (isLoggedIn != wasLoggedIn) {
+                    wasLoggedIn = isLoggedIn
+                    if (isLoggedIn) {
+                        load()
+                    } else {
+                        _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
+                    }
+                }
+            }
+        }
     }
 
     fun load() {
@@ -132,7 +146,7 @@ class ProfileViewModel(
     }
 
     fun logout() {
-        val currentUser = _uiState.value.user ?: return
+        val currentUser = userSession.getUser() ?: return
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {

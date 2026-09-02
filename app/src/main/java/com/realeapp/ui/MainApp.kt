@@ -7,9 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -32,7 +30,6 @@ private const val TAG = "MainApp"
 fun MainApp(mainViewModel: MainViewModel = viewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsState()
     var authScreen by rememberSaveable { mutableStateOf("main") }
-    var loginSuccessVersion by remember { mutableIntStateOf(0) }
 
     RealeTheme {
         Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
@@ -41,7 +38,6 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                     onLoginSuccess = {
                         Logger.d(TAG, "onLoginSuccess: navigating to main")
                         authScreen = "main"
-                        loginSuccessVersion++
                     },
                     onBack = { authScreen = "main" },
                     onRegisterClick = { authScreen = "register" }
@@ -50,7 +46,6 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                 "register" -> RegisterScreen(
                     onRegisterSuccess = {
                         authScreen = "main"
-                        loginSuccessVersion++
                     },
                     onBack = { authScreen = "login" },
                     onLoginClick = { authScreen = "login" }
@@ -70,18 +65,15 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                         AppScreen.Search -> SearchScreen(modifier = Modifier.padding(innerPadding))
                         AppScreen.Saved -> SavedScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" },
-                            loginSuccessVersion = loginSuccessVersion
+                            onLoginClick = { authScreen = "login" }
                         )
                         AppScreen.Add -> AddScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" },
-                            loginSuccessVersion = loginSuccessVersion
+                            onLoginClick = { authScreen = "login" }
                         )
                         AppScreen.Profile -> ProfileScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = "login" },
-                            loginSuccessVersion = loginSuccessVersion
+                            onLoginClick = { authScreen = "login" }
                         )
                     }
                 }

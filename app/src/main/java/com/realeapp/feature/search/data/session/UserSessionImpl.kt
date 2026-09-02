@@ -5,6 +5,9 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.util.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 private const val TAG = "UserSession"
 
@@ -26,10 +29,14 @@ object UserSessionImpl : UserSession {
     private var preferences: SharedPreferences? = null
     private var currentUser: User? = null
 
+    private val _user = MutableStateFlow<User?>(null)
+    override val user: StateFlow<User?> = _user.asStateFlow()
+
     fun init(context: Context) {
         this.preferences = context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         restore()
+        _user.value = currentUser
     }
 
     override fun getUserId(): String? = getUser()?.id
@@ -44,6 +51,7 @@ object UserSessionImpl : UserSession {
     override fun setUser(user: User?) {
         Logger.d(TAG, "setUser: userId=${user?.id}")
         currentUser = user
+        _user.value = user
         if (user != null) {
             save(user)
         } else {
@@ -54,6 +62,7 @@ object UserSessionImpl : UserSession {
     override fun clear() {
         Logger.d(TAG, "clear")
         currentUser = null
+        _user.value = null
         clearPrefs()
     }
 
@@ -91,6 +100,7 @@ object UserSessionImpl : UserSession {
             sessionId = prefs.getString(KEY_SESSION_ID, "").orEmpty(),
             image = prefs.getString(KEY_IMAGE, null)
         )
+        _user.value = currentUser
     }
 
     private fun clearPrefs() {

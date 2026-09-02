@@ -26,6 +26,20 @@ class SavedViewModel(
 
     init {
         load()
+        viewModelScope.launch {
+            var wasLoggedIn = userSession.user.value != null
+            userSession.user.collect { user ->
+                val isLoggedIn = user != null
+                if (isLoggedIn != wasLoggedIn) {
+                    wasLoggedIn = isLoggedIn
+                    if (isLoggedIn) {
+                        load()
+                    } else {
+                        _uiState.value = SavedUiState(isLoading = false, isLoggedIn = false)
+                    }
+                }
+            }
+        }
     }
 
     fun load() {

@@ -57,7 +57,6 @@ import com.realeapp.feature.search.presentation.components.PropertyListItem
 @Composable
 fun SavedScreen(
     onLoginClick: () -> Unit,
-    loginSuccessVersion: Int = 0,
     modifier: Modifier = Modifier,
     viewModel: SavedViewModel = viewModel(factory = SavedModule.viewModelFactory)
 ) {
@@ -68,12 +67,6 @@ fun SavedScreen(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
-        }
-    }
-
-    LaunchedEffect(loginSuccessVersion) {
-        if (loginSuccessVersion > 0) {
-            viewModel.refresh()
         }
     }
 

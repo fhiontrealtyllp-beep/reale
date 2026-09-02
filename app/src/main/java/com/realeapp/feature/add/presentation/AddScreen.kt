@@ -46,7 +46,6 @@ import com.realeapp.ui.components.LoginPrompt
 @Composable
 fun AddScreen(
     onLoginClick: () -> Unit,
-    loginSuccessVersion: Int = 0,
     modifier: Modifier = Modifier,
     viewModel: AddViewModel = viewModel(factory = AddModule.viewModelFactory)
 ) {
@@ -57,12 +56,6 @@ fun AddScreen(
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
-        }
-    }
-
-    LaunchedEffect(loginSuccessVersion) {
-        if (loginSuccessVersion > 0) {
-            viewModel.refresh()
         }
     }
 
