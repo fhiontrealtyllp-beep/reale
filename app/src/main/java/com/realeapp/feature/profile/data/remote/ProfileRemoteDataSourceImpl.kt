@@ -6,9 +6,15 @@ import com.realeapp.feature.search.data.remote.AppWriteConstants
 import com.realeapp.feature.search.data.remote.AppWriteProvider
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
+import com.realeapp.util.Logger
 import io.appwrite.ID
 import io.appwrite.models.InputFile
 import io.appwrite.exceptions.AppwriteException
+
+private const val TAG = "ProfileRemoteDataSource"
+private const val ARROW = "\u279C"
+private const val TICK = "\u2705"
+private const val CROSS = "\u274C"
 
 class ProfileRemoteDataSourceImpl(
     private val userSession: UserSession
@@ -64,14 +70,18 @@ class ProfileRemoteDataSourceImpl(
     }
 
     override suspend fun logout(sessionId: String): Result<Unit> {
+        Logger.d(TAG, "$ARROW logout() called for sessionId: $sessionId")
         return try {
             account.deleteSession(sessionId = sessionId)
             userSession.clear()
+            Logger.d(TAG, "$TICK logout() succeeded")
             Result.Success(Unit)
         } catch (e: AppwriteException) {
+            Logger.e(TAG, "$CROSS logout() failed: ${e.message}")
             userSession.clear()
             Result.Error(e.message ?: "Logout failed")
         } catch (e: Exception) {
+            Logger.e(TAG, "$CROSS logout() unexpected error: ${e.message}")
             userSession.clear()
             Result.Error("Unexpected error: ${e.message}")
         }

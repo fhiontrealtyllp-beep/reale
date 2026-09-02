@@ -11,4 +11,8 @@ class AuthRepositoryImpl(
     override suspend fun login(email: String, password: String): Result<User> {
         return remoteDataSource.login(email, password)
     }
+
+    override suspend fun register(name: String, email: String, password: String): Result<User> {
+        return remoteDataSource.register(name, email, password)
+    }
 }

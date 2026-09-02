@@ -2,6 +2,9 @@ package com.realeapp.feature.search.data.session
 
 import android.content.Context
 import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.util.Logger
+
+private const val TAG = "UserSession"
 
 object UserSessionImpl : UserSession {
 
@@ -36,6 +39,7 @@ object UserSessionImpl : UserSession {
     }
 
     override fun setUser(user: User?) {
+        Logger.d(TAG, "setUser: userId=${user?.id}")
         currentUser = user
         if (user != null) {
             save(user)
@@ -45,6 +49,7 @@ object UserSessionImpl : UserSession {
     }
 
     override fun clear() {
+        Logger.d(TAG, "clear")
         currentUser = null
         clearPrefs()
     }

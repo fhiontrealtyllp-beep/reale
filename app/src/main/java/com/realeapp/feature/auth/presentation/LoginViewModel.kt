@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.realeapp.feature.auth.domain.usecase.LoginUseCase
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
+import com.realeapp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+private const val TAG = "LoginViewModel"
 
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
@@ -36,23 +39,28 @@ class LoginViewModel(
         val password = current.password.trim()
 
         if (email.isEmpty()) {
+            Logger.w(TAG, "login() validation failed: email is empty")
             _uiState.value = current.copy(errorMessage = "Email is required")
             return
         }
         if (password.isEmpty()) {
+            Logger.w(TAG, "login() validation failed: password is empty")
             _uiState.value = current.copy(errorMessage = "Password is required")
             return
         }
 
+        Logger.d(TAG, "login() called for email: $email")
         _uiState.value = current.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             when (val result = loginUseCase(email, password)) {
                 is Result.Success -> {
+                    Logger.d(TAG, "login() success: userId=${result.data.id}")
                     userSession.setUser(result.data)
                     _uiState.value = LoginUiState(isLoginSuccess = true)
                 }
                 is Result.Error -> {
+                    Logger.e(TAG, "login() error: ${result.message}")
                     _uiState.value = current.copy(
                         isLoading = false,
                         errorMessage = result.message

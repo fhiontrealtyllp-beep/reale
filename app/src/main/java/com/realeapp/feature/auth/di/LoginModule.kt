@@ -8,7 +8,10 @@ import com.realeapp.feature.auth.data.repository.AuthRepositoryImpl
 import com.realeapp.feature.auth.domain.repository.AuthRepository
 import com.realeapp.feature.auth.domain.usecase.LoginUseCase
 import com.realeapp.feature.auth.domain.usecase.LoginUseCaseImpl
+import com.realeapp.feature.auth.domain.usecase.RegisterUseCase
+import com.realeapp.feature.auth.domain.usecase.RegisterUseCaseImpl
 import com.realeapp.feature.auth.presentation.LoginViewModelFactory
+import com.realeapp.feature.auth.presentation.RegisterViewModelFactory
 import com.realeapp.feature.search.data.remote.AppWriteProvider
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.data.session.UserSessionImpl
@@ -35,7 +38,15 @@ object LoginModule {
         LoginUseCaseImpl(authRepository)
     }
 
+    private val registerUseCase: RegisterUseCase by lazy {
+        RegisterUseCaseImpl(authRepository)
+    }
+
     val viewModelFactory: ViewModelProvider.Factory by lazy {
         LoginViewModelFactory(loginUseCase, userSession)
+    }
+
+    val registerViewModelFactory: ViewModelProvider.Factory by lazy {
+        RegisterViewModelFactory(registerUseCase, userSession)
     }
 }
