@@ -78,7 +78,7 @@ class RegisterViewModel(
         }
 
         Logger.d(TAG, "register() called for name: $name, email: $email")
-        _uiState.value = current.copy(isLoading = true, errorMessage = null)
+        _uiState.value = current.copy(isLoading = true, errorMessage = null, isRegisterSuccess = false)
 
         viewModelScope.launch {
             when (val result = registerUseCase(name, email, password)) {

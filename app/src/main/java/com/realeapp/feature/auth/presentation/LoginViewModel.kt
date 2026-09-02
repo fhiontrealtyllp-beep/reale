@@ -52,7 +52,7 @@ class LoginViewModel(
         }
 
         Logger.d(TAG, "login() called for email: $email")
-        _uiState.value = current.copy(isLoading = true, errorMessage = null)
+        _uiState.value = current.copy(isLoading = true, errorMessage = null, isLoginSuccess = false)
 
         viewModelScope.launch {
             when (val result = loginUseCase(email, password)) {
