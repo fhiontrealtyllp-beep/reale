@@ -72,6 +72,7 @@ fun AddScreen(
             }
         },
         topBar = {
+            // Logged-in navigation UI; title changes between the property list and add form.
             if (uiState.isLoggedIn) {
                 TopAppBar(
                     title = {
@@ -99,6 +100,7 @@ fun AddScreen(
             }
         },
         floatingActionButton = {
+            // Add-property action shown only from the logged-in property list UI.
             if (uiState.isLoggedIn && !uiState.isShowingAddForm) {
                 FloatingActionButton(
                     onClick = viewModel::onShowAddForm,
@@ -119,6 +121,7 @@ fun AddScreen(
                 .fillMaxSize()
         ) {
             when {
+                // Full-screen loading UI while the add feature initializes.
                 uiState.isLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -126,17 +129,20 @@ fun AddScreen(
                     )
                 }
 
+                // Logged-out UI prompting the user to open the login flow.
                 !uiState.isLoggedIn -> LoginPrompt(
                     title = "Please Login to Add a Property",
                     onLoginClick = onLoginClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
+                // Property creation form UI.
                 uiState.isShowingAddForm -> AddPropertyForm(
                     uiState = uiState,
                     viewModel = viewModel
                 )
 
+                // Logged-in UI listing properties created by the current user.
                 else -> MyPropertiesContent(
                     properties = uiState.myProperties,
                     isLoading = uiState.isLoadingMyProperties,
@@ -149,6 +155,7 @@ fun AddScreen(
         }
     }
 
+    // Full-screen property details UI shown after selecting a property.
     selectedProperty?.let { property ->
         Dialog(
             onDismissRequest = { selectedProperty = null },

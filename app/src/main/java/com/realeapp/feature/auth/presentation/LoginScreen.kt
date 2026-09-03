@@ -23,7 +23,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -33,14 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.realeapp.feature.auth.di.LoginModule
 import com.realeapp.util.Logger
@@ -129,6 +127,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // Email input UI.
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
@@ -151,6 +150,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Password input UI with a visibility toggle.
                 OutlinedTextField(
                     value = uiState.password,
                     onValueChange = viewModel::onPasswordChanged,
@@ -181,6 +181,7 @@ fun LoginScreen(
                     )
                 )
 
+                // Validation or authentication error UI.
                 if (uiState.errorMessage != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -192,6 +193,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Primary login action; progress replaces its label during authentication.
                 TextButton(
                     onClick = {
                         Logger.d(TAG, "Login button clicked: email=${uiState.email}")

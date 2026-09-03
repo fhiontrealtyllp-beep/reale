@@ -125,6 +125,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // User name UI.
                 OutlinedTextField(
                     value = uiState.name,
                     onValueChange = viewModel::onNameChanged,
@@ -140,6 +141,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Account credentials UI: email, password, and password confirmation.
                 OutlinedTextField(
                     value = uiState.email,
                     onValueChange = viewModel::onEmailChanged,
@@ -203,6 +205,7 @@ fun RegisterScreen(
                     colors = fieldColors()
                 )
 
+                // Validation or registration error UI.
                 if (uiState.errorMessage != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -214,6 +217,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Primary registration action; progress replaces its label while submitting.
                 TextButton(
                     onClick = viewModel::register,
                     enabled = !uiState.isLoading,

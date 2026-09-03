@@ -103,6 +103,7 @@ fun SavedScreen(
                 .fillMaxSize()
         ) {
             when {
+                // Full-screen loading UI while the initial saved properties are fetched.
                 uiState.isLoading && uiState.properties.isEmpty() -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -110,18 +111,21 @@ fun SavedScreen(
                     )
                 }
 
+                // Logged-out UI prompting the user to open the login flow.
                 !uiState.isLoggedIn -> LoginPrompt(
                     title = "Please Login to View your properties",
                     onLoginClick = onLoginClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
+                // Error UI with an action to retry loading saved properties.
                 uiState.errorMessage != null -> ErrorContent(
                     message = uiState.errorMessage.orEmpty(),
                     onRetry = viewModel::refresh,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
+                // Logged-in UI listing the user's saved properties.
                 else -> SavedPropertyList(
                     properties = uiState.properties,
                     isLoading = uiState.isLoading,
@@ -133,6 +137,7 @@ fun SavedScreen(
         }
     }
 
+    // Full-screen property details UI shown after selecting a saved property.
     selectedProperty?.let { property ->
         Dialog(
             onDismissRequest = { selectedProperty = null },

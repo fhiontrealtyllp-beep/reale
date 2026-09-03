@@ -104,6 +104,7 @@ fun PropertyDetailScreen(
                     }
                 },
                 actions = {
+                    // Optional favorite action shown when the parent provides like handling.
                     if (onLike != null) {
                         IconButton(onClick = onLike) {
                             Icon(
@@ -130,10 +131,12 @@ fun PropertyDetailScreen(
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
+                // Property image header UI with an optional additional-image count.
                 PropertyImageHeader(property = property)
             }
 
             item {
+                // Primary property summary UI: title, price, and location.
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -174,9 +177,11 @@ fun PropertyDetailScreen(
             }
 
             item {
+                // Structured overview UI containing the core property attributes.
                 OverviewSection(property = property)
             }
 
+            // Description UI is shown only when listing text is available.
             if (!property.description.isNullOrBlank()) {
                 item {
                     DetailSection(title = "Description") {
@@ -190,6 +195,7 @@ fun PropertyDetailScreen(
                 }
             }
 
+            // Amenities UI is shown only for listings with selected amenities.
             if (property.amenities.isNotEmpty()) {
                 item {
                     DetailSection(title = "Amenities") {
@@ -217,18 +223,21 @@ fun PropertyDetailScreen(
                 }
             }
 
+            // Area measurements UI is shown when at least one area value exists.
             if (property.carpetArea != null || property.builtUpArea != null || property.superBuiltUpArea != null) {
                 item {
                     AreasSection(property = property)
                 }
             }
 
+            // Location UI shows a map when possible and otherwise an address fallback.
             if ((property.latitude != null && property.longitude != null) || !property.address.isNullOrBlank() || property.city.isNotBlank()) {
                 item {
                     MapSection(property = property)
                 }
             }
 
+            // Agent contact UI is shown only when a phone number is available.
             if (property.agentPhone.isNotBlank()) {
                 item {
                     val context = LocalContext.current
@@ -478,6 +487,7 @@ private fun MapSection(property: Property) {
                     )
                 }
 
+                // Map loading UI remains visible until Google Maps reports readiness.
                 if (!isMapLoaded) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -487,6 +497,7 @@ private fun MapSection(property: Property) {
             }
         }
     } else if (!property.address.isNullOrBlank() || property.city.isNotBlank()) {
+        // Address-only location UI used when an interactive map cannot be displayed.
         DetailSection(title = "Location") {
             LocationPlaceholder(property = property)
         }

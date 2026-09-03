@@ -94,6 +94,7 @@ fun AddPropertyForm(
     var showLocationPicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
 
+    // Full-screen location picker overlay shown from the form's location action.
     if (showLocationPicker) {
         LocationPickerDialog(
             initialLat = form.latitude,
@@ -139,6 +140,7 @@ fun AddPropertyForm(
         }
     )
 
+    // Image-source dialog overlay offering camera and gallery choices.
     if (showImageSourceDialog) {
         ImageSourceDialog(
             onCamera = {
@@ -469,6 +471,7 @@ fun AddPropertyForm(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                // Image upload error UI shown below the property image picker.
                 if (uiState.imageUploadError != null) {
                     Text(
                         text = uiState.imageUploadError,
@@ -479,6 +482,7 @@ fun AddPropertyForm(
             }
         }
 
+        // Form validation summary UI shown when submission finds invalid fields.
         if (uiState.fieldErrors.isNotEmpty()) {
             item {
                 Column(
@@ -497,6 +501,7 @@ fun AddPropertyForm(
         }
 
         item {
+            // Primary submit UI; a progress indicator replaces the label while submitting.
             Button(
                 onClick = viewModel::submit,
                 modifier = Modifier
@@ -690,6 +695,7 @@ private fun AddImageTile(
             .clickable(enabled = !isUploading, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
+        // Image upload progress UI replaces the add-image icon during upload.
         if (isUploading) {
             CircularProgressIndicator(
                 color = Color(0xFFFDD60D),

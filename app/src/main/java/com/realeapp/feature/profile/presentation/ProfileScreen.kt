@@ -139,6 +139,7 @@ fun ProfileScreen(
                 .fillMaxSize()
         ) {
             when {
+                // Full-screen loading UI shown while the initial profile is being fetched.
                 uiState.isLoading && uiState.user == null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -146,11 +147,13 @@ fun ProfileScreen(
                     )
                 }
 
+                // Logged-out UI prompting the user to open the login flow.
                 !uiState.isLoggedIn -> ProfileLoginPrompt(
                     onLoginClick = onLoginClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
+                // Logged-in UI containing profile details, editing, support, and logout actions.
                 else -> ProfileContent(
                     user = uiState.user,
                     isLoading = uiState.isLoading,
@@ -180,6 +183,7 @@ private fun ProfileContent(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 16.dp)
     ) {
+        // Profile identity UI: avatar, display name, and email address.
         ProfileHeader(
             user = user,
             onPickImage = onPickImage,
@@ -193,6 +197,7 @@ private fun ProfileContent(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Profile details UI: editable name, phone, and address; email is read-only.
             user?.let {
                 EditableProfileField(
                     label = "Name",
@@ -232,6 +237,7 @@ private fun ProfileContent(
 
             HorizontalDivider(color = Color(0xFF8F9FDC).copy(alpha = 0.3f))
 
+            // Profile action UI: contact support and log out of the current session.
             ProfileListItem(
                 title = "Write to us",
                 icon = Icons.AutoMirrored.Filled.Send,
@@ -244,6 +250,7 @@ private fun ProfileContent(
                 onClick = onLogout
             )
 
+            // Inline progress UI shown while a profile action is running.
             if (isLoading) {
                 Spacer(modifier = Modifier.height(8.dp))
                 LinearProgressPlaceholder()
@@ -279,6 +286,7 @@ private fun ProfileHeader(
                     .clickable { onPickImage() },
                 contentAlignment = Alignment.Center
             ) {
+                // Avatar UI falls back to the user's initials when no image is available.
                 if (user?.image.isNullOrBlank()) {
                     Text(
                         text = user?.name?.take(2)?.uppercase() ?: "?",
@@ -355,6 +363,7 @@ private fun EditableProfileField(
                 fontSize = 12.sp
             )
 
+            // Field value UI switches between editor and read-only text.
             if (isEditing) {
                 OutlinedTextField(
                     value = text,
@@ -385,6 +394,7 @@ private fun EditableProfileField(
             }
         }
 
+        // Edit action UI is omitted for read-only fields such as email.
         if (onSave != null) {
             if (isEditing) {
                 Row {
@@ -475,6 +485,7 @@ private fun ProfileLoginPrompt(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Logged-out profile UI with a direct action to open the login screen.
     Column(
         modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -10,6 +10,7 @@ import com.realeapp.feature.profile.domain.usecase.UploadImageUseCase
 import com.realeapp.feature.search.data.session.SessionObserver
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
+import com.realeapp.util.Logger
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -17,6 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+private const val TAG = "ProfileViewModel"
 
 class ProfileViewModel(
     private val getUserDetailsUseCase: GetUserDetailsUseCase,
@@ -37,8 +40,12 @@ class ProfileViewModel(
         SessionObserver(
             userSession = userSession,
             scope = viewModelScope,
-            onLogin = { load() },
+            onLogin = {
+                Logger.d(TAG, "SessionObserver.onLogin: reloading profile")
+                load()
+            },
             onLogout = {
+                Logger.d(TAG, "SessionObserver.onLogout: clearing profile state")
                 _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
             }
         )
@@ -141,16 +148,23 @@ class ProfileViewModel(
     }
 
     fun logout() {
-        val currentUser = userSession.getUser() ?: return
+        val currentUser = userSession.getUser()
+        if (currentUser == null) {
+            Logger.w(TAG, "logout() ignored: no current user")
+            return
+        }
+        Logger.d(TAG, "logout() invoked from UI: userId=${currentUser.id}")
         _uiState.value = _uiState.value.copy(isLoading = true)
 
         viewModelScope.launch {
             when (val result = logoutUseCase(currentUser.sessionId)) {
                 is Result.Success -> {
+                    Logger.d(TAG, "logout() success: userId=${currentUser.id}")
                     _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
                     _sideEffect.emit("Logged out successfully")
                 }
                 is Result.Error -> {
+                    Logger.e(TAG, "logout() error: ${result.message}")
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _sideEffect.emit(result.message)
                 }

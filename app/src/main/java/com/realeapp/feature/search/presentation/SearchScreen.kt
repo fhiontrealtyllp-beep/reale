@@ -71,6 +71,7 @@ fun SearchScreen(
             }
         },
         floatingActionButton = {
+            // View toggle action switches the results UI between map and list modes.
             FloatingActionButton(
                 onClick = viewModel::onToggleView,
                 containerColor = Color(0xFFFDD60D),
@@ -88,6 +89,7 @@ fun SearchScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+            // Search and filter controls remain visible above every results state.
             SearchHeader(
                 filter = uiState.currentFilter,
                 onOpenFilter = { showFilterDialog = true }
@@ -95,6 +97,7 @@ fun SearchScreen(
 
             Box(modifier = Modifier.fillMaxSize()) {
                 when {
+                    // Full-screen loading UI while the initial search results are fetched.
                     uiState.isLoading && uiState.properties.isEmpty() -> {
                         androidx.compose.material3.CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -102,18 +105,21 @@ fun SearchScreen(
                         )
                     }
 
+                    // Error UI with an action to retry the search.
                     uiState.errorMessage != null -> ErrorContent(
                         message = uiState.errorMessage.orEmpty(),
                         onRetry = viewModel::refresh,
                         modifier = Modifier.align(Alignment.Center)
                     )
 
+                    // Map results UI with tappable property markers.
                     uiState.isMapView -> MapViewContent(
                         properties = uiState.properties,
                         onPropertyTap = { selectedProperty = it },
                         modifier = Modifier.fillMaxSize()
                     )
 
+                    // Paginated list results UI used as the default search view.
                     else -> PropertyList(
                         properties = uiState.properties,
                         isLoading = uiState.isLoading,
@@ -130,6 +136,7 @@ fun SearchScreen(
         }
     }
 
+    // Full-screen property details UI shown after selecting a result.
     selectedProperty?.let { property ->
         Dialog(
             onDismissRequest = { selectedProperty = null },
@@ -149,6 +156,7 @@ fun SearchScreen(
         }
     }
 
+    // Filter dialog overlay shown from the search header.
     if (showFilterDialog) {
         FilterDialog(
             filter = uiState.currentFilter,

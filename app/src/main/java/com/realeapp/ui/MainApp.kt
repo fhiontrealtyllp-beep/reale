@@ -40,6 +40,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
     RealeTheme {
         Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
             when (screen) {
+                // Full-screen login UI shown above the main tab navigation.
                 AuthScreen.Login -> LoginScreen(
                     onLoginSuccess = {
                         Logger.d(TAG, "onLoginSuccess: navigating to main")
@@ -49,6 +50,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                     onRegisterClick = { authScreen = AuthScreen.Register }
                 )
 
+                // Full-screen registration UI shown above the main tab navigation.
                 AuthScreen.Register -> RegisterScreen(
                     onRegisterSuccess = {
                         authScreen = AuthScreen.Main
@@ -57,6 +59,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                     onLoginClick = { authScreen = AuthScreen.Login }
                 )
 
+                // Main authenticated-or-guest UI containing bottom-tab navigation.
                 AuthScreen.Main -> Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -67,6 +70,7 @@ fun MainApp(mainViewModel: MainViewModel = viewModel()) {
                         )
                     }
                 ) { innerPadding ->
+                    // Active tab UI selected by the bottom navigation bar.
                     when (selectedTab) {
                         AppScreen.Search -> SearchScreen(modifier = Modifier.padding(innerPadding))
                         AppScreen.Saved -> SavedScreen(
