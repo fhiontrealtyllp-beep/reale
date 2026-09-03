@@ -12,6 +12,7 @@ val Pink40 = Color(0xFF7D5260)
 
 // Brand palette used across the app.
 val AppBackground = Color(0xFF000000)
+val MainBackground = Color(0xFF141C3D)
 val CardBackground = Color(0xFF1C2755)
 val ItemCardBackground = Color(0xFF1C1C24)
 val TextPrimary = Color(0xFFFBFBFB)
