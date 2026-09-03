@@ -5,6 +5,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
@@ -51,6 +55,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -80,6 +89,8 @@ private val RealeBlue = Color(0xFF8F9FDC)
 private val RealeGrey = Color(0xFF71737E)
 
 private const val AUTO_SLIDE_DELAY_MS = 2000L
+private const val MIN_ZOOM = 1f
+private const val MAX_ZOOM = 5f
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -294,9 +305,10 @@ private fun PropertyImageHeader(property: Property) {
             .ifEmpty { listOf("https://picsum.photos/seed/${property.id}/400/260") }
     }
     val pagerState = rememberPagerState(pageCount = { images.size })
+    var fullScreenPage by remember { mutableStateOf<Int?>(null) }
 
-    // Auto-advance UI: slides to the next image every 2 seconds and loops back to the start.
-    if (images.size > 1) {
+    // Auto-advance UI: slides every 2 seconds and stays paused while the full-screen viewer is open.
+    if (images.size > 1 && fullScreenPage == null) {
         LaunchedEffect(pagerState, images.size) {
             while (true) {
                 delay(AUTO_SLIDE_DELAY_MS)
@@ -321,7 +333,9 @@ private fun PropertyImageHeader(property: Property) {
                 model = images[page],
                 contentDescription = property.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { fullScreenPage = page }
             )
         }
 
@@ -359,6 +373,119 @@ private fun PropertyImageHeader(property: Property) {
                     .background(RealeMain.copy(alpha = 0.6f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
+        }
+    }
+
+    // Full-screen zoomable image UI opened by tapping a header image.
+    fullScreenPage?.let { startPage ->
+        FullScreenImageViewer(
+            images = images,
+            initialPage = startPage,
+            contentDescription = property.title,
+            onDismiss = { fullScreenPage = null }
+        )
+    }
+}
+
+@Composable
+private fun FullScreenImageViewer(
+    images: List<String>,
+    initialPage: Int,
+    contentDescription: String?,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        val pagerState = rememberPagerState(
+            initialPage = initialPage,
+            pageCount = { images.size }
+        )
+        var scale by remember { mutableStateOf(1f) }
+        var offset by remember { mutableStateOf(Offset.Zero) }
+
+        // Zoom resets whenever a different image becomes visible.
+        LaunchedEffect(pagerState.currentPage) {
+            scale = 1f
+            offset = Offset.Zero
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = scale <= 1f,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                val isCurrentPage = page == pagerState.currentPage
+                AsyncImage(
+                    model = images[page],
+                    contentDescription = contentDescription,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(isCurrentPage) {
+                            if (!isCurrentPage) return@pointerInput
+                            detectTapGestures(
+                                onDoubleTap = {
+                                    if (scale > 1f) {
+                                        scale = 1f
+                                        offset = Offset.Zero
+                                    } else {
+                                        scale = 2.5f
+                                    }
+                                }
+                            )
+                        }
+                        .pointerInput(isCurrentPage) {
+                            if (!isCurrentPage) return@pointerInput
+                            detectTransformGestures { _, pan, zoomChange, _ ->
+                                scale = (scale * zoomChange).coerceIn(MIN_ZOOM, MAX_ZOOM)
+                                val maxX = (size.width * (scale - 1f)) / 2f
+                                val maxY = (size.height * (scale - 1f)) / 2f
+                                offset = Offset(
+                                    x = (offset.x + pan.x * scale).coerceIn(-maxX, maxX),
+                                    y = (offset.y + pan.y * scale).coerceIn(-maxY, maxY)
+                                )
+                            }
+                        }
+                        .graphicsLayer(
+                            scaleX = if (isCurrentPage) scale else 1f,
+                            scaleY = if (isCurrentPage) scale else 1f,
+                            translationX = if (isCurrentPage) offset.x else 0f,
+                            translationY = if (isCurrentPage) offset.y else 0f
+                        )
+                )
+            }
+
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = RealeWhite
+                )
+            }
+
+            if (images.size > 1) {
+                Text(
+                    text = "${pagerState.currentPage + 1}/${images.size}",
+                    color = RealeWhite,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(24.dp)
+                )
+            }
         }
     }
 }
