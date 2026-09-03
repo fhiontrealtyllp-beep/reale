@@ -86,7 +86,7 @@ class ProfileViewModel(
 
     fun updateProfileField(field: String, value: String) {
         val currentUser = _uiState.value.user ?: return
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, updateSuccessMessage = null)
+        _uiState.value = _uiState.value.copy(errorMessage = null, updateSuccessMessage = null)
 
         viewModelScope.launch {
             when (val result = updateProfileUseCase(currentUser.id, field, value)) {
@@ -112,7 +112,7 @@ class ProfileViewModel(
 
     fun uploadImage(bytes: ByteArray, filename: String) {
         val currentUser = _uiState.value.user ?: return
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(isImageUploading = true, errorMessage = null)
 
         viewModelScope.launch {
             when (val uploadResult = uploadImageUseCase(bytes, filename)) {
@@ -122,14 +122,14 @@ class ProfileViewModel(
                             val refreshed = userSession.getUser()
                             _uiState.value = _uiState.value.copy(
                                 user = refreshed,
-                                isLoading = false,
+                                isImageUploading = false,
                                 updateSuccessMessage = "Profile image updated"
                             )
                             _sideEffect.emit("Profile image updated")
                         }
                         is Result.Error -> {
                             _uiState.value = _uiState.value.copy(
-                                isLoading = false,
+                                isImageUploading = false,
                                 errorMessage = updateResult.message
                             )
                             _sideEffect.emit(updateResult.message)
@@ -138,7 +138,7 @@ class ProfileViewModel(
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false,
+                        isImageUploading = false,
                         errorMessage = uploadResult.message
                     )
                     _sideEffect.emit(uploadResult.message)

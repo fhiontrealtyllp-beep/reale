@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -202,10 +203,11 @@ fun ProfileScreen(
                 // Logged-in UI containing profile details, editing, support, and logout actions.
                 else -> ProfileContent(
                     user = uiState.user,
-                    isLoading = uiState.isLoading,
+                    isImageUploading = uiState.isImageUploading,
                     onPickImage = { showImageSourceDialog = true },
                     onLogout = viewModel::logout,
                     onWriteToUs = { launchEmail(context) },
+                    onUpdateField = { field, value -> viewModel.updateProfileField(field, value) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -231,10 +233,11 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(
     user: User?,
-    isLoading: Boolean,
+    isImageUploading: Boolean,
     onPickImage: () -> Unit,
     onLogout: () -> Unit,
     onWriteToUs: () -> Unit,
+    onUpdateField: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -245,7 +248,7 @@ private fun ProfileContent(
         // Profile header card: title, edit action, avatar, name and email.
         ProfileHeader(
             user = user,
-            isLoading = isLoading,
+            isLoading = isImageUploading,
             onPickImage = onPickImage,
             modifier = Modifier.fillMaxWidth()
         )
@@ -272,28 +275,37 @@ private fun ProfileContent(
                 ProfileInfoItem(
                     label = "Name",
                     value = it.name,
-                    icon = Icons.Default.Person
+                    icon = Icons.Default.Person,
+                    keyboardType = KeyboardType.Text,
+                    onSave = { value -> onUpdateField("name", value) }
                 )
 
                 // Email info item.
                 ProfileInfoItem(
                     label = "Email",
                     value = it.email,
-                    icon = Icons.Default.Email
+                    icon = Icons.Default.Email,
+                    keyboardType = KeyboardType.Email,
+                    onSave = { value -> onUpdateField("email", value) }
                 )
 
                 // Phone info item.
                 ProfileInfoItem(
                     label = "Phone",
                     value = it.phone,
-                    icon = Icons.Default.Phone
+                    icon = Icons.Default.Phone,
+                    keyboardType = KeyboardType.Phone,
+                    onSave = { value -> onUpdateField("phone", value) }
                 )
 
                 // Address info item.
                 ProfileInfoItem(
                     label = "Address",
                     value = it.address,
-                    icon = Icons.Default.LocationOn
+                    icon = Icons.Default.LocationOn,
+                    keyboardType = KeyboardType.Text,
+                    isMultiline = true,
+                    onSave = { value -> onUpdateField("address", value) }
                 )
             }
 
@@ -533,13 +545,35 @@ private fun ProfileInfoItem(
     value: String?,
     icon: ImageVector,
     showArrow: Boolean = true,
-    onClick: () -> Unit = {}
+    keyboardType: KeyboardType = KeyboardType.Text,
+    isMultiline: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    onSave: ((String) -> Unit)? = null
 ) {
+    var isEditing by rememberSaveable { mutableStateOf(false) }
+    var text by rememberSaveable { mutableStateOf(value.orEmpty()) }
+
+    LaunchedEffect(value) {
+        if (!isEditing) {
+            text = value.orEmpty()
+        }
+    }
+
+    val isEditable = onSave != null
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onClick() },
+            .clickable(
+                enabled = (!isEditing && isEditable) || (onClick != null),
+                onClick = {
+                    when {
+                        isEditable && !isEditing -> isEditing = true
+                        onClick != null -> onClick()
+                    }
+                }
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = ItemCardBackground)
     ) {
@@ -561,26 +595,70 @@ private fun ProfileInfoItem(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = label,
-                    color = if (value == null) TextPrimary else TextSecondary,
-                    fontSize = if (value == null) 16.sp else 12.sp,
-                    fontWeight = if (value == null) FontWeight.Medium else FontWeight.Normal
-                )
-
-                if (value != null) {
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = value,
-                        color = TextPrimary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                if (isEditing) {
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(label, color = TextSecondary) },
+                        singleLine = !isMultiline,
+                        minLines = if (isMultiline) 2 else 1,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = keyboardType,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                onSave?.invoke(text)
+                                isEditing = false
+                            }
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedBorderColor = Accent,
+                            unfocusedBorderColor = TextSecondary,
+                            focusedLabelColor = TextSecondary,
+                            unfocusedLabelColor = TextSecondary
+                        )
                     )
+                } else {
+                    Text(
+                        text = label,
+                        color = if (value == null) TextPrimary else TextSecondary,
+                        fontSize = if (value == null) 16.sp else 12.sp,
+                        fontWeight = if (value == null) FontWeight.Medium else FontWeight.Normal
+                    )
+
+                    if (value != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Text(
+                            text = value.ifBlank { "N/A" },
+                            color = TextPrimary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
-            if (showArrow) {
+            if (isEditing) {
+                IconButton(
+                    onClick = {
+                        onSave?.invoke(text)
+                        isEditing = false
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Done,
+                        contentDescription = "Save",
+                        tint = Accent
+                    )
+                }
+            } else if (showArrow) {
                 Icon(
                     imageVector = Icons.Filled.ArrowForward,
                     contentDescription = null,

@@ -47,6 +47,13 @@ class ProfileRemoteDataSourceImpl(
                 "name" -> {
                     account.updateName(name = value)
                 }
+                "email" -> {
+                    val password = userSession.getUser()?.password.orEmpty()
+                    if (password.isEmpty()) {
+                        return Result.Error("Password is required to update email")
+                    }
+                    account.updateEmail(email = value, password = password)
+                }
                 "image", "phone", "address" -> {
                     val currentUser = account.get()
                     @Suppress("UNCHECKED_CAST")
