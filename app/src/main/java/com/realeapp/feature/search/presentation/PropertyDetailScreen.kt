@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,6 +45,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +70,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import kotlinx.coroutines.delay
 
 private val RealeMain = Color(0xFF141C3D)
 private val RealeCard = Color(0xFF1C2755)
@@ -72,6 +78,8 @@ private val RealeYellow = Color(0xFFFDD60D)
 private val RealeWhite = Color(0xFFFBFBFB)
 private val RealeBlue = Color(0xFF8F9FDC)
 private val RealeGrey = Color(0xFF71737E)
+
+private const val AUTO_SLIDE_DELAY_MS = 2000L
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -281,36 +289,76 @@ fun PropertyDetailScreen(
 
 @Composable
 private fun PropertyImageHeader(property: Property) {
+    val images = remember(property.id, property.images) {
+        property.images.filter { it.isNotBlank() }
+            .ifEmpty { listOf("https://picsum.photos/seed/${property.id}/400/260") }
+    }
+    val pagerState = rememberPagerState(pageCount = { images.size })
+
+    // Auto-advance UI: slides to the next image every 2 seconds and loops back to the start.
+    if (images.size > 1) {
+        LaunchedEffect(pagerState, images.size) {
+            while (true) {
+                delay(AUTO_SLIDE_DELAY_MS)
+                val nextPage = (pagerState.currentPage + 1) % images.size
+                pagerState.animateScrollToPage(nextPage)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(260.dp)
     ) {
-        AsyncImage(
-            model = property.images.firstOrNull() ?: "https://picsum.photos/seed/${property.id}/400/260",
-            contentDescription = property.title,
-            contentScale = ContentScale.Crop,
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-        )
+        ) { page ->
+            AsyncImage(
+                model = images[page],
+                contentDescription = property.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
-        if (property.images.size > 1) {
-            Box(
+        if (images.size > 1) {
+            // Page indicator UI reflecting the currently visible image.
+            Row(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(images.size) { index ->
+                    Box(
+                        modifier = Modifier
+                            .size(if (index == pagerState.currentPage) 8.dp else 6.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (index == pagerState.currentPage) RealeYellow
+                                else RealeWhite.copy(alpha = 0.5f)
+                            )
+                    )
+                }
+            }
+
+            Text(
+                text = "${pagerState.currentPage + 1}/${images.size}",
+                color = RealeWhite,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            ) {
-                Text(
-                    text = "+${property.images.size - 1} more",
-                    color = RealeWhite,
-                    fontSize = 12.sp,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    fontWeight = FontWeight.Medium
-                )
-            }
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(RealeMain.copy(alpha = 0.6f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
         }
     }
 }
