@@ -21,6 +21,20 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCStDlTgxYLbreGcAs9k6Id5QEFtPnEV3U" />
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.realeapp.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
+        <activity
+            android:name="com.canhub.cropper.CropImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

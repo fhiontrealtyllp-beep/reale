@@ -2,7 +2,15 @@ package com.realeapp.feature.profile.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import java.io.File
+import androidx.core.content.FileProvider
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView.Guidelines
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -79,6 +87,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.feature.add.presentation.ImageSourceDialog
+import com.realeapp.feature.add.presentation.toJpegBytes
 import com.realeapp.feature.profile.di.ProfileModule
 import com.realeapp.feature.profile.presentation.ProfileViewModel
 import com.realeapp.ui.theme.Accent
@@ -106,14 +116,53 @@ fun ProfileScreen(
         }
     }
 
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    var cameraOutputUri by remember { mutableStateOf<Uri?>(null) }
+
+    val cropLauncher = rememberLauncherForActivityResult(
+        contract = CropImageContract()
+    ) { result ->
+        result.uriContent?.let { uri ->
+            val bytes = processImageFromUri(context, uri)
+            if (bytes != null) {
+                viewModel.uploadImage(bytes, "profile_image.jpg")
+            }
+        }
+    }
+
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let { imageUri ->
-            val bytes = readBytesFromUri(context, imageUri)
-            if (bytes != null) {
-                viewModel.uploadImage(bytes, "profile_image.jpg")
-            }
+            cropLauncher.launch(
+                CropImageContractOptions(
+                    uri = imageUri,
+                    cropImageOptions = CropImageOptions(
+                        fixAspectRatio = true,
+                        aspectRatioX = 1,
+                        aspectRatioY = 1,
+                        guidelines = Guidelines.ON
+                    )
+                )
+            )
+        }
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && cameraOutputUri != null) {
+            cropLauncher.launch(
+                CropImageContractOptions(
+                    uri = cameraOutputUri!!,
+                    cropImageOptions = CropImageOptions(
+                        fixAspectRatio = true,
+                        aspectRatioX = 1,
+                        aspectRatioY = 1,
+                        guidelines = Guidelines.ON
+                    )
+                )
+            )
         }
     }
 
@@ -153,10 +202,26 @@ fun ProfileScreen(
                 // Logged-in UI containing profile details, editing, support, and logout actions.
                 else -> ProfileContent(
                     user = uiState.user,
-                    onPickImage = { imagePicker.launch("image/*") },
+                    isLoading = uiState.isLoading,
+                    onPickImage = { showImageSourceDialog = true },
                     onLogout = viewModel::logout,
                     onWriteToUs = { launchEmail(context) },
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            if (showImageSourceDialog) {
+                ImageSourceDialog(
+                    onCamera = {
+                        showImageSourceDialog = false
+                        cameraOutputUri = createImageUri(context)
+                        cameraOutputUri?.let { cameraLauncher.launch(it) }
+                    },
+                    onGallery = {
+                        showImageSourceDialog = false
+                        imagePicker.launch("image/*")
+                    },
+                    onDismiss = { showImageSourceDialog = false }
                 )
             }
         }
@@ -166,6 +231,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileContent(
     user: User?,
+    isLoading: Boolean,
     onPickImage: () -> Unit,
     onLogout: () -> Unit,
     onWriteToUs: () -> Unit,
@@ -179,6 +245,7 @@ private fun ProfileContent(
         // Profile header card: title, edit action, avatar, name and email.
         ProfileHeader(
             user = user,
+            isLoading = isLoading,
             onPickImage = onPickImage,
             modifier = Modifier.fillMaxWidth()
         )
@@ -254,6 +321,7 @@ private fun ProfileContent(
 @Composable
 private fun ProfileHeader(
     user: User?,
+    isLoading: Boolean,
     onPickImage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -268,7 +336,7 @@ private fun ProfileHeader(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header row with screen title and edit action.
+            // Header row with screen title.
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
@@ -279,26 +347,16 @@ private fun ProfileHeader(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
-
-                IconButton(
-                    onClick = onPickImage,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit profile picture",
-                        tint = TextPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Avatar with accent border.
+            // Avatar with accent border. Tap to change profile picture.
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(92.dp)
+                modifier = Modifier
+                    .size(92.dp)
+                    .clickable { onPickImage() }
             ) {
                 Box(
                     modifier = Modifier
@@ -324,6 +382,14 @@ private fun ProfileHeader(
                             contentScale = ContentScale.Crop
                         )
                     }
+                }
+
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = Accent,
+                        strokeWidth = 3.dp
+                    )
                 }
             }
 
@@ -587,12 +653,61 @@ private fun LinearProgressPlaceholder() {
     )
 }
 
-private fun readBytesFromUri(context: Context, uri: Uri): ByteArray? {
+private const val PROFILE_IMAGE_MAX_DIM = 1024
+
+private fun processImageFromUri(context: Context, uri: Uri): ByteArray? {
     return try {
-        context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        val (width, height) = context.contentResolver.openInputStream(uri)?.use { stream ->
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeStream(stream, null, options)
+            options.outWidth to options.outHeight
+        } ?: return null
+
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            val options = BitmapFactory.Options().apply {
+                inSampleSize = calculateInSampleSize(width, height, PROFILE_IMAGE_MAX_DIM)
+            }
+            BitmapFactory.decodeStream(stream, null, options)
+                ?.cropToSquare()
+                ?.resize(PROFILE_IMAGE_MAX_DIM)
+                ?.toJpegBytes()
+        }
     } catch (e: Exception) {
         null
     }
+}
+
+private fun createImageUri(context: Context): Uri? {
+    return try {
+        val file = File(context.cacheDir, "profile_camera_${System.currentTimeMillis()}.jpg")
+        file.createNewFile()
+        FileProvider.getUriForFile(context, "com.realeapp.fileprovider", file)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+private fun Bitmap.cropToSquare(): Bitmap {
+    val size = minOf(width, height)
+    val x = (width - size) / 2
+    val y = (height - size) / 2
+    return Bitmap.createBitmap(this, x, y, size, size)
+}
+
+private fun Bitmap.resize(maxDim: Int): Bitmap {
+    if (width <= maxDim && height <= maxDim) return this
+    val scale = maxDim.toFloat() / maxOf(width, height)
+    val newWidth = (width * scale).toInt()
+    val newHeight = (height * scale).toInt()
+    return Bitmap.createScaledBitmap(this, newWidth, newHeight, true)
+}
+
+private fun calculateInSampleSize(width: Int, height: Int, maxDim: Int): Int {
+    var inSampleSize = 1
+    while (width / inSampleSize >= maxDim || height / inSampleSize >= maxDim) {
+        inSampleSize *= 2
+    }
+    return inSampleSize
 }
 
 private fun launchEmail(context: Context) {

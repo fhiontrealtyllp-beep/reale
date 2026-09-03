@@ -745,7 +745,7 @@ private fun ImagePreviewTile(
 }
 
 @Composable
-private fun ImageSourceDialog(
+internal fun ImageSourceDialog(
     onCamera: () -> Unit,
     onGallery: () -> Unit,
     onDismiss: () -> Unit
@@ -811,7 +811,7 @@ private fun ImageSourceDialog(
     }
 }
 
-private fun Bitmap.toJpegBytes(): ByteArray {
+internal fun Bitmap.toJpegBytes(): ByteArray {
     return ByteArrayOutputStream().use { stream ->
         compress(Bitmap.CompressFormat.JPEG, 90, stream)
         stream.toByteArray()
