@@ -242,6 +242,16 @@ private fun ProfileContent(
     onUpdateField: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var editingField by rememberSaveable { mutableStateOf<String?>(null) }
+    var previousUpdatingField by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(updatingField) {
+        if (previousUpdatingField != null && updatingField == null && editingField == previousUpdatingField) {
+            editingField = null
+        }
+        previousUpdatingField = updatingField
+    }
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -279,7 +289,9 @@ private fun ProfileContent(
                     value = it.name,
                     icon = Icons.Default.Person,
                     keyboardType = KeyboardType.Text,
+                    isEditing = editingField == "name",
                     isSaving = updatingField == "name",
+                    onEdit = { editingField = "name" },
                     onSave = { value -> onUpdateField("name", value) }
                 )
 
@@ -289,7 +301,9 @@ private fun ProfileContent(
                     value = it.email,
                     icon = Icons.Default.Email,
                     keyboardType = KeyboardType.Email,
+                    isEditing = editingField == "email",
                     isSaving = updatingField == "email",
+                    onEdit = { editingField = "email" },
                     onSave = { value -> onUpdateField("email", value) }
                 )
 
@@ -299,7 +313,9 @@ private fun ProfileContent(
                     value = it.phone,
                     icon = Icons.Default.Phone,
                     keyboardType = KeyboardType.Phone,
+                    isEditing = editingField == "phone",
                     isSaving = updatingField == "phone",
+                    onEdit = { editingField = "phone" },
                     onSave = { value -> onUpdateField("phone", value) }
                 )
 
@@ -310,7 +326,9 @@ private fun ProfileContent(
                     icon = Icons.Default.LocationOn,
                     keyboardType = KeyboardType.Text,
                     isMultiline = true,
+                    isEditing = editingField == "address",
                     isSaving = updatingField == "address",
+                    onEdit = { editingField = "address" },
                     onSave = { value -> onUpdateField("address", value) }
                 )
             }
@@ -553,11 +571,12 @@ private fun ProfileInfoItem(
     showArrow: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
     isMultiline: Boolean = false,
+    isEditing: Boolean = false,
     isSaving: Boolean = false,
     onClick: (() -> Unit)? = null,
+    onEdit: (() -> Unit)? = null,
     onSave: ((String) -> Unit)? = null
 ) {
-    var isEditing by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf(value.orEmpty()) }
 
     LaunchedEffect(value) {
@@ -566,16 +585,13 @@ private fun ProfileInfoItem(
         }
     }
 
-    LaunchedEffect(isSaving) {
-        if (!isSaving) {
+    LaunchedEffect(isEditing) {
+        if (isEditing) {
             text = value.orEmpty()
-            if (isEditing) {
-                isEditing = false
-            }
         }
     }
 
-    val isEditable = onSave != null
+    val isEditable = onEdit != null
 
     Card(
         modifier = Modifier
@@ -585,8 +601,8 @@ private fun ProfileInfoItem(
                 enabled = (!isSaving && !isEditing && isEditable) || (onClick != null && !isSaving),
                 onClick = {
                     when {
-                        isEditable && !isEditing -> isEditing = true
-                        onClick != null -> onClick()
+                        isEditable && !isEditing && !isSaving -> onEdit?.invoke()
+                        else -> onClick?.invoke()
                     }
                 }
             ),
