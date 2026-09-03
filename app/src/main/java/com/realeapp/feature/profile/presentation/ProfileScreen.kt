@@ -204,6 +204,7 @@ fun ProfileScreen(
                 else -> ProfileContent(
                     user = uiState.user,
                     isImageUploading = uiState.isImageUploading,
+                    updatingField = uiState.updatingField,
                     onPickImage = { showImageSourceDialog = true },
                     onLogout = viewModel::logout,
                     onWriteToUs = { launchEmail(context) },
@@ -234,6 +235,7 @@ fun ProfileScreen(
 private fun ProfileContent(
     user: User?,
     isImageUploading: Boolean,
+    updatingField: String?,
     onPickImage: () -> Unit,
     onLogout: () -> Unit,
     onWriteToUs: () -> Unit,
@@ -277,6 +279,7 @@ private fun ProfileContent(
                     value = it.name,
                     icon = Icons.Default.Person,
                     keyboardType = KeyboardType.Text,
+                    isSaving = updatingField == "name",
                     onSave = { value -> onUpdateField("name", value) }
                 )
 
@@ -286,6 +289,7 @@ private fun ProfileContent(
                     value = it.email,
                     icon = Icons.Default.Email,
                     keyboardType = KeyboardType.Email,
+                    isSaving = updatingField == "email",
                     onSave = { value -> onUpdateField("email", value) }
                 )
 
@@ -295,6 +299,7 @@ private fun ProfileContent(
                     value = it.phone,
                     icon = Icons.Default.Phone,
                     keyboardType = KeyboardType.Phone,
+                    isSaving = updatingField == "phone",
                     onSave = { value -> onUpdateField("phone", value) }
                 )
 
@@ -305,6 +310,7 @@ private fun ProfileContent(
                     icon = Icons.Default.LocationOn,
                     keyboardType = KeyboardType.Text,
                     isMultiline = true,
+                    isSaving = updatingField == "address",
                     onSave = { value -> onUpdateField("address", value) }
                 )
             }
@@ -547,6 +553,7 @@ private fun ProfileInfoItem(
     showArrow: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
     isMultiline: Boolean = false,
+    isSaving: Boolean = false,
     onClick: (() -> Unit)? = null,
     onSave: ((String) -> Unit)? = null
 ) {
@@ -559,6 +566,15 @@ private fun ProfileInfoItem(
         }
     }
 
+    LaunchedEffect(isSaving) {
+        if (!isSaving) {
+            text = value.orEmpty()
+            if (isEditing) {
+                isEditing = false
+            }
+        }
+    }
+
     val isEditable = onSave != null
 
     Card(
@@ -566,7 +582,7 @@ private fun ProfileInfoItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable(
-                enabled = (!isEditing && isEditable) || (onClick != null),
+                enabled = (!isSaving && !isEditing && isEditable) || (onClick != null && !isSaving),
                 onClick = {
                     when {
                         isEditable && !isEditing -> isEditing = true
@@ -598,19 +614,21 @@ private fun ProfileInfoItem(
                 if (isEditing) {
                     OutlinedTextField(
                         value = text,
-                        onValueChange = { text = it },
+                        onValueChange = { if (!isSaving) text = it },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(label, color = TextSecondary) },
                         singleLine = !isMultiline,
                         minLines = if (isMultiline) 2 else 1,
+                        readOnly = isSaving,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = keyboardType,
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                onSave?.invoke(text)
-                                isEditing = false
+                                if (!isSaving) {
+                                    onSave?.invoke(text)
+                                }
                             }
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -646,17 +664,22 @@ private fun ProfileInfoItem(
             }
 
             if (isEditing) {
-                IconButton(
-                    onClick = {
-                        onSave?.invoke(text)
-                        isEditing = false
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = "Save",
-                        tint = Accent
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Accent,
+                        strokeWidth = 2.dp
                     )
+                } else {
+                    IconButton(
+                        onClick = { onSave?.invoke(text) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = "Save",
+                            tint = Accent
+                        )
+                    }
                 }
             } else if (showArrow) {
                 Icon(

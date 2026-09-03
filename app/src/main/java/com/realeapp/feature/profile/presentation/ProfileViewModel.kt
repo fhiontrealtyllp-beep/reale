@@ -86,7 +86,11 @@ class ProfileViewModel(
 
     fun updateProfileField(field: String, value: String) {
         val currentUser = _uiState.value.user ?: return
-        _uiState.value = _uiState.value.copy(errorMessage = null, updateSuccessMessage = null)
+        _uiState.value = _uiState.value.copy(
+            updatingField = field,
+            errorMessage = null,
+            updateSuccessMessage = null
+        )
 
         viewModelScope.launch {
             when (val result = updateProfileUseCase(currentUser.id, field, value)) {
@@ -95,6 +99,7 @@ class ProfileViewModel(
                     _uiState.value = _uiState.value.copy(
                         user = refreshed,
                         isLoading = false,
+                        updatingField = null,
                         updateSuccessMessage = result.data
                     )
                     _sideEffect.emit(result.data)
@@ -102,6 +107,7 @@ class ProfileViewModel(
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
+                        updatingField = null,
                         errorMessage = result.message
                     )
                     _sideEffect.emit(result.message)
