@@ -1,6 +1,7 @@
 package com.realeapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,8 @@ import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.TextPrimary
 
+private val BOTTOM_NAV_HEIGHT = 120.dp
+
 @Composable
 fun BottomNavBar(
     tabs: List<AppScreen>,
@@ -26,6 +29,7 @@ fun BottomNavBar(
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
+            .height(BOTTOM_NAV_HEIGHT)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
         containerColor = MainBackground,
         tonalElevation = 0.dp
