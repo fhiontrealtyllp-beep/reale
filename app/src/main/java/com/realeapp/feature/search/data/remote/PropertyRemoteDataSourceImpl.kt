@@ -7,6 +7,7 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.utils.Result
+import com.realeapp.util.Logger
 import io.appwrite.ID
 import io.appwrite.Query
 import io.appwrite.exceptions.AppwriteException
@@ -55,13 +56,17 @@ class PropertyRemoteDataSourceImpl(
         propertyId: String,
         isLiked: Boolean
     ): Result<Unit> {
+        Logger.d("PropertyRemoteDataSource", "updateLikeStatus: propertyId=$propertyId, isLiked=$isLiked")
         val userId = userSession.getUserId()
         if (userId.isNullOrEmpty()) {
+            Logger.w("PropertyRemoteDataSource", "updateLikeStatus: user not logged in")
             return Result.Error("User not logged in")
         }
+        Logger.d("PropertyRemoteDataSource", "updateLikeStatus: userId=$userId")
 
         return try {
             if (isLiked) {
+                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: creating like document")
                 databases.createDocument(
                     databaseId = AppWriteConstants.DATABASE_ID,
                     collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
@@ -71,7 +76,9 @@ class PropertyRemoteDataSourceImpl(
                         "propertyId" to propertyId
                     )
                 )
+                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: like document created")
             } else {
+                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: querying like document to delete")
                 val response = databases.listDocuments(
                     databaseId = AppWriteConstants.DATABASE_ID,
                     collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
@@ -82,19 +89,24 @@ class PropertyRemoteDataSourceImpl(
                 )
                 val docId = response.documents.firstOrNull()?.id
                 if (docId != null) {
+                    Logger.d("PropertyRemoteDataSource", "updateLikeStatus: deleting like document docId=$docId")
                     databases.deleteDocument(
                         databaseId = AppWriteConstants.DATABASE_ID,
                         collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
                         documentId = docId
                     )
+                    Logger.d("PropertyRemoteDataSource", "updateLikeStatus: like document deleted")
                 } else {
+                    Logger.w("PropertyRemoteDataSource", "updateLikeStatus: no like found to remove")
                     return Result.Error("No like found to remove")
                 }
             }
             Result.Success(Unit)
         } catch (e: AppwriteException) {
+            Logger.e("PropertyRemoteDataSource", "updateLikeStatus: AppwriteException ${e.message}", e)
             Result.Error(e.message ?: "Appwrite error")
         } catch (e: Exception) {
+            Logger.e("PropertyRemoteDataSource", "updateLikeStatus: unexpected error ${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }

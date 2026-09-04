@@ -5,6 +5,7 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.repository.PropertyRepository
 import com.realeapp.feature.search.domain.utils.Result
+import com.realeapp.util.Logger
 
 class PropertyRepositoryImpl(
     private val remoteDataSource: PropertyRemoteDataSource
@@ -14,6 +15,7 @@ class PropertyRepositoryImpl(
     }
 
     override suspend fun updateLikeStatus(propertyId: String, isLiked: Boolean): Result<Unit> {
+        Logger.d("PropertyRepository", "updateLikeStatus: propertyId=$propertyId, isLiked=$isLiked")
         return remoteDataSource.updateLikeStatus(propertyId, isLiked)
     }
 }

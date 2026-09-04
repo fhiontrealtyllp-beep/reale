@@ -131,6 +131,7 @@ fun SavedScreen(
                     isLoading = uiState.isLoading,
                     onRefresh = viewModel::refresh,
                     onPropertyClick = { selectedProperty = it },
+                    onLike = viewModel::onLikeClicked,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -138,7 +139,10 @@ fun SavedScreen(
     }
 
     // Full-screen property details UI shown after selecting a saved property.
-    selectedProperty?.let { property ->
+    selectedProperty?.let { selected ->
+        val property = uiState.properties.find {
+            it.documentId == selected.documentId || it.id == selected.id
+        } ?: selected.copy(isLiked = true)
         Dialog(
             onDismissRequest = { selectedProperty = null },
             properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -150,6 +154,7 @@ fun SavedScreen(
                 PropertyDetailScreen(
                     property = property,
                     onClose = { selectedProperty = null },
+                    onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -164,6 +169,7 @@ private fun SavedPropertyList(
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onPropertyClick: (Property) -> Unit,
+    onLike: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     PullToRefreshBox(
@@ -189,7 +195,7 @@ private fun SavedPropertyList(
                 ) { property ->
                     PropertyListItem(
                         property = property.copy(isLiked = true),
-                        onLike = { /* unlike from saved list if needed */ },
+                        onLike = { onLike(property.documentId ?: property.id) },
                         onClick = { onPropertyClick(property) },
                         modifier = Modifier.fillMaxWidth()
                     )

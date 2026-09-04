@@ -151,7 +151,10 @@ fun SearchScreen(
     }
 
     // Full-screen property details UI shown after selecting a result.
-    selectedProperty?.let { property ->
+    selectedProperty?.let { selected ->
+        val property = uiState.properties.find {
+            it.documentId == selected.documentId || it.id == selected.id
+        } ?: selected
         Dialog(
             onDismissRequest = { selectedProperty = null },
             properties = DialogProperties(usePlatformDefaultWidth = false)

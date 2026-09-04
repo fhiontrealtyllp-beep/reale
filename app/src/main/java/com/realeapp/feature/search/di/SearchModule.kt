@@ -2,6 +2,7 @@ package com.realeapp.feature.search.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.realeapp.core.like.LikeStateManager
 import com.realeapp.feature.search.data.remote.AppWriteProvider
 import com.realeapp.feature.search.data.remote.PropertyRemoteDataSource
 import com.realeapp.feature.search.data.remote.PropertyRemoteDataSourceImpl
@@ -37,11 +38,15 @@ object SearchModule {
         GetAllPropertiesUseCaseImpl(propertyRepository)
     }
 
-    private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase by lazy {
+    val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase by lazy {
         UpdatePropertyLikeUseCaseImpl(propertyRepository)
     }
 
+    private val likeStateManager: LikeStateManager by lazy {
+        LikeStateManager
+    }
+
     val viewModelFactory: ViewModelProvider.Factory by lazy {
-        SearchViewModelFactory(getAllPropertiesUseCase, updatePropertyLikeUseCase)
+        SearchViewModelFactory(getAllPropertiesUseCase, updatePropertyLikeUseCase, likeStateManager)
     }
 }
