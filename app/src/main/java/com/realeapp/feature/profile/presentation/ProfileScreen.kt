@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
 import java.io.File
 import androidx.core.content.FileProvider
 import com.canhub.cropper.CropImageContract
@@ -829,14 +830,21 @@ private fun calculateInSampleSize(width: Int, height: Int, maxDim: Int): Int {
     return inSampleSize
 }
 
+private const val SUPPORT_EMAIL = "fhiontrealtyllp@gmail.com"
+private const val EMAIL_SUBJECT = "Reale App - Support Request"
+private const val EMAIL_BODY = "Hi Team,\n\nI am writing to you regarding the Reale app.\n\n"
+private const val EMAIL_CHOOSER_TITLE = "Write to us"
+
 private fun launchEmail(context: Context) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf("realeapp25@gmail.com"))
-        putExtra(Intent.EXTRA_SUBJECT, "Support Request")
-        putExtra(Intent.EXTRA_TEXT, "Hi team,")
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(SUPPORT_EMAIL))
+        putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT)
+        putExtra(Intent.EXTRA_TEXT, EMAIL_BODY)
     }
     if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
+        context.startActivity(Intent.createChooser(intent, EMAIL_CHOOSER_TITLE))
+    } else {
+        Toast.makeText(context, "No email app found", Toast.LENGTH_SHORT).show()
     }
 }
