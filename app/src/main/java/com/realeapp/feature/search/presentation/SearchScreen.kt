@@ -95,7 +95,6 @@ fun SearchScreen(
         ) {
             // Search and filter controls remain visible above every results state.
             SearchHeader(
-                filter = uiState.currentFilter,
                 onOpenFilter = { showFilterDialog = true }
             )
 
