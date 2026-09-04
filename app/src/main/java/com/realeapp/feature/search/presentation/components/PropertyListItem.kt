@@ -68,7 +68,7 @@ fun PropertyListItem(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(190.dp)
+                    .height(150.dp)
             ) {
                 AsyncImage(
                     model = property.images.firstOrNull()
@@ -77,14 +77,14 @@ fun PropertyListItem(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(190.dp)
+                        .height(150.dp)
                 )
 
                 // Gradient scrim UI keeps overlaid chips legible on bright photos.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(190.dp)
+                        .height(150.dp)
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
@@ -169,8 +169,8 @@ fun PropertyListItem(
             }
 
             Column(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

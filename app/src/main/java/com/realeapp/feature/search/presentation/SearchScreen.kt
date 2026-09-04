@@ -2,7 +2,10 @@ package com.realeapp.feature.search.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -60,6 +63,7 @@ fun SearchScreen(
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets(0.dp),
         containerColor = Color(0xFF141C3D),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -95,7 +99,11 @@ fun SearchScreen(
                 onOpenFilter = { showFilterDialog = true }
             )
 
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
                 when {
                     // Full-screen loading UI while the initial search results are fetched.
                     uiState.isLoading && uiState.properties.isEmpty() -> {
@@ -129,7 +137,13 @@ fun SearchScreen(
                         onLoadMore = viewModel::onLoadMore,
                         onLike = viewModel::onLikeClicked,
                         onPropertyClick = { selectedProperty = it },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = 12.dp,
+                            top = 8.dp,
+                            end = 12.dp,
+                            bottom = 80.dp
+                        )
                     )
                 }
             }

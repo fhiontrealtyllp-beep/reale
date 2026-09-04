@@ -33,7 +33,8 @@ fun PropertyList(
     onLoadMore: () -> Unit,
     onLike: (String) -> Unit,
     onPropertyClick: (Property) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
 ) {
     val listState = rememberLazyListState()
 
@@ -62,7 +63,7 @@ fun PropertyList(
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (properties.isEmpty() && !isLoading) {

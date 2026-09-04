@@ -2,7 +2,10 @@ package com.realeapp.feature.add.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -61,6 +64,7 @@ fun AddScreen(
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets(0.dp),
         containerColor = Color(0xFF141C3D),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -206,7 +210,13 @@ private fun MyPropertiesContent(
             onLoadMore = {},
             onLike = {},
             onPropertyClick = onPropertyClick,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                top = 8.dp,
+                end = 12.dp,
+                bottom = 80.dp
+            )
         )
     }
 }
