@@ -87,12 +87,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
-import com.realeapp.feature.profile.di.ProfileModule
 import com.realeapp.feature.profile.presentation.ProfileViewModel
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
@@ -101,13 +99,14 @@ import com.realeapp.ui.theme.ItemCardBackground
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 import com.realeapp.util.Logger
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = viewModel(factory = ProfileModule.viewModelFactory)
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }

@@ -6,23 +6,14 @@ import io.appwrite.services.Account
 import io.appwrite.services.Databases
 import io.appwrite.services.Storage
 
-object AppWriteProvider {
+class AppWriteProvider(context: Context) {
 
-    private var _context: Context? = null
-
-    lateinit var client: Client
-        private set
+    val client: Client = Client(context.applicationContext)
+        .setEndpoint(AppWriteConstants.ENDPOINT)
+        .setProject(AppWriteConstants.PROJECT_ID)
+        .setSelfSigned(true)
 
     val account: Account by lazy { Account(client) }
     val databases: Databases by lazy { Databases(client) }
     val storage: Storage by lazy { Storage(client) }
-
-    fun init(context: Context) {
-        if (_context != null) return
-        _context = context.applicationContext
-        client = Client(context.applicationContext)
-            .setEndpoint(AppWriteConstants.ENDPOINT)
-            .setProject(AppWriteConstants.PROJECT_ID)
-            .setSelfSigned(true)
-    }
 }

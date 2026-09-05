@@ -10,15 +10,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
@@ -30,6 +29,7 @@ import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.viewmodel.MainViewModel
 import com.realeapp.util.Logger
+import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "MainApp"
 
@@ -40,7 +40,7 @@ private enum class AuthScreen {
 }
 
 @Composable
-fun MainApp(mainViewModel: MainViewModel = viewModel()) {
+fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
 

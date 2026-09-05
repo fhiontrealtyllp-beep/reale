@@ -48,8 +48,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.realeapp.feature.auth.di.LoginModule
+import org.koin.androidx.compose.koinViewModel
 import com.realeapp.util.Logger
 
 private const val TAG = "LoginScreen"
@@ -61,7 +60,7 @@ fun LoginScreen(
     onBack: () -> Unit,
     onRegisterClick: () -> Unit = {},
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = viewModel(factory = LoginModule.viewModelFactory)
+    viewModel: LoginViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

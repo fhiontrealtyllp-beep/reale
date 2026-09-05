@@ -35,8 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.realeapp.feature.search.di.SearchModule
+import org.koin.androidx.compose.koinViewModel
 import com.realeapp.feature.search.presentation.components.EmptySearchResults
 import com.realeapp.feature.search.presentation.components.FilterDialog
 import com.realeapp.feature.search.presentation.components.MapViewContent
@@ -48,7 +47,7 @@ import com.realeapp.feature.search.presentation.components.SearchHeader
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel = viewModel(factory = SearchModule.viewModelFactory)
+    viewModel: SearchViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }

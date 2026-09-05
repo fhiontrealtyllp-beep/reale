@@ -13,37 +13,38 @@ import kotlinx.coroutines.flow.asStateFlow
 
 private const val TAG = "UserSession"
 
-object UserSessionImpl : UserSession {
+class UserSessionImpl(private val context: Context) : UserSession {
 
-    private const val PREFS_NAME = "user_session"
-    private const val KEY_ID = "id"
-    private const val KEY_NAME = "name"
-    private const val KEY_EMAIL = "email"
-    private const val KEY_PHONE = "phone"
-    private const val KEY_STATUS = "status"
-    private const val KEY_CITY = "city"
-    private const val KEY_LOCATION = "location"
-    private const val KEY_ADDRESS = "address"
-    private const val KEY_PASSWORD = "password"
-    private const val KEY_SESSION_ID = "session_id"
-    private const val KEY_IMAGE = "image"
+    private companion object {
+        const val PREFS_NAME = "user_session"
+        const val KEY_ID = "id"
+        const val KEY_NAME = "name"
+        const val KEY_EMAIL = "email"
+        const val KEY_PHONE = "phone"
+        const val KEY_STATUS = "status"
+        const val KEY_CITY = "city"
+        const val KEY_LOCATION = "location"
+        const val KEY_ADDRESS = "address"
+        const val KEY_PASSWORD = "password"
+        const val KEY_SESSION_ID = "session_id"
+        const val KEY_IMAGE = "image"
+    }
 
-    private var appContext: Context? = null
+    private val appContext = context.applicationContext
     private var preferences: SharedPreferences? = null
     private var currentUser: User? = null
 
     private val _user = MutableStateFlow<User?>(null)
     override val user: StateFlow<User?> = _user.asStateFlow()
 
-    fun init(context: Context) {
-        appContext = context.applicationContext
+    init {
         preferences = createPrefs()
         restore()
         _user.value = currentUser
     }
 
     private fun createPrefs(): SharedPreferences? {
-        val context = appContext ?: return null
+        val context = appContext
         return try {
             val masterKey = MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)

@@ -10,10 +10,11 @@ import io.appwrite.Query
 import io.appwrite.exceptions.AppwriteException
 
 class SavedRemoteDataSourceImpl(
-    private val userSession: UserSession
+    private val userSession: UserSession,
+    private val appWriteProvider: AppWriteProvider
 ) : SavedRemoteDataSource {
 
-    private val databases = AppWriteProvider.databases
+    private val databases = appWriteProvider.databases
 
     override suspend fun getLikedProperties(userId: String): Result<List<Property>> {
         return try {

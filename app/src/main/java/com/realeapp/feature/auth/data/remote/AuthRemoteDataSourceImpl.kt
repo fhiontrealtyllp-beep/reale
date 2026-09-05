@@ -13,9 +13,11 @@ private const val ARROW = "\u279C"
 private const val TICK = "\u2705"
 private const val CROSS = "\u274C"
 
-class AuthRemoteDataSourceImpl : AuthRemoteDataSource {
+class AuthRemoteDataSourceImpl(
+    private val appWriteProvider: AppWriteProvider
+) : AuthRemoteDataSource {
 
-    private val account = AppWriteProvider.account
+    private val account = appWriteProvider.account
 
     override suspend fun login(email: String, password: String): Result<User> {
         Logger.d(TAG, "$ARROW login() called for email: $email")

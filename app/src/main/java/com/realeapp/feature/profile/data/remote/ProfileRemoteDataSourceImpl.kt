@@ -17,11 +17,12 @@ private const val TICK = "\u2705"
 private const val CROSS = "\u274C"
 
 class ProfileRemoteDataSourceImpl(
-    private val userSession: UserSession
+    private val userSession: UserSession,
+    private val appWriteProvider: AppWriteProvider
 ) : ProfileRemoteDataSource {
 
-    private val account = AppWriteProvider.account
-    private val storage = AppWriteProvider.storage
+    private val account = appWriteProvider.account
+    private val storage = appWriteProvider.storage
 
     override suspend fun getUserDetails(): Result<User> {
         return try {

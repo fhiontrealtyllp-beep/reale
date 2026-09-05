@@ -45,8 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.realeapp.feature.saved.di.SavedModule
+import org.koin.androidx.compose.koinViewModel
 import com.realeapp.feature.saved.presentation.SavedViewModel
 import com.realeapp.ui.components.LoginPrompt
 import com.realeapp.feature.search.domain.model.Property
@@ -58,7 +57,7 @@ import com.realeapp.feature.search.presentation.components.PropertyListItem
 fun SavedScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SavedViewModel = viewModel(factory = SavedModule.viewModelFactory)
+    viewModel: SavedViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }

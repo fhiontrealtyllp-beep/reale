@@ -24,10 +24,12 @@ private const val ARROW = "\u279C"
 private const val TICK = "\u2705"
 private const val CROSS = "\u274C"
 
-class AddPropertyRemoteDataSourceImpl : AddPropertyRemoteDataSource {
+class AddPropertyRemoteDataSourceImpl(
+    private val appWriteProvider: AppWriteProvider
+) : AddPropertyRemoteDataSource {
 
-    private val databases = AppWriteProvider.databases
-    private val storage = AppWriteProvider.storage
+    private val databases = appWriteProvider.databases
+    private val storage = appWriteProvider.storage
 
     override suspend fun addProperty(userId: String, form: PropertyForm): Result<String> {
         Logger.d(TAG, "$ARROW addProperty() called for user: $userId, title: ${form.title}")
