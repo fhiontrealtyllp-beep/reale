@@ -3,10 +3,7 @@ package com.realeapp.feature.search.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,8 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -36,25 +31,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.realeapp.feature.search.domain.model.CarpetAreaRange
-import com.realeapp.feature.search.domain.model.PriceRange
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
-import kotlin.math.roundToInt
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.DialogSectionBackground
-import com.realeapp.ui.theme.FilterChipUnselectedContainer
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.SliderTrackInactive
 import com.realeapp.ui.theme.TextFieldUnfocusedBorder
 import com.realeapp.ui.theme.TextFieldUnfocusedLabel
 import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FilterDialog(
     filter: PropertyFilter?,
@@ -62,23 +51,7 @@ fun FilterDialog(
     onApply: (PropertyFilter) -> Unit,
     onReset: () -> Unit
 ) {
-    var city by remember { mutableStateOf(filter?.city ?: "") }
-    var locality by remember { mutableStateOf(filter?.localities?.joinToString(", ") ?: "") }
-    var pincode by remember { mutableStateOf(filter?.pincode ?: "") }
-    var selectedRentBuy by remember { mutableStateOf(filter?.rentBuy) }
-    var selectedPropertyType by remember { mutableStateOf(filter?.propertyType) }
-
-    var priceMin by remember { mutableStateOf(filter?.priceRange?.min?.toInt()?.toString() ?: "") }
-    var priceMax by remember { mutableStateOf(filter?.priceRange?.max?.toInt()?.toString() ?: "") }
-
-    var carpetMin by remember { mutableStateOf(filter?.carpetAreaRange?.min?.toInt()?.toString() ?: "") }
-    var carpetMax by remember { mutableStateOf(filter?.carpetAreaRange?.max?.toInt()?.toString() ?: "") }
-
-    var builtUpMin by remember { mutableStateOf(filter?.builtUpAreaRange?.min?.toInt()?.toString() ?: "") }
-    var builtUpMax by remember { mutableStateOf(filter?.builtUpAreaRange?.max?.toInt()?.toString() ?: "") }
-
-    var superBuiltUpMin by remember { mutableStateOf(filter?.superBuiltUpAreaRange?.min?.toInt()?.toString() ?: "") }
-    var superBuiltUpMax by remember { mutableStateOf(filter?.superBuiltUpAreaRange?.max?.toInt()?.toString() ?: "") }
+    var state by remember { mutableStateOf(filter.toFilterDialogState()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -93,8 +66,8 @@ fun FilterDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
-                    value = city,
-                    onValueChange = { city = it },
+                    value = state.city,
+                    onValueChange = { state = state.copy(city = it) },
                     label = { Text("City") },
                     textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
@@ -102,8 +75,8 @@ fun FilterDialog(
                 )
 
                 OutlinedTextField(
-                    value = locality,
-                    onValueChange = { locality = it },
+                    value = state.locality,
+                    onValueChange = { state = state.copy(locality = it) },
                     label = { Text("Localities (comma separated)") },
                     textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
@@ -111,36 +84,25 @@ fun FilterDialog(
                 )
 
                 OutlinedTextField(
-                    value = pincode,
-                    onValueChange = { pincode = it },
+                    value = state.pincode,
+                    onValueChange = { state = state.copy(pincode = it) },
                     label = { Text("Pincode") },
                     textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(text = "Looking to", color = TextPrimary)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RentBuy.entries.forEach { rentBuy ->
-                        FilterChip(
-                            selected = selectedRentBuy == rentBuy,
-                            onClick = {
-                                selectedRentBuy = if (selectedRentBuy == rentBuy) null else rentBuy
-                            },
-                            label = { Text(rentBuy.label) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Accent,
-                                selectedLabelColor = Black,
-                                containerColor = FilterChipUnselectedContainer,
-                                labelColor = TextPrimary
-                            )
-                        )
-                    }
-                }
+                FilterChipGroup(
+                    title = "Looking to",
+                    options = RentBuy.entries,
+                    selected = state.rentBuy,
+                    onSelected = { state = state.copy(rentBuy = it) },
+                    optionLabel = { it.label }
+                )
 
-                Text(text = "Property Type", color = TextPrimary)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(
+                FilterChipGroup(
+                    title = "Property Type",
+                    options = listOf(
                         PropertyType.APARTMENT,
                         PropertyType.VILLA,
                         PropertyType.PLOT,
@@ -148,29 +110,18 @@ fun FilterDialog(
                         PropertyType.COMMERCIAL_OFFICE,
                         PropertyType.SHOP,
                         PropertyType.CO_WORKING
-                    ).forEach { type ->
-                        FilterChip(
-                            selected = selectedPropertyType == type,
-                            onClick = {
-                                selectedPropertyType = if (selectedPropertyType == type) null else type
-                            },
-                            label = { Text(type.label) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Accent,
-                                selectedLabelColor = Black,
-                                containerColor = FilterChipUnselectedContainer,
-                                labelColor = TextPrimary
-                            )
-                        )
-                    }
-                }
+                    ),
+                    selected = state.propertyType,
+                    onSelected = { state = state.copy(propertyType = it) },
+                    optionLabel = { it.label }
+                )
 
                 RangeSliderFilter(
                     title = "Price Range",
-                    minValue = priceMin,
-                    maxValue = priceMax,
-                    onMinValueChange = { priceMin = it },
-                    onMaxValueChange = { priceMax = it },
+                    minValue = state.priceMin,
+                    maxValue = state.priceMax,
+                    onMinValueChange = { state = state.copy(priceMin = it) },
+                    onMaxValueChange = { state = state.copy(priceMax = it) },
                     sliderMin = 0f,
                     sliderMax = 10_00_00_000f,
                     step = 1_00_000f,
@@ -179,10 +130,10 @@ fun FilterDialog(
 
                 RangeSliderFilter(
                     title = "Carpet Area (sqft)",
-                    minValue = carpetMin,
-                    maxValue = carpetMax,
-                    onMinValueChange = { carpetMin = it },
-                    onMaxValueChange = { carpetMax = it },
+                    minValue = state.carpetMin,
+                    maxValue = state.carpetMax,
+                    onMinValueChange = { state = state.copy(carpetMin = it) },
+                    onMaxValueChange = { state = state.copy(carpetMax = it) },
                     sliderMin = 0f,
                     sliderMax = 10_000f,
                     step = 50f,
@@ -191,10 +142,10 @@ fun FilterDialog(
 
                 RangeSliderFilter(
                     title = "Built-up Area (sqft)",
-                    minValue = builtUpMin,
-                    maxValue = builtUpMax,
-                    onMinValueChange = { builtUpMin = it },
-                    onMaxValueChange = { builtUpMax = it },
+                    minValue = state.builtUpMin,
+                    maxValue = state.builtUpMax,
+                    onMinValueChange = { state = state.copy(builtUpMin = it) },
+                    onMaxValueChange = { state = state.copy(builtUpMax = it) },
                     sliderMin = 0f,
                     sliderMax = 10_000f,
                     step = 50f,
@@ -203,10 +154,10 @@ fun FilterDialog(
 
                 RangeSliderFilter(
                     title = "Super Built-up Area (sqft)",
-                    minValue = superBuiltUpMin,
-                    maxValue = superBuiltUpMax,
-                    onMinValueChange = { superBuiltUpMin = it },
-                    onMaxValueChange = { superBuiltUpMax = it },
+                    minValue = state.superBuiltUpMin,
+                    maxValue = state.superBuiltUpMax,
+                    onMinValueChange = { state = state.copy(superBuiltUpMin = it) },
+                    onMaxValueChange = { state = state.copy(superBuiltUpMax = it) },
                     sliderMin = 0f,
                     sliderMax = 10_000f,
                     step = 50f,
@@ -216,30 +167,7 @@ fun FilterDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    val localitiesList = locality.split(",")
-                        .map { it.trim() }
-                        .filter { it.isNotBlank() }
-
-                    val priceRange = parseDoubleRange(priceMin, priceMax)?.let { PriceRange(it.first, it.second) }
-                    val carpetAreaRange = parseDoubleRange(carpetMin, carpetMax)?.let { CarpetAreaRange(it.first, it.second) }
-                    val builtUpAreaRange = parseDoubleRange(builtUpMin, builtUpMax)?.let { CarpetAreaRange(it.first, it.second) }
-                    val superBuiltUpAreaRange = parseDoubleRange(superBuiltUpMin, superBuiltUpMax)?.let { CarpetAreaRange(it.first, it.second) }
-
-                    onApply(
-                        PropertyFilter(
-                            city = city.takeIf { it.isNotBlank() },
-                            localities = localitiesList,
-                            pincode = pincode.takeIf { it.isNotBlank() },
-                            rentBuy = selectedRentBuy,
-                            propertyType = selectedPropertyType,
-                            priceRange = priceRange,
-                            carpetAreaRange = carpetAreaRange,
-                            builtUpAreaRange = builtUpAreaRange,
-                            superBuiltUpAreaRange = superBuiltUpAreaRange
-                        )
-                    )
-                },
+                onClick = { onApply(state.toPropertyFilter()) },
                 colors = ButtonDefaults.textButtonColors(contentColor = Accent)
             ) {
                 Text(text = "Apply")
@@ -262,12 +190,6 @@ fun FilterDialog(
             }
         }
     )
-}
-
-private fun parseDoubleRange(minText: String, maxText: String): Pair<Double, Double>? {
-    val min = minText.toDoubleOrNull()
-    val max = maxText.toDoubleOrNull()
-    return if (min != null && max != null && min <= max) min to max else null
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
