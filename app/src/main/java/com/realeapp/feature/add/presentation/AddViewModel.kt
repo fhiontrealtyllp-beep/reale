@@ -163,19 +163,19 @@ class AddViewModel(
         return when (step) {
             AddPropertyStep.BASIC_DETAILS -> {
                 buildList {
-                    if (form.title.isBlank()) add("Property title is required")
-                    if (form.propertyType == null) add("Property type is required")
-                    if (form.rentBuy == null) add("Listing type is required")
-                    if (form.city.isBlank()) add("City is required")
-                    if (form.locality.isBlank()) add("Locality is required")
+                    if (form.title.isBlank()) add(AddStrings.ERR_TITLE_REQUIRED)
+                    if (form.propertyType == null) add(AddStrings.ERR_PROPERTY_TYPE_REQUIRED)
+                    if (form.rentBuy == null) add(AddStrings.ERR_LISTING_TYPE_REQUIRED)
+                    if (form.city.isBlank()) add(AddStrings.ERR_CITY_REQUIRED)
+                    if (form.locality.isBlank()) add(AddStrings.ERR_LOCALITY_REQUIRED)
                 }
             }
             AddPropertyStep.PROPERTY_DETAILS -> emptyList()
             AddPropertyStep.PHOTOS_MEDIA -> emptyList()
             AddPropertyStep.PRICING -> {
                 buildList {
-                    if (form.price.isBlank()) add("Price is required")
-                    else if (form.price.toDoubleOrNull() == null) add("Price must be a valid number")
+                    if (form.price.isBlank()) add(AddStrings.ERR_PRICE_REQUIRED)
+                    else if (form.price.toDoubleOrNull() == null) add(AddStrings.ERR_PRICE_INVALID)
                 }
             }
             AddPropertyStep.REVIEW_PUBLISH -> form.validate()
@@ -397,7 +397,7 @@ class AddViewModel(
         if (userId.isEmpty()) {
             _uiState.value = current.copy(
                 isLoggedIn = false,
-                errorMessage = "Please log in to add a property"
+                errorMessage = AddStrings.ERR_LOGIN_REQUIRED
             )
             return
         }
@@ -427,13 +427,13 @@ class AddViewModel(
                         isSubmitSuccess = true,
                         submittedProperty = newProperty,
                         isShowingAddForm = false,
-                        successMessage = "Property added successfully",
+                        successMessage = AddStrings.MSG_PROPERTY_ADDED,
                         form = PropertyForm(),
                         errorMessage = null,
                         fieldErrors = emptyList(),
                         myProperties = listOf(newProperty) + _uiState.value.myProperties
                     )
-                    _sideEffect.emit("Property added successfully")
+                    _sideEffect.emit(AddStrings.MSG_PROPERTY_ADDED)
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
@@ -476,7 +476,7 @@ class AddViewModel(
             longitude = longitude.toDoubleOrNull(),
             images = images.map { it.trim() }.filter { it.isNotBlank() },
             agentPhone = agentPhone.trim(),
-            status = "live",
+            status = AddStrings.STATUS_LIVE,
             createdAt = currentTimestamp(),
             rentBuy = rentBuy,
             residentialCommercial = residentialCommercial,
@@ -493,8 +493,8 @@ class AddViewModel(
     }
 
     private fun currentTimestamp(): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        val sdf = SimpleDateFormat(AddStrings.TIMESTAMP_FORMAT, Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone(AddStrings.TIMEZONE_UTC)
         return sdf.format(Date())
     }
 

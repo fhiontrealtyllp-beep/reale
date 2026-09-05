@@ -144,7 +144,7 @@ fun LocationPickerDialog(
         if (permissions.any { it.value }) {
             requestCurrentLocation()
         } else {
-            Toast.makeText(context, "Location permission is required", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, AddStrings.LOCATION_PERMISSION_REQUIRED, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -162,7 +162,7 @@ fun LocationPickerDialog(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Pick Location",
+                            text = AddStrings.PICK_LOCATION_TITLE,
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
@@ -171,7 +171,7 @@ fun LocationPickerDialog(
                         IconButton(onClick = onDismiss) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
+                                contentDescription = AddStrings.CD_CLOSE,
                                 tint = TextPrimary
                             )
                         }
@@ -189,7 +189,7 @@ fun LocationPickerDialog(
                 ) {
                     val selectedAddress = selectedGeocodedAddress?.address
                         ?.takeIf { it.isNotBlank() }
-                        ?: "Selected location"
+                        ?: AddStrings.SELECTED_LOCATION_FALLBACK
                     Text(
                         text = selectedAddress,
                         color = TextPrimary,
@@ -234,7 +234,7 @@ fun LocationPickerDialog(
                             )
                         } else {
                             Text(
-                                text = "Confirm Location",
+                                text = AddStrings.ACTION_CONFIRM_LOCATION,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -247,7 +247,7 @@ fun LocationPickerDialog(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                if (!apiKey.isNullOrBlank() && apiKey != "YOUR_API_KEY") {
+                if (!apiKey.isNullOrBlank() && apiKey != AddStrings.MAPS_API_KEY_PLACEHOLDER) {
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
@@ -265,7 +265,7 @@ fun LocationPickerDialog(
 
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Selected location",
+                        contentDescription = AddStrings.CD_SELECTED_LOCATION,
                         tint = MapMarker,
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -312,7 +312,7 @@ fun LocationPickerDialog(
                         } else {
                             Icon(
                                 imageVector = Icons.Filled.MyLocation,
-                                contentDescription = "My location",
+                                contentDescription = AddStrings.CD_MY_LOCATION,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -362,13 +362,13 @@ private fun PlaceholderLocationPicker(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "Google Maps API key not set.",
+            text = AddStrings.MAPS_KEY_MISSING_TITLE,
             color = Error,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Set MAPS_API_KEY in AndroidManifest to enable the map picker. You can still enter coordinates manually below.",
+            text = AddStrings.MAPS_KEY_MISSING_BODY,
             color = TextPrimary,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -379,7 +379,7 @@ private fun PlaceholderLocationPicker(
             OutlinedTextField(
                 value = latitude,
                 onValueChange = { latitude = it },
-                label = { Text("Latitude") },
+                label = { Text(AddStrings.LABEL_LATITUDE) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Next
@@ -390,7 +390,7 @@ private fun PlaceholderLocationPicker(
             OutlinedTextField(
                 value = longitude,
                 onValueChange = { longitude = it },
-                label = { Text("Longitude") },
+                label = { Text(AddStrings.LABEL_LONGITUDE) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Done
@@ -414,7 +414,7 @@ private fun PlaceholderLocationPicker(
             )
         ) {
             Text(
-                text = "Confirm Coordinates",
+                text = AddStrings.ACTION_CONFIRM_COORDINATES,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -439,7 +439,7 @@ private fun readMapApiKey(context: Context): String? {
             context.packageName,
             PackageManager.GET_META_DATA
         )
-        appInfo.metaData?.getString("com.google.android.geo.API_KEY")
+        appInfo.metaData?.getString(AddStrings.MAPS_API_KEY_METADATA)
     } catch (_: Exception) {
         null
     }
@@ -503,10 +503,10 @@ private suspend fun navigateToCurrentLocation(
             val target = LatLng(location.latitude, location.longitude)
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(target, 15f))
         } else {
-            onError("Unable to get current location")
+            onError(AddStrings.ERROR_CURRENT_LOCATION)
         }
     } catch (e: Exception) {
-        onError("Unable to get current location")
+        onError(AddStrings.ERROR_CURRENT_LOCATION)
     } finally {
         setLocating(false)
     }

@@ -74,7 +74,7 @@ internal fun AddPropertyStep1Screen(
         FormTextField(
             value = form.title,
             onValueChange = onTitleChanged,
-            label = "Property Title",
+            label = AddStrings.LABEL_PROPERTY_TITLE,
             isRequired = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
@@ -85,7 +85,7 @@ internal fun AddPropertyStep1Screen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FieldLabel(text = "Property Type", isRequired = true)
+            FieldLabel(text = AddStrings.LABEL_PROPERTY_TYPE, isRequired = true)
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -104,7 +104,7 @@ internal fun AddPropertyStep1Screen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FieldLabel(text = "Listing Type", isRequired = true)
+            FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
             ListingTypeToggle(
                 selected = form.rentBuy,
                 onSelected = onRentBuyChanged
@@ -114,11 +114,11 @@ internal fun AddPropertyStep1Screen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FieldLabel(text = "Location", isRequired = true)
+            FieldLabel(text = AddStrings.LABEL_LOCATION, isRequired = true)
             OutlinedTextField(
                 value = form.address,
                 onValueChange = onAddressChanged,
-                label = { Text("Enter location, locality or landmark") },
+                label = { Text(AddStrings.LOCATION_FIELD_PLACEHOLDER) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = formFieldColors(),
@@ -135,7 +135,7 @@ internal fun AddPropertyStep1Screen(
                         modifier = Modifier.padding(end = 4.dp)
                     ) {
                         Text(
-                            text = "Use my Location",
+                            text = AddStrings.ACTION_USE_MY_LOCATION,
                             color = Accent,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium
@@ -160,9 +160,9 @@ internal fun AddPropertyStep1Screen(
             ) {
                 Text(
                     text = if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
-                        "Change Location on Map"
+                        AddStrings.ACTION_CHANGE_LOCATION_ON_MAP
                     } else {
-                        "Pick on Map"
+                        AddStrings.ACTION_PICK_ON_MAP
                     },
                     fontWeight = FontWeight.Medium
                 )
@@ -176,7 +176,7 @@ internal fun AddPropertyStep1Screen(
             FormTextField(
                 value = form.city,
                 onValueChange = onCityChanged,
-                label = "City",
+                label = AddStrings.LABEL_CITY,
                 isRequired = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
@@ -187,7 +187,7 @@ internal fun AddPropertyStep1Screen(
             FormTextField(
                 value = form.locality,
                 onValueChange = onLocalityChanged,
-                label = "Locality",
+                label = AddStrings.LABEL_LOCALITY,
                 isRequired = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
@@ -200,7 +200,7 @@ internal fun AddPropertyStep1Screen(
         FormTextField(
             value = form.pincode,
             onValueChange = onPincodeChanged,
-            label = "Pincode",
+            label = AddStrings.LABEL_PINCODE,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next
@@ -213,7 +213,7 @@ internal fun AddPropertyStep1Screen(
             FormTextField(
                 value = form.description,
                 onValueChange = onDescriptionChanged,
-                label = "Short Description",
+                label = AddStrings.LABEL_SHORT_DESCRIPTION,
                 minLines = 3,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -221,7 +221,7 @@ internal fun AddPropertyStep1Screen(
                 )
             )
             Text(
-                text = "${form.description.length}/50",
+                text = "${form.description.length}${AddStrings.DESCRIPTION_COUNTER_SUFFIX}",
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.align(Alignment.End)
@@ -293,7 +293,7 @@ private fun ListingTypeToggle(
     ) {
         RentBuy.entries.forEach { rentBuy ->
             val isSelected = selected == rentBuy
-            val label = if (rentBuy == RentBuy.BUY) "For Sale" else "For Rent"
+            val label = if (rentBuy == RentBuy.BUY) AddStrings.LISTING_FOR_SALE else AddStrings.LISTING_FOR_RENT
             val icon = if (rentBuy == RentBuy.BUY) Icons.Default.Home else Icons.Default.Home
             Card(
                 modifier = Modifier

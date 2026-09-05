@@ -78,7 +78,7 @@ internal fun AddPropertyStep5Screen(
             if (form.images.isNotEmpty()) {
                 AsyncImage(
                     model = form.images.first(),
-                    contentDescription = "Cover photo",
+                    contentDescription = AddStrings.CD_COVER_PHOTO,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -110,7 +110,7 @@ internal fun AddPropertyStep5Screen(
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
-                    text = "Edit",
+                    text = AddStrings.ACTION_EDIT,
                     color = OnAccent,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
@@ -119,7 +119,7 @@ internal fun AddPropertyStep5Screen(
         }
 
         Text(
-            text = form.title.ifBlank { "Untitled Property" },
+            text = form.title.ifBlank { AddStrings.UNTITLED_PROPERTY },
             color = TextPrimary,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
@@ -144,22 +144,22 @@ internal fun AddPropertyStep5Screen(
 
         // Detail rows
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ReviewRow(label = "Property Type", value = form.propertyType?.label.orEmpty())
-            ReviewRow(label = "Listing Type", value = listingTypeLabel(form.rentBuy))
-            ReviewRow(label = "Price", value = priceText(form))
-            ReviewRow(label = "Configuration", value = configurationText(form))
-            ReviewRow(label = "Built-up Area", value = areaText(form.builtUpArea))
-            ReviewRow(label = "Furnishing", value = form.furnishing?.label.orEmpty())
-            ReviewRow(label = "Facing", value = form.facing?.label.orEmpty())
-            ReviewRow(label = "Property Age", value = form.age?.label.orEmpty())
-            ReviewRow(label = "Status", value = form.propertyStatus)
-            ReviewRow(label = "Location", value = locationText(form))
+            ReviewRow(label = AddStrings.LABEL_PROPERTY_TYPE, value = form.propertyType?.label.orEmpty())
+            ReviewRow(label = AddStrings.LABEL_LISTING_TYPE, value = listingTypeLabel(form.rentBuy))
+            ReviewRow(label = AddStrings.LABEL_PRICE, value = priceText(form))
+            ReviewRow(label = AddStrings.LABEL_CONFIGURATION, value = configurationText(form))
+            ReviewRow(label = AddStrings.LABEL_BUILT_UP_AREA, value = areaText(form.builtUpArea))
+            ReviewRow(label = AddStrings.LABEL_FURNISHING, value = form.furnishing?.label.orEmpty())
+            ReviewRow(label = AddStrings.LABEL_FACING, value = form.facing?.label.orEmpty())
+            ReviewRow(label = AddStrings.LABEL_PROPERTY_AGE, value = form.age?.label.orEmpty())
+            ReviewRow(label = AddStrings.LABEL_STATUS, value = form.propertyStatus)
+            ReviewRow(label = AddStrings.LABEL_LOCATION, value = locationText(form))
         }
 
         if (form.description.isNotBlank()) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "Description",
+                    text = AddStrings.LABEL_DESCRIPTION,
                     color = TextSecondary,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -170,7 +170,7 @@ internal fun AddPropertyStep5Screen(
                     maxLines = if (descriptionExpanded) Int.MAX_VALUE else 3
                 )
                 Text(
-                    text = if (descriptionExpanded) "Show Less" else "Show More",
+                    text = if (descriptionExpanded) AddStrings.ACTION_SHOW_LESS else AddStrings.ACTION_SHOW_MORE,
                     color = Accent,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
@@ -181,7 +181,7 @@ internal fun AddPropertyStep5Screen(
             }
         }
 
-        ReviewRow(label = "Photos", value = photosText(form))
+        ReviewRow(label = AddStrings.LABEL_PHOTOS, value = photosText(form))
 
         // Confirmation checkbox required before publishing.
         Row(
@@ -201,9 +201,9 @@ internal fun AddPropertyStep5Screen(
             )
             Text(
                 text = buildAnnotatedString {
-                    append("I confirm that the information provided is accurate and I agree to the ")
+                    append(AddStrings.CONFIRM_ACCURACY_PREFIX)
                     withStyle(SpanStyle(color = Accent, fontWeight = FontWeight.Bold)) {
-                        append("Terms & Conditions")
+                        append(AddStrings.TERMS_AND_CONDITIONS)
                     }
                 },
                 color = TextPrimary,
@@ -228,13 +228,13 @@ internal fun AddPropertyStep5Screen(
                 )
             ) {
                 Text(
-                    text = "Back",
+                    text = AddStrings.ACTION_BACK,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
             }
             ContinueButton(
-                text = "Publish Listing",
+                text = AddStrings.ACTION_PUBLISH_LISTING,
                 onClick = onSubmit,
                 enabled = confirmed,
                 isLoading = isSubmitting,
@@ -258,7 +258,7 @@ private fun ReviewRow(label: String, value: String) {
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = value.ifBlank { "-" },
+            text = value.ifBlank { AddStrings.PLACEHOLDER_DASH },
             color = TextPrimary,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
@@ -268,9 +268,9 @@ private fun ReviewRow(label: String, value: String) {
 }
 
 private fun listingTypeLabel(rentBuy: RentBuy?): String = when (rentBuy) {
-    RentBuy.RENT -> "For Rent"
-    RentBuy.BUY -> "For Sale"
-    null -> "-"
+    RentBuy.RENT -> AddStrings.LISTING_FOR_RENT
+    RentBuy.BUY -> AddStrings.LISTING_FOR_SALE
+    null -> AddStrings.PLACEHOLDER_DASH
 }
 
 private fun bedsCount(bedroomType: BedroomType?): Int = when (bedroomType) {
@@ -286,23 +286,23 @@ private fun bedsCount(bedroomType: BedroomType?): Int = when (bedroomType) {
 
 private fun configurationText(form: PropertyForm): String {
     val beds = bedsCount(form.bedroomType)
-    if (beds == 0 && form.bathrooms == 0) return "-"
-    return "$beds Beds • ${form.bathrooms} Baths"
+    if (beds == 0 && form.bathrooms == 0) return AddStrings.PLACEHOLDER_DASH
+    return "$beds${AddStrings.BEDS_BATHS_SEPARATOR}${form.bathrooms}${AddStrings.BATHS_SUFFIX}"
 }
 
 private fun priceText(form: PropertyForm): String {
-    val price = form.price.toDoubleOrNull() ?: return form.price.ifBlank { "-" }
+    val price = form.price.toDoubleOrNull() ?: return form.price.ifBlank { AddStrings.PLACEHOLDER_DASH }
     val formatted = formatIndianPrice(price)
     val area = form.builtUpArea.toDoubleOrNull()?.takeIf { it > 0 }
         ?: return formatted
-    val perSqFt = "₹ ${formatIndianNumber(price / area)} per sq ft"
+    val perSqFt = AddStrings.RUPEE_PREFIX + formatIndianNumber(price / area) + AddStrings.PER_SQFT_SUFFIX
     return "$formatted ($perSqFt)"
 }
 
 private fun formatIndianPrice(value: Double): String = when {
-    value >= 1_00_00_000 -> "₹ ${trimToTwoDecimals(value / 1_00_00_000)} Cr"
-    value >= 1_00_000 -> "₹ ${trimToTwoDecimals(value / 1_00_000)} L"
-    else -> "₹ ${formatIndianNumber(value)}"
+    value >= 1_00_00_000 -> AddStrings.RUPEE_PREFIX + trimToTwoDecimals(value / 1_00_00_000) + AddStrings.CRORE_SUFFIX
+    value >= 1_00_000 -> AddStrings.RUPEE_PREFIX + trimToTwoDecimals(value / 1_00_000) + AddStrings.LAKH_SUFFIX
+    else -> AddStrings.RUPEE_PREFIX + formatIndianNumber(value)
 }
 
 private fun trimToTwoDecimals(value: Double): String {
@@ -310,24 +310,24 @@ private fun trimToTwoDecimals(value: Double): String {
 }
 
 private fun formatIndianNumber(value: Double): String {
-    return NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+    return NumberFormat.getNumberInstance(Locale(AddStrings.LOCALE_LANGUAGE, AddStrings.LOCALE_COUNTRY)).apply {
         maximumFractionDigits = 0
     }.format(value)
 }
 
 private fun areaText(area: String): String {
-    val value = area.toDoubleOrNull() ?: return area.ifBlank { "-" }
-    return "${formatIndianNumber(value)} sq ft"
+    val value = area.toDoubleOrNull() ?: return area.ifBlank { AddStrings.PLACEHOLDER_DASH }
+    return formatIndianNumber(value) + AddStrings.SQ_FT_SUFFIX
 }
 
 private fun locationText(form: PropertyForm): String {
     return listOf(form.locality, form.city)
         .filter { it.isNotBlank() }
         .joinToString(", ")
-        .ifBlank { "-" }
+        .ifBlank { AddStrings.PLACEHOLDER_DASH }
 }
 
 private fun photosText(form: PropertyForm): String {
-    val photos = "${form.images.size} Photos"
-    return if (form.videoUrl.isNotBlank()) "$photos, 1 Video" else photos
+    val photos = "${form.images.size}${AddStrings.PHOTOS_SUFFIX}"
+    return if (form.videoUrl.isNotBlank()) photos + AddStrings.VIDEO_SUFFIX else photos
 }

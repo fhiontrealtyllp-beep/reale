@@ -203,7 +203,7 @@ internal fun FieldLabel(
         )
         if (isRequired) {
             Text(
-                text = " *",
+                text = AddStrings.REQUIRED_MARKER,
                 color = Error
             )
         }
@@ -229,7 +229,7 @@ internal fun FormTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text("Enter $label") },
+            label = { Text(AddStrings.ENTER_PREFIX + label) },
             modifier = Modifier.fillMaxWidth(),
             minLines = minLines,
             maxLines = if (minLines > 1) 4 else 1,
@@ -264,10 +264,10 @@ internal fun <T> FormDropdown(
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value = selected?.let { optionLabel(it) } ?: "Select $label",
+                value = selected?.let { optionLabel(it) } ?: (AddStrings.SELECT_PREFIX + label),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Select $label") },
+                label = { Text(AddStrings.SELECT_PREFIX + label) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = formFieldColors(),
                 modifier = Modifier
@@ -398,7 +398,7 @@ internal fun ContinueButton(
 internal fun StepNavigationButtons(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
-    nextLabel: String = "Continue",
+    nextLabel: String = AddStrings.ACTION_CONTINUE,
     showPrevious: Boolean = true,
     isLoading: Boolean = false,
     modifier: Modifier = Modifier
@@ -421,7 +421,7 @@ internal fun StepNavigationButtons(
                 )
             ) {
                 Text(
-                    text = "Back",
+                    text = AddStrings.ACTION_BACK,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -448,7 +448,7 @@ internal fun ValidationErrorList(
         ) {
             errors.forEach { error ->
                 Text(
-                    text = "• $error",
+                    text = AddStrings.BULLET_PREFIX + error,
                     color = Error,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -481,7 +481,7 @@ internal fun ImageUrlsSection(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        SectionHeader("Property Photos")
+        SectionHeader(AddStrings.SECTION_PROPERTY_PHOTOS)
 
         Row(
             modifier = Modifier
@@ -536,12 +536,12 @@ internal fun AddImageTile(
             ) {
                 Icon(
                     imageVector = Icons.Default.AddAPhoto,
-                    contentDescription = "Add images",
+                    contentDescription = AddStrings.CD_ADD_IMAGES,
                     tint = Accent,
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
-                    text = "Add Photos",
+                    text = AddStrings.ACTION_ADD_PHOTOS,
                     color = Accent,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -564,7 +564,7 @@ internal fun ImagePreviewTile(
     ) {
         AsyncImage(
             model = url,
-            contentDescription = "Property image",
+            contentDescription = AddStrings.CD_PROPERTY_IMAGE,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
@@ -574,7 +574,7 @@ internal fun ImagePreviewTile(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Remove image",
+                contentDescription = AddStrings.CD_REMOVE_IMAGE,
                 tint = White
             )
         }
@@ -598,7 +598,7 @@ internal fun ImageSourceDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Choose Image Source",
+                    text = AddStrings.DIALOG_IMAGE_SOURCE_TITLE,
                     color = TextPrimary,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
@@ -612,13 +612,13 @@ internal fun ImageSourceDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Default.PhotoCamera,
-                        contentDescription = "Camera",
+                        contentDescription = AddStrings.CD_CAMERA,
                         tint = Accent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = "Camera",
+                        text = AddStrings.IMAGE_SOURCE_CAMERA,
                         color = TextPrimary,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -632,13 +632,13 @@ internal fun ImageSourceDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Image,
-                        contentDescription = "Gallery",
+                        contentDescription = AddStrings.CD_GALLERY,
                         tint = Accent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = "Gallery",
+                        text = AddStrings.IMAGE_SOURCE_GALLERY,
                         color = TextPrimary,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -659,7 +659,7 @@ internal fun rememberImageLaunchers(
     ) { bitmap ->
         bitmap?.let {
             val bytes = it.toJpegBytes()
-            val filename = "property_image_${System.currentTimeMillis()}.jpg"
+            val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + AddStrings.IMAGE_FILENAME_EXT
             onUpload(listOf(bytes to filename))
         }
     }
@@ -675,9 +675,9 @@ internal fun rememberImageLaunchers(
                         context.contentResolver.getType(uri)
                     } catch (e: Exception) {
                         null
-                    } ?: "image/jpeg"
-                    val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "jpg"
-                    val filename = "property_image_${System.currentTimeMillis()}_$index.$ext"
+                    } ?: AddStrings.IMAGE_MIME_DEFAULT
+                    val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: AddStrings.IMAGE_EXT_DEFAULT
+                    val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index + "." + ext
                     bytes to filename
                 }
                 if (imagesToUpload.isNotEmpty()) {
@@ -689,7 +689,7 @@ internal fun rememberImageLaunchers(
 
     return ImageLaunchers(
         camera = { cameraLauncher.launch(null) },
-        gallery = { galleryLauncher.launch("image/*") }
+        gallery = { galleryLauncher.launch(AddStrings.IMAGE_MIME_FILTER) }
     )
 }
 

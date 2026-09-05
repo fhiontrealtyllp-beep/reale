@@ -85,7 +85,7 @@ fun AddPropertyForm(
     ) { bitmap ->
         bitmap?.let {
             val bytes = it.toJpegBytes()
-            val filename = "property_image_${System.currentTimeMillis()}.jpg"
+            val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + AddStrings.IMAGE_FILENAME_EXT
             viewModel.uploadImage(bytes, filename)
         }
     }
@@ -101,9 +101,9 @@ fun AddPropertyForm(
                         context.contentResolver.getType(uri)
                     } catch (e: Exception) {
                         null
-                    } ?: "image/jpeg"
-                    val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "jpg"
-                    val filename = "property_image_${System.currentTimeMillis()}_$index.$ext"
+                    } ?: AddStrings.IMAGE_MIME_DEFAULT
+                    val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: AddStrings.IMAGE_EXT_DEFAULT
+                    val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index + "." + ext
                     bytes to filename
                 }
                 if (imagesToUpload.isNotEmpty()) {
@@ -122,7 +122,7 @@ fun AddPropertyForm(
             },
             onGallery = {
                 showImageSourceDialog = false
-                galleryLauncher.launch("image/*")
+                galleryLauncher.launch(AddStrings.IMAGE_MIME_FILTER)
             },
             onDismiss = { showImageSourceDialog = false }
         )
@@ -136,7 +136,7 @@ fun AddPropertyForm(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Section: Listing Type
-        item { SectionHeader("Listing Type") }
+        item { SectionHeader(AddStrings.LABEL_LISTING_TYPE) }
 
         item {
             ToggleRow(
@@ -163,7 +163,7 @@ fun AddPropertyForm(
                 }
             }
             FormDropdown(
-                label = "Property Type",
+                label = AddStrings.LABEL_PROPERTY_TYPE,
                 options = propertyTypes,
                 selected = form.propertyType,
                 optionLabel = { it.label },
@@ -173,13 +173,13 @@ fun AddPropertyForm(
         }
 
         // Section: Basic Details
-        item { SectionHeader("Basic Details") }
+        item { SectionHeader(AddStrings.SECTION_BASIC_DETAILS) }
 
         item {
             FormTextField(
                 value = form.title,
                 onValueChange = viewModel::onTitleChanged,
-                label = "Title",
+                label = AddStrings.LABEL_TITLE,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
@@ -191,7 +191,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.description,
                 onValueChange = viewModel::onDescriptionChanged,
-                label = "Description",
+                label = AddStrings.LABEL_DESCRIPTION,
                 minLines = 3,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
@@ -204,7 +204,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.price,
                 onValueChange = viewModel::onPriceChanged,
-                label = "Price",
+                label = AddStrings.LABEL_PRICE,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Next
@@ -217,7 +217,7 @@ fun AddPropertyForm(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Section: Location
-                SectionHeader("Location")
+                SectionHeader(AddStrings.LABEL_LOCATION)
 
                 Button(
                     onClick = { showLocationPicker = true },
@@ -231,9 +231,9 @@ fun AddPropertyForm(
                 ) {
                     Text(
                         text = if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
-                            "Change Location"
+                            AddStrings.ACTION_CHANGE_LOCATION
                         } else {
-                            "Pick on Map"
+                            AddStrings.ACTION_PICK_ON_MAP
                         },
                         fontWeight = FontWeight.Medium
                     )
@@ -241,7 +241,7 @@ fun AddPropertyForm(
 
                 if (isDebug && form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
                     Text(
-                        text = "Lat: ${form.latitude}, Lng: ${form.longitude}",
+                        text = AddStrings.LABEL_LATITUDE + ": " + form.latitude + ", " + AddStrings.LABEL_LONGITUDE + ": " + form.longitude,
                         color = TextPrimary,
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -253,7 +253,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.city,
                 onValueChange = viewModel::onCityChanged,
-                label = "City",
+                label = AddStrings.LABEL_CITY,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
@@ -265,7 +265,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.locality,
                 onValueChange = viewModel::onLocalityChanged,
-                label = "Locality",
+                label = AddStrings.LABEL_LOCALITY,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
@@ -277,7 +277,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.pincode,
                 onValueChange = viewModel::onPincodeChanged,
-                label = "Pincode",
+                label = AddStrings.LABEL_PINCODE,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -289,7 +289,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.address,
                 onValueChange = viewModel::onAddressChanged,
-                label = "Address",
+                label = AddStrings.LABEL_ADDRESS,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
@@ -298,11 +298,11 @@ fun AddPropertyForm(
         }
 
         // Section: Property Details
-        item { SectionHeader("Property Details") }
+        item { SectionHeader(AddStrings.SECTION_PROPERTY_DETAILS) }
 
         item {
             FormDropdown(
-                label = "Bedrooms",
+                label = AddStrings.LABEL_BEDROOMS,
                 options = BedroomType.entries,
                 selected = form.bedroomType,
                 optionLabel = { it.label },
@@ -313,7 +313,7 @@ fun AddPropertyForm(
 
         item {
             FormDropdown(
-                label = "Furnishing",
+                label = AddStrings.LABEL_FURNISHING,
                 options = Furnishing.entries,
                 selected = form.furnishing,
                 optionLabel = { it.label },
@@ -324,7 +324,7 @@ fun AddPropertyForm(
 
         item {
             FormDropdown(
-                label = "Facing",
+                label = AddStrings.LABEL_FACING,
                 options = Facing.entries,
                 selected = form.facing,
                 optionLabel = { it.label },
@@ -335,7 +335,7 @@ fun AddPropertyForm(
 
         item {
             FormDropdown(
-                label = "Age",
+                label = AddStrings.LABEL_AGE,
                 options = Age.entries,
                 selected = form.age,
                 optionLabel = { it.label },
@@ -346,7 +346,7 @@ fun AddPropertyForm(
 
         item {
             Text(
-                text = "Amenities",
+                text = AddStrings.LABEL_AMENITIES,
                 color = TextPrimary,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
@@ -389,7 +389,7 @@ fun AddPropertyForm(
                 FormTextField(
                     value = form.carpetArea,
                     onValueChange = viewModel::onCarpetAreaChanged,
-                    label = "Carpet Area",
+                    label = AddStrings.LABEL_CARPET_AREA,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Next
@@ -399,7 +399,7 @@ fun AddPropertyForm(
                 FormTextField(
                     value = form.builtUpArea,
                     onValueChange = viewModel::onBuiltUpAreaChanged,
-                    label = "Built-up",
+                    label = AddStrings.LABEL_BUILT_UP,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Next
@@ -409,7 +409,7 @@ fun AddPropertyForm(
                 FormTextField(
                     value = form.superBuiltUpArea,
                     onValueChange = viewModel::onSuperBuiltUpAreaChanged,
-                    label = "Super Built-up",
+                    label = AddStrings.LABEL_SUPER_BUILT_UP,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Next
@@ -423,7 +423,7 @@ fun AddPropertyForm(
             FormTextField(
                 value = form.agentPhone,
                 onValueChange = viewModel::onAgentPhoneChanged,
-                label = "Agent Phone",
+                label = AddStrings.LABEL_AGENT_PHONE,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
@@ -464,7 +464,7 @@ fun AddPropertyForm(
                 ) {
                     uiState.fieldErrors.forEach { error ->
                         Text(
-                            text = "• $error",
+                            text = AddStrings.BULLET_PREFIX + error,
                             color = Error,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -496,7 +496,7 @@ fun AddPropertyForm(
                     )
                 } else {
                     Text(
-                        text = "Submit Property",
+                        text = AddStrings.ACTION_SUBMIT_PROPERTY,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleMedium
                     )

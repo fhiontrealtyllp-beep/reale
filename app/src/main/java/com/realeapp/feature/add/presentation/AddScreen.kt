@@ -2,6 +2,7 @@ package com.realeapp.feature.add.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,25 +15,38 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bed
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SquareFoot
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -55,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
@@ -65,12 +80,13 @@ import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.White
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.ui.window.DialogProperties
+import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
-import com.realeapp.feature.search.presentation.components.PropertyList
 import com.realeapp.ui.components.LoginPrompt
 import org.koin.androidx.compose.koinViewModel
 
@@ -111,13 +127,13 @@ fun AddScreen(
                     title = {
                         Column {
                             Text(
-                                text = if (uiState.isShowingAddForm || uiState.isSubmitSuccess) "Add Property" else "My Listings",
+                                text = if (uiState.isShowingAddForm || uiState.isSubmitSuccess) AddStrings.TITLE_ADD_PROPERTY else AddStrings.TITLE_MY_LISTINGS,
                                 color = TextPrimary,
                                 fontWeight = FontWeight.Bold
                             )
                             if (!uiState.isShowingAddForm && !uiState.isSubmitSuccess) {
                                 Text(
-                                    text = "Manage your properties",
+                                    text = AddStrings.SUBTITLE_MANAGE_PROPERTIES,
                                     color = TextSecondary,
                                     style = MaterialTheme.typography.bodySmall
                                 )
@@ -137,7 +153,7 @@ fun AddScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back",
+                                    contentDescription = AddStrings.CD_BACK,
                                     tint = TextPrimary
                                 )
                             }
@@ -162,7 +178,7 @@ fun AddScreen(
                                 )
                                 Spacer(modifier = Modifier.size(4.dp))
                                 Text(
-                                    text = "Add Property",
+                                    text = AddStrings.ACTION_ADD_PROPERTY,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.labelLarge
                                 )
@@ -192,7 +208,7 @@ fun AddScreen(
 
                 // Logged-out UI prompting the user to open the login flow.
                 !uiState.isLoggedIn -> LoginPrompt(
-                    title = "Please Login to Add a Property",
+                    title = AddStrings.LOGIN_PROMPT_TITLE,
                     onLoginClick = onLoginClick,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -283,7 +299,7 @@ private fun PropertySuccessScreen(
         }
 
         Text(
-            text = "Your Property\nis Live!",
+            text = AddStrings.SUCCESS_TITLE,
             color = TextPrimary,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
@@ -291,7 +307,7 @@ private fun PropertySuccessScreen(
         )
 
         Text(
-            text = "Congratulations! Your property has been successfully listed on Reale.",
+            text = AddStrings.SUCCESS_MESSAGE,
             color = TextSecondary,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
@@ -381,7 +397,7 @@ private fun PropertySuccessScreen(
             )
         ) {
             Text(
-                text = "View Listing",
+                text = AddStrings.ACTION_VIEW_LISTING,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -399,7 +415,7 @@ private fun PropertySuccessScreen(
             )
         ) {
             Text(
-                text = "Add Another Property",
+                text = AddStrings.ACTION_ADD_ANOTHER_PROPERTY,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
@@ -408,15 +424,17 @@ private fun PropertySuccessScreen(
 }
 
 private fun successPriceText(price: Double): String {
-    if (price <= 0.0) return "-"
+    if (price <= 0.0) return AddStrings.PLACEHOLDER_DASH
     return when {
-        price >= 1_00_00_000 -> "₹ ${(price / 1_00_00_000).let { "%.2f".format(it).trimEnd('0').trimEnd('.') }} Cr"
-        price >= 1_00_000 -> "₹ ${(price / 1_00_000).let { "%.2f".format(it).trimEnd('0').trimEnd('.') }} L"
-        else -> "₹ " + NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+        price >= 1_00_00_000 -> AddStrings.RUPEE_PREFIX + (price / 1_00_00_000).let { "%.2f".format(it).trimEnd('0').trimEnd('.') } + AddStrings.CRORE_SUFFIX
+        price >= 1_00_000 -> AddStrings.RUPEE_PREFIX + (price / 1_00_000).let { "%.2f".format(it).trimEnd('0').trimEnd('.') } + AddStrings.LAKH_SUFFIX
+        else -> AddStrings.RUPEE_PREFIX + NumberFormat.getNumberInstance(Locale(AddStrings.LOCALE_LANGUAGE, AddStrings.LOCALE_COUNTRY)).apply {
             maximumFractionDigits = 0
         }.format(price)
     }
 }
+
+private val listingTabs = AddStrings.LISTING_TABS
 
 @Composable
 private fun MyPropertiesContent(
@@ -427,35 +445,419 @@ private fun MyPropertiesContent(
     onPropertyClick: (Property) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    var selectedTab by remember { mutableStateOf(AddStrings.TAB_ALL) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val counts = remember(properties) {
+        mapOf(
+            AddStrings.TAB_ALL to properties.size,
+            AddStrings.TAB_ACTIVE to properties.count { it.isActiveListing() },
+            AddStrings.TAB_INACTIVE to properties.count { it.isInactiveListing() },
+            AddStrings.TAB_DRAFTS to properties.count { it.isDraftListing() }
+        )
+    }
+
+    val query = searchQuery.trim().lowercase()
+    val filtered = properties.filter { property ->
+        val matchesTab = when (selectedTab) {
+            AddStrings.TAB_ACTIVE -> property.isActiveListing()
+            AddStrings.TAB_INACTIVE -> property.isInactiveListing()
+            AddStrings.TAB_DRAFTS -> property.isDraftListing()
+            else -> true
+        }
+        val matchesSearch = query.isEmpty() ||
+            property.title.lowercase().contains(query) ||
+            property.locality.lowercase().contains(query) ||
+            property.city.lowercase().contains(query) ||
+            property.propertyType?.label?.lowercase()?.contains(query) == true
+        matchesTab && matchesSearch
+    }
+
+    Column(modifier = modifier.fillMaxSize()) {
+        // Status filter tabs with counts.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listingTabs.forEach { tab ->
+                val selected = selectedTab == tab
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(if (selected) Accent else CardBackground)
+                        .clickable { selectedTab = tab }
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "$tab (${counts[tab] ?: 0})",
+                        color = if (selected) OnAccent else TextPrimary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
+        }
+
+        // Search bar + filter shortcut.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(AddStrings.SEARCH_LISTINGS_PLACEHOLDER) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = TextSecondary
+                    )
+                },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = formFieldColors()
+            )
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(CardBackground)
+                    .clickable { onRefresh() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Tune,
+                    contentDescription = AddStrings.CD_REFRESH_FILTERS,
+                    tint = TextPrimary
+                )
+            }
+        }
+
         if (!errorMessage.isNullOrBlank()) {
             Text(
                 text = errorMessage,
                 color = Error,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
         }
 
-        PropertyList(
-            properties = properties,
-            isLoading = isLoading,
-            isLoadingMore = false,
-            hasReachedEnd = true,
-            onRefresh = onRefresh,
-            onLoadMore = {},
-            onLike = {},
-            onPropertyClick = onPropertyClick,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 12.dp,
-                top = 8.dp,
-                end = 12.dp,
-                bottom = 80.dp
-            )
-        )
+        when {
+            isLoading -> Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Accent)
+            }
+            filtered.isEmpty() -> Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = AddStrings.EMPTY_LISTINGS,
+                    color = TextSecondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            else -> LazyColumn(
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filtered, key = { it.id }) { property ->
+                    MyListingCard(
+                        property = property,
+                        onViewDetails = { onPropertyClick(property) }
+                    )
+                }
+            }
+        }
     }
+}
+
+@Composable
+private fun MyListingCard(
+    property: Property,
+    onViewDetails: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    val statusLabel = when {
+        property.isDraftListing() -> AddStrings.STATUS_DRAFT
+        property.isActiveListing() -> AddStrings.STATUS_ACTIVE
+        else -> AddStrings.STATUS_INACTIVE
+    }
+    val statusColor = when (statusLabel) {
+        AddStrings.STATUS_ACTIVE -> SuccessGreen
+        AddStrings.STATUS_DRAFT -> Accent
+        else -> TextSecondary
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(CardBackground)
+            .padding(10.dp)
+    ) {
+        // Photo with status + photo-count badges.
+        Box(
+            modifier = Modifier
+                .width(120.dp)
+                .height(150.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MainBackground)
+        ) {
+            if (property.images.isNotEmpty()) {
+                AsyncImage(
+                    model = property.images.first(),
+                    contentDescription = property.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(32.dp)
+                )
+            }
+            Text(
+                text = statusLabel,
+                color = White,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp)
+                    .background(statusColor, RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+            if (property.images.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(6.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Image,
+                        contentDescription = null,
+                        tint = White,
+                        modifier = Modifier.size(10.dp)
+                    )
+                    Text(
+                        text = "${property.images.size}${AddStrings.PHOTOS_SUFFIX}",
+                        color = White,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = property.title,
+                    color = TextPrimary,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = AddStrings.CD_MORE_OPTIONS,
+                            tint = TextSecondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(AddStrings.ACTION_VIEW_DETAILS) },
+                            onClick = {
+                                menuExpanded = false
+                                onViewDetails()
+                            }
+                        )
+                    }
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Accent,
+                    modifier = Modifier.size(12.dp)
+                )
+                Text(
+                    text = listOf(property.locality, property.city)
+                        .filter { it.isNotBlank() }
+                        .joinToString(", "),
+                    color = TextSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Text(
+                text = successPriceText(property.price),
+                color = Accent,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                val beds = listingBedCount(property.bedroomType)
+                if (beds > 0) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Bed,
+                            contentDescription = null,
+                            tint = TextSecondary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "$beds${AddStrings.BEDS_SUFFIX}",
+                            color = TextSecondary,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                property.builtUpArea?.let { area ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SquareFoot,
+                            contentDescription = null,
+                            tint = TextSecondary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = formatIndianNumber(area) + AddStrings.SQ_FT_SUFFIX,
+                            color = TextSecondary,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onViewDetails,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, Accent),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Accent),
+                    contentPadding = PaddingValues(vertical = 6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        text = AddStrings.ACTION_EDIT,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Button(
+                    onClick = onViewDetails,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Accent.copy(alpha = 0.15f),
+                        contentColor = Accent
+                    ),
+                    contentPadding = PaddingValues(vertical = 6.dp)
+                ) {
+                    Text(
+                        text = if (statusLabel == AddStrings.STATUS_INACTIVE) AddStrings.ACTION_REACTIVATE else AddStrings.ACTION_VIEW_DETAILS,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Icon(
+                        imageVector = if (statusLabel == AddStrings.STATUS_INACTIVE) {
+                            Icons.Default.Refresh
+                        } else {
+                            Icons.AutoMirrored.Filled.ArrowForward
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun Property.isActiveListing(): Boolean =
+    status == null || status.equals(AddStrings.STATUS_LIVE, ignoreCase = true) || status.equals(AddStrings.STATUS_VALUE_ACTIVE, ignoreCase = true)
+
+private fun Property.isDraftListing(): Boolean =
+    status.equals(AddStrings.STATUS_VALUE_DRAFT, ignoreCase = true)
+
+private fun Property.isInactiveListing(): Boolean =
+    !isActiveListing() && !isDraftListing()
+
+private fun listingBedCount(bedroomType: BedroomType?): Int = when (bedroomType) {
+    BedroomType.ONE_RK, BedroomType.ONE_BHK, BedroomType.STUDIO_APARTMENT -> 1
+    BedroomType.TWO_BHK -> 2
+    BedroomType.THREE_BHK -> 3
+    BedroomType.FOUR_BHK -> 4
+    BedroomType.FIVE_BHK -> 5
+    BedroomType.SIX_BHK -> 6
+    BedroomType.SIX_PLUS_BHK -> 7
+    null -> 0
+}
+
+private fun formatIndianNumber(value: Double): String {
+    return NumberFormat.getNumberInstance(Locale(AddStrings.LOCALE_LANGUAGE, AddStrings.LOCALE_COUNTRY)).apply {
+        maximumFractionDigits = 0
+    }.format(value)
 }

@@ -47,21 +47,9 @@ import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 import com.realeapp.ui.theme.White
 
-private val photoSuggestions = listOf(
-    "Main Exterior",
-    "Living Room",
-    "Bedroom",
-    "Kitchen",
-    "Bathroom",
-    "Balcony / View",
-    "Amenities"
-)
+private val photoSuggestions = AddStrings.PHOTO_SUGGESTIONS
 
-private val photoTips = listOf(
-    "Use clear, well-lit photos",
-    "Show all key areas (bedrooms, kitchen, etc.)",
-    "Include exterior, amenities and surrounding views"
-)
+private val photoTips = AddStrings.PHOTO_TIPS
 
 @Composable
 internal fun AddPropertyStep3Screen(
@@ -84,7 +72,7 @@ internal fun AddPropertyStep3Screen(
         )
 
         Text(
-            text = "Add at least 5 photos for better visibility",
+            text = AddStrings.PHOTOS_VISIBILITY_HINT,
             color = TextSecondary,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
@@ -144,7 +132,7 @@ private fun PhotoUploadBox(
                 strokeWidth = 2.dp
             )
             Text(
-                text = "Uploading photos...",
+                text = AddStrings.UPLOADING_PHOTOS,
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -156,18 +144,18 @@ private fun PhotoUploadBox(
                 modifier = Modifier.size(40.dp)
             )
             Text(
-                text = "Upload Photos",
+                text = AddStrings.UPLOAD_PHOTOS_TITLE,
                 color = TextPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Drag & drop or tap to upload",
+                text = AddStrings.UPLOAD_PHOTOS_DRAG_HINT,
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "JPG, PNG (Max 10 MB each)",
+                text = AddStrings.UPLOAD_PHOTOS_FORMAT_HINT,
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -180,7 +168,7 @@ private fun PhotoUploadBox(
                 )
             ) {
                 Text(
-                    text = "Select Photos",
+                    text = AddStrings.ACTION_SELECT_PHOTOS,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -215,7 +203,7 @@ private fun PhotoGrid(
                         val index = rowIndex * 2 + columnIndex
                         PhotoCell(
                             url = url,
-                            label = photoSuggestions.getOrElse(index) { "Photo ${index + 1}" },
+                            label = photoSuggestions.getOrElse(index) { AddStrings.PHOTO_LABEL_PREFIX + (index + 1) },
                             isCover = index == 0,
                             onRemove = { onRemoveImage(url) },
                             modifier = cellModifier
@@ -257,7 +245,7 @@ private fun PhotoCell(
             )
             if (isCover) {
                 Text(
-                    text = "Cover",
+                    text = AddStrings.BADGE_COVER,
                     color = OnAccent,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
@@ -278,7 +266,7 @@ private fun PhotoCell(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Remove $label",
+                    contentDescription = AddStrings.CD_REMOVE_PREFIX + label,
                     tint = White,
                     modifier = Modifier.size(14.dp)
                 )
@@ -318,12 +306,12 @@ private fun AddMoreTile(
     ) {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "Add more photos",
+            contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
             tint = Accent,
             modifier = Modifier.size(32.dp)
         )
         Text(
-            text = "Add More",
+            text = AddStrings.ACTION_ADD_MORE,
             color = Accent,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium
@@ -351,7 +339,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                text = "Tips for great photos",
+                text = AddStrings.TIPS_TITLE,
                 color = TextPrimary,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
@@ -359,7 +347,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
         }
         photoTips.forEach { tip ->
             Text(
-                text = "• $tip",
+                text = AddStrings.BULLET_PREFIX + tip,
                 color = TextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )

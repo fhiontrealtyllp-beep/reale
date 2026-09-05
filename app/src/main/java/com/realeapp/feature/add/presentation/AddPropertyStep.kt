@@ -4,11 +4,11 @@ enum class AddPropertyStep(
     val title: String,
     val subtitle: String
 ) {
-    BASIC_DETAILS("1. Basic Details", "Property type, purpose, location"),
-    PROPERTY_DETAILS("2. Property Details", "Add key details about your property"),
-    PHOTOS_MEDIA("3. Photos & Media", "Showcase your property with high-quality photos"),
-    PRICING("4. Pricing", "Set the price and availability details"),
-    REVIEW_PUBLISH("5. Review & Publish", "Please check all details before publishing");
+    BASIC_DETAILS(AddStrings.STEP1_TITLE, AddStrings.STEP1_SUBTITLE),
+    PROPERTY_DETAILS(AddStrings.STEP2_TITLE, AddStrings.STEP2_SUBTITLE),
+    PHOTOS_MEDIA(AddStrings.STEP3_TITLE, AddStrings.STEP3_SUBTITLE),
+    PRICING(AddStrings.STEP4_TITLE, AddStrings.STEP4_SUBTITLE),
+    REVIEW_PUBLISH(AddStrings.STEP5_TITLE, AddStrings.STEP5_SUBTITLE);
 
     val index: Int get() = ordinal + 1
     val isFirst: Boolean get() = this == BASIC_DETAILS

@@ -1,5 +1,6 @@
 package com.realeapp.feature.add.domain.model
 
+import com.realeapp.feature.add.presentation.AddStrings
 import com.realeapp.feature.search.domain.model.Age
 import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
@@ -49,22 +50,22 @@ data class PropertyForm(
 
     fun validate(): List<String> {
         val errors = mutableListOf<String>()
-        if (rentBuy == null) errors.add("Rent/Buy is required")
-        if (residentialCommercial == null) errors.add("Residential/Commercial is required")
-        if (propertyType == null) errors.add("Property type is required")
-        if (title.isBlank()) errors.add("Title is required")
+        if (rentBuy == null) errors.add(AddStrings.ERR_RENT_BUY_REQUIRED)
+        if (residentialCommercial == null) errors.add(AddStrings.ERR_RESIDENTIAL_COMMERCIAL_REQUIRED)
+        if (propertyType == null) errors.add(AddStrings.ERR_PROPERTY_TYPE_REQUIRED)
+        if (title.isBlank()) errors.add(AddStrings.ERR_TITLE_REQUIRED)
         if (price.isBlank()) {
-            errors.add("Price is required")
+            errors.add(AddStrings.ERR_PRICE_REQUIRED)
         } else if (price.toDoubleOrNull() == null) {
-            errors.add("Price must be a valid number")
+            errors.add(AddStrings.ERR_PRICE_INVALID)
         }
-        if (city.isBlank()) errors.add("City is required")
-        if (locality.isBlank()) errors.add("Locality is required")
+        if (city.isBlank()) errors.add(AddStrings.ERR_CITY_REQUIRED)
+        if (locality.isBlank()) errors.add(AddStrings.ERR_LOCALITY_REQUIRED)
         if (latitude.isNotBlank() && latitude.toDoubleOrNull() == null) {
-            errors.add("Latitude must be a valid number")
+            errors.add(AddStrings.ERR_LATITUDE_INVALID)
         }
         if (longitude.isNotBlank() && longitude.toDoubleOrNull() == null) {
-            errors.add("Longitude must be a valid number")
+            errors.add(AddStrings.ERR_LONGITUDE_INVALID)
         }
         return errors
     }

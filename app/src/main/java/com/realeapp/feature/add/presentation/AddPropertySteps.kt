@@ -127,7 +127,7 @@ fun AddPropertySteps(
                 StepNavigationButtons(
                     onPrevious = viewModel::previousStep,
                     onNext = viewModel::nextStep,
-                    nextLabel = if (uiState.currentStep == AddPropertyStep.PRICING) "Review" else "Continue",
+                    nextLabel = if (uiState.currentStep == AddPropertyStep.PRICING) AddStrings.ACTION_REVIEW else AddStrings.ACTION_CONTINUE,
                     showPrevious = !uiState.currentStep.isFirst
                 )
             }

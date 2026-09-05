@@ -59,8 +59,8 @@ import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 
-private val floorOptions = listOf("Ground") + (1..10).map { it.toString() } + listOf("10+")
-private val totalFloorsOptions = (1..20).map { it.toString() } + listOf("20+")
+private val floorOptions = listOf(AddStrings.FLOOR_GROUND) + (1..10).map { it.toString() } + listOf(AddStrings.FLOOR_TEN_PLUS)
+private val totalFloorsOptions = (1..20).map { it.toString() } + listOf(AddStrings.FLOORS_TWENTY_PLUS)
 
 @Composable
 internal fun AddPropertyStep2Screen(
@@ -89,21 +89,21 @@ internal fun AddPropertyStep2Screen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Section: Configuration
-        SectionHeader("Configuration")
+        SectionHeader(AddStrings.SECTION_CONFIGURATION)
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CountStepper(
-                label = "Bedrooms",
+                label = AddStrings.LABEL_BEDROOMS,
                 count = form.bedroomType.toBedroomCount(),
                 onCountChange = onBedroomCountChanged,
                 max = 7,
                 modifier = Modifier.weight(1f)
             )
             CountStepper(
-                label = "Bathrooms",
+                label = AddStrings.LABEL_BATHROOMS,
                 count = form.bathrooms,
                 onCountChange = onBathroomsChanged,
                 modifier = Modifier.weight(1f)
@@ -117,7 +117,7 @@ internal fun AddPropertyStep2Screen(
             FormTextField(
                 value = form.builtUpArea,
                 onValueChange = onBuiltUpAreaChanged,
-                label = "Built-up Area (sq ft)",
+                label = AddStrings.LABEL_BUILT_UP_AREA_SQFT,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Next
@@ -127,7 +127,7 @@ internal fun AddPropertyStep2Screen(
             FormTextField(
                 value = form.plotArea,
                 onValueChange = onPlotAreaChanged,
-                label = "Plot Area (sq ft)",
+                label = AddStrings.LABEL_PLOT_AREA_SQFT,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Next
@@ -137,14 +137,14 @@ internal fun AddPropertyStep2Screen(
         }
 
         // Section: Property Features
-        SectionHeader("Property Features")
+        SectionHeader(AddStrings.SECTION_PROPERTY_FEATURES)
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             FormDropdown(
-                label = "Furnishing",
+                label = AddStrings.LABEL_FURNISHING,
                 options = Furnishing.entries,
                 selected = form.furnishing,
                 optionLabel = { it.label },
@@ -152,7 +152,7 @@ internal fun AddPropertyStep2Screen(
                 modifier = Modifier.weight(1f)
             )
             FormDropdown(
-                label = "Property Age",
+                label = AddStrings.LABEL_PROPERTY_AGE,
                 options = Age.entries,
                 selected = form.age,
                 optionLabel = { it.label },
@@ -166,7 +166,7 @@ internal fun AddPropertyStep2Screen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             FormDropdown(
-                label = "Floor No.",
+                label = AddStrings.LABEL_FLOOR_NO,
                 options = floorOptions,
                 selected = form.floorNo.ifBlank { null },
                 optionLabel = { it },
@@ -174,7 +174,7 @@ internal fun AddPropertyStep2Screen(
                 modifier = Modifier.weight(1f)
             )
             FormDropdown(
-                label = "Total Floors",
+                label = AddStrings.LABEL_TOTAL_FLOORS,
                 options = totalFloorsOptions,
                 selected = form.totalFloors.ifBlank { null },
                 optionLabel = { it },
@@ -184,7 +184,7 @@ internal fun AddPropertyStep2Screen(
         }
 
         // Section: Additional Features
-        SectionHeader("Additional Features")
+        SectionHeader(AddStrings.SECTION_ADDITIONAL_FEATURES)
 
         AmenityFeatureGrid(
             selected = form.amenities,
@@ -200,7 +200,7 @@ internal fun AddPropertyStep2Screen(
 
         // Section: Facing
         FormDropdown(
-            label = "Facing",
+            label = AddStrings.LABEL_FACING,
             options = Facing.entries,
             selected = form.facing,
             optionLabel = { it.label },
@@ -212,10 +212,10 @@ internal fun AddPropertyStep2Screen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            FieldLabel(text = "Property Video (Optional)")
+            FieldLabel(text = AddStrings.LABEL_PROPERTY_VIDEO_OPTIONAL)
             VideoUploadBox(
                 videoUrl = form.videoUrl,
-                onPick = { videoPickerLauncher.launch("video/*") },
+                onPick = { videoPickerLauncher.launch(AddStrings.VIDEO_MIME_FILTER) },
                 onRemove = { onVideoChanged("") }
             )
         }
@@ -251,7 +251,7 @@ private fun CountStepper(
             ) {
                 Icon(
                     imageVector = Icons.Default.Remove,
-                    contentDescription = "Decrease $label",
+                    contentDescription = AddStrings.CD_DECREASE_PREFIX + label,
                     tint = if (count > min) TextPrimary else TextSecondary
                 )
             }
@@ -267,7 +267,7 @@ private fun CountStepper(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Increase $label",
+                    contentDescription = AddStrings.CD_INCREASE_PREFIX + label,
                     tint = if (count < max) TextPrimary else TextSecondary
                 )
             }
@@ -282,14 +282,14 @@ private data class AmenityFeature(
 )
 
 private val additionalFeatures = listOf(
-    AmenityFeature(Amenity.PARKING, Icons.Default.LocalParking, "Parking"),
-    AmenityFeature(Amenity.SWIMMING_POOL, Icons.Default.Pool, "Swimming Pool"),
-    AmenityFeature(Amenity.GARDEN, Icons.Default.Grass, "Garden"),
-    AmenityFeature(Amenity.POWER_BACKUP, Icons.Default.Power, "Power Backup"),
-    AmenityFeature(Amenity.SECURITY, Icons.Default.Security, "Security"),
-    AmenityFeature(Amenity.LIFT, Icons.Default.Elevator, "Lift"),
-    AmenityFeature(Amenity.CLUB_HOUSE, Icons.Default.HolidayVillage, "Clubhouse"),
-    AmenityFeature(Amenity.PET_FRIENDLY, Icons.Default.Pets, "Pet Friendly")
+    AmenityFeature(Amenity.PARKING, Icons.Default.LocalParking, AddStrings.AMENITY_PARKING),
+    AmenityFeature(Amenity.SWIMMING_POOL, Icons.Default.Pool, AddStrings.AMENITY_SWIMMING_POOL),
+    AmenityFeature(Amenity.GARDEN, Icons.Default.Grass, AddStrings.AMENITY_GARDEN),
+    AmenityFeature(Amenity.POWER_BACKUP, Icons.Default.Power, AddStrings.AMENITY_POWER_BACKUP),
+    AmenityFeature(Amenity.SECURITY, Icons.Default.Security, AddStrings.AMENITY_SECURITY),
+    AmenityFeature(Amenity.LIFT, Icons.Default.Elevator, AddStrings.AMENITY_LIFT),
+    AmenityFeature(Amenity.CLUB_HOUSE, Icons.Default.HolidayVillage, AddStrings.AMENITY_CLUBHOUSE),
+    AmenityFeature(Amenity.PET_FRIENDLY, Icons.Default.Pets, AddStrings.AMENITY_PET_FRIENDLY)
 )
 
 @Composable
@@ -395,13 +395,13 @@ private fun VideoUploadBox(
                     modifier = Modifier.size(36.dp)
                 )
                 Text(
-                    text = "Upload Video",
+                    text = AddStrings.UPLOAD_VIDEO_TITLE,
                     color = TextPrimary,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "MP4, MOV (Max 100 MB)",
+                    text = AddStrings.UPLOAD_VIDEO_HINT,
                     color = TextSecondary,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -419,7 +419,7 @@ private fun VideoUploadBox(
                     modifier = Modifier.size(28.dp)
                 )
                 Text(
-                    text = "Video selected",
+                    text = AddStrings.VIDEO_SELECTED,
                     color = TextPrimary,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f),
@@ -428,7 +428,7 @@ private fun VideoUploadBox(
                 IconButton(onClick = onRemove) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Remove video",
+                        contentDescription = AddStrings.CD_REMOVE_VIDEO,
                         tint = TextPrimary
                     )
                 }

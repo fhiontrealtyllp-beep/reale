@@ -43,21 +43,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private val priceModeOptions = listOf("Total Price", "Price per sq ft")
+private val priceModeOptions = AddStrings.PRICE_MODE_OPTIONS
 
-private val additionalCostOptions = listOf(
-    "Maintenance",
-    "Govt. Taxes",
-    "Parking Charges",
-    "Club Membership",
-    "Other"
-)
+private val additionalCostOptions = AddStrings.ADDITIONAL_COST_OPTIONS
 
-private val propertyStatusOptions = listOf(
-    "Ready to Move",
-    "Under Construction",
-    "New Launch"
-)
+private val propertyStatusOptions = AddStrings.PROPERTY_STATUS_OPTIONS
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,12 +76,12 @@ internal fun AddPropertyStep4Screen(
                         showDatePicker = false
                     }
                 ) {
-                    Text("OK", color = Accent)
+                    Text(AddStrings.ACTION_OK, color = Accent)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel", color = Accent)
+                    Text(AddStrings.ACTION_CANCEL, color = Accent)
                 }
             }
         ) {
@@ -104,17 +94,17 @@ internal fun AddPropertyStep4Screen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Section: Price Details
-        SectionHeader("Price Details")
+        SectionHeader(AddStrings.SECTION_PRICE_DETAILS)
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            FieldLabel(text = "Price", isRequired = true)
+            FieldLabel(text = AddStrings.LABEL_PRICE, isRequired = true)
             OutlinedTextField(
                 value = form.price,
                 onValueChange = onPriceChanged,
-                placeholder = { Text("e.g. 1,85,00,000") },
+                placeholder = { Text(AddStrings.PRICE_PLACEHOLDER) },
                 leadingIcon = {
                     Text(
-                        text = "₹",
+                        text = AddStrings.RUPEE_SYMBOL,
                         color = TextPrimary,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -131,9 +121,9 @@ internal fun AddPropertyStep4Screen(
 
         ToggleRow(
             options = priceModeOptions,
-            selected = if (form.pricePerSqFt) "Price per sq ft" else "Total Price",
+            selected = if (form.pricePerSqFt) AddStrings.PRICE_MODE_PER_SQFT else AddStrings.PRICE_MODE_TOTAL,
             optionLabel = { it },
-            onSelected = { onPriceModeChanged(it == "Price per sq ft") }
+            onSelected = { onPriceModeChanged(it == AddStrings.PRICE_MODE_PER_SQFT) }
         )
 
         calculatedPriceText(form)?.let { text ->
@@ -151,7 +141,7 @@ internal fun AddPropertyStep4Screen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Negotiable",
+                text = AddStrings.LABEL_NEGOTIABLE,
                 color = TextPrimary,
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -166,7 +156,7 @@ internal fun AddPropertyStep4Screen(
         }
 
         FormDropdown(
-            label = "Additional Costs (Optional)",
+            label = AddStrings.LABEL_ADDITIONAL_COSTS,
             options = additionalCostOptions,
             selected = form.additionalCosts.ifBlank { null },
             optionLabel = { it },
@@ -175,10 +165,10 @@ internal fun AddPropertyStep4Screen(
         )
 
         // Section: Availability
-        SectionHeader("Availability")
+        SectionHeader(AddStrings.SECTION_AVAILABILITY)
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            FieldLabel(text = "Property Status", isRequired = true)
+            FieldLabel(text = AddStrings.LABEL_PROPERTY_STATUS, isRequired = true)
             propertyStatusOptions.forEach { status ->
                 Row(
                     modifier = Modifier
@@ -204,16 +194,16 @@ internal fun AddPropertyStep4Screen(
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            FieldLabel(text = "Possession Date")
+            FieldLabel(text = AddStrings.LABEL_POSSESSION_DATE)
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = form.possessionDate,
                     onValueChange = {},
-                    placeholder = { Text("Select Date") },
+                    placeholder = { Text(AddStrings.PLACEHOLDER_SELECT_DATE) },
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = "Pick date",
+                            contentDescription = AddStrings.CD_PICK_DATE,
                             tint = TextSecondary
                         )
                     },
@@ -237,18 +227,18 @@ private fun calculatedPriceText(form: PropertyForm): String? {
     val price = form.price.toDoubleOrNull() ?: return null
     val area = form.builtUpArea.toDoubleOrNull()?.takeIf { it > 0 } ?: return null
     return if (form.pricePerSqFt) {
-        "₹ ${formatIndianAmount(price * area)} total (calculated)"
+        AddStrings.RUPEE_PREFIX + formatIndianAmount(price * area) + AddStrings.CALC_TOTAL_SUFFIX
     } else {
-        "₹ ${formatIndianAmount(price / area)} per sq ft (calculated)"
+        AddStrings.RUPEE_PREFIX + formatIndianAmount(price / area) + AddStrings.CALC_PER_SQFT_SUFFIX
     }
 }
 
 private fun formatIndianAmount(value: Double): String {
-    return NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+    return NumberFormat.getNumberInstance(Locale(AddStrings.LOCALE_LANGUAGE, AddStrings.LOCALE_COUNTRY)).apply {
         maximumFractionDigits = 0
     }.format(value)
 }
 
 private fun formatPossessionDate(millis: Long): String {
-    return SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(millis))
+    return SimpleDateFormat(AddStrings.DATE_FORMAT_POSSESSION, Locale.getDefault()).format(Date(millis))
 }
