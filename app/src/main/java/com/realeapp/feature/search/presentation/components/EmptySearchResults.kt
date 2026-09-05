@@ -2,7 +2,6 @@ package com.realeapp.feature.search.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,11 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.realeapp.ui.components.VerticalSpacer16
+import com.realeapp.ui.components.VerticalSpacer8
+import com.realeapp.ui.theme.TextPrimary
 
 @Composable
 fun EmptySearchResults(
@@ -26,7 +27,7 @@ fun EmptySearchResults(
         Icon(
             imageVector = Icons.Outlined.Home,
             contentDescription = null,
-            tint = Color.Gray,
+            tint = TextPrimary.copy(alpha = 0.38f),
             modifier = Modifier.height(80.dp)
         )
     },
@@ -41,18 +42,18 @@ fun EmptySearchResults(
         verticalArrangement = Arrangement.Center
     ) {
         icon()
-        Spacer(modifier = Modifier.height(16.dp))
+        VerticalSpacer16()
         Text(
             text = title,
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        VerticalSpacer8()
         Text(
             text = subtitle,
-            color = Color.White.copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             fontSize = 14.sp,
             textAlign = TextAlign.Center
         )

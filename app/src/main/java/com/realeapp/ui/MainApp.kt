@@ -3,12 +3,16 @@ package com.realeapp.ui
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,31 +80,41 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     }
 
                     Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        BottomNavBar(
-                            tabs = AppScreen.all,
-                            selectedTab = selectedTab,
-                            onTabSelected = mainViewModel::selectTab
-                        )
-                    }
-                ) { innerPadding ->
-                    // Active tab UI selected by the bottom navigation bar.
-                    when (selectedTab) {
-                        AppScreen.Search -> SearchScreen(modifier = Modifier.padding(innerPadding))
-                        AppScreen.Saved -> SavedScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = AuthScreen.Login }
-                        )
-                        AppScreen.Add -> AddScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = AuthScreen.Login }
-                        )
-                        AppScreen.Profile -> ProfileScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onLoginClick = { authScreen = AuthScreen.Login }
-                        )
-                    }
+                        modifier = Modifier.fillMaxSize(),
+                        contentWindowInsets = WindowInsets(0.dp),
+                        bottomBar = {
+                            BottomNavBar(
+                                tabs = AppScreen.all,
+                                selectedTab = selectedTab,
+                                onTabSelected = mainViewModel::selectTab
+                            )
+                        }
+                    ) { innerPadding ->
+                        // Active tab UI selected by the bottom navigation bar.
+                        // Status bars are applied here once; child screens opt out
+                        // of automatic insets and fill the remaining area.
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                                .statusBarsPadding()
+                        ) {
+                            when (selectedTab) {
+                                AppScreen.Search -> SearchScreen(modifier = Modifier.fillMaxSize())
+                                AppScreen.Saved -> SavedScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onLoginClick = { authScreen = AuthScreen.Login }
+                                )
+                                AppScreen.Add -> AddScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onLoginClick = { authScreen = AuthScreen.Login }
+                                )
+                                AppScreen.Profile -> ProfileScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onLoginClick = { authScreen = AuthScreen.Login }
+                                )
+                            }
+                        }
                     }
 
                     if (showExitDialog) {

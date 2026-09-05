@@ -51,6 +51,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.components.VerticalSpacer8
+import com.realeapp.ui.components.VerticalSpacer16
+import com.realeapp.ui.components.VerticalSpacer24
+import com.realeapp.ui.components.VerticalSpacer32
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +90,7 @@ fun RegisterScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFFBFBFB)
+                            tint = TextPrimary
                         )
                     }
                 },
@@ -95,7 +106,7 @@ fun RegisterScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF141C3D), Color(0xFF1C2755))
+                        colors = listOf(MainBackground, CardBackground)
                     )
                 )
                 .padding(innerPadding)
@@ -111,20 +122,20 @@ fun RegisterScreen(
             ) {
                 Text(
                     text = "Create Account",
-                    color = Color(0xFFFBFBFB),
+                    color = TextPrimary,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                VerticalSpacer8()
 
                 Text(
                     text = "Sign up to get started",
-                    color = Color(0xFFFBFBFB).copy(alpha = 0.7f),
+                    color = TextPrimary.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                VerticalSpacer32()
 
                 // User name UI.
                 OutlinedTextField(
@@ -140,7 +151,7 @@ fun RegisterScreen(
                     colors = fieldColors()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                VerticalSpacer16()
 
                 // Account credentials UI: email, password, and password confirmation.
                 OutlinedTextField(
@@ -156,7 +167,7 @@ fun RegisterScreen(
                     colors = fieldColors()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                VerticalSpacer16()
 
                 OutlinedTextField(
                     value = uiState.password,
@@ -174,14 +185,14 @@ fun RegisterScreen(
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
-                                tint = Color(0xFF8F9FDC)
+                                tint = TextSecondary
                             )
                         }
                     },
                     colors = fieldColors()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                VerticalSpacer16()
 
                 OutlinedTextField(
                     value = uiState.confirmPassword,
@@ -199,7 +210,7 @@ fun RegisterScreen(
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
-                                tint = Color(0xFF8F9FDC)
+                                tint = TextSecondary
                             )
                         }
                     },
@@ -208,15 +219,15 @@ fun RegisterScreen(
 
                 // Validation or registration error UI.
                 if (uiState.errorMessage != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    VerticalSpacer8()
                     Text(
                         text = uiState.errorMessage.orEmpty(),
-                        color = Color.Red,
+                        color = Error,
                         fontSize = 14.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                VerticalSpacer24()
 
                 // Primary registration action; progress replaces its label while submitting.
                 TextButton(
@@ -227,14 +238,14 @@ fun RegisterScreen(
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color(0xFFFDD60D),
-                        contentColor = Color(0xFF141C3D),
-                        disabledContainerColor = Color(0xFFFDD60D).copy(alpha = 0.5f)
+                        containerColor = Accent,
+                        contentColor = OnAccent,
+                        disabledContainerColor = Accent.copy(alpha = 0.5f)
                     )
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
-                            color = Color(0xFF141C3D),
+                            color = OnAccent,
                             modifier = Modifier.height(24.dp)
                         )
                     } else {
@@ -246,13 +257,13 @@ fun RegisterScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                VerticalSpacer24()
 
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFFFBFBFB),
+                                color = TextPrimary,
                                 fontSize = 16.sp
                             )
                         ) {
@@ -260,7 +271,7 @@ fun RegisterScreen(
                         }
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFFFDD60D),
+                                color = Accent,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -278,10 +289,10 @@ fun RegisterScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun fieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = Color(0xFFFBFBFB),
-    unfocusedTextColor = Color(0xFFFBFBFB),
-    focusedBorderColor = Color(0xFFFDD60D),
-    unfocusedBorderColor = Color(0xFF8F9FDC),
-    focusedLabelColor = Color(0xFFFDD60D),
-    unfocusedLabelColor = Color(0xFF8F9FDC)
+    focusedTextColor = TextPrimary,
+    unfocusedTextColor = TextPrimary,
+    focusedBorderColor = Accent,
+    unfocusedBorderColor = TextSecondary,
+    focusedLabelColor = Accent,
+    unfocusedLabelColor = TextSecondary
 )

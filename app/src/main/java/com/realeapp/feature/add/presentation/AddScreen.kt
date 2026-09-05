@@ -33,10 +33,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
 import androidx.compose.ui.window.DialogProperties
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
@@ -64,13 +69,13 @@ fun AddScreen(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = Color(0xFF141C3D),
+        containerColor = MainBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = Color(0xFF1C2755),
-                    contentColor = Color(0xFFFBFBFB)
+                    containerColor = CardBackground,
+                    contentColor = TextPrimary
                 )
             }
         },
@@ -81,7 +86,7 @@ fun AddScreen(
                     title = {
                         Text(
                             text = if (uiState.isShowingAddForm) "Add Property" else "My Properties",
-                            color = Color(0xFFFBFBFB),
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -91,13 +96,13 @@ fun AddScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFFBFBFB)
+                                    tint = TextPrimary
                                 )
                             }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF141C3D)
+                        containerColor = MainBackground
                     )
                 )
             }
@@ -107,8 +112,8 @@ fun AddScreen(
             if (uiState.isLoggedIn && !uiState.isShowingAddForm) {
                 FloatingActionButton(
                     onClick = viewModel::onShowAddForm,
-                    containerColor = Color(0xFFFDD60D),
-                    contentColor = Color(0xFF141C3D)
+                    containerColor = Accent,
+                    contentColor = OnAccent
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -128,7 +133,7 @@ fun AddScreen(
                 uiState.isLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = Color(0xFFFDD60D)
+                        color = Accent
                     )
                 }
 
@@ -166,7 +171,7 @@ fun AddScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF141C3D)
+                color = MainBackground
             ) {
                 PropertyDetailScreen(
                     property = property,
@@ -194,7 +199,7 @@ private fun MyPropertiesContent(
         if (!errorMessage.isNullOrBlank()) {
             Text(
                 text = errorMessage,
-                color = Color(0xFFFF6B6B),
+                color = Error,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(16.dp)
             )

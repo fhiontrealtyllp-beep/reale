@@ -2,7 +2,6 @@ package com.realeapp.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,11 +18,13 @@ import androidx.compose.runtime.Composable
 import com.realeapp.util.Logger
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
 
 private const val TAG = "LoginPrompt"
 
@@ -42,17 +43,17 @@ fun LoginPrompt(
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
-            tint = Color(0xFFFDD60D),
+            tint = Accent,
             modifier = Modifier.size(80.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        VerticalSpacer16()
         Text(
             text = title,
-            color = Color(0xFFFBFBFB),
+            color = TextPrimary,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        VerticalSpacer24()
         TextButton(
             onClick = {
                 Logger.d(TAG, "Login button clicked: \"$title\"")
@@ -63,8 +64,8 @@ fun LoginPrompt(
                 .height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.textButtonColors(
-                containerColor = Color(0xFFFDD60D),
-                contentColor = Color(0xFF141C3D)
+                containerColor = Accent,
+                contentColor = OnAccent
             )
         ) {
             Text(

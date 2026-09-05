@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.BottomNavBackground
 import com.realeapp.ui.theme.TextPrimary
 
 private val BOTTOM_NAV_HEIGHT = 120.dp
@@ -31,7 +31,7 @@ fun BottomNavBar(
             .fillMaxWidth()
             .height(BOTTOM_NAV_HEIGHT)
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-        containerColor = MainBackground,
+        containerColor = BottomNavBackground,
         tonalElevation = 0.dp
     ) {
         tabs.forEach { screen ->

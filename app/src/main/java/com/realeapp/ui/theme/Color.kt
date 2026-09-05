@@ -18,3 +18,9 @@ val ItemCardBackground = Color(0xFF1C1C24)
 val TextPrimary = Color(0xFFFBFBFB)
 val TextSecondary = Color(0xFF8F9FDC)
 val Accent = Color(0xFFFDD60D)
+val OnAccent = MainBackground
+val OnAccentText = Color.Black
+val BottomNavBackground = MainBackground
+val Error = Color(0xFFFF6B6B)
+val TextHint = TextPrimary.copy(alpha = 0.38f)
+val FilterChipUnselectedContainer = Color(0xFF2B3C83)

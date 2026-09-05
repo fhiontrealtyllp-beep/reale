@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,9 +47,15 @@ import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.koinViewModel
 import com.realeapp.feature.saved.presentation.SavedViewModel
 import com.realeapp.ui.components.LoginPrompt
+import com.realeapp.ui.components.VerticalSpacer16
+import com.realeapp.ui.components.VerticalSpacer8
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.PropertyListItem
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.TextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,13 +76,13 @@ fun SavedScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = Color(0xFF141C3D),
+        containerColor = MainBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = Color(0xFF1C2755),
-                    contentColor = Color(0xFFFBFBFB)
+                    containerColor = CardBackground,
+                    contentColor = TextPrimary
                 )
             }
         },
@@ -86,12 +91,12 @@ fun SavedScreen(
                 title = {
                     Text(
                         text = "Saved Properties",
-                        color = Color(0xFFFBFBFB),
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF141C3D)
+                    containerColor = MainBackground
                 )
             )
         }
@@ -106,7 +111,7 @@ fun SavedScreen(
                 uiState.isLoading && uiState.properties.isEmpty() -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = Color(0xFFFDD60D)
+                        color = Accent
                     )
                 }
 
@@ -148,7 +153,7 @@ fun SavedScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF141C3D)
+                color = MainBackground
             ) {
                 PropertyDetailScreen(
                     property = property,
@@ -176,7 +181,7 @@ private fun SavedPropertyList(
         onRefresh = onRefresh,
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF141C3D))
+            .background(MainBackground)
     ) {
         if (properties.isEmpty()) {
             EmptySavedResults(
@@ -214,19 +219,19 @@ private fun EmptySavedResults(modifier: Modifier = Modifier) {
         Icon(
             imageVector = Icons.Default.FavoriteBorder,
             contentDescription = null,
-            tint = Color(0xFFFDD60D),
+            tint = Accent,
             modifier = Modifier.size(80.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        VerticalSpacer16()
         Text(
             text = "No Liked Properties",
-            color = Color(0xFFFBFBFB),
+            color = TextPrimary,
             style = MaterialTheme.typography.titleLarge
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        VerticalSpacer8()
         Text(
             text = "You haven't liked any properties yet.",
-            color = Color(0xFFFBFBFB).copy(alpha = 0.7f),
+            color = TextPrimary.copy(alpha = 0.7f),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
@@ -246,14 +251,14 @@ private fun ErrorContent(
     ) {
         Text(
             text = message,
-            color = Color(0xFFFBFBFB),
+            color = TextPrimary,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        VerticalSpacer16()
         TextButton(
             onClick = onRetry,
-            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFDD60D))
+            colors = ButtonDefaults.textButtonColors(contentColor = Accent)
         ) {
             Text(text = "Retry")
         }

@@ -31,9 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
 import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.koinViewModel
 import com.realeapp.feature.search.presentation.components.EmptySearchResults
@@ -63,13 +67,13 @@ fun SearchScreen(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = Color(0xFF141C3D),
+        containerColor = MainBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = Color(0xFF1C2755),
-                    contentColor = Color(0xFFFBFBFB)
+                    containerColor = CardBackground,
+                    contentColor = TextPrimary
                 )
             }
         },
@@ -77,8 +81,8 @@ fun SearchScreen(
             // View toggle action switches the results UI between map and list modes.
             FloatingActionButton(
                 onClick = viewModel::onToggleView,
-                containerColor = Color(0xFFFDD60D),
-                contentColor = Color(0xFF141C3D)
+                containerColor = Accent,
+                contentColor = OnAccent
             ) {
                 Icon(
                     imageVector = if (uiState.isMapView) Icons.AutoMirrored.Filled.List else Icons.Default.Map,
@@ -107,7 +111,7 @@ fun SearchScreen(
                     uiState.isLoading && uiState.properties.isEmpty() -> {
                         androidx.compose.material3.CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
-                            color = Color(0xFFFDD60D)
+                            color = Accent
                         )
                     }
 
@@ -159,7 +163,7 @@ fun SearchScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF141C3D)
+                color = MainBackground
             ) {
                 PropertyDetailScreen(
                     property = property,
@@ -200,12 +204,12 @@ private fun ErrorContent(
     ) {
         Text(
             text = message,
-            color = Color(0xFFFBFBFB),
+            color = TextPrimary,
             style = MaterialTheme.typography.bodyLarge
         )
         TextButton(
             onClick = onRetry,
-            colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFDD60D))
+            colors = ButtonDefaults.textButtonColors(contentColor = Accent)
         ) {
             Text(text = "Retry")
         }

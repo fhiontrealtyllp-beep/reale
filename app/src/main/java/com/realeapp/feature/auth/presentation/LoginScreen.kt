@@ -49,6 +49,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.components.VerticalSpacer8
+import com.realeapp.ui.components.VerticalSpacer16
+import com.realeapp.ui.components.VerticalSpacer24
+import com.realeapp.ui.components.VerticalSpacer32
 import com.realeapp.util.Logger
 
 private const val TAG = "LoginScreen"
@@ -80,7 +91,7 @@ fun LoginScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFFBFBFB)
+                            tint = TextPrimary
                         )
                     }
                 },
@@ -96,7 +107,7 @@ fun LoginScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF141C3D), Color(0xFF1C2755))
+                        colors = listOf(MainBackground, CardBackground)
                     )
                 )
                 .padding(innerPadding)
@@ -111,20 +122,20 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Welcome Back!",
-                    color = Color(0xFFFBFBFB),
+                    color = TextPrimary,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                VerticalSpacer8()
 
                 Text(
                     text = "Login to access your saved properties",
-                    color = Color(0xFFFBFBFB).copy(alpha = 0.7f),
+                    color = TextPrimary.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                VerticalSpacer32()
 
                 // Email input UI.
                 OutlinedTextField(
@@ -138,16 +149,16 @@ fun LoginScreen(
                         imeAction = ImeAction.Next
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFFFBFBFB),
-                        unfocusedTextColor = Color(0xFFFBFBFB),
-                        focusedBorderColor = Color(0xFFFDD60D),
-                        unfocusedBorderColor = Color(0xFF8F9FDC),
-                        focusedLabelColor = Color(0xFFFDD60D),
-                        unfocusedLabelColor = Color(0xFF8F9FDC)
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = Accent,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedLabelColor = Accent,
+                        unfocusedLabelColor = TextSecondary
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                VerticalSpacer16()
 
                 // Password input UI with a visibility toggle.
                 OutlinedTextField(
@@ -166,31 +177,31 @@ fun LoginScreen(
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
-                                tint = Color(0xFF8F9FDC)
+                                tint = TextSecondary
                             )
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFFFBFBFB),
-                        unfocusedTextColor = Color(0xFFFBFBFB),
-                        focusedBorderColor = Color(0xFFFDD60D),
-                        unfocusedBorderColor = Color(0xFF8F9FDC),
-                        focusedLabelColor = Color(0xFFFDD60D),
-                        unfocusedLabelColor = Color(0xFF8F9FDC)
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = Accent,
+                        unfocusedBorderColor = TextSecondary,
+                        focusedLabelColor = Accent,
+                        unfocusedLabelColor = TextSecondary
                     )
                 )
 
                 // Validation or authentication error UI.
                 if (uiState.errorMessage != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    VerticalSpacer8()
                     Text(
                         text = uiState.errorMessage.orEmpty(),
-                        color = Color.Red,
+                        color = Error,
                         fontSize = 14.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                VerticalSpacer24()
 
                 // Primary login action; progress replaces its label during authentication.
                 TextButton(
@@ -204,14 +215,14 @@ fun LoginScreen(
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color(0xFFFDD60D),
-                        contentColor = Color(0xFF141C3D),
-                        disabledContainerColor = Color(0xFFFDD60D).copy(alpha = 0.5f)
+                        containerColor = Accent,
+                        contentColor = OnAccent,
+                        disabledContainerColor = Accent.copy(alpha = 0.5f)
                     )
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
-                            color = Color(0xFF141C3D),
+                            color = OnAccent,
                             modifier = Modifier.height(24.dp)
                         )
                     } else {
@@ -223,13 +234,13 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                VerticalSpacer24()
 
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFFFBFBFB),
+                                color = TextPrimary,
                                 fontSize = 16.sp
                             )
                         ) {
@@ -237,7 +248,7 @@ fun LoginScreen(
                         }
                         withStyle(
                             style = SpanStyle(
-                                color = Color(0xFFFDD60D),
+                                color = Accent,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
