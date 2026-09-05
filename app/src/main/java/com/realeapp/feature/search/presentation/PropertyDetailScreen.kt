@@ -70,7 +70,6 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -80,13 +79,14 @@ import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import kotlinx.coroutines.delay
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.TextTertiary
 
-private val RealeMain = Color(0xFF141C3D)
-private val RealeCard = Color(0xFF1C2755)
-private val RealeYellow = Color(0xFFFDD60D)
-private val RealeWhite = Color(0xFFFBFBFB)
-private val RealeBlue = Color(0xFF8F9FDC)
-private val RealeGrey = Color(0xFF71737E)
 
 private const val AUTO_SLIDE_DELAY_MS = 2000L
 private const val MIN_ZOOM = 1f
@@ -103,13 +103,13 @@ fun PropertyDetailScreen(
 ) {
     Scaffold(
         modifier = modifier,
-        containerColor = RealeMain,
+        containerColor = MainBackground,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Property Details",
-                        color = RealeWhite,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -118,7 +118,7 @@ fun PropertyDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = RealeWhite
+                            tint = TextPrimary
                         )
                     }
                 },
@@ -129,16 +129,16 @@ fun PropertyDetailScreen(
                             Icon(
                                 imageVector = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                 contentDescription = "Like",
-                                tint = if (property.isLiked == true) RealeYellow else RealeWhite
+                                tint = if (property.isLiked == true) Accent else TextPrimary
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = RealeMain,
-                    titleContentColor = RealeWhite,
-                    navigationIconContentColor = RealeWhite,
-                    actionIconContentColor = RealeWhite
+                    containerColor = MainBackground,
+                    titleContentColor = TextPrimary,
+                    navigationIconContentColor = TextPrimary,
+                    actionIconContentColor = TextPrimary
                 )
             )
         }
@@ -164,14 +164,14 @@ fun PropertyDetailScreen(
                 ) {
                     Text(
                         text = property.title,
-                        color = RealeWhite,
+                        color = TextPrimary,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         text = formatIndianPrice(property.price, property.isRentProperty()),
-                        color = RealeYellow,
+                        color = Accent,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -183,12 +183,12 @@ fun PropertyDetailScreen(
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
-                            tint = RealeBlue,
+                            tint = TextSecondary,
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = buildLocationString(property),
-                            color = RealeWhite.copy(alpha = 0.8f),
+                            color = TextPrimary.copy(alpha = 0.8f),
                             fontSize = 14.sp
                         )
                     }
@@ -206,7 +206,7 @@ fun PropertyDetailScreen(
                     DetailSection(title = "Description") {
                         Text(
                             text = property.description,
-                            color = RealeWhite.copy(alpha = 0.85f),
+                            color = TextPrimary.copy(alpha = 0.85f),
                             fontSize = 14.sp,
                             lineHeight = 20.sp
                         )
@@ -228,12 +228,12 @@ fun PropertyDetailScreen(
                                     label = {
                                         Text(
                                             text = amenity.label,
-                                            color = RealeWhite,
+                                            color = TextPrimary,
                                             fontSize = 12.sp
                                         )
                                     },
                                     colors = AssistChipDefaults.assistChipColors(
-                                        containerColor = RealeCard
+                                        containerColor = CardBackground
                                     )
                                 )
                             }
@@ -268,15 +268,15 @@ fun PropertyDetailScreen(
                         ) {
                             Text(
                                 text = property.agentPhone,
-                                color = RealeBlue,
+                                color = TextSecondary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium
                             )
                             Button(
                                 onClick = { dialAgent(context, property.agentPhone) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = RealeYellow,
-                                    contentColor = RealeMain
+                                    containerColor = Accent,
+                                    contentColor = MainBackground
                                 )
                             ) {
                                 Icon(
@@ -354,8 +354,8 @@ private fun PropertyImageHeader(property: Property) {
                             .size(if (index == pagerState.currentPage) 8.dp else 6.dp)
                             .clip(CircleShape)
                             .background(
-                                if (index == pagerState.currentPage) RealeYellow
-                                else RealeWhite.copy(alpha = 0.5f)
+                                if (index == pagerState.currentPage) Accent
+                                else TextPrimary.copy(alpha = 0.5f)
                             )
                     )
                 }
@@ -363,14 +363,14 @@ private fun PropertyImageHeader(property: Property) {
 
             Text(
                 text = "${pagerState.currentPage + 1}/${images.size}",
-                color = RealeWhite,
+                color = TextPrimary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(RealeMain.copy(alpha = 0.6f))
+                    .background(MainBackground.copy(alpha = 0.6f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             )
         }
@@ -414,7 +414,7 @@ private fun FullScreenImageViewer(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(Black)
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -471,14 +471,14 @@ private fun FullScreenImageViewer(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    tint = RealeWhite
+                    tint = TextPrimary
                 )
             }
 
             if (images.size > 1) {
                 Text(
                     text = "${pagerState.currentPage + 1}/${images.size}",
-                    color = RealeWhite,
+                    color = TextPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
@@ -532,12 +532,12 @@ private fun OverviewColumn(
             Column {
                 Text(
                     text = label,
-                    color = RealeGrey,
+                    color = TextTertiary,
                     fontSize = 12.sp
                 )
                 Text(
                     text = value,
-                    color = RealeWhite,
+                    color = TextPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -565,13 +565,13 @@ private fun AreaItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = label,
-            color = RealeGrey,
+            color = TextTertiary,
             fontSize = 12.sp
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = value,
-            color = RealeWhite,
+            color = TextPrimary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
@@ -588,7 +588,7 @@ private fun DetailSection(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = RealeCard),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -597,7 +597,7 @@ private fun DetailSection(
         ) {
             Text(
                 text = title,
-                color = RealeWhite,
+                color = TextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -666,7 +666,7 @@ private fun MapSection(property: Property) {
                 if (!isMapLoaded) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = RealeYellow
+                        color = Accent
                     )
                 }
             }
@@ -688,12 +688,12 @@ private fun LocationPlaceholder(property: Property) {
         Icon(
             imageVector = Icons.Default.LocationOn,
             contentDescription = null,
-            tint = RealeYellow,
+            tint = Accent,
             modifier = Modifier.size(28.dp)
         )
         Text(
             text = buildLocationString(property),
-            color = RealeWhite.copy(alpha = 0.85f),
+            color = TextPrimary.copy(alpha = 0.85f),
             fontSize = 14.sp,
             lineHeight = 20.sp
         )

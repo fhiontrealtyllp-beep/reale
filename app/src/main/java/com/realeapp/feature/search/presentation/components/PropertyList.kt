@@ -18,9 +18,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.ui.theme.MainBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +58,7 @@ fun PropertyList(
         onRefresh = onRefresh,
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF141C3D))
+            .background(MainBackground)
     ) {
         LazyColumn(
             state = listState,

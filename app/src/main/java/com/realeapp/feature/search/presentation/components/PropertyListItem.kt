@@ -41,12 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
-
-private val CardColor = Color(0xFF1C2755)
-private val AccentYellow = Color(0xFFFDD60D)
-private val TextWhite = Color(0xFFFBFBFB)
-private val TextBlue = Color(0xFF8F9FDC)
-private val ChipColor = Color(0xFF263266)
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.ChipBackground
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.White
 
 @Composable
 fun PropertyListItem(
@@ -61,7 +63,7 @@ fun PropertyListItem(
             .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CardColor),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
@@ -88,9 +90,9 @@ fun PropertyListItem(
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.35f),
+                                    Black.copy(alpha = 0.35f),
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.55f)
+                                    Black.copy(alpha = 0.55f)
                                 )
                             )
                         )
@@ -100,7 +102,7 @@ fun PropertyListItem(
                 property.rentBuy?.let { rentBuy ->
                     Text(
                         text = if (property.isRentProperty()) "FOR RENT" else "FOR SALE",
-                        color = Color(0xFF141C3D),
+                        color = OnAccent,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
@@ -108,7 +110,7 @@ fun PropertyListItem(
                             .align(Alignment.TopStart)
                             .padding(12.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(AccentYellow)
+                            .background(Accent)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -120,12 +122,12 @@ fun PropertyListItem(
                         .padding(8.dp)
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(Color.Black.copy(alpha = 0.35f))
+                        .background(Black.copy(alpha = 0.35f))
                 ) {
                     Icon(
                         imageVector = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (property.isLiked == true) AccentYellow else Color.White,
+                        tint = if (property.isLiked == true) Accent else White,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -139,18 +141,18 @@ fun PropertyListItem(
                             .align(Alignment.BottomEnd)
                             .padding(12.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color.Black.copy(alpha = 0.45f))
+                            .background(Black.copy(alpha = 0.45f))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.PhotoLibrary,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = White,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = "${property.images.size}",
-                            color = Color.White,
+                            color = White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -159,7 +161,7 @@ fun PropertyListItem(
 
                 Text(
                     text = formatIndianPrice(property.price, property.isRentProperty()),
-                    color = TextWhite,
+                    color = TextPrimary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -179,7 +181,7 @@ fun PropertyListItem(
                 ) {
                     Text(
                         text = property.title,
-                        color = TextWhite,
+                        color = TextPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
@@ -190,12 +192,12 @@ fun PropertyListItem(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = it.label,
-                            color = TextBlue,
+                            color = TextSecondary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(ChipColor)
+                                .background(ChipBackground)
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
@@ -208,12 +210,12 @@ fun PropertyListItem(
                     Icon(
                         imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
-                        tint = TextBlue,
+                        tint = TextSecondary,
                         modifier = Modifier.size(14.dp)
                     )
                     Text(
                         text = "${property.locality}, ${property.city}",
-                        color = TextWhite.copy(alpha = 0.75f),
+                        color = TextPrimary.copy(alpha = 0.75f),
                         fontSize = 13.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -251,12 +253,12 @@ private fun SpecItem(icon: ImageVector, label: String) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = AccentYellow,
+            tint = Accent,
             modifier = Modifier.size(15.dp)
         )
         Text(
             text = label,
-            color = TextWhite.copy(alpha = 0.85f),
+            color = TextPrimary.copy(alpha = 0.85f),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )

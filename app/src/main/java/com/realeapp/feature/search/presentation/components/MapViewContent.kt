@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,6 +47,11 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.White
 
 @Composable
 fun MapViewContent(
@@ -121,7 +125,7 @@ fun MapViewContent(
         if (!isMapLoaded) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
-                color = Color(0xFFFDD60D)
+                color = Accent
             )
         }
 
@@ -133,16 +137,16 @@ fun MapViewContent(
         ) {
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomIn()) },
-                containerColor = Color(0xFF1C2755),
-                contentColor = Color(0xFFFBFBFB),
+                containerColor = CardBackground,
+                contentColor = TextPrimary,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom in")
             }
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomOut()) },
-                containerColor = Color(0xFF1C2755),
-                contentColor = Color(0xFFFBFBFB),
+                containerColor = CardBackground,
+                contentColor = TextPrimary,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom out")
@@ -166,14 +170,14 @@ private fun PlaceholderMapContent(
             item {
                 Text(
                     text = "Map view",
-                    color = Color.White,
+                    color = White,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Set MAPS_API_KEY in AndroidManifest to enable Google Maps.",
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = White.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -186,7 +190,7 @@ private fun PlaceholderMapContent(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = Color(0xFFFDD60D),
+                        tint = Accent,
                         modifier = Modifier.size(32.dp)
                     )
                     Column(
@@ -195,18 +199,18 @@ private fun PlaceholderMapContent(
                     ) {
                         Text(
                             text = property.title,
-                            color = Color.White,
+                            color = White,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = "${property.locality}, ${property.city}",
-                            color = Color.White.copy(alpha = 0.7f),
+                            color = White.copy(alpha = 0.7f),
                             fontSize = 12.sp
                         )
                         Text(
                             text = formatIndianPrice(property.price, property.isRentProperty()),
-                            color = Color(0xFF8F9FDC),
+                            color = TextSecondary,
                             fontSize = 13.sp
                         )
                     }

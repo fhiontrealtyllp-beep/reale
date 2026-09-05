@@ -34,7 +34,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -79,6 +78,15 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.util.isDebug
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.OnSurfaceLight
+import com.realeapp.ui.theme.SurfaceLight
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -252,8 +260,8 @@ fun AddPropertyForm(
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1C2755),
-                        contentColor = Color(0xFFFBFBFB)
+                        containerColor = CardBackground,
+                        contentColor = TextPrimary
                     )
                 ) {
                     Text(
@@ -269,7 +277,7 @@ fun AddPropertyForm(
                 if (isDebug && form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
                     Text(
                         text = "Lat: ${form.latitude}, Lng: ${form.longitude}",
-                        color = Color(0xFFFBFBFB),
+                        color = TextPrimary,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -374,7 +382,7 @@ fun AddPropertyForm(
         item {
             Text(
                 text = "Amenities",
-                color = Color(0xFFFBFBFB),
+                color = TextPrimary,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
@@ -398,10 +406,10 @@ fun AddPropertyForm(
                         },
                         label = { Text(amenity.label) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFFFDD60D),
-                            selectedLabelColor = Color(0xFF141C3D),
-                            containerColor = Color(0xFF1C2755),
-                            labelColor = Color(0xFFFBFBFB)
+                            selectedContainerColor = Accent,
+                            selectedLabelColor = OnAccent,
+                            containerColor = CardBackground,
+                            labelColor = TextPrimary
                         )
                     )
                 }
@@ -475,7 +483,7 @@ fun AddPropertyForm(
                 if (uiState.imageUploadError != null) {
                     Text(
                         text = uiState.imageUploadError,
-                        color = Color(0xFFFF6B6B),
+                        color = Error,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -492,7 +500,7 @@ fun AddPropertyForm(
                     uiState.fieldErrors.forEach { error ->
                         Text(
                             text = "• $error",
-                            color = Color(0xFFFF6B6B),
+                            color = Error,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -509,16 +517,16 @@ fun AddPropertyForm(
                     .height(52.dp),
                 enabled = !uiState.isSubmitting,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFDD60D),
-                    contentColor = Color(0xFF141C3D),
-                    disabledContainerColor = Color(0xFF8F9FDC),
-                    disabledContentColor = Color(0xFF141C3D)
+                    containerColor = Accent,
+                    contentColor = OnAccent,
+                    disabledContainerColor = TextSecondary,
+                    disabledContentColor = OnAccent
                 )
             ) {
                 if (uiState.isSubmitting) {
                     CircularProgressIndicator(
                         modifier = Modifier.width(24.dp),
-                        color = Color(0xFF141C3D),
+                        color = OnAccent,
                         strokeWidth = 2.dp
                     )
                 } else {
@@ -537,7 +545,7 @@ fun AddPropertyForm(
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        color = Color(0xFFFDD60D),
+        color = Accent,
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold
     )
@@ -561,8 +569,8 @@ private fun <T> ToggleRow(
                 onClick = { onSelected(option) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = if (isSelected) Color(0xFFFDD60D) else Color(0xFF1C2755),
-                    contentColor = if (isSelected) Color(0xFF141C3D) else Color(0xFFFBFBFB)
+                    containerColor = if (isSelected) Accent else CardBackground,
+                    contentColor = if (isSelected) OnAccent else TextPrimary
                 )
             ) {
                 Text(
@@ -689,7 +697,7 @@ private fun AddImageTile(
             .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 1.dp,
-                color = Color(0xFFFDD60D),
+                color = Accent,
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable(enabled = !isUploading, onClick = onClick),
@@ -698,7 +706,7 @@ private fun AddImageTile(
         // Image upload progress UI replaces the add-image icon during upload.
         if (isUploading) {
             CircularProgressIndicator(
-                color = Color(0xFFFDD60D),
+                color = Accent,
                 modifier = Modifier.size(32.dp),
                 strokeWidth = 2.dp
             )
@@ -706,7 +714,7 @@ private fun AddImageTile(
             Icon(
                 imageVector = Icons.Default.AddAPhoto,
                 contentDescription = "Add images",
-                tint = Color(0xFFFDD60D),
+                tint = Accent,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -723,7 +731,7 @@ private fun ImagePreviewTile(
         modifier = modifier
             .size(120.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1C2755))
+            .background(CardBackground)
     ) {
         AsyncImage(
             model = url,
@@ -738,7 +746,7 @@ private fun ImagePreviewTile(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = "Remove image",
-                tint = Color.White
+                tint = White
             )
         }
     }
@@ -754,7 +762,7 @@ internal fun ImageSourceDialog(
         Card(
             modifier = Modifier.fillMaxWidth(0.8f),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            colors = CardDefaults.cardColors(containerColor = SurfaceLight)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -762,7 +770,7 @@ internal fun ImageSourceDialog(
             ) {
                 Text(
                     text = "Choose Image Source",
-                    color = Color.Black,
+                    color = OnSurfaceLight,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -776,13 +784,13 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.PhotoCamera,
                         contentDescription = "Camera",
-                        tint = Color(0xFFFDD60D),
+                        tint = Accent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Camera",
-                        color = Color.Black,
+                        color = OnSurfaceLight,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -796,13 +804,13 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = "Gallery",
-                        tint = Color(0xFFFDD60D),
+                        tint = Accent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Gallery",
-                        color = Color.Black,
+                        color = OnSurfaceLight,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -829,11 +837,11 @@ private fun readBytesFromUri(context: Context, uri: Uri): ByteArray? {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun formFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = Color(0xFFFBFBFB),
-    unfocusedTextColor = Color(0xFFFBFBFB),
-    focusedBorderColor = Color(0xFFFDD60D),
-    unfocusedBorderColor = Color(0xFF8F9FDC),
-    focusedLabelColor = Color(0xFFFDD60D),
-    unfocusedLabelColor = Color(0xFF8F9FDC),
-    cursorColor = Color(0xFFFDD60D)
+    focusedTextColor = TextPrimary,
+    unfocusedTextColor = TextPrimary,
+    focusedBorderColor = Accent,
+    unfocusedBorderColor = TextSecondary,
+    focusedLabelColor = Accent,
+    unfocusedLabelColor = TextSecondary,
+    cursorColor = Accent
 )

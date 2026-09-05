@@ -24,3 +24,16 @@ val BottomNavBackground = MainBackground
 val Error = Color(0xFFFF6B6B)
 val TextHint = TextPrimary.copy(alpha = 0.38f)
 val FilterChipUnselectedContainer = Color(0xFF2B3C83)
+val ChipBackground = Color(0xFF263266)
+val SurfaceLight = Color(0xFFF5F5F5)
+val OnSurfaceLight = Color.Black
+val White = Color.White
+val Black = Color.Black
+val Gray = Color.Gray
+val MapMarker = Color(0xFFE91E63)
+val TextTertiary = Color(0xFF71737E)
+val Outline = Color(0xFF2B3C83)
+val DialogSectionBackground = Color(0xFF243265)
+val SliderTrackInactive = Color(0xFF53649D)
+val TextFieldUnfocusedBorder = Color(0xFF7180B2)
+val TextFieldUnfocusedLabel = Color(0xFFB9C1DF)

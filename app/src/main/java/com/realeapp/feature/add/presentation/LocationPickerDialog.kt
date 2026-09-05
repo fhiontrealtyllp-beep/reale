@@ -48,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -76,6 +75,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.MapMarker
+import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,13 +157,13 @@ fun LocationPickerDialog(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            containerColor = Color(0xFF141C3D),
+            containerColor = MainBackground,
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
                             text = "Pick Location",
-                            color = Color(0xFFFBFBFB),
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -166,12 +172,12 @@ fun LocationPickerDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = Color(0xFFFBFBFB)
+                                tint = TextPrimary
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF141C3D)
+                        containerColor = MainBackground
                     )
                 )
             },
@@ -186,7 +192,7 @@ fun LocationPickerDialog(
                         ?: "Selected location"
                     Text(
                         text = selectedAddress,
-                        color = Color(0xFFFBFBFB),
+                        color = TextPrimary,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -216,14 +222,14 @@ fun LocationPickerDialog(
                             .height(52.dp),
                         enabled = !isGeocoding,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFDD60D),
-                            contentColor = Color(0xFF141C3D)
+                            containerColor = Accent,
+                            contentColor = OnAccent
                         )
                     ) {
                         if (isGeocoding) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = Color(0xFF141C3D),
+                                color = OnAccent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -260,7 +266,7 @@ fun LocationPickerDialog(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Selected location",
-                        tint = Color(0xFFE91E63),
+                        tint = MapMarker,
                         modifier = Modifier
                             .align(Alignment.Center)
                             .size(48.dp)
@@ -294,13 +300,13 @@ fun LocationPickerDialog(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 16.dp, end = 16.dp),
-                        containerColor = Color(0xFFFDD60D),
-                        contentColor = Color(0xFF141C3D)
+                        containerColor = Accent,
+                        contentColor = OnAccent
                     ) {
                         if (isLocating) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = Color(0xFF141C3D),
+                                color = OnAccent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -357,13 +363,13 @@ private fun PlaceholderLocationPicker(
     ) {
         Text(
             text = "Google Maps API key not set.",
-            color = Color(0xFFFF6B6B),
+            color = Error,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Set MAPS_API_KEY in AndroidManifest to enable the map picker. You can still enter coordinates manually below.",
-            color = Color(0xFFFBFBFB),
+            color = TextPrimary,
             style = MaterialTheme.typography.bodyMedium
         )
         Row(
@@ -403,8 +409,8 @@ private fun PlaceholderLocationPicker(
                 .fillMaxWidth()
                 .height(52.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFDD60D),
-                contentColor = Color(0xFF141C3D)
+                containerColor = Accent,
+                contentColor = OnAccent
             )
         ) {
             Text(
@@ -418,13 +424,13 @@ private fun PlaceholderLocationPicker(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun dialogFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = Color(0xFFFBFBFB),
-    unfocusedTextColor = Color(0xFFFBFBFB),
-    focusedBorderColor = Color(0xFFFDD60D),
-    unfocusedBorderColor = Color(0xFF8F9FDC),
-    focusedLabelColor = Color(0xFFFDD60D),
-    unfocusedLabelColor = Color(0xFF8F9FDC),
-    cursorColor = Color(0xFFFDD60D)
+    focusedTextColor = TextPrimary,
+    unfocusedTextColor = TextPrimary,
+    focusedBorderColor = Accent,
+    unfocusedBorderColor = TextSecondary,
+    focusedLabelColor = Accent,
+    unfocusedLabelColor = TextSecondary,
+    cursorColor = Accent
 )
 
 private fun readMapApiKey(context: Context): String? {

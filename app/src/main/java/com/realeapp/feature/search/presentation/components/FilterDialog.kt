@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -43,6 +42,17 @@ import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import kotlin.math.roundToInt
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.DialogSectionBackground
+import com.realeapp.ui.theme.FilterChipUnselectedContainer
+import com.realeapp.ui.theme.Gray
+import com.realeapp.ui.theme.SliderTrackInactive
+import com.realeapp.ui.theme.TextFieldUnfocusedBorder
+import com.realeapp.ui.theme.TextFieldUnfocusedLabel
+import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.TextSecondary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -72,8 +82,8 @@ fun FilterDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Filter Properties", color = Color(0xFFFBFBFB)) },
-        containerColor = Color(0xFF1C2755),
+        title = { Text(text = "Filter Properties", color = TextPrimary) },
+        containerColor = CardBackground,
         text = {
             Column(
                 modifier = Modifier
@@ -86,7 +96,7 @@ fun FilterDialog(
                     value = city,
                     onValueChange = { city = it },
                     label = { Text("City") },
-                    textStyle = TextStyle(color = Color(0xFFFBFBFB)),
+                    textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -95,7 +105,7 @@ fun FilterDialog(
                     value = locality,
                     onValueChange = { locality = it },
                     label = { Text("Localities (comma separated)") },
-                    textStyle = TextStyle(color = Color(0xFFFBFBFB)),
+                    textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -104,12 +114,12 @@ fun FilterDialog(
                     value = pincode,
                     onValueChange = { pincode = it },
                     label = { Text("Pincode") },
-                    textStyle = TextStyle(color = Color(0xFFFBFBFB)),
+                    textStyle = TextStyle(color = TextPrimary),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(text = "Looking to", color = Color(0xFFFBFBFB))
+                Text(text = "Looking to", color = TextPrimary)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     RentBuy.entries.forEach { rentBuy ->
                         FilterChip(
@@ -119,16 +129,16 @@ fun FilterDialog(
                             },
                             label = { Text(rentBuy.label) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFFDD60D),
-                                selectedLabelColor = Color.Black,
-                                containerColor = Color(0xFF2B3C83),
-                                labelColor = Color(0xFFFBFBFB)
+                                selectedContainerColor = Accent,
+                                selectedLabelColor = Black,
+                                containerColor = FilterChipUnselectedContainer,
+                                labelColor = TextPrimary
                             )
                         )
                     }
                 }
 
-                Text(text = "Property Type", color = Color(0xFFFBFBFB))
+                Text(text = "Property Type", color = TextPrimary)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
                         PropertyType.APARTMENT,
@@ -146,10 +156,10 @@ fun FilterDialog(
                             },
                             label = { Text(type.label) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFFDD60D),
-                                selectedLabelColor = Color.Black,
-                                containerColor = Color(0xFF2B3C83),
-                                labelColor = Color(0xFFFBFBFB)
+                                selectedContainerColor = Accent,
+                                selectedLabelColor = Black,
+                                containerColor = FilterChipUnselectedContainer,
+                                labelColor = TextPrimary
                             )
                         )
                     }
@@ -230,7 +240,7 @@ fun FilterDialog(
                         )
                     )
                 },
-                colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFDD60D))
+                colors = ButtonDefaults.textButtonColors(contentColor = Accent)
             ) {
                 Text(text = "Apply")
             }
@@ -239,13 +249,13 @@ fun FilterDialog(
             Row {
                 TextButton(
                     onClick = onReset,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
+                    colors = ButtonDefaults.textButtonColors(contentColor = Gray)
                 ) {
                     Text(text = "Reset")
                 }
                 TextButton(
                     onClick = onDismiss,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFFFBFBFB))
+                    colors = ButtonDefaults.textButtonColors(contentColor = TextPrimary)
                 ) {
                     Text(text = "Cancel")
                 }
@@ -287,7 +297,7 @@ private fun RangeSliderFilter(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF243265), RoundedCornerShape(16.dp))
+            .background(DialogSectionBackground, RoundedCornerShape(16.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -298,12 +308,12 @@ private fun RangeSliderFilter(
         ) {
             Text(
                 text = title,
-                color = Color(0xFFFBFBFB),
+                color = TextPrimary,
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
                 text = "${valueFormatter(sliderValues.start)} – ${valueFormatter(sliderValues.endInclusive)}",
-                color = Color(0xFFFDD60D),
+                color = Accent,
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -321,9 +331,9 @@ private fun RangeSliderFilter(
             valueRange = sliderMin..sliderMax,
             steps = 0,
             colors = SliderDefaults.colors(
-                thumbColor = Color(0xFFFDD60D),
-                activeTrackColor = Color(0xFFFDD60D),
-                inactiveTrackColor = Color(0xFF53649D)
+                thumbColor = Accent,
+                activeTrackColor = Accent,
+                inactiveTrackColor = SliderTrackInactive
             )
         )
         Row(
@@ -334,16 +344,16 @@ private fun RangeSliderFilter(
                 value = minValue,
                 onValueChange = onMinValueChange,
                 label = { Text("Min") },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFFFBFBFB)),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
                 singleLine = true,
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFFFDD60D),
-                    unfocusedBorderColor = Color(0xFF7180B2),
-                    focusedLabelColor = Color(0xFFFDD60D),
-                    unfocusedLabelColor = Color(0xFFB9C1DF),
-                    cursorColor = Color(0xFFFDD60D)
+                    focusedBorderColor = Accent,
+                    unfocusedBorderColor = TextFieldUnfocusedBorder,
+                    focusedLabelColor = Accent,
+                    unfocusedLabelColor = TextFieldUnfocusedLabel,
+                    cursorColor = Accent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
@@ -354,16 +364,16 @@ private fun RangeSliderFilter(
                 value = maxValue,
                 onValueChange = onMaxValueChange,
                 label = { Text("Max") },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFFFBFBFB)),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
                 singleLine = true,
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFFFDD60D),
-                    unfocusedBorderColor = Color(0xFF7180B2),
-                    focusedLabelColor = Color(0xFFFDD60D),
-                    unfocusedLabelColor = Color(0xFFB9C1DF),
-                    cursorColor = Color(0xFFFDD60D)
+                    focusedBorderColor = Accent,
+                    unfocusedBorderColor = TextFieldUnfocusedBorder,
+                    focusedLabelColor = Accent,
+                    unfocusedLabelColor = TextFieldUnfocusedLabel,
+                    cursorColor = Accent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier

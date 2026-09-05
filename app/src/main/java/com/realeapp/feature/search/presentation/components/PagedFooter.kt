@@ -8,9 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.White
 
 @Composable
 fun PagedFooter(
@@ -25,10 +26,10 @@ fun PagedFooter(
         contentAlignment = Alignment.Center
     ) {
         when {
-            showLoader -> CircularProgressIndicator(color = Color(0xFFFDD60D))
+            showLoader -> CircularProgressIndicator(color = Accent)
             showEndOfResults -> Text(
                 text = "End of results",
-                color = Color.White,
+                color = White,
                 fontSize = 14.sp
             )
         }
