@@ -104,13 +104,13 @@ object PropertyQueryBuilder {
         return propertyType in setOf(
             PropertyType.APARTMENT,
             PropertyType.VILLA,
-            PropertyType.FARM_HOUSE,
+           /* PropertyType.FARM_HOUSE,
             PropertyType.BUILDER_FLOOR,
             PropertyType.STUDIO_APARTMENT,
             PropertyType.SERVICE_APARTMENT,
             PropertyType.INDEPENDENT_HOUSE,
             PropertyType.PENTHOUSE,
-            PropertyType.DUPLEX
+            PropertyType.DUPLEX*/
         )
     }
 }

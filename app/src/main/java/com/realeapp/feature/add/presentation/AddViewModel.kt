@@ -102,6 +102,20 @@ class AddViewModel(
     fun onShowAddForm() {
         _uiState.value = _uiState.value.copy(
             isShowingAddForm = true,
+            currentStep = AddPropertyStep.BASIC_DETAILS,
+            form = PropertyForm(),
+            fieldErrors = emptyList(),
+            errorMessage = null,
+            successMessage = null,
+            isSubmitSuccess = false,
+            submittedProperty = null
+        )
+    }
+
+    fun onHideAddForm() {
+        _uiState.value = _uiState.value.copy(
+            isShowingAddForm = false,
+            currentStep = AddPropertyStep.BASIC_DETAILS,
             form = PropertyForm(),
             fieldErrors = emptyList(),
             errorMessage = null,
@@ -109,14 +123,63 @@ class AddViewModel(
         )
     }
 
-    fun onHideAddForm() {
+    fun goToStep(step: AddPropertyStep) {
         _uiState.value = _uiState.value.copy(
-            isShowingAddForm = false,
-            form = PropertyForm(),
+            currentStep = step,
             fieldErrors = emptyList(),
-            errorMessage = null,
-            successMessage = null
+            errorMessage = null
         )
+    }
+
+    fun nextStep() {
+        val current = _uiState.value
+        val step = current.currentStep
+        val errors = validateStep(step)
+        if (errors.isNotEmpty()) {
+            _uiState.value = current.copy(fieldErrors = errors)
+            return
+        }
+        val next = AddPropertyStep.fromIndex(step.index + 1)
+        _uiState.value = current.copy(
+            currentStep = next,
+            fieldErrors = emptyList(),
+            errorMessage = null
+        )
+    }
+
+    fun previousStep() {
+        val current = _uiState.value
+        val step = current.currentStep
+        val previous = if (step.isFirst) step else AddPropertyStep.fromIndex(step.index - 1)
+        _uiState.value = current.copy(
+            currentStep = previous,
+            fieldErrors = emptyList(),
+            errorMessage = null
+        )
+    }
+
+    private fun validateStep(step: AddPropertyStep): List<String> {
+        val form = _uiState.value.form
+        return when (step) {
+            AddPropertyStep.BASIC_DETAILS -> {
+                buildList {
+                    if (form.title.isBlank()) add("Property title is required")
+                    if (form.propertyType == null) add("Property type is required")
+                    if (form.rentBuy == null) add("Listing type is required")
+                    if (form.city.isBlank()) add("City is required")
+                    if (form.locality.isBlank()) add("Locality is required")
+                }
+            }
+            AddPropertyStep.PROPERTY_DETAILS -> emptyList()
+            AddPropertyStep.PHOTOS_MEDIA -> emptyList()
+            AddPropertyStep.PRICING -> {
+                buildList {
+                    if (form.price.isBlank()) add("Price is required")
+                    else if (form.price.toDoubleOrNull() == null) add("Price must be a valid number")
+                }
+            }
+            AddPropertyStep.REVIEW_PUBLISH -> form.validate()
+        }
     }
 
     fun onRentBuyChanged(rentBuy: RentBuy) {
@@ -133,11 +196,71 @@ class AddViewModel(
     }
 
     fun onPropertyTypeChanged(propertyType: PropertyType) {
-        updateForm { copy(propertyType = propertyType) }
+        updateForm {
+            copy(
+                propertyType = propertyType,
+                residentialCommercial = propertyType.category
+            )
+        }
     }
 
     fun onBedroomTypeChanged(bedroomType: BedroomType?) {
         updateForm { copy(bedroomType = bedroomType) }
+    }
+
+    // Stepper count -> BedroomType mapping used by the Step 2 bedrooms stepper.
+    fun onBedroomCountChanged(count: Int) {
+        val bedroomType = when (count) {
+            1 -> BedroomType.ONE_BHK
+            2 -> BedroomType.TWO_BHK
+            3 -> BedroomType.THREE_BHK
+            4 -> BedroomType.FOUR_BHK
+            5 -> BedroomType.FIVE_BHK
+            6 -> BedroomType.SIX_BHK
+            7 -> BedroomType.SIX_PLUS_BHK
+            else -> null
+        }
+        updateForm { copy(bedroomType = bedroomType) }
+    }
+
+    fun onBathroomsChanged(bathrooms: Int) {
+        updateForm { copy(bathrooms = bathrooms.coerceIn(0, 10)) }
+    }
+
+    fun onFloorNoChanged(floorNo: String) {
+        updateForm { copy(floorNo = floorNo) }
+    }
+
+    fun onTotalFloorsChanged(totalFloors: String) {
+        updateForm { copy(totalFloors = totalFloors) }
+    }
+
+    fun onPlotAreaChanged(plotArea: String) {
+        updateForm { copy(plotArea = plotArea) }
+    }
+
+    fun onVideoChanged(videoUrl: String) {
+        updateForm { copy(videoUrl = videoUrl) }
+    }
+
+    fun onPriceModeChanged(pricePerSqFt: Boolean) {
+        updateForm { copy(pricePerSqFt = pricePerSqFt) }
+    }
+
+    fun onNegotiableChanged(negotiable: Boolean) {
+        updateForm { copy(negotiable = negotiable) }
+    }
+
+    fun onAdditionalCostsChanged(additionalCosts: String) {
+        updateForm { copy(additionalCosts = additionalCosts) }
+    }
+
+    fun onPropertyStatusChanged(propertyStatus: String) {
+        updateForm { copy(propertyStatus = propertyStatus) }
+    }
+
+    fun onPossessionDateChanged(possessionDate: String) {
+        updateForm { copy(possessionDate = possessionDate) }
     }
 
     fun onTitleChanged(title: String) {
@@ -302,6 +425,7 @@ class AddViewModel(
                         isLoggedIn = true,
                         isSubmitting = false,
                         isSubmitSuccess = true,
+                        submittedProperty = newProperty,
                         isShowingAddForm = false,
                         successMessage = "Property added successfully",
                         form = PropertyForm(),
@@ -330,7 +454,10 @@ class AddViewModel(
     }
 
     fun onDismissSuccess() {
-        _uiState.value = _uiState.value.copy(isSubmitSuccess = false)
+        _uiState.value = _uiState.value.copy(
+            isSubmitSuccess = false,
+            submittedProperty = null
+        )
     }
 
     private fun PropertyForm.toProperty(documentId: String, userId: String): Property {

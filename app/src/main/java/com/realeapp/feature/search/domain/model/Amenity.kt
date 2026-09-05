@@ -12,5 +12,8 @@ enum class Amenity(val label: String) {
     EV_CHARGING_POINTS("EV Charging Points"),
     CCTV("CCTV"),
     GATED_COMMUNITY("Gated Community"),
-    AUTOMATED_PARKING_SYSTEMS("Automated Parking Systems")
+    AUTOMATED_PARKING_SYSTEMS("Automated Parking Systems"),
+    GARDEN("Garden"),
+    SECURITY("Security"),
+    PET_FRIENDLY("Pet Friendly")
 }

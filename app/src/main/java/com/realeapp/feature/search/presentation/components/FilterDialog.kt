@@ -106,10 +106,10 @@ fun FilterDialog(
                         PropertyType.APARTMENT,
                         PropertyType.VILLA,
                         PropertyType.PLOT,
-                        PropertyType.INDEPENDENT_HOUSE,
+                       /* PropertyType.INDEPENDENT_HOUSE,
                         PropertyType.COMMERCIAL_OFFICE,
                         PropertyType.SHOP,
-                        PropertyType.CO_WORKING
+                        PropertyType.CO_WORKING*/
                     ),
                     selected = state.propertyType,
                     onSelected = { state = state.copy(propertyType = it) },

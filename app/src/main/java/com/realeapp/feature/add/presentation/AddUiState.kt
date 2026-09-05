@@ -10,6 +10,7 @@ data class AddUiState(
     val fieldErrors: List<String> = emptyList(),
     val isSubmitting: Boolean = false,
     val isSubmitSuccess: Boolean = false,
+    val submittedProperty: Property? = null,
     val successMessage: String? = null,
     val errorMessage: String? = null,
     val isUploadingImage: Boolean = false,
@@ -17,5 +18,6 @@ data class AddUiState(
     val myProperties: List<Property> = emptyList(),
     val isLoadingMyProperties: Boolean = false,
     val myPropertiesError: String? = null,
-    val isShowingAddForm: Boolean = false
+    val isShowingAddForm: Boolean = false,
+    val currentStep: AddPropertyStep = AddPropertyStep.BASIC_DETAILS
 )

@@ -30,6 +30,16 @@ data class PropertyForm(
     val carpetArea: String = "",
     val builtUpArea: String = "",
     val superBuiltUpArea: String = "",
+    val plotArea: String = "",
+    val bathrooms: Int = 0,
+    val floorNo: String = "",
+    val totalFloors: String = "",
+    val videoUrl: String = "",
+    val pricePerSqFt: Boolean = false,
+    val negotiable: Boolean = false,
+    val additionalCosts: String = "",
+    val propertyStatus: String = "",
+    val possessionDate: String = "",
     val agentPhone: String = "",
     val images: List<String> = emptyList()
 ) {

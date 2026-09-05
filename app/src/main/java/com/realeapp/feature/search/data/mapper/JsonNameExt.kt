@@ -31,7 +31,7 @@ fun Enum<*>.jsonName(): String = when (this) {
     is PropertyType -> when (this) {
         PropertyType.PLOT -> "plot"
         PropertyType.LAND -> "land"
-        PropertyType.COMMERCIAL_PLOT -> "commercialPlot"
+        /*PropertyType.COMMERCIAL_PLOT -> "commercialPlot"
         PropertyType.COMMERCIAL_LAND -> "commercialLand"
         PropertyType.PENTHOUSE -> "penthouse"
         PropertyType.HOSTEL -> "hostel"
@@ -42,7 +42,7 @@ fun Enum<*>.jsonName(): String = when (this) {
         PropertyType.KIOSK -> "kiosk"
         PropertyType.CLINIC -> "clinic"
         PropertyType.SCHOOL -> "school"
-        PropertyType.HOTEL -> "hotel"
+        PropertyType.HOTEL -> "hotel"*/
         else -> name.toCamelCaseFromUnderscore()
     }
     is Amenity -> when (this) {
@@ -58,6 +58,9 @@ fun Enum<*>.jsonName(): String = when (this) {
         Amenity.CCTV -> "cctv"
         Amenity.GATED_COMMUNITY -> "gatedCommunity"
         Amenity.AUTOMATED_PARKING_SYSTEMS -> "automatedParkingSystems"
+        Amenity.GARDEN -> "garden"
+        Amenity.SECURITY -> "security"
+        Amenity.PET_FRIENDLY -> "petFriendly"
     }
     is Facing -> name.lowercase()
     is ResidentialCommercial -> name.lowercase()
