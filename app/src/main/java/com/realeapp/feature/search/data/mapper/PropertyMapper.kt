@@ -15,44 +15,56 @@ object PropertyMapper {
 
     fun fromMap(map: Map<String, Any?>, documentId: String? = null): Property {
         return Property(
-            id = map["id"]?.toString() ?: documentId.orEmpty(),
-            documentId = documentId ?: map["\$id"]?.toString(),
-            userId = map["userId"]?.toString().orEmpty(),
-            title = map["title"]?.toString().orEmpty(),
-            description = map["description"]?.toString().orEmpty(),
-            price = (map["price"] as? Number)?.toDouble() ?: 0.0,
-            city = map["city"]?.toString().orEmpty(),
-            locality = map["locality"]?.toString().orEmpty(),
-            pincode = map["pincode"]?.toString(),
-            address = map["address"]?.toString(),
-            latitude = (map["latitude"] as? Number)?.toDouble(),
-            longitude = (map["longitude"] as? Number)?.toDouble(),
+            id = getString(map, "id") ?: documentId.orEmpty(),
+            documentId = documentId ?: getString(map, "\$id"),
+            userId = getString(map, "userId").orEmpty(),
+            title = getString(map, "title").orEmpty(),
+            description = getString(map, "description").orEmpty(),
+            price = getDouble(map, "price") ?: 0.0,
+            city = getString(map, "city").orEmpty(),
+            locality = getString(map, "locality").orEmpty(),
+            pincode = getString(map, "pincode"),
+            address = getString(map, "address"),
+            latitude = getDouble(map, "latitude"),
+            longitude = getDouble(map, "longitude"),
             images = parseImages(map["images"]),
             isLiked = null,
-            rating = (map["rating"] as? Number)?.toDouble(),
-            agentPhone = map["agentPhone"]?.toString().orEmpty(),
-            status = map["status"]?.toString(),
-            createdAt = map["createdAt"]?.toString() ?: map["\$createdAt"]?.toString(),
-            rentBuy = parseEnumFromJsonName<RentBuy>(map["rentBuy"] as? String),
-            residentialCommercial = parseEnumFromJsonName<ResidentialCommercial>(map["residentialCommercial"] as? String),
-            propertyType = parseEnumFromJsonName<PropertyType>(map["propertyType"] as? String),
-            bedroomType = parseEnumFromJsonName<BedroomType>(map["bedroomType"] as? String),
-            furnishing = parseEnumFromJsonName<Furnishing>(map["furnishing"] as? String),
-            facing = parseEnumFromJsonName<Facing>(map["facing"] as? String),
-            age = parseEnumFromJsonName<Age>(map["age"] as? String),
+            rating = getDouble(map, "rating"),
+            agentPhone = getString(map, "agentPhone").orEmpty(),
+            status = getString(map, "status"),
+            createdAt = getString(map, "createdAt") ?: getString(map, "\$createdAt"),
+            rentBuy = parseEnumFromJsonName<RentBuy>(getString(map, "rentBuy")),
+            residentialCommercial = parseEnumFromJsonName<ResidentialCommercial>(getString(map, "residentialCommercial")),
+            propertyType = parseEnumFromJsonName<PropertyType>(getString(map, "propertyType")),
+            bedroomType = parseEnumFromJsonName<BedroomType>(getString(map, "bedroomType")),
+            furnishing = parseEnumFromJsonName<Furnishing>(getString(map, "furnishing")),
+            facing = parseEnumFromJsonName<Facing>(getString(map, "facing")),
+            age = parseEnumFromJsonName<Age>(getString(map, "age")),
             amenities = parseAmenities(map["amenities"]),
-            carpetArea = (map["carpetArea"] as? Number)?.toDouble(),
-            builtUpArea = (map["builtUpArea"] as? Number)?.toDouble(),
-            superBuiltUpArea = (map["superBuiltUpArea"] as? Number)?.toDouble()
+            carpetArea = getDouble(map, "carpetArea"),
+            builtUpArea = getDouble(map, "builtUpArea"),
+            superBuiltUpArea = getDouble(map, "superBuiltUpArea")
         )
     }
 
-    private fun parseImages(value: Any?): List<String> {
+    private fun getString(map: Map<String, Any?>, key: String): String? {
+        return map[key]?.toString()?.takeIf { it.isNotBlank() }
+    }
+
+    private fun getDouble(map: Map<String, Any?>, key: String): Double? {
+        return when (val value = map[key]) {
+            is Number -> value.toDouble()
+            is String -> value.toDoubleOrNull()
+            else -> null
+        }
+    }
+
+    private fun getStringList(value: Any?): List<String> {
         return when (value) {
             is String -> {
                 try {
                     val json = JSONArray(value)
-                    List(json.length()) { json.getString(it) }
+                    List(json.length()) { json.optString(it, "") }
                 } catch (e: Exception) {
                     if (value.isNotBlank()) listOf(value) else emptyList()
                 }
@@ -62,19 +74,11 @@ object PropertyMapper {
         }
     }
 
+    private fun parseImages(value: Any?): List<String> {
+        return getStringList(value).filter { it.isNotBlank() }
+    }
+
     private fun parseAmenities(value: Any?): List<Amenity> {
-        val raw = when (value) {
-            is String -> {
-                try {
-                    val json = JSONArray(value)
-                    List(json.length()) { json.getString(it) }
-                } catch (e: Exception) {
-                    emptyList()
-                }
-            }
-            is List<*> -> value.filterIsInstance<String>()
-            else -> emptyList()
-        }
-        return raw.mapNotNull { parseEnumFromJsonName<Amenity>(it) }
+        return getStringList(value).mapNotNull { parseEnumFromJsonName<Amenity>(it) }
     }
 }

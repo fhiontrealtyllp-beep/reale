@@ -1,11 +1,9 @@
 package com.realeapp.feature.search.data.remote
 
 import com.realeapp.feature.search.data.mapper.PropertyMapper
-import com.realeapp.feature.search.data.mapper.jsonName
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
-import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
 import io.appwrite.ID
@@ -25,7 +23,7 @@ class PropertyRemoteDataSourceImpl(
         limit: Int
     ): Result<List<Property>> {
         return try {
-            val queries = buildQueries(filter, page, limit)
+            val queries = PropertyQueryBuilder.build(filter, page, limit)
 
             val response = databases.listDocuments(
                 databaseId = AppWriteConstants.DATABASE_ID,
@@ -134,105 +132,4 @@ class PropertyRemoteDataSourceImpl(
         }
     }
 
-    private fun buildQueries(filter: PropertyFilter?, page: Int, limit: Int): MutableList<String> {
-        val queries = mutableListOf<String>()
-        queries.add(Query.limit(limit))
-        queries.add(Query.offset(page * limit))
-        queries.add(Query.equal("status", listOf("live")))
-
-        filter ?: return queries
-
-        val locationQueries = buildLocationQueries(filter)
-        if (locationQueries.size == 1) {
-            queries.add(locationQueries.first())
-        } else if (locationQueries.size > 1) {
-            queries.add(Query.or(locationQueries))
-        }
-
-        queries.addAll(buildOtherQueries(filter))
-
-        return queries
-    }
-
-    private fun buildLocationQueries(filter: PropertyFilter): List<String> {
-        val conditions = mutableListOf<String>()
-        filter.city?.takeIf { it.isNotBlank() }?.let {
-            conditions.add(Query.equal("city", listOf(it.lowercase())))
-        }
-        filter.localities.takeIf { it.isNotEmpty() }?.let {
-            conditions.add(Query.contains("locality", it))
-        }
-        filter.pincode?.takeIf { it.isNotBlank() }?.let {
-            conditions.add(Query.equal("pincode", listOf(it)))
-        }
-        return conditions
-    }
-
-    private fun buildOtherQueries(filter: PropertyFilter): List<String> {
-        val queries = mutableListOf<String>()
-
-        filter.rentBuy?.let {
-            queries.add(Query.equal("rentBuy", listOf(it.jsonName())))
-        }
-        filter.residentialCommercial?.let {
-            queries.add(Query.equal("residentialCommercial", listOf(it.jsonName())))
-        }
-        filter.propertyType?.let { propertyType ->
-            queries.add(Query.equal("propertyType", listOf(propertyType.jsonName())))
-            if (supportsBedrooms(propertyType)) {
-                filter.bedroomType?.let {
-                    queries.add(Query.equal("bedroomType", listOf(it.jsonName())))
-                }
-            }
-        }
-        filter.furnishing?.let {
-            queries.add(Query.equal("furnishing", listOf(it.jsonName())))
-        }
-        filter.facing?.let {
-            queries.add(Query.equal("facing", listOf(it.jsonName())))
-        }
-        filter.age?.let {
-            queries.add(Query.equal("age", listOf(it.jsonName())))
-        }
-
-        filter.priceRange?.let { range ->
-            range.min.let { queries.add(Query.greaterThanEqual("price", it)) }
-            range.max.let { queries.add(Query.lessThanEqual("price", it)) }
-        }
-
-        filter.carpetAreaRange?.let { range ->
-            range.min.let { queries.add(Query.greaterThanEqual("carpetArea", it)) }
-            range.max.let { queries.add(Query.lessThanEqual("carpetArea", it)) }
-        }
-
-        filter.builtUpAreaRange?.let { range ->
-            range.min.let { queries.add(Query.greaterThanEqual("builtUpArea", it)) }
-            range.max.let { queries.add(Query.lessThanEqual("builtUpArea", it)) }
-        }
-
-        filter.superBuiltUpAreaRange?.let { range ->
-            range.min.let { queries.add(Query.greaterThanEqual("superBuiltUpArea", it)) }
-            range.max.let { queries.add(Query.lessThanEqual("superBuiltUpArea", it)) }
-        }
-
-        filter.amenities.forEach { amenity ->
-            queries.add(Query.search("amenities", amenity.jsonName()))
-        }
-
-        return queries
-    }
-
-    private fun supportsBedrooms(propertyType: PropertyType): Boolean {
-        return propertyType in setOf(
-            PropertyType.APARTMENT,
-            PropertyType.VILLA,
-            PropertyType.FARM_HOUSE,
-            PropertyType.BUILDER_FLOOR,
-            PropertyType.STUDIO_APARTMENT,
-            PropertyType.SERVICE_APARTMENT,
-            PropertyType.INDEPENDENT_HOUSE,
-            PropertyType.PENTHOUSE,
-            PropertyType.DUPLEX
-        )
-    }
 }

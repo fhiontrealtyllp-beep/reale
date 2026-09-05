@@ -5,6 +5,7 @@ import com.realeapp.feature.search.data.mapper.PropertyMapper
 import com.realeapp.feature.search.data.mapper.jsonName
 import com.realeapp.feature.search.data.remote.AppWriteConstants
 import com.realeapp.feature.search.data.remote.AppWriteProvider
+import com.realeapp.feature.search.domain.model.LocationNormalizer
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
@@ -41,9 +42,9 @@ class AddPropertyRemoteDataSourceImpl(
                 "title" to form.title.trim(),
                 "description" to form.description.trim(),
                 "price" to form.price.toDoubleOrNull(),
-                "city" to form.city.trim().lowercase(),
-                "locality" to form.locality.trim().lowercase(),
-                "pincode" to form.pincode.trim().ifBlank { null },
+                "city" to LocationNormalizer.normalizeCity(form.city),
+                "locality" to LocationNormalizer.normalizeLocality(form.locality),
+                "pincode" to LocationNormalizer.normalizePincode(form.pincode),
                 "address" to form.address.trim().ifBlank { null },
                 "latitude" to form.latitude.toDoubleOrNull(),
                 "longitude" to form.longitude.toDoubleOrNull(),

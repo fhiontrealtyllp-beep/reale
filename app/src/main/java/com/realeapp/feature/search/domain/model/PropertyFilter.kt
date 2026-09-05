@@ -17,4 +17,8 @@ data class PropertyFilter(
     val carpetAreaRange: CarpetAreaRange? = null,
     val builtUpAreaRange: CarpetAreaRange? = null,
     val superBuiltUpAreaRange: CarpetAreaRange? = null
-)
+) {
+    val normalizedCity: String? = LocationNormalizer.normalizeCity(city)
+    val normalizedLocalities: List<String> = LocationNormalizer.normalizeLocalities(localities)
+    val normalizedPincode: String? = LocationNormalizer.normalizePincode(pincode)
+}
