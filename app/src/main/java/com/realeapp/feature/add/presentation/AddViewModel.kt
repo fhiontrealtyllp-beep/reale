@@ -482,6 +482,7 @@ class AddViewModel(
             residentialCommercial = residentialCommercial,
             propertyType = propertyType,
             bedroomType = bedroomType,
+            bathrooms = bathrooms,
             furnishing = furnishing,
             facing = facing,
             age = age,

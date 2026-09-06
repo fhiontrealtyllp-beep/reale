@@ -15,5 +15,7 @@ enum class Amenity(val label: String) {
     AUTOMATED_PARKING_SYSTEMS("Automated Parking Systems"),
     GARDEN("Garden"),
     SECURITY("Security"),
-    PET_FRIENDLY("Pet Friendly")
+    PET_FRIENDLY("Pet Friendly"),
+    MODULAR_KITCHEN("Modular Kitchen"),
+    SCHOOLS_HOSPITALS("Close to Schools & Hospitals")
 }

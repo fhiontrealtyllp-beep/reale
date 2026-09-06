@@ -23,10 +23,12 @@ data class Property(
     val residentialCommercial: ResidentialCommercial? = null,
     val propertyType: PropertyType? = null,
     val bedroomType: BedroomType? = null,
+    val bathrooms: Int? = null,
     val furnishing: Furnishing? = null,
     val facing: Facing? = null,
     val age: Age? = null,
     val amenities: List<Amenity> = emptyList(),
+    val nearbyPlaces: List<NearbyPlace> = emptyList(),
     val carpetArea: Double? = null,
     val builtUpArea: Double? = null,
     val superBuiltUpArea: Double? = null

@@ -61,6 +61,8 @@ fun Enum<*>.jsonName(): String = when (this) {
         Amenity.GARDEN -> "garden"
         Amenity.SECURITY -> "security"
         Amenity.PET_FRIENDLY -> "petFriendly"
+        Amenity.MODULAR_KITCHEN -> "modularKitchen"
+        Amenity.SCHOOLS_HOSPITALS -> "schoolsHospitals"
     }
     is Facing -> name.lowercase()
     is ResidentialCommercial -> name.lowercase()

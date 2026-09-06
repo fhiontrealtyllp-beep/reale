@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,6 +65,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.realeapp.feature.search.domain.model.BedroomType
+import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.domain.model.PropertyType
+import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -171,6 +177,7 @@ internal fun MyListingsScreen(
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(0) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var selectedListing by remember { mutableStateOf<MyListing?>(null) }
 
     val filteredListings = remember(selectedFilter, searchQuery) {
         sampleListings.filter { listing ->
@@ -244,7 +251,10 @@ internal fun MyListingsScreen(
                         ListingCard(
                             listing = listing,
                             onEdit = { onEditListing(listing) },
-                            onViewDetails = { onViewDetails(listing) },
+                            onViewDetails = {
+                                selectedListing = listing
+                                onViewDetails(listing)
+                            },
                             onMoreOptions = { onMoreOptions(listing) }
                         )
                     }
@@ -252,6 +262,57 @@ internal fun MyListingsScreen(
             }
         }
     }
+
+    // Full-screen property details UI shown after selecting a listing.
+    selectedListing?.let { listing ->
+        val property = remember(listing.id) { listing.toProperty() }
+        Dialog(
+            onDismissRequest = { selectedListing = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = White
+            ) {
+                PropertyDetailScreen(
+                    property = property,
+                    onClose = { selectedListing = null },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+private fun MyListing.toProperty(): Property {
+    val locationParts = location.split(",").map { it.trim() }
+    val locality = locationParts.firstOrNull().orEmpty()
+    val city = locationParts.drop(1).firstOrNull().orEmpty()
+    return Property(
+        id = id,
+        userId = "",
+        title = title,
+        description = "",
+        price = price,
+        city = city,
+        locality = locality,
+        images = listOfNotNull(imageUrl.takeIf { it.isNotBlank() }),
+        bathrooms = baths,
+        bedroomType = beds?.toBedroomType(),
+        propertyType = PropertyType.entries.find { it.label.equals(type, ignoreCase = true) },
+        builtUpArea = sqft.toDouble(),
+        status = status.name
+    )
+}
+
+private fun Int.toBedroomType(): BedroomType = when (this) {
+    1 -> BedroomType.ONE_BHK
+    2 -> BedroomType.TWO_BHK
+    3 -> BedroomType.THREE_BHK
+    4 -> BedroomType.FOUR_BHK
+    5 -> BedroomType.FIVE_BHK
+    6 -> BedroomType.SIX_BHK
+    else -> BedroomType.SIX_PLUS_BHK
 }
 
 @Composable

@@ -44,6 +44,7 @@ private const val FIELD_RENT_BUY = "rentBuy"
 private const val FIELD_RESIDENTIAL_COMMERCIAL = "residentialCommercial"
 private const val FIELD_PROPERTY_TYPE = "propertyType"
 private const val FIELD_BEDROOM_TYPE = "bedroomType"
+private const val FIELD_BATHROOMS = "bathrooms"
 private const val FIELD_FURNISHING = "furnishing"
 private const val FIELD_FACING = "facing"
 private const val FIELD_AGE = "age"
@@ -112,6 +113,7 @@ class AddPropertyRemoteDataSourceImpl(
                 FIELD_RESIDENTIAL_COMMERCIAL to form.residentialCommercial?.jsonName(),
                 FIELD_PROPERTY_TYPE to form.propertyType?.jsonName(),
                 FIELD_BEDROOM_TYPE to form.bedroomType?.jsonName(),
+                FIELD_BATHROOMS to form.bathrooms,
                 FIELD_FURNISHING to form.furnishing?.jsonName(),
                 FIELD_FACING to form.facing?.jsonName(),
                 FIELD_AGE to form.age?.jsonName(),

@@ -5,6 +5,8 @@ import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
+import com.realeapp.feature.search.domain.model.NearbyPlace
+import com.realeapp.feature.search.domain.model.NearbyPlaceType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -37,10 +39,12 @@ object PropertyMapper {
             residentialCommercial = parseEnumFromJsonName<ResidentialCommercial>(getString(map, "residentialCommercial")),
             propertyType = parseEnumFromJsonName<PropertyType>(getString(map, "propertyType")),
             bedroomType = parseEnumFromJsonName<BedroomType>(getString(map, "bedroomType")),
+            bathrooms = getInt(map, "bathrooms"),
             furnishing = parseEnumFromJsonName<Furnishing>(getString(map, "furnishing")),
             facing = parseEnumFromJsonName<Facing>(getString(map, "facing")),
             age = parseEnumFromJsonName<Age>(getString(map, "age")),
             amenities = parseAmenities(map["amenities"]),
+            nearbyPlaces = parseNearbyPlaces(map["nearbyPlaces"]),
             carpetArea = getDouble(map, "carpetArea"),
             builtUpArea = getDouble(map, "builtUpArea"),
             superBuiltUpArea = getDouble(map, "superBuiltUpArea")
@@ -55,6 +59,14 @@ object PropertyMapper {
         return when (val value = map[key]) {
             is Number -> value.toDouble()
             is String -> value.toDoubleOrNull()
+            else -> null
+        }
+    }
+
+    private fun getInt(map: Map<String, Any?>, key: String): Int? {
+        return when (val value = map[key]) {
+            is Number -> value.toInt()
+            is String -> value.toIntOrNull()
             else -> null
         }
     }
@@ -80,5 +92,47 @@ object PropertyMapper {
 
     private fun parseAmenities(value: Any?): List<Amenity> {
         return getStringList(value).mapNotNull { parseEnumFromJsonName<Amenity>(it) }
+    }
+
+    private fun parseNearbyPlaces(value: Any?): List<NearbyPlace> {
+        return when (value) {
+            is List<*> -> value.mapNotNull { item ->
+                (item as? Map<*, *>)?.let { map ->
+                    val name = map["name"]?.toString()?.takeIf { it.isNotBlank() } ?: return@let null
+                    val distance = map["distanceKm"]?.let { getDouble(mapOf("v" to it), "v") } ?: 0.0
+                    val type = parseNearbyPlaceType(map["type"]?.toString())
+                    NearbyPlace(name = name, distanceKm = distance, type = type)
+                }
+            }
+            is String -> {
+                try {
+                    val json = JSONArray(value)
+                    List(json.length()) { index ->
+                        val obj = json.optJSONObject(index)
+                        val name = obj?.optString("name").orEmpty().takeIf { it.isNotBlank() }
+                        if (name == null) {
+                            null
+                        } else {
+                            NearbyPlace(
+                                name = name,
+                                distanceKm = obj?.optDouble("distanceKm", 0.0) ?: 0.0,
+                                type = parseNearbyPlaceType(obj?.optString("type"))
+                            )
+                        }
+                    }.filterNotNull()
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            }
+            else -> emptyList()
+        }
+    }
+
+    private fun parseNearbyPlaceType(name: String?): NearbyPlaceType {
+        return try {
+            NearbyPlaceType.valueOf(name.orEmpty().trim().uppercase())
+        } catch (_: IllegalArgumentException) {
+            NearbyPlaceType.OTHER
+        }
     }
 }
