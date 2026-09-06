@@ -5,6 +5,7 @@ enum class PropertyType(val label: String, val category: ResidentialCommercial) 
     VILLA("Villa", ResidentialCommercial.RESIDENTIAL),
     PLOT("Plot", ResidentialCommercial.RESIDENTIAL),
     LAND("Land", ResidentialCommercial.RESIDENTIAL),
+    INDEPENDENT_HOUSE("Independent House", ResidentialCommercial.RESIDENTIAL),
    /* FARM_HOUSE("Farm House", ResidentialCommercial.RESIDENTIAL),
     BUILDER_FLOOR("Builder Floor", ResidentialCommercial.RESIDENTIAL),
     STUDIO_APARTMENT("Studio Apartment", ResidentialCommercial.RESIDENTIAL),
