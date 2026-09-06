@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
+import com.realeapp.feature.profile.presentation.MyListingsScreen
 import com.realeapp.feature.profile.presentation.ProfileScreen
 import com.realeapp.feature.home.presentation.HomeScreen
 import com.realeapp.feature.saved.presentation.SavedScreen
@@ -76,9 +77,14 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                 AuthScreen.Main -> {
                     val activity = LocalContext.current as? Activity
                     var showExitDialog by remember { mutableStateOf(false) }
+                    var showMyListings by rememberSaveable { mutableStateOf(false) }
 
-                    BackHandler(enabled = !showExitDialog) {
+                    BackHandler(enabled = !showExitDialog && !showMyListings) {
                         showExitDialog = true
+                    }
+
+                    BackHandler(enabled = showMyListings) {
+                        showMyListings = false
                     }
 
                     Scaffold(
@@ -89,7 +95,10 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                             BottomNavBar(
                                 tabs = AppScreen.all,
                                 selectedTab = selectedTab,
-                                onTabSelected = mainViewModel::selectTab
+                                onTabSelected = { tab ->
+                                    showMyListings = false
+                                    mainViewModel.selectTab(tab)
+                                }
                             )
                         }
                     ) { innerPadding ->
@@ -119,10 +128,23 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Login }
                                 )*/
-                                AppScreen.Profile -> ProfileScreen(
-                                    modifier = Modifier.fillMaxSize(),
-                                    onLoginClick = { authScreen = AuthScreen.Login }
-                                )
+                                AppScreen.Profile -> {
+                                    if (showMyListings) {
+                                        MyListingsScreen(
+                                            modifier = Modifier.fillMaxSize(),
+                                            onBack = { showMyListings = false }
+                                        )
+                                    } else {
+                                        ProfileScreen(
+                                            modifier = Modifier.fillMaxSize(),
+                                            onLoginClick = { authScreen = AuthScreen.Login },
+                                            onMyListingsClick = {
+                                                Logger.d(TAG, "My Listings clicked: opening MyListingsScreen")
+                                                showMyListings = true
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

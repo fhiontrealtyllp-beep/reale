@@ -285,7 +285,10 @@ private fun ProfileContent(
             title = ProfileStrings.MY_LISTINGS,
             subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
             contentDescription = ProfileStrings.MY_LISTINGS,
-            onClick = onMyListingsClick
+            onClick = {
+                Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
+                onMyListingsClick()
+            }
         ),
         ProfileMenuItem(
             icon = Icons.Outlined.Description,
@@ -932,6 +935,7 @@ private fun EditProfileField(
 }
 
 private const val PROFILE_LOGIN_PROMPT_TAG = "ProfileLoginPrompt"
+private const val PROFILE_MENU_TAG = "ProfileMenu"
 
 @Composable
 private fun ProfileLoginPrompt(
