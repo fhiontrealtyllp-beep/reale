@@ -14,39 +14,50 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView.Guidelines
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.MarkEmailRead
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,21 +65,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,29 +89,36 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
-import com.realeapp.feature.profile.presentation.ProfileViewModel
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.ItemCardBackground
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.VerifiedGreen
+import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onLoginClick: () -> Unit,
+    onListPropertyClick: () -> Unit = {},
+    onMyListingsClick: () -> Unit = {},
+    onMyEnquiriesClick: () -> Unit = {},
+    onPersonalInfoClick: () -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = koinViewModel()
 ) {
@@ -127,7 +141,7 @@ fun ProfileScreen(
         result.uriContent?.let { uri ->
             val bytes = processImageFromUri(context, uri)
             if (bytes != null) {
-                viewModel.uploadImage(bytes, "profile_image.jpg")
+                viewModel.uploadImage(bytes, PROFILE_IMAGE_FILENAME)
             }
         }
     }
@@ -170,14 +184,15 @@ fun ProfileScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = AppBackground,
+        containerColor = White,
         contentWindowInsets = WindowInsets(0.dp),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = CardBackground,
-                    contentColor = TextPrimary
+                    shape = RoundedCornerShape(ProfileDims.SNACKBAR_CORNER_RADIUS),
+                    containerColor = Black,
+                    contentColor = White
                 )
             }
         }
@@ -192,7 +207,7 @@ fun ProfileScreen(
                 uiState.isLoading && uiState.user == null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = Accent
+                        color = BrandBlue
                     )
                 }
 
@@ -206,10 +221,15 @@ fun ProfileScreen(
                 else -> ProfileContent(
                     user = uiState.user,
                     isImageUploading = uiState.isImageUploading,
-                    updatingField = uiState.updatingField,
                     onPickImage = { showImageSourceDialog = true },
-                    onLogout = viewModel::logout,
-                    onWriteToUs = { launchEmail(context) },
+                    onListPropertyClick = onListPropertyClick,
+                    onMyListingsClick = onMyListingsClick,
+                    onMyEnquiriesClick = onMyEnquiriesClick,
+                    onPersonalInfoClick = onPersonalInfoClick,
+                    onNotificationsClick = onNotificationsClick,
+                    onSettingsClick = onSettingsClick,
+                    onHelpSupportClick = { launchEmail(context) },
+                    onLogoutClick = viewModel::logout,
                     onUpdateField = { field, value -> viewModel.updateProfileField(field, value) },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -224,7 +244,7 @@ fun ProfileScreen(
                     },
                     onGallery = {
                         showImageSourceDialog = false
-                        imagePicker.launch("image/*")
+                        imagePicker.launch(IMAGE_MIME_TYPE)
                     },
                     onDismiss = { showImageSourceDialog = false }
                 )
@@ -233,484 +253,683 @@ fun ProfileScreen(
     }
 }
 
+private data class ProfileMenuItem(
+    val icon: ImageVector,
+    val title: String,
+    val subtitle: String?,
+    val contentDescription: String,
+    val onClick: () -> Unit
+)
+
 @Composable
 private fun ProfileContent(
     user: User?,
     isImageUploading: Boolean,
-    updatingField: String?,
     onPickImage: () -> Unit,
-    onLogout: () -> Unit,
-    onWriteToUs: () -> Unit,
+    onListPropertyClick: () -> Unit,
+    onMyListingsClick: () -> Unit,
+    onMyEnquiriesClick: () -> Unit,
+    onPersonalInfoClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onHelpSupportClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     onUpdateField: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var editingField by rememberSaveable { mutableStateOf<String?>(null) }
-    var previousUpdatingField by remember { mutableStateOf<String?>(null) }
+    var showEditDialog by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(updatingField) {
-        if (previousUpdatingField != null && updatingField == null && editingField == previousUpdatingField) {
-            editingField = null
+    val activityItems = listOf(
+        ProfileMenuItem(
+            icon = Icons.Outlined.Home,
+            title = ProfileStrings.MY_LISTINGS,
+            subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
+            contentDescription = ProfileStrings.MY_LISTINGS,
+            onClick = onMyListingsClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.Outlined.Description,
+            title = ProfileStrings.MY_ENQUIRIES,
+            subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
+            contentDescription = ProfileStrings.MY_ENQUIRIES,
+            onClick = onMyEnquiriesClick
+        )
+    )
+    val accountItems = listOf(
+        ProfileMenuItem(
+            icon = Icons.Outlined.Person,
+            title = ProfileStrings.PERSONAL_INFORMATION,
+            subtitle = ProfileStrings.PERSONAL_INFORMATION_SUBTITLE,
+            contentDescription = ProfileStrings.CD_PERSONAL_INFO,
+            onClick = onPersonalInfoClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.Outlined.Notifications,
+            title = ProfileStrings.NOTIFICATIONS,
+            subtitle = ProfileStrings.NOTIFICATIONS_SUBTITLE,
+            contentDescription = ProfileStrings.CD_NOTIFICATIONS_ITEM,
+            onClick = onNotificationsClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.Outlined.Settings,
+            title = ProfileStrings.SETTINGS,
+            subtitle = ProfileStrings.SETTINGS_SUBTITLE,
+            contentDescription = ProfileStrings.CD_SETTINGS,
+            onClick = onSettingsClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.Outlined.HelpOutline,
+            title = ProfileStrings.HELP_SUPPORT,
+            subtitle = ProfileStrings.HELP_SUPPORT_SUBTITLE,
+            contentDescription = ProfileStrings.CD_HELP_SUPPORT,
+            onClick = onHelpSupportClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.AutoMirrored.Filled.ExitToApp,
+            title = ProfileStrings.LOGOUT,
+            subtitle = null,
+            contentDescription = ProfileStrings.CD_LOGOUT,
+            onClick = onLogoutClick
+        )
+    )
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            horizontal = ProfileDims.SCREEN_PADDING,
+            vertical = ProfileDims.CARD_INNER_PADDING
+        ),
+        verticalArrangement = Arrangement.spacedBy(ProfileDims.SECTION_SPACING)
+    ) {
+        item { ProfileTopBar(onNotificationsClick = onNotificationsClick) }
+        item {
+            ProfileCard(
+                user = user,
+                isImageUploading = isImageUploading,
+                onPickImage = onPickImage,
+                onEditProfileClick = { showEditDialog = true }
+            )
         }
-        previousUpdatingField = updatingField
+        item { ListPropertyBanner(onClick = onListPropertyClick) }
+        item { ProfileMenuSection(title = ProfileStrings.SECTION_MY_ACTIVITY, items = activityItems) }
+        item { ProfileMenuSection(title = ProfileStrings.SECTION_ACCOUNT, items = accountItems) }
     }
 
-    Column(
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp)
-    ) {
-        // Profile header card: title, edit action, avatar, name and email.
-        ProfileHeader(
+    if (showEditDialog) {
+        EditProfileDialog(
             user = user,
-            isLoading = isImageUploading,
-            onPickImage = onPickImage,
-            modifier = Modifier.fillMaxWidth()
+            onSave = onUpdateField,
+            onDismiss = { showEditDialog = false }
         )
+    }
+}
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Section label for account details.
+@Composable
+private fun ProfileTopBar(
+    onNotificationsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Account Details",
-                color = TextPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                text = ProfileStrings.APP_NAME_BLUE,
+                color = BrandBlue,
+                fontSize = ProfileDims.APP_NAME_FONT_SIZE,
+                fontWeight = FontWeight.ExtraBold
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            user?.let {
-                // Name info item.
-                ProfileInfoItem(
-                    label = "Name",
-                    value = it.name,
-                    icon = Icons.Default.Person,
-                    keyboardType = KeyboardType.Text,
-                    isEditing = editingField == "name",
-                    isSaving = updatingField == "name",
-                    onEdit = { editingField = "name" },
-                    onSave = { value -> onUpdateField("name", value) }
-                )
-
-                // Email info item.
-                ProfileInfoItem(
-                    label = "Email",
-                    value = it.email,
-                    icon = Icons.Default.Email,
-                    keyboardType = KeyboardType.Email,
-                    isEditing = editingField == "email",
-                    isSaving = updatingField == "email",
-                    onEdit = { editingField = "email" },
-                    onSave = { value -> onUpdateField("email", value) }
-                )
-
-                // Phone info item.
-                ProfileInfoItem(
-                    label = "Phone",
-                    value = it.phone,
-                    icon = Icons.Default.Phone,
-                    keyboardType = KeyboardType.Phone,
-                    isEditing = editingField == "phone",
-                    isSaving = updatingField == "phone",
-                    onEdit = { editingField = "phone" },
-                    onSave = { value -> onUpdateField("phone", value) }
-                )
-
-                // Address info item.
-                ProfileInfoItem(
-                    label = "Address",
-                    value = it.address,
-                    icon = Icons.Default.LocationOn,
-                    keyboardType = KeyboardType.Text,
-                    isMultiline = true,
-                    isEditing = editingField == "address",
-                    isSaving = updatingField == "address",
-                    onEdit = { editingField = "address" },
-                    onSave = { value -> onUpdateField("address", value) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Write to us action item.
-            ProfileInfoItem(
-                label = "Write to us",
-                value = null,
-                icon = Icons.AutoMirrored.Filled.Send,
-                onClick = onWriteToUs
+            Text(
+                text = ProfileStrings.APP_NAME_ACCENT,
+                color = BrandCoral,
+                fontSize = ProfileDims.APP_NAME_FONT_SIZE,
+                fontWeight = FontWeight.ExtraBold
             )
+        }
 
-            // Logout action item.
-            ProfileInfoItem(
-                label = "Logout",
-                value = null,
-                icon = Icons.AutoMirrored.Filled.ExitToApp,
-                onClick = onLogout
+        Box(contentAlignment = Alignment.TopEnd) {
+            Icon(
+                imageVector = Icons.Outlined.Notifications,
+                contentDescription = ProfileStrings.CD_NOTIFICATIONS,
+                tint = Black,
+                modifier = Modifier
+                    .size(ProfileDims.TOP_BAR_ICON_SIZE)
+                    .clickable(onClick = onNotificationsClick)
+            )
+            Box(
+                modifier = Modifier
+                    .size(ProfileDims.NOTIFICATION_BADGE_SIZE)
+                    .clip(CircleShape)
+                    .background(BrandRed)
             )
         }
     }
 }
 
 @Composable
-private fun ProfileHeader(
+private fun ProfileCard(
     user: User?,
-    isLoading: Boolean,
+    isImageUploading: Boolean,
     onPickImage: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ProfileDims.CARD_CORNER_RADIUS),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.CARD_ELEVATION)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(ProfileDims.CARD_INNER_PADDING)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                ProfileAvatar(
+                    user = user,
+                    isImageUploading = isImageUploading,
+                    onPickImage = onPickImage
+                )
+
+                Spacer(modifier = Modifier.width(ProfileDims.AVATAR_TO_DETAILS_SPACING))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = user?.name.orEmpty(),
+                            color = Black,
+                            fontSize = ProfileDims.PROFILE_NAME_FONT_SIZE,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Spacer(modifier = Modifier.width(ProfileDims.VERIFIED_BADGE_SPACING))
+                        EditProfileButton(onClick = onEditProfileClick)
+                    }
+
+                    Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+
+                    Text(
+                        text = user?.phone.orEmpty(),
+                        color = HomeTextSecondary,
+                        fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
+                    )
+                    Text(
+                        text = user?.email.orEmpty(),
+                        color = HomeTextSecondary,
+                        fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
+                    )
+                }
+            }
+
+            // Verified badges span the full card width so both fit on one line.
+            if (!user?.phone.isNullOrBlank() || !user?.email.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(ProfileDims.VERIFIED_BADGE_SPACING)) {
+                    if (!user?.phone.isNullOrBlank()) {
+                        VerifiedBadge(
+                            icon = Icons.Filled.VerifiedUser,
+                            label = ProfileStrings.PHONE_VERIFIED,
+                            contentDescription = ProfileStrings.CD_PHONE_VERIFIED,
+                            color = VerifiedGreen
+                        )
+                    }
+                    if (!user?.email.isNullOrBlank()) {
+                        VerifiedBadge(
+                            icon = Icons.Outlined.MarkEmailRead,
+                            label = ProfileStrings.EMAIL_VERIFIED,
+                            contentDescription = ProfileStrings.CD_EMAIL_VERIFIED,
+                            color = BrandBlue
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileAvatar(
+    user: User?,
+    isImageUploading: Boolean,
+    onPickImage: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.size(ProfileDims.AVATAR_SIZE),
+        contentAlignment = Alignment.Center
+    ) {
+        // Avatar UI falls back to the user's initials when no image is available.
+        if (user?.image.isNullOrBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape)
+                    .background(BrandBlue.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = user?.name?.take(2)?.uppercase() ?: ProfileStrings.FALLBACK_INITIALS,
+                    color = BrandBlue,
+                    fontSize = ProfileDims.INITIALS_FONT_SIZE,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        } else {
+            AsyncImage(
+                model = user?.image,
+                contentDescription = ProfileStrings.CD_AVATAR,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        if (isImageUploading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(ProfileDims.AVATAR_PROGRESS_SIZE),
+                color = BrandBlue,
+                strokeWidth = ProfileDims.AVATAR_PROGRESS_STROKE
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .size(ProfileDims.AVATAR_EDIT_BADGE_SIZE)
+                .clip(CircleShape)
+                .background(BrandBlue)
+                .border(
+                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, White),
+                    CircleShape
+                )
+                .clickable(onClick = onPickImage),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = ProfileStrings.CD_EDIT_AVATAR,
+                tint = White,
+                modifier = Modifier.size(ProfileDims.AVATAR_EDIT_ICON_SIZE)
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditProfileButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier.height(ProfileDims.EDIT_PROFILE_BUTTON_HEIGHT),
+        shape = RoundedCornerShape(ProfileDims.EDIT_PROFILE_BUTTON_CORNER_RADIUS),
+        colors = ButtonDefaults.textButtonColors(
+            containerColor = BrandBlue.copy(alpha = 0.1f),
+            contentColor = BrandBlue
+        ),
+        border = BorderStroke(ProfileDims.EDIT_PROFILE_BUTTON_BORDER, BrandBlue.copy(alpha = 0.2f)),
+        contentPadding = PaddingValues(horizontal = ProfileDims.EDIT_PROFILE_BUTTON_HORIZONTAL_PADDING)
+    ) {
+        Text(
+            text = ProfileStrings.EDIT_PROFILE,
+            fontSize = ProfileDims.EDIT_PROFILE_BUTTON_FONT_SIZE,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+private fun VerifiedBadge(
+    icon: ImageVector,
+    label: String,
+    contentDescription: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(ProfileDims.VERIFIED_BADGE_CORNER_RADIUS))
+            .background(color.copy(alpha = 0.12f))
+            .padding(
+                horizontal = ProfileDims.VERIFIED_BADGE_HORIZONTAL_PADDING,
+                vertical = ProfileDims.VERIFIED_BADGE_VERTICAL_PADDING
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(ProfileDims.VERIFIED_BADGE_ICON_TEXT_SPACING)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = color,
+            modifier = Modifier.size(ProfileDims.VERIFIED_BADGE_ICON_SIZE)
+        )
+        Text(
+            text = label,
+            color = color,
+            fontSize = ProfileDims.VERIFIED_BADGE_FONT_SIZE,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            softWrap = false
+        )
+    }
+}
+
+@Composable
+private fun ListPropertyBanner(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground)
+            .height(ProfileDims.LIST_PROPERTY_BANNER_HEIGHT),
+        shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_CORNER_RADIUS),
+        colors = CardDefaults.cardColors(containerColor = BrandBlue.copy(alpha = 0.08f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.LIST_PROPERTY_BANNER_ELEVATION)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(ProfileDims.CARD_INNER_PADDING),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Header row with screen title.
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .width(ProfileDims.LIST_PROPERTY_IMAGE_WIDTH)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_IMAGE_CORNER_RADIUS))
+                    .background(BrandBlue.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Profile",
-                    color = TextPrimary,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    imageVector = Icons.Filled.Home,
+                    contentDescription = ProfileStrings.CD_LIST_PROPERTY_IMAGE,
+                    tint = BrandBlue,
+                    modifier = Modifier.size(ProfileDims.LIST_PROPERTY_IMAGE_ICON_SIZE)
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.width(ProfileDims.BANNER_CONTENT_SPACING))
 
-            // Avatar with accent border. Tap to change profile picture.
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(92.dp)
-                    .clickable { onPickImage() }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = ProfileStrings.LIST_PROPERTY_TITLE,
+                    color = Black,
+                    fontSize = ProfileDims.BANNER_TITLE_FONT_SIZE,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(ProfileDims.BANNER_TITLE_SUBTITLE_SPACING))
+                Text(
+                    text = ProfileStrings.LIST_PROPERTY_SUBTITLE,
+                    color = HomeTextSecondary,
+                    fontSize = ProfileDims.BANNER_SUBTITLE_FONT_SIZE
+                )
+            }
+
+            Spacer(modifier = Modifier.width(ProfileDims.BANNER_CONTENT_SPACING))
+
+            Button(
+                onClick = onClick,
+                modifier = Modifier.height(ProfileDims.LIST_PROPERTY_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BUTTON_CORNER_RADIUS),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BrandCoral,
+                    contentColor = White
+                ),
+                contentPadding = PaddingValues(horizontal = ProfileDims.LIST_PROPERTY_BUTTON_HORIZONTAL_PADDING)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(88.dp)
-                        .clip(CircleShape)
-                        .background(AppBackground)
-                        .border(BorderStroke(2.dp, Accent), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Avatar UI falls back to the user's initials when no image is available.
-                    if (user?.image.isNullOrBlank()) {
-                        Text(
-                            text = user?.name?.take(2)?.uppercase() ?: "?",
-                            color = Accent,
-                            fontSize = 36.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    } else {
-                        AsyncImage(
-                            model = user?.image,
-                            contentDescription = "Profile picture",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                Text(
+                    text = ProfileStrings.LIST_PROPERTY_BUTTON,
+                    fontSize = ProfileDims.BANNER_BUTTON_FONT_SIZE,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.width(ProfileDims.BANNER_BUTTON_ICON_SPACING))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = ProfileStrings.CD_LIST_PROPERTY_ARROW,
+                    modifier = Modifier.size(ProfileDims.BANNER_ARROW_ICON_SIZE)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProfileMenuSection(
+    title: String,
+    items: List<ProfileMenuItem>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            color = Black,
+            fontSize = ProfileDims.SECTION_TITLE_FONT_SIZE,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(ProfileDims.SECTION_TITLE_TO_CONTENT))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(ProfileDims.CARD_CORNER_RADIUS),
+            colors = CardDefaults.cardColors(containerColor = White),
+            elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.CARD_ELEVATION)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                items.forEachIndexed { index, item ->
+                    ProfileMenuRow(item = item)
+                    if (index < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = ProfileDims.CARD_INNER_PADDING),
+                            thickness = ProfileDims.DIVIDER_THICKNESS,
+                            color = HomeSearchBarBorder
                         )
                     }
                 }
-
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = Accent,
-                        strokeWidth = 3.dp
-                    )
-                }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = user?.name ?: "Guest",
-                color = TextPrimary,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = user?.email ?: "",
-                color = TextSecondary,
-                fontSize = 14.sp
+@Composable
+private fun ProfileMenuRow(item: ProfileMenuItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = item.onClick)
+            .padding(
+                horizontal = ProfileDims.CARD_INNER_PADDING,
+                vertical = ProfileDims.MENU_ITEM_VERTICAL_PADDING
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(ProfileDims.MENU_ITEM_ICON_SIZE)
+                .clip(RoundedCornerShape(ProfileDims.CARD_INNER_ICON_CORNER_RADIUS))
+                .background(HomeCategoryUnselected),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.contentDescription,
+                tint = BrandBlue,
+                modifier = Modifier.size(ProfileDims.MENU_ITEM_ICON_INNER_SIZE)
             )
         }
+
+        Spacer(modifier = Modifier.width(ProfileDims.MENU_ITEM_ICON_TEXT_SPACING))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = item.title,
+                color = Black,
+                fontSize = ProfileDims.MENU_ITEM_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Medium
+            )
+            item.subtitle?.let { subtitle ->
+                Spacer(modifier = Modifier.height(ProfileDims.MENU_ITEM_TEXT_SPACING))
+                Text(
+                    text = subtitle,
+                    color = HomeTextSecondary,
+                    fontSize = ProfileDims.MENU_ITEM_SUBTITLE_FONT_SIZE
+                )
+            }
+        }
+
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = ProfileStrings.CD_ARROW,
+            tint = HomeTextSecondary,
+            modifier = Modifier.size(ProfileDims.MENU_ITEM_ARROW_SIZE)
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditableProfileField(
-    label: String,
-    value: String,
-    icon: ImageVector,
-    onSave: ((String) -> Unit)?,
-    keyboardType: KeyboardType,
-    isMultiline: Boolean = false
+private fun EditProfileDialog(
+    user: User?,
+    onSave: (String, String) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    var isEditing by rememberSaveable { mutableStateOf(false) }
-    var text by rememberSaveable { mutableStateOf(value) }
+    var name by rememberSaveable { mutableStateOf(user?.name.orEmpty()) }
+    var phone by rememberSaveable { mutableStateOf(user?.phone.orEmpty()) }
+    var email by rememberSaveable { mutableStateOf(user?.email.orEmpty()) }
+    var address by rememberSaveable { mutableStateOf(user?.address.orEmpty()) }
 
-    LaunchedEffect(value) {
-        if (!isEditing) {
-            text = value
-        }
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Accent,
-            modifier = Modifier
-                .size(40.dp)
-                .padding(8.dp)
-        )
-
-        Column(modifier = Modifier.weight(1f)) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(ProfileDims.DIALOG_CORNER_RADIUS),
+        containerColor = White,
+        title = {
             Text(
-                text = label,
-                color = TextSecondary,
-                fontSize = 12.sp
+                text = ProfileStrings.EDIT_PROFILE,
+                color = Black,
+                fontSize = ProfileDims.DIALOG_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
             )
-
-            // Field value UI switches between editor and read-only text.
-            if (isEditing) {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = !isMultiline,
-                    minLines = if (isMultiline) 2 else 1,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = if (isMultiline) ImeAction.Default else ImeAction.Done
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedBorderColor = Accent,
-                        unfocusedBorderColor = TextSecondary
-                    )
+        },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(ProfileDims.FIELD_SPACING)
+            ) {
+                EditProfileField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = ProfileStrings.LABEL_NAME,
+                    icon = Icons.Filled.Person,
+                    keyboardType = KeyboardType.Text
                 )
-            } else {
+                EditProfileField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = ProfileStrings.LABEL_PHONE,
+                    icon = Icons.Filled.Phone,
+                    keyboardType = KeyboardType.Phone
+                )
+                EditProfileField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = ProfileStrings.LABEL_EMAIL,
+                    icon = Icons.Filled.Email,
+                    keyboardType = KeyboardType.Email
+                )
+                EditProfileField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = ProfileStrings.LABEL_ADDRESS,
+                    icon = Icons.Filled.LocationOn,
+                    keyboardType = KeyboardType.Text
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (name != user?.name.orEmpty()) onSave(ProfileStrings.FIELD_NAME, name)
+                    if (phone != user?.phone.orEmpty()) onSave(ProfileStrings.FIELD_PHONE, phone)
+                    if (email != user?.email.orEmpty()) onSave(ProfileStrings.FIELD_EMAIL, email)
+                    if (address != user?.address.orEmpty()) onSave(ProfileStrings.FIELD_ADDRESS, address)
+                    onDismiss()
+                },
+                modifier = Modifier.height(ProfileDims.DIALOG_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = BrandBlue,
+                    contentColor = White
+                )
+            ) {
                 Text(
-                    text = value.ifBlank { "N/A" },
-                    color = TextPrimary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    text = ProfileStrings.ACTION_SAVE,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = ProfileStrings.ACTION_CANCEL,
+                    color = HomeTextSecondary
                 )
             }
         }
-
-        // Edit action UI is omitted for read-only fields such as email.
-        if (onSave != null) {
-            if (isEditing) {
-                Row {
-                    IconButton(
-                        onClick = {
-                            onSave(text)
-                            isEditing = false
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Done,
-                            contentDescription = "Save",
-                            tint = Accent
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            text = value
-                            isEditing = false
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cancel",
-                            tint = TextPrimary
-                        )
-                    }
-                }
-            } else {
-                IconButton(onClick = { isEditing = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        tint = TextPrimary
-                    )
-                }
-            }
-        }
-    }
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProfileInfoItem(
+private fun EditProfileField(
+    value: String,
+    onValueChange: (String) -> Unit,
     label: String,
-    value: String?,
     icon: ImageVector,
-    showArrow: Boolean = true,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    isMultiline: Boolean = false,
-    isEditing: Boolean = false,
-    isSaving: Boolean = false,
-    onClick: (() -> Unit)? = null,
-    onEdit: (() -> Unit)? = null,
-    onSave: ((String) -> Unit)? = null
+    keyboardType: KeyboardType
 ) {
-    var text by rememberSaveable { mutableStateOf(value.orEmpty()) }
-
-    LaunchedEffect(value) {
-        if (!isEditing) {
-            text = value.orEmpty()
-        }
-    }
-
-    LaunchedEffect(isEditing) {
-        if (isEditing) {
-            text = value.orEmpty()
-        }
-    }
-
-    val isEditable = onEdit != null
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable(
-                enabled = (!isSaving && !isEditing && isEditable) || (onClick != null && !isSaving),
-                onClick = {
-                    when {
-                        isEditable && !isEditing && !isSaving -> onEdit?.invoke()
-                        else -> onClick?.invoke()
-                    }
-                }
-            ),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = ItemCardBackground)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(label) },
+        leadingIcon = {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
-                tint = TextSecondary,
-                modifier = Modifier.size(22.dp)
+                contentDescription = label,
+                tint = HomeTextSecondary,
+                modifier = Modifier.size(ProfileDims.DIALOG_FIELD_ICON_SIZE)
             )
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                if (isEditing) {
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = { if (!isSaving) text = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(label, color = TextSecondary) },
-                        singleLine = !isMultiline,
-                        minLines = if (isMultiline) 2 else 1,
-                        readOnly = isSaving,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = keyboardType,
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                if (!isSaving) {
-                                    onSave?.invoke(text)
-                                }
-                            }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedBorderColor = Accent,
-                            unfocusedBorderColor = TextSecondary,
-                            focusedLabelColor = TextSecondary,
-                            unfocusedLabelColor = TextSecondary
-                        )
-                    )
-                } else {
-                    Text(
-                        text = label,
-                        color = if (value == null) TextPrimary else TextSecondary,
-                        fontSize = if (value == null) 16.sp else 12.sp,
-                        fontWeight = if (value == null) FontWeight.Medium else FontWeight.Normal
-                    )
-
-                    if (value != null) {
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Text(
-                            text = value.ifBlank { "N/A" },
-                            color = TextPrimary,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            if (isEditing) {
-                if (isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Accent,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    IconButton(
-                        onClick = { onSave?.invoke(text) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Done,
-                            contentDescription = "Save",
-                            tint = Accent
-                        )
-                    }
-                }
-            } else if (showArrow) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = TextPrimary.copy(alpha = 0.7f),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-    }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        shape = RoundedCornerShape(ProfileDims.DIALOG_FIELD_CORNER_RADIUS),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Black,
+            unfocusedTextColor = Black,
+            focusedBorderColor = BrandBlue,
+            unfocusedBorderColor = HomeSearchBarBorder,
+            focusedLabelColor = BrandBlue,
+            unfocusedLabelColor = HomeTextSecondary
+        )
+    )
 }
-
 
 private const val PROFILE_LOGIN_PROMPT_TAG = "ProfileLoginPrompt"
 
@@ -721,55 +940,45 @@ private fun ProfileLoginPrompt(
 ) {
     // Logged-out profile UI with a direct action to open the login screen.
     Column(
-        modifier = modifier.padding(24.dp),
+        modifier = modifier.padding(ProfileDims.LOGIN_PROMPT_PADDING),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Person,
+            imageVector = Icons.Filled.Person,
             contentDescription = null,
-            tint = Accent,
-            modifier = Modifier.size(80.dp)
+            tint = BrandBlue,
+            modifier = Modifier.size(ProfileDims.EMPTY_ICON_SIZE)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(ProfileDims.LOGIN_TITLE_TOP_SPACING))
         Text(
-            text = "Please Login to View your profile",
-            color = TextPrimary,
+            text = ProfileStrings.LOGIN_PROMPT_TITLE,
+            color = Black,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(24.dp))
-        TextButton(
+        Spacer(modifier = Modifier.height(ProfileDims.LOGIN_BUTTON_TOP_SPACING))
+        Button(
             onClick = {
                 Logger.d(PROFILE_LOGIN_PROMPT_TAG, "Login button clicked from profile screen")
                 onLoginClick()
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.textButtonColors(
-                containerColor = Accent,
-                contentColor = AppBackground
+                .height(ProfileDims.LOGIN_BUTTON_HEIGHT),
+            shape = RoundedCornerShape(ProfileDims.LOGIN_BUTTON_CORNER_RADIUS),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BrandBlue,
+                contentColor = White
             )
         ) {
             Text(
-                text = "Login",
-                fontSize = 18.sp,
+                text = ProfileStrings.LOGIN_BUTTON,
+                fontSize = ProfileDims.LOGIN_BUTTON_FONT_SIZE,
                 fontWeight = FontWeight.Bold
             )
         }
     }
-}
-
-@Composable
-private fun LinearProgressPlaceholder() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(2.dp)
-            .background(Accent)
-    )
 }
 
 private const val PROFILE_IMAGE_MAX_DIM = 1024
@@ -798,9 +1007,9 @@ private fun processImageFromUri(context: Context, uri: Uri): ByteArray? {
 
 private fun createImageUri(context: Context): Uri? {
     return try {
-        val file = File(context.cacheDir, "profile_camera_${System.currentTimeMillis()}.jpg")
+        val file = File(context.cacheDir, CAMERA_FILE_PREFIX + System.currentTimeMillis() + IMAGE_FILE_EXTENSION)
         file.createNewFile()
-        FileProvider.getUriForFile(context, "com.realeapp.fileprovider", file)
+        FileProvider.getUriForFile(context, FILE_PROVIDER_AUTHORITY, file)
     } catch (e: Exception) {
         null
     }
@@ -829,21 +1038,23 @@ private fun calculateInSampleSize(width: Int, height: Int, maxDim: Int): Int {
     return inSampleSize
 }
 
-private const val SUPPORT_EMAIL = "fhiontrealtyllp@gmail.com"
-private const val EMAIL_SUBJECT = "Reale App - Support Request"
-private const val EMAIL_BODY = "Hi Team,\n\nI am writing to you regarding the Reale app.\n\n"
-private const val EMAIL_CHOOSER_TITLE = "Write to us"
+private const val PROFILE_IMAGE_FILENAME = "profile_image.jpg"
+private const val IMAGE_MIME_TYPE = "image/*"
+private const val CAMERA_FILE_PREFIX = "profile_camera_"
+private const val IMAGE_FILE_EXTENSION = ".jpg"
+private const val FILE_PROVIDER_AUTHORITY = "com.realeapp.fileprovider"
+private const val MAILTO_SCHEME = "mailto:"
 
 private fun launchEmail(context: Context) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(SUPPORT_EMAIL))
-        putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT)
-        putExtra(Intent.EXTRA_TEXT, EMAIL_BODY)
+        data = Uri.parse(MAILTO_SCHEME)
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(ProfileStrings.SUPPORT_EMAIL))
+        putExtra(Intent.EXTRA_SUBJECT, ProfileStrings.EMAIL_SUBJECT)
+        putExtra(Intent.EXTRA_TEXT, ProfileStrings.EMAIL_BODY)
     }
     if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(Intent.createChooser(intent, EMAIL_CHOOSER_TITLE))
+        context.startActivity(Intent.createChooser(intent, ProfileStrings.EMAIL_CHOOSER_TITLE))
     } else {
-        Toast.makeText(context, "No email app found", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, ProfileStrings.ERROR_NO_EMAIL_APP, Toast.LENGTH_SHORT).show()
     }
 }

@@ -123,15 +123,15 @@ class ProfileViewModel(
         viewModelScope.launch {
             when (val uploadResult = uploadImageUseCase(bytes, filename)) {
                 is Result.Success -> {
-                    when (val updateResult = updateProfileUseCase(currentUser.id, "image", uploadResult.data)) {
+                    when (val updateResult = updateProfileUseCase(currentUser.id, ProfileStrings.FIELD_IMAGE, uploadResult.data)) {
                         is Result.Success -> {
                             val refreshed = userSession.getUser()
                             _uiState.value = _uiState.value.copy(
                                 user = refreshed,
                                 isImageUploading = false,
-                                updateSuccessMessage = "Profile image updated"
+                                updateSuccessMessage = ProfileStrings.MSG_IMAGE_UPDATED
                             )
-                            _sideEffect.emit("Profile image updated")
+                            _sideEffect.emit(ProfileStrings.MSG_IMAGE_UPDATED)
                         }
                         is Result.Error -> {
                             _uiState.value = _uiState.value.copy(
@@ -167,7 +167,7 @@ class ProfileViewModel(
                 is Result.Success -> {
                     Logger.d(TAG, "logout() success: userId=${currentUser.id}")
                     _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
-                    _sideEffect.emit("Logged out successfully")
+                    _sideEffect.emit(ProfileStrings.MSG_LOGGED_OUT)
                 }
                 is Result.Error -> {
                     Logger.e(TAG, "logout() error: ${result.message}")
