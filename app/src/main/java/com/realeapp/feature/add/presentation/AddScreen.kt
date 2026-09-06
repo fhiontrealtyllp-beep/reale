@@ -83,6 +83,7 @@ import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
@@ -716,7 +717,7 @@ private fun MyListingCard(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(6.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .background(MediaScrim.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
                         .padding(horizontal = 6.dp, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)

@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.OnBrandContent
-import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
 import java.text.NumberFormat
