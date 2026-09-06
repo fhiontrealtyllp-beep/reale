@@ -269,6 +269,7 @@ private fun CategoryItem(
 internal fun FeaturedSection(
     properties: List<FeaturedProperty>,
     onSeeAllClick: () -> Unit,
+    onPropertyClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_CONTENT_PADDING)) {
@@ -303,7 +304,8 @@ internal fun FeaturedSection(
                 FeaturedPropertyCard(
                     property = property,
                     isLiked = isLiked,
-                    onLikeToggle = { isLiked = !isLiked }
+                    onLikeToggle = { isLiked = !isLiked },
+                    onClick = { onPropertyClick(property.id) }
                 )
             }
         }
@@ -314,12 +316,14 @@ internal fun FeaturedSection(
 private fun FeaturedPropertyCard(
     property: FeaturedProperty,
     isLiked: Boolean,
-    onLikeToggle: () -> Unit
+    onLikeToggle: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .width(HomeDims.FEATURED_CARD_WIDTH)
-            .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS)),
+            .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = HomeDims.FEATURED_CARD_ELEVATION)

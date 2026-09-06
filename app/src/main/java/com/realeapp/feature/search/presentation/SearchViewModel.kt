@@ -57,6 +57,11 @@ class SearchViewModel(
                     it.copy(isLiked = likedIds.contains(it.documentId ?: it.id))
                 }
                 _uiState.value = _uiState.value.copy(properties = updated)
+
+                val updatedFeatured = _featuredProperties.value.map {
+                    it.copy(isLiked = likedIds.contains(it.documentId ?: it.id))
+                }
+                _featuredProperties.value = updatedFeatured
             }
         }
     }
@@ -95,21 +100,29 @@ class SearchViewModel(
 
     fun onLikeClicked(propertyId: String) {
         Logger.d(TAG, "onLikeClicked: propertyId=$propertyId")
-        val index = _uiState.value.properties.indexOfFirst {
+        val allIndex = _uiState.value.properties.indexOfFirst {
             it.documentId == propertyId || it.id == propertyId
         }
-        if (index == -1) {
+        val featuredIndex = _featuredProperties.value.indexOfFirst {
+            it.documentId == propertyId || it.id == propertyId
+        }
+        if (allIndex == -1 && featuredIndex == -1) {
             Logger.w(TAG, "onLikeClicked: property not found in list id=$propertyId")
             return
         }
 
-        val oldProperty = _uiState.value.properties[index]
+        val oldProperty = when {
+            allIndex != -1 -> _uiState.value.properties[allIndex]
+            else -> _featuredProperties.value[featuredIndex]
+        }
         val oldIsLiked = oldProperty.isLiked ?: false
         val newIsLiked = !oldIsLiked
         Logger.d(TAG, "onLikeClicked: toggling id=$propertyId from isLiked=$oldIsLiked to isLiked=$newIsLiked")
 
+        val updatedProperty = oldProperty.copy(isLiked = newIsLiked)
         likeStateManager.setLiked(oldProperty, newIsLiked)
-        updatePropertyInList(index, oldProperty.copy(isLiked = newIsLiked))
+        if (allIndex != -1) updatePropertyInList(allIndex, updatedProperty)
+        if (featuredIndex != -1) updateFeaturedPropertyInList(featuredIndex, updatedProperty)
 
         viewModelScope.launch {
             val targetId = oldProperty.documentId ?: propertyId
@@ -122,7 +135,8 @@ class SearchViewModel(
                 is Result.Error -> {
                     Logger.e(TAG, "onLikeClicked: updatePropertyLikeUseCase failed id=$targetId, reverting UI")
                     likeStateManager.setLiked(oldProperty, oldIsLiked)
-                    updatePropertyInList(index, oldProperty)
+                    if (allIndex != -1) updatePropertyInList(allIndex, oldProperty)
+                    if (featuredIndex != -1) updateFeaturedPropertyInList(featuredIndex, oldProperty)
                     _sideEffect.emit("Failed to update like: ${result.message}")
                 }
             }
@@ -137,6 +151,12 @@ class SearchViewModel(
         val updated = _uiState.value.properties.toMutableList()
         updated[index] = property
         _uiState.value = _uiState.value.copy(properties = updated)
+    }
+
+    private fun updateFeaturedPropertyInList(index: Int, property: Property) {
+        val updated = _featuredProperties.value.toMutableList()
+        updated[index] = property
+        _featuredProperties.value = updated
     }
 
     private fun loadPage(page: Int) {
