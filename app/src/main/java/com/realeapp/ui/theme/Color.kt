@@ -37,3 +37,12 @@ val DialogSectionBackground = Color(0xFF243265)
 val SliderTrackInactive = Color(0xFF53649D)
 val TextFieldUnfocusedBorder = Color(0xFF7180B2)
 val TextFieldUnfocusedLabel = Color(0xFFB9C1DF)
+
+// Brand and light home screen palette.
+val BrandBlue = Color(0xFF2563EB)
+val BrandRed = Color(0xFFEF4444)
+val BrandCoral = Color(0xFFFF6B6B)
+val HomeSearchBarBorder = Color(0xFFE5E7EB)
+val HomeCategoryUnselected = Color(0xFFF3F4F6)
+val HomeCategoryIconUnselected = Color(0xFF9CA3AF)
+val HomeTextSecondary = Color(0xFF6B7280)

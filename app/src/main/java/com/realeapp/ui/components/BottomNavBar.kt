@@ -1,7 +1,6 @@
 package com.realeapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,10 +14,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BottomNavBackground
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.White
 
-private val BOTTOM_NAV_HEIGHT = 120.dp
+private val BOTTOM_NAV_CORNER_RADIUS = 20.dp
 
 @Composable
 fun BottomNavBar(
@@ -26,12 +29,16 @@ fun BottomNavBar(
     selectedTab: AppScreen,
     onTabSelected: (AppScreen) -> Unit
 ) {
+    val isHome = selectedTab == AppScreen.Home
+    val background = if (isHome) White else BottomNavBackground
+    val contentColor = if (isHome) Black else White
+
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(BOTTOM_NAV_HEIGHT)
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-        containerColor = BottomNavBackground,
+            .clip(RoundedCornerShape(topStart = BOTTOM_NAV_CORNER_RADIUS, topEnd = BOTTOM_NAV_CORNER_RADIUS)),
+        containerColor = background,
+        contentColor = contentColor,
         tonalElevation = 0.dp
     ) {
         tabs.forEach { screen ->
@@ -41,11 +48,11 @@ fun BottomNavBar(
                 selected = selectedTab == screen,
                 onClick = { onTabSelected(screen) },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Accent.copy(alpha = 0.18f),
-                    selectedIconColor = Accent,
-                    selectedTextColor = TextPrimary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    indicatorColor = if (isHome) BrandBlue.copy(alpha = 0.12f) else Accent.copy(alpha = 0.18f),
+                    selectedIconColor = if (isHome) BrandBlue else Accent,
+                    selectedTextColor = if (isHome) BrandBlue else TextPrimary,
+                    unselectedIconColor = if (isHome) HomeTextSecondary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    unselectedTextColor = if (isHome) HomeTextSecondary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             )
         }
