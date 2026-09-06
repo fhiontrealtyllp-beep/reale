@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -75,8 +76,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.TextPrimary
@@ -127,46 +132,37 @@ fun AddScreen(
             }
         },
         topBar = {
-            // Logged-in navigation UI; title changes between the property list and add form.
+            // Logged-in navigation UI; the add form uses the light-theme header
+            // (logo + Save Draft + back + title), the listings view keeps TopAppBar.
             if (uiState.isLoggedIn) {
-                TopAppBar(
-                    title = {
-                        Column {
-                            Text(
-                                text = if (uiState.isShowingAddForm || uiState.isSubmitSuccess) AddStrings.TITLE_ADD_PROPERTY else AddStrings.TITLE_MY_LISTINGS,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (!uiState.isShowingAddForm && !uiState.isSubmitSuccess) {
+                if (uiState.isShowingAddForm || uiState.isSubmitSuccess) {
+                    AddFormTopBar(
+                        onBack = {
+                            if (uiState.isSubmitSuccess) {
+                                viewModel.onDismissSuccess()
+                            } else {
+                                viewModel.onHideAddForm()
+                            }
+                        },
+                        onSaveDraft = { }
+                    )
+                } else {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(
+                                    text = AddStrings.TITLE_MY_LISTINGS,
+                                    color = TextPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Text(
                                     text = AddStrings.SUBTITLE_MANAGE_PROPERTIES,
                                     color = TextSecondary,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                        }
-                    },
-                    navigationIcon = {
-                        if (uiState.isShowingAddForm || uiState.isSubmitSuccess) {
-                            IconButton(
-                                onClick = {
-                                    if (uiState.isSubmitSuccess) {
-                                        viewModel.onDismissSuccess()
-                                    } else {
-                                        viewModel.onHideAddForm()
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = AddStrings.CD_BACK,
-                                    tint = TextPrimary
-                                )
-                            }
-                        }
-                    },
-                    actions = {
-                        if (!uiState.isShowingAddForm && !uiState.isSubmitSuccess) {
+                        },
+                        actions = {
                             Button(
                                 onClick = viewModel::onShowAddForm,
                                 shape = RoundedCornerShape(10.dp),
@@ -189,12 +185,12 @@ fun AddScreen(
                                     style = MaterialTheme.typography.labelLarge
                                 )
                             }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MainBackground
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MainBackground
+                        )
                     )
-                )
+                }
             }
         }
     ) { innerPadding ->
@@ -931,4 +927,84 @@ private fun formatIndianNumber(value: Double): String {
     return NumberFormat.getNumberInstance(Locale(AddStrings.LOCALE_LANGUAGE, AddStrings.LOCALE_COUNTRY)).apply {
         maximumFractionDigits = 0
     }.format(value)
+}
+
+// Light-theme header shown while the add-property form (or success view) is open.
+@Composable
+private fun AddFormTopBar(
+    onBack: () -> Unit,
+    onSaveDraft: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(modifier = modifier.fillMaxWidth(), color = White) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = AddDims.SCREEN_PADDING,
+                    vertical = AddDims.HEADER_VERTICAL_PADDING
+                )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = AddStrings.APP_NAME_FIRST,
+                    color = BrandBlue,
+                    fontSize = AddDims.HEADER_LOGO_FONT_SIZE,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = AddStrings.APP_NAME_ACCENT,
+                    color = BrandCoral,
+                    fontSize = AddDims.HEADER_LOGO_FONT_SIZE,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier.clickable(onClick = onSaveDraft),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.BookmarkBorder,
+                        contentDescription = AddStrings.CD_SAVE_DRAFT,
+                        tint = BrandBlue,
+                        modifier = Modifier.size(AddDims.SAVE_DRAFT_ICON_SIZE)
+                    )
+                    Spacer(modifier = Modifier.width(AddDims.SAVE_DRAFT_ICON_TEXT_SPACING))
+                    Text(
+                        text = AddStrings.ACTION_SAVE_DRAFT,
+                        color = BrandBlue,
+                        fontSize = AddDims.SAVE_DRAFT_FONT_SIZE,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = AddStrings.CD_BACK,
+                    tint = Black,
+                    modifier = Modifier
+                        .size(AddDims.HEADER_BACK_ICON_SIZE)
+                        .clickable(onClick = onBack)
+                )
+                Spacer(modifier = Modifier.width(AddDims.HEADER_ROW_SPACING))
+                Column {
+                    Text(
+                        text = AddStrings.TITLE_ADD_PROPERTY,
+                        color = Black,
+                        fontSize = AddDims.HEADER_TITLE_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = AddStrings.ADD_FORM_SUBTITLE,
+                        color = HomeTextSecondary,
+                        fontSize = AddDims.HEADER_SUBTITLE_FONT_SIZE
+                    )
+                }
+            }
+        }
+    }
 }

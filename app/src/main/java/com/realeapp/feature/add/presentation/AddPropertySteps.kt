@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.White
 
 @Composable
 fun AddPropertySteps(
@@ -46,25 +46,23 @@ fun AddPropertySteps(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = MainBackground
+        containerColor = White
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(horizontal = AddDims.SCREEN_PADDING, vertical = AddDims.SCREEN_PADDING)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(AddDims.SECTION_SPACING)
         ) {
-            StepHeader(step = uiState.currentStep)
-
             StepIndicator(
                 steps = AddPropertyStep.all,
                 currentStep = uiState.currentStep,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            StepHeader(step = uiState.currentStep)
 
             when (uiState.currentStep) {
                 AddPropertyStep.BASIC_DETAILS -> AddPropertyStep1Screen(
@@ -75,9 +73,7 @@ fun AddPropertySteps(
                     onDescriptionChanged = viewModel::onDescriptionChanged,
                     onCityChanged = viewModel::onCityChanged,
                     onLocalityChanged = viewModel::onLocalityChanged,
-                    onPincodeChanged = viewModel::onPincodeChanged,
                     onAddressChanged = viewModel::onAddressChanged,
-                    onPickOnMap = { showLocationPicker = true },
                     onUseMyLocation = { showLocationPicker = true }
                 )
                 AddPropertyStep.PROPERTY_DETAILS -> AddPropertyStep2Screen(
@@ -119,7 +115,7 @@ fun AddPropertySteps(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(AddDims.FIELD_LABEL_SPACING))
 
             ValidationErrorList(errors = uiState.fieldErrors)
 
@@ -132,7 +128,7 @@ fun AddPropertySteps(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(AddDims.SECTION_SPACING))
         }
     }
 }

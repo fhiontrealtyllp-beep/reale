@@ -1,5 +1,8 @@
 package com.realeapp.feature.add.presentation
 
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
 /**
  * Centralized UI strings for the Add Property feature.
  * Never hardcode string literals in feature code — add them here.
@@ -8,7 +11,7 @@ internal object AddStrings {
 
     // Step titles & subtitles
     const val STEP1_TITLE = "1. Basic Details"
-    const val STEP1_SUBTITLE = "Property type, purpose, location"
+    const val STEP1_SUBTITLE = "Tell us about your property"
     const val STEP2_TITLE = "2. Property Details"
     const val STEP2_SUBTITLE = "Add key details about your property"
     const val STEP3_TITLE = "3. Photos & Media"
@@ -77,13 +80,30 @@ internal object AddStrings {
 
     // Step 1 — Basic details
     const val LOCATION_FIELD_PLACEHOLDER = "Enter location, locality or landmark"
-    const val ACTION_USE_MY_LOCATION = "Use my Location"
+    const val ACTION_USE_MY_LOCATION = "Use My Location"
     const val ACTION_PICK_ON_MAP = "Pick on Map"
-    const val ACTION_CHANGE_LOCATION_ON_MAP = "Change Location on Map"
     const val ACTION_CHANGE_LOCATION = "Change Location"
     const val LISTING_FOR_SALE = "For Sale"
     const val LISTING_FOR_RENT = "For Rent"
-    const val DESCRIPTION_COUNTER_SUFFIX = "/50"
+    const val DESCRIPTION_COUNTER_SUFFIX = "/500"
+    const val PLACEHOLDER_PROPERTY_TITLE = "e.g. 3 BHK Villa with Private Pool in Porvorim"
+    const val PLACEHOLDER_SHORT_DESCRIPTION =
+        "Describe your property (e.g. spacious, well-ventilated, near beach, etc.)"
+    const val CD_SEARCH_LOCATION = "Search location"
+    const val CD_MY_LOCATION_LINK = "Use my location"
+
+    // Add form header
+    const val APP_NAME_FIRST = "Real"
+    const val APP_NAME_ACCENT = "e"
+    const val ACTION_SAVE_DRAFT = "Save Draft"
+    const val CD_SAVE_DRAFT = "Save draft"
+    const val ADD_FORM_SUBTITLE = "List your property in a few simple steps"
+    const val CD_CONTINUE = "Continue"
+
+    // Step indicator labels
+    const val STEP_LABEL_PHOTOS = "Photos & Media"
+    const val STEP_LABEL_PRICING = "Pricing"
+    const val STEP_LABEL_REVIEW = "Review & Publish"
 
     // Step 2 — Property details
     const val FLOOR_GROUND = "Ground"
@@ -280,4 +300,79 @@ internal object AddStrings {
     const val STATUS_VALUE_DRAFT = "draft"
     const val TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
     const val TIMEZONE_UTC = "UTC"
+}
+
+/**
+ * Centralized dimensions for the Add Property feature's light-theme redesign.
+ */
+internal object AddDims {
+    val SCREEN_PADDING = 16.dp
+    val SECTION_SPACING = 16.dp
+    val FIELD_LABEL_SPACING = 8.dp
+
+    val HEADER_LOGO_FONT_SIZE = 22.sp
+    val HEADER_TITLE_FONT_SIZE = 20.sp
+    val HEADER_SUBTITLE_FONT_SIZE = 13.sp
+    val HEADER_BACK_ICON_SIZE = 24.dp
+    val HEADER_ROW_SPACING = 12.dp
+    val HEADER_VERTICAL_PADDING = 8.dp
+    val SAVE_DRAFT_FONT_SIZE = 13.sp
+    val SAVE_DRAFT_ICON_SIZE = 16.dp
+    val SAVE_DRAFT_ICON_TEXT_SPACING = 4.dp
+
+    val STEP_CIRCLE_SIZE = 28.dp
+    val STEP_CIRCLE_BORDER_WIDTH = 1.dp
+    val STEP_NUMBER_FONT_SIZE = 13.sp
+    val STEP_LABEL_FONT_SIZE = 10.sp
+    val STEP_LABEL_TOP_SPACING = 4.dp
+    val STEP_CONNECTOR_HEIGHT = 2.dp
+
+    val STEP_TITLE_FONT_SIZE = 18.sp
+    val STEP_SUBTITLE_FONT_SIZE = 13.sp
+    val STEP_TITLE_SUBTITLE_SPACING = 2.dp
+
+    val FIELD_LABEL_FONT_SIZE = 14.sp
+    val FIELD_CORNER_RADIUS = 12.dp
+    val FIELD_FONT_SIZE = 14.sp
+    val FIELD_PLACEHOLDER_FONT_SIZE = 13.sp
+    val FIELD_ICON_SIZE = 20.dp
+
+    val TYPE_CARD_SPACING = 8.dp
+    val TYPE_CARD_HEIGHT = 76.dp
+    val TYPE_CARD_CORNER_RADIUS = 12.dp
+    val TYPE_CARD_BORDER_WIDTH = 1.dp
+    val TYPE_CARD_SELECTED_BORDER_WIDTH = 2.dp
+    val TYPE_CARD_ICON_SIZE = 26.dp
+    val TYPE_CARD_ICON_TEXT_SPACING = 6.dp
+    val TYPE_CARD_LABEL_FONT_SIZE = 11.sp
+
+    val LISTING_BUTTON_SPACING = 12.dp
+    val LISTING_BUTTON_HEIGHT = 48.dp
+    val LISTING_BUTTON_CORNER_RADIUS = 12.dp
+    val LISTING_BUTTON_BORDER_WIDTH = 1.dp
+    val LISTING_BUTTON_SELECTED_BORDER_WIDTH = 2.dp
+    val LISTING_BUTTON_ICON_SIZE = 18.dp
+    val LISTING_BUTTON_ICON_TEXT_SPACING = 6.dp
+    val LISTING_BUTTON_FONT_SIZE = 14.sp
+
+    val LOCATION_LINK_FONT_SIZE = 13.sp
+    val LOCATION_LINK_ICON_SIZE = 16.dp
+    val LOCATION_LINK_ICON_TEXT_SPACING = 4.dp
+
+    val CITY_LOCALITY_SPACING = 12.dp
+    val DESCRIPTION_MIN_LINES = 4
+    val DESCRIPTION_COUNTER_FONT_SIZE = 11.sp
+    val DESCRIPTION_COUNTER_PADDING = 12.dp
+
+    val CONTINUE_BUTTON_HEIGHT = 52.dp
+    val CONTINUE_BUTTON_CORNER_RADIUS = 26.dp
+    val CONTINUE_BUTTON_FONT_SIZE = 16.sp
+    val CONTINUE_BUTTON_ICON_SIZE = 18.dp
+    val CONTINUE_BUTTON_ICON_TEXT_SPACING = 6.dp
+    val NAV_BUTTON_HEIGHT = 52.dp
+    val NAV_BUTTON_CORNER_RADIUS = 12.dp
+    val NAV_BUTTON_BORDER_WIDTH = 1.dp
+    val NAV_BUTTON_SPACING = 12.dp
+    val PROGRESS_INDICATOR_SIZE = 24.dp
+    val PROGRESS_INDICATOR_STROKE = 2.dp
 }

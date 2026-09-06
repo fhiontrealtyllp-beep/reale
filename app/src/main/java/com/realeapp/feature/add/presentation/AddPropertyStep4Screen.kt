@@ -14,7 +14,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Switch
@@ -31,13 +31,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.realeapp.feature.add.domain.model.PropertyForm
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -76,12 +77,12 @@ internal fun AddPropertyStep4Screen(
                         showDatePicker = false
                     }
                 ) {
-                    Text(AddStrings.ACTION_OK, color = Accent)
+                    Text(AddStrings.ACTION_OK, color = BrandBlue)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text(AddStrings.ACTION_CANCEL, color = Accent)
+                    Text(AddStrings.ACTION_CANCEL, color = BrandBlue)
                 }
             }
         ) {
@@ -98,14 +99,14 @@ internal fun AddPropertyStep4Screen(
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FieldLabel(text = AddStrings.LABEL_PRICE, isRequired = true)
-            OutlinedTextField(
+            TextField(
                 value = form.price,
                 onValueChange = onPriceChanged,
                 placeholder = { Text(AddStrings.PRICE_PLACEHOLDER) },
                 leadingIcon = {
                     Text(
                         text = AddStrings.RUPEE_SYMBOL,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 },
@@ -115,6 +116,7 @@ internal fun AddPropertyStep4Screen(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Next
                 ),
+                shape = RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS),
                 colors = formFieldColors()
             )
         }
@@ -129,7 +131,7 @@ internal fun AddPropertyStep4Screen(
         calculatedPriceText(form)?.let { text ->
             Text(
                 text = text,
-                color = Accent,
+                color = BrandBlue,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -142,15 +144,15 @@ internal fun AddPropertyStep4Screen(
         ) {
             Text(
                 text = AddStrings.LABEL_NEGOTIABLE,
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.bodyLarge
             )
             Switch(
                 checked = form.negotiable,
                 onCheckedChange = onNegotiableChanged,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = OnAccent,
-                    checkedTrackColor = Accent
+                    checkedThumbColor = White,
+                    checkedTrackColor = BrandBlue
                 )
             )
         }
@@ -180,13 +182,13 @@ internal fun AddPropertyStep4Screen(
                         selected = form.propertyStatus == status,
                         onClick = null,
                         colors = RadioButtonDefaults.colors(
-                            selectedColor = Accent,
-                            unselectedColor = TextSecondary
+                            selectedColor = BrandBlue,
+                            unselectedColor = HomeTextSecondary
                         )
                     )
                     Text(
                         text = status,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -196,7 +198,7 @@ internal fun AddPropertyStep4Screen(
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FieldLabel(text = AddStrings.LABEL_POSSESSION_DATE)
             Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+                TextField(
                     value = form.possessionDate,
                     onValueChange = {},
                     placeholder = { Text(AddStrings.PLACEHOLDER_SELECT_DATE) },
@@ -204,12 +206,13 @@ internal fun AddPropertyStep4Screen(
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = AddStrings.CD_PICK_DATE,
-                            tint = TextSecondary
+                            tint = HomeTextSecondary
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
                     singleLine = true,
+                    shape = RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS),
                     colors = formFieldColors()
                 )
                 // Click overlay so the read-only field opens the date picker.

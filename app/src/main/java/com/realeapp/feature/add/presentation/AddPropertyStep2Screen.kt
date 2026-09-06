@@ -54,10 +54,10 @@ import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 
 private val floorOptions = listOf(AddStrings.FLOOR_GROUND) + (1..10).map { it.toString() } + listOf(AddStrings.FLOOR_TEN_PLUS)
 private val totalFloorsOptions = (1..20).map { it.toString() } + listOf(AddStrings.FLOORS_TWENTY_PLUS)
@@ -240,7 +240,7 @@ private fun CountStepper(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .border(1.dp, TextSecondary, RoundedCornerShape(12.dp))
+                .border(1.dp, HomeTextSecondary, RoundedCornerShape(12.dp))
                 .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -252,12 +252,12 @@ private fun CountStepper(
                 Icon(
                     imageVector = Icons.Default.Remove,
                     contentDescription = AddStrings.CD_DECREASE_PREFIX + label,
-                    tint = if (count > min) TextPrimary else TextSecondary
+                    tint = if (count > min) Black else HomeTextSecondary
                 )
             }
             Text(
                 text = "$count",
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -268,7 +268,7 @@ private fun CountStepper(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = AddStrings.CD_INCREASE_PREFIX + label,
-                    tint = if (count < max) TextPrimary else TextSecondary
+                    tint = if (count < max) Black else HomeTextSecondary
                 )
             }
         }
@@ -322,12 +322,12 @@ private fun AmenityFeatureGrid(
                                 .fillMaxWidth()
                                 .height(64.dp)
                                 .background(
-                                    if (isSelected) Accent.copy(alpha = 0.15f) else CardBackground,
+                                    if (isSelected) BrandBlue.copy(alpha = 0.15f) else HomeCategoryUnselected,
                                     RoundedCornerShape(12.dp)
                                 )
                                 .border(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) Accent else TextSecondary.copy(alpha = 0.4f),
+                                    color = if (isSelected) BrandBlue else HomeTextSecondary.copy(alpha = 0.4f),
                                     shape = RoundedCornerShape(12.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -335,13 +335,13 @@ private fun AmenityFeatureGrid(
                             Icon(
                                 imageVector = feature.icon,
                                 contentDescription = feature.label,
-                                tint = if (isSelected) Accent else TextPrimary,
+                                tint = if (isSelected) BrandBlue else Black,
                                 modifier = Modifier.size(28.dp)
                             )
                         }
                         Text(
                             text = feature.label,
-                            color = if (isSelected) Accent else TextPrimary,
+                            color = if (isSelected) BrandBlue else Black,
                             style = MaterialTheme.typography.labelSmall,
                             textAlign = TextAlign.Center,
                             maxLines = 2
@@ -363,7 +363,7 @@ private fun VideoUploadBox(
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dashColor = TextSecondary
+    val dashColor = HomeTextSecondary
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -391,18 +391,18 @@ private fun VideoUploadBox(
                 Icon(
                     imageVector = Icons.Default.CloudUpload,
                     contentDescription = null,
-                    tint = Accent,
+                    tint = BrandBlue,
                     modifier = Modifier.size(36.dp)
                 )
                 Text(
                     text = AddStrings.UPLOAD_VIDEO_TITLE,
-                    color = TextPrimary,
+                    color = Black,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = AddStrings.UPLOAD_VIDEO_HINT,
-                    color = TextSecondary,
+                    color = HomeTextSecondary,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -415,12 +415,12 @@ private fun VideoUploadBox(
                 Icon(
                     imageVector = Icons.Default.Videocam,
                     contentDescription = null,
-                    tint = Accent,
+                    tint = BrandBlue,
                     modifier = Modifier.size(28.dp)
                 )
                 Text(
                     text = AddStrings.VIDEO_SELECTED,
-                    color = TextPrimary,
+                    color = Black,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f),
                     maxLines = 1
@@ -429,7 +429,7 @@ private fun VideoUploadBox(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = AddStrings.CD_REMOVE_VIDEO,
-                        tint = TextPrimary
+                        tint = Black
                     )
                 }
             }

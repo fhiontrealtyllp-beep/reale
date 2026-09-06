@@ -75,13 +75,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
-import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.MapMarker
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,13 +156,13 @@ fun LocationPickerDialog(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            containerColor = MainBackground,
+            containerColor = White,
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
                             text = AddStrings.PICK_LOCATION_TITLE,
-                            color = TextPrimary,
+                            color = Black,
                             fontWeight = FontWeight.Bold
                         )
                     },
@@ -172,12 +171,12 @@ fun LocationPickerDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = AddStrings.CD_CLOSE,
-                                tint = TextPrimary
+                                tint = Black
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MainBackground
+                        containerColor = White
                     )
                 )
             },
@@ -192,7 +191,7 @@ fun LocationPickerDialog(
                         ?: AddStrings.SELECTED_LOCATION_FALLBACK
                     Text(
                         text = selectedAddress,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -222,14 +221,14 @@ fun LocationPickerDialog(
                             .height(52.dp),
                         enabled = !isGeocoding,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Accent,
-                            contentColor = OnAccent
+                            containerColor = BrandBlue,
+                            contentColor = White
                         )
                     ) {
                         if (isGeocoding) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = OnAccent,
+                                color = White,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -300,13 +299,13 @@ fun LocationPickerDialog(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 16.dp, end = 16.dp),
-                        containerColor = Accent,
-                        contentColor = OnAccent
+                        containerColor = BrandBlue,
+                        contentColor = White
                     ) {
                         if (isLocating) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = OnAccent,
+                                color = White,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -369,7 +368,7 @@ private fun PlaceholderLocationPicker(
         )
         Text(
             text = AddStrings.MAPS_KEY_MISSING_BODY,
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.bodyMedium
         )
         Row(
@@ -409,8 +408,8 @@ private fun PlaceholderLocationPicker(
                 .fillMaxWidth()
                 .height(52.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Accent,
-                contentColor = OnAccent
+                containerColor = BrandBlue,
+                contentColor = White
             )
         ) {
             Text(
@@ -424,13 +423,13 @@ private fun PlaceholderLocationPicker(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun dialogFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = TextPrimary,
-    unfocusedTextColor = TextPrimary,
-    focusedBorderColor = Accent,
-    unfocusedBorderColor = TextSecondary,
-    focusedLabelColor = Accent,
-    unfocusedLabelColor = TextSecondary,
-    cursorColor = Accent
+    focusedTextColor = Black,
+    unfocusedTextColor = Black,
+    focusedBorderColor = BrandBlue,
+    unfocusedBorderColor = HomeTextSecondary,
+    focusedLabelColor = BrandBlue,
+    unfocusedLabelColor = HomeTextSecondary,
+    cursorColor = BrandBlue
 )
 
 private fun readMapApiKey(context: Context): String? {

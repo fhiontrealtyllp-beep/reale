@@ -25,9 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
@@ -46,8 +48,8 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -58,24 +60,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.MainBackground
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.OnSurfaceLight
-import com.realeapp.ui.theme.SurfaceLight
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.White
 import java.io.ByteArrayOutputStream
 
@@ -86,18 +89,18 @@ internal fun StepHeader(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(AddDims.STEP_TITLE_SUBTITLE_SPACING)
     ) {
         Text(
-            text = step.title,
-            color = TextPrimary,
-            style = MaterialTheme.typography.headlineSmall,
+            text = step.shortLabel,
+            color = Black,
+            fontSize = AddDims.STEP_TITLE_FONT_SIZE,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = step.subtitle,
-            color = TextSecondary,
-            style = MaterialTheme.typography.bodyMedium
+            color = HomeTextSecondary,
+            fontSize = AddDims.STEP_SUBTITLE_FONT_SIZE
         )
     }
 }
@@ -108,63 +111,76 @@ internal fun StepIndicator(
     currentStep: AddPropertyStep,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    // Each step column draws half-connector lines on both sides of its circle so
+    // adjacent columns join into a continuous line that touches circle edges.
+    Row(modifier = modifier.fillMaxWidth()) {
         steps.forEachIndexed { index, step ->
             val isCompleted = step.index < currentStep.index
             val isCurrent = step == currentStep
-            val color = when {
-                isCurrent -> Accent
-                isCompleted -> Accent
-                else -> TextSecondary
-            }
-            val background = when {
-                isCurrent || isCompleted -> Accent
-                else -> SurfaceLight
-            }
-            val textColor = when {
-                isCurrent || isCompleted -> OnAccent
-                else -> TextSecondary
-            }
+            val isReached = step.index <= currentStep.index
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .background(background, RoundedCornerShape(16.dp)),
+                        .fillMaxWidth()
+                        .height(AddDims.STEP_CIRCLE_SIZE),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "${step.index}",
-                        color = textColor,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Text(
-                    text = step.name.split("_").first().replaceFirstChar { it.uppercase() },
-                    color = color,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal
-                )
-            }
-
-            if (index < steps.lastIndex) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(2.dp)
-                        .padding(horizontal = 4.dp)
-                        .background(
-                            if (isCompleted) Accent else TextSecondary.copy(alpha = 0.3f),
-                            RoundedCornerShape(1.dp)
+                    if (index > 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .fillMaxWidth(0.5f)
+                                .height(AddDims.STEP_CONNECTOR_HEIGHT)
+                                .background(if (isReached) BrandBlue else HomeSearchBarBorder)
                         )
+                    }
+                    if (index < steps.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxWidth(0.5f)
+                                .height(AddDims.STEP_CONNECTOR_HEIGHT)
+                                .background(if (isCompleted) BrandBlue else HomeSearchBarBorder)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(AddDims.STEP_CIRCLE_SIZE)
+                            .clip(CircleShape)
+                            .background(if (isReached) BrandBlue else White)
+                            .then(
+                                if (isReached) {
+                                    Modifier
+                                } else {
+                                    Modifier.border(
+                                        AddDims.STEP_CIRCLE_BORDER_WIDTH,
+                                        HomeSearchBarBorder,
+                                        CircleShape
+                                    )
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "${step.index}",
+                            color = if (isReached) White else HomeTextSecondary,
+                            fontSize = AddDims.STEP_NUMBER_FONT_SIZE,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(AddDims.STEP_LABEL_TOP_SPACING))
+                Text(
+                    text = step.shortLabel,
+                    color = if (isCurrent) BrandBlue else HomeTextSecondary,
+                    fontSize = AddDims.STEP_LABEL_FONT_SIZE,
+                    fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -178,7 +194,7 @@ internal fun SectionHeader(
 ) {
     Text(
         text = title,
-        color = TextPrimary,
+        color = Black,
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.Bold,
         modifier = modifier
@@ -197,14 +213,14 @@ internal fun FieldLabel(
     ) {
         Text(
             text = text,
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
         if (isRequired) {
             Text(
                 text = AddStrings.REQUIRED_MARKER,
-                color = Error
+                color = BrandRed
             )
         }
     }
@@ -223,18 +239,19 @@ internal fun FormTextField(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
     ) {
         FieldLabel(text = label, isRequired = isRequired)
-        OutlinedTextField(
+        TextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(AddStrings.ENTER_PREFIX + label) },
+            placeholder = { Text(AddStrings.ENTER_PREFIX + label) },
             modifier = Modifier.fillMaxWidth(),
             minLines = minLines,
             maxLines = if (minLines > 1) 4 else 1,
             keyboardOptions = keyboardOptions,
             singleLine = minLines == 1,
+            shape = RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS),
             colors = formFieldColors(),
             trailingIcon = trailingIcon
         )
@@ -256,19 +273,20 @@ internal fun <T> FormDropdown(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
     ) {
         FieldLabel(text = label, isRequired = isRequired)
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
         ) {
-            OutlinedTextField(
-                value = selected?.let { optionLabel(it) } ?: (AddStrings.SELECT_PREFIX + label),
+            TextField(
+                value = selected?.let { optionLabel(it) } ?: "",
                 onValueChange = {},
                 readOnly = true,
-                label = { Text(AddStrings.SELECT_PREFIX + label) },
+                placeholder = { Text(AddStrings.SELECT_PREFIX + label) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                shape = RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS),
                 colors = formFieldColors(),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -310,8 +328,8 @@ internal fun <T> ToggleRow(
                 onClick = { onSelected(option) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = if (isSelected) Accent else SurfaceLight,
-                    contentColor = if (isSelected) OnAccent else TextPrimary
+                    containerColor = if (isSelected) BrandBlue else HomeCategoryUnselected,
+                    contentColor = if (isSelected) White else Black
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -346,10 +364,10 @@ internal fun <T> FilterChipGroup(
                 onClick = { onToggle(option) },
                 label = { Text(optionLabel(option)) },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Accent,
-                    selectedLabelColor = OnAccent,
-                    containerColor = CardBackground,
-                    labelColor = TextPrimary
+                    selectedContainerColor = BrandBlue,
+                    selectedLabelColor = White,
+                    containerColor = HomeCategoryUnselected,
+                    labelColor = Black
                 )
             )
         }
@@ -368,27 +386,33 @@ internal fun ContinueButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .height(AddDims.CONTINUE_BUTTON_HEIGHT),
         enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(AddDims.CONTINUE_BUTTON_CORNER_RADIUS),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Accent,
-            contentColor = OnAccent,
-            disabledContainerColor = TextSecondary,
-            disabledContentColor = OnAccent
+            containerColor = BrandCoral,
+            contentColor = White,
+            disabledContainerColor = HomeTextSecondary,
+            disabledContentColor = White
         )
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.width(24.dp),
-                color = OnAccent,
-                strokeWidth = 2.dp
+                modifier = Modifier.width(AddDims.PROGRESS_INDICATOR_SIZE),
+                color = White,
+                strokeWidth = AddDims.PROGRESS_INDICATOR_STROKE
             )
         } else {
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
+                fontSize = AddDims.CONTINUE_BUTTON_FONT_SIZE
+            )
+            Spacer(modifier = Modifier.width(AddDims.CONTINUE_BUTTON_ICON_TEXT_SPACING))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = AddStrings.CD_CONTINUE,
+                modifier = Modifier.size(AddDims.CONTINUE_BUTTON_ICON_SIZE)
             )
         }
     }
@@ -405,25 +429,28 @@ internal fun StepNavigationButtons(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(AddDims.NAV_BUTTON_SPACING)
     ) {
         if (showPrevious) {
             androidx.compose.material3.OutlinedButton(
                 onClick = onPrevious,
                 modifier = Modifier
                     .weight(1f)
-                    .height(52.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, TextSecondary),
+                    .height(AddDims.NAV_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(AddDims.NAV_BUTTON_CORNER_RADIUS),
+                border = androidx.compose.foundation.BorderStroke(
+                    AddDims.NAV_BUTTON_BORDER_WIDTH,
+                    HomeSearchBarBorder
+                ),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = TextPrimary,
-                    containerColor = CardBackground
+                    contentColor = Black,
+                    containerColor = White
                 )
             ) {
                 Text(
                     text = AddStrings.ACTION_BACK,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    fontSize = AddDims.CONTINUE_BUTTON_FONT_SIZE
                 )
             }
         }
@@ -457,16 +484,17 @@ internal fun ValidationErrorList(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun formFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = TextPrimary,
-    unfocusedTextColor = TextPrimary,
-    focusedBorderColor = Accent,
-    unfocusedBorderColor = TextSecondary,
-    focusedLabelColor = Accent,
-    unfocusedLabelColor = TextSecondary,
-    cursorColor = Accent
+internal fun formFieldColors() = TextFieldDefaults.colors(
+    focusedTextColor = Black,
+    unfocusedTextColor = Black,
+    focusedContainerColor = HomeCategoryUnselected,
+    unfocusedContainerColor = HomeCategoryUnselected,
+    focusedIndicatorColor = Color.Transparent,
+    unfocusedIndicatorColor = Color.Transparent,
+    focusedLabelColor = BrandBlue,
+    unfocusedLabelColor = HomeTextSecondary,
+    cursorColor = BrandBlue
 )
 
 @Composable
@@ -516,16 +544,16 @@ internal fun AddImageTile(
             .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 1.dp,
-                color = Accent,
+                color = BrandBlue,
                 shape = RoundedCornerShape(12.dp)
             )
-            .background(CardBackground)
+            .background(HomeCategoryUnselected)
             .clickable(enabled = !isUploading, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         if (isUploading) {
             CircularProgressIndicator(
-                color = Accent,
+                color = BrandBlue,
                 modifier = Modifier.size(32.dp),
                 strokeWidth = 2.dp
             )
@@ -537,12 +565,12 @@ internal fun AddImageTile(
                 Icon(
                     imageVector = Icons.Default.AddAPhoto,
                     contentDescription = AddStrings.CD_ADD_IMAGES,
-                    tint = Accent,
+                    tint = BrandBlue,
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
                     text = AddStrings.ACTION_ADD_PHOTOS,
-                    color = Accent,
+                    color = BrandBlue,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -560,7 +588,7 @@ internal fun ImagePreviewTile(
         modifier = modifier
             .size(120.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(CardBackground)
+            .background(HomeCategoryUnselected)
     ) {
         AsyncImage(
             model = url,
@@ -591,7 +619,7 @@ internal fun ImageSourceDialog(
         Card(
             modifier = Modifier.fillMaxWidth(0.8f),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MainBackground)
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -599,7 +627,7 @@ internal fun ImageSourceDialog(
             ) {
                 Text(
                     text = AddStrings.DIALOG_IMAGE_SOURCE_TITLE,
-                    color = TextPrimary,
+                    color = Black,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -613,13 +641,13 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.PhotoCamera,
                         contentDescription = AddStrings.CD_CAMERA,
-                        tint = Accent,
+                        tint = BrandBlue,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = AddStrings.IMAGE_SOURCE_CAMERA,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -633,13 +661,13 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = AddStrings.CD_GALLERY,
-                        tint = Accent,
+                        tint = BrandBlue,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = AddStrings.IMAGE_SOURCE_GALLERY,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

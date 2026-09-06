@@ -6,354 +6,384 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Business
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Landscape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.House
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Landscape
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.outlined.Villa
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.domain.model.ResidentialCommercial
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.MainBackground
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.SurfaceLight
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.White
 
-@OptIn(ExperimentalLayoutApi::class)
+// Property types shown in the design's four-card row.
+private val STEP1_PROPERTY_TYPES = listOf(
+    PropertyType.APARTMENT,
+    PropertyType.VILLA,
+    PropertyType.PLOT,
+    PropertyType.INDEPENDENT_HOUSE
+)
+
+// Listing type order in the design: For Sale first, For Rent second.
+private val STEP1_LISTING_TYPES = listOf(RentBuy.BUY, RentBuy.RENT)
+
 @Composable
 internal fun AddPropertyStep1Screen(
-    form: com.realeapp.feature.add.domain.model.PropertyForm,
+    form: PropertyForm,
     onRentBuyChanged: (RentBuy) -> Unit,
     onPropertyTypeChanged: (PropertyType) -> Unit,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onCityChanged: (String) -> Unit,
     onLocalityChanged: (String) -> Unit,
-    onPincodeChanged: (String) -> Unit,
     onAddressChanged: (String) -> Unit,
-    onPickOnMap: () -> Unit,
     onUseMyLocation: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(AddDims.SECTION_SPACING)
     ) {
-        FormTextField(
-            value = form.title,
-            onValueChange = onTitleChanged,
-            label = AddStrings.LABEL_PROPERTY_TITLE,
-            isRequired = true,
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Next
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_PROPERTY_TITLE, isRequired = true)
+            Step1Field(
+                value = form.title,
+                onValueChange = onTitleChanged,
+                placeholder = AddStrings.PLACEHOLDER_PROPERTY_TITLE,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next
+                )
             )
-        )
+        }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FieldLabel(text = AddStrings.LABEL_PROPERTY_TYPE, isRequired = true)
-            FlowRow(
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_PROPERTY_TYPE, isRequired = true)
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(AddDims.TYPE_CARD_SPACING)
             ) {
-                PropertyType.entries.forEach { propertyType ->
+                STEP1_PROPERTY_TYPES.forEach { propertyType ->
                     PropertyTypeCard(
                         propertyType = propertyType,
                         isSelected = form.propertyType == propertyType,
-                        onClick = { onPropertyTypeChanged(propertyType) }
+                        onClick = { onPropertyTypeChanged(propertyType) },
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
-            ListingTypeToggle(
-                selected = form.rentBuy,
-                onSelected = onRentBuyChanged
-            )
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(AddDims.LISTING_BUTTON_SPACING)
+            ) {
+                STEP1_LISTING_TYPES.forEach { rentBuy ->
+                    ListingTypeButton(
+                        rentBuy = rentBuy,
+                        isSelected = form.rentBuy == rentBuy,
+                        onClick = { onRentBuyChanged(rentBuy) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FieldLabel(text = AddStrings.LABEL_LOCATION, isRequired = true)
-            OutlinedTextField(
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Step1FieldLabel(text = AddStrings.LABEL_LOCATION, isRequired = true)
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier.clickable(onClick = onUseMyLocation),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.MyLocation,
+                        contentDescription = AddStrings.CD_MY_LOCATION_LINK,
+                        tint = BrandBlue,
+                        modifier = Modifier.size(AddDims.LOCATION_LINK_ICON_SIZE)
+                    )
+                    Spacer(modifier = Modifier.width(AddDims.LOCATION_LINK_ICON_TEXT_SPACING))
+                    Text(
+                        text = AddStrings.ACTION_USE_MY_LOCATION,
+                        color = BrandBlue,
+                        fontSize = AddDims.LOCATION_LINK_FONT_SIZE,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            Step1Field(
                 value = form.address,
                 onValueChange = onAddressChanged,
-                label = { Text(AddStrings.LOCATION_FIELD_PLACEHOLDER) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = formFieldColors(),
+                placeholder = AddStrings.LOCATION_FIELD_PLACEHOLDER,
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = null,
-                        tint = TextSecondary
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = AddStrings.CD_SEARCH_LOCATION,
+                        tint = HomeTextSecondary,
+                        modifier = Modifier.size(AddDims.FIELD_ICON_SIZE)
                     )
-                },
-                trailingIcon = {
-                    TextButton(
-                        onClick = onUseMyLocation,
-                        modifier = Modifier.padding(end = 4.dp)
-                    ) {
-                        Text(
-                            text = AddStrings.ACTION_USE_MY_LOCATION,
-                            color = Accent,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
                 },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 )
             )
-            Button(
-                onClick = onPickOnMap,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CardBackground,
-                    contentColor = TextPrimary
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = if (form.latitude.isNotBlank() && form.longitude.isNotBlank()) {
-                        AddStrings.ACTION_CHANGE_LOCATION_ON_MAP
-                    } else {
-                        AddStrings.ACTION_PICK_ON_MAP
-                    },
-                    fontWeight = FontWeight.Medium
-                )
-            }
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(AddDims.CITY_LOCALITY_SPACING)
         ) {
-            FormTextField(
-                value = form.city,
-                onValueChange = onCityChanged,
-                label = AddStrings.LABEL_CITY,
-                isRequired = true,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            FormTextField(
-                value = form.locality,
-                onValueChange = onLocalityChanged,
-                label = AddStrings.LABEL_LOCALITY,
-                isRequired = true,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.weight(1f)
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
+            ) {
+                Step1FieldLabel(text = AddStrings.LABEL_CITY, isRequired = true)
+                Step1Field(
+                    value = form.city,
+                    onValueChange = onCityChanged,
+                    placeholder = AddStrings.SELECT_PREFIX + AddStrings.LABEL_CITY,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    )
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
+            ) {
+                Step1FieldLabel(text = AddStrings.LABEL_LOCALITY, isRequired = true)
+                Step1Field(
+                    value = form.locality,
+                    onValueChange = onLocalityChanged,
+                    placeholder = AddStrings.SELECT_PREFIX + AddStrings.LABEL_LOCALITY,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    )
+                )
+            }
         }
 
-        FormTextField(
-            value = form.pincode,
-            onValueChange = onPincodeChanged,
-            label = AddStrings.LABEL_PINCODE,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            )
-        )
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            FormTextField(
-                value = form.description,
-                onValueChange = onDescriptionChanged,
-                label = AddStrings.LABEL_SHORT_DESCRIPTION,
-                minLines = 3,
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_SHORT_DESCRIPTION, isRequired = true)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Step1Field(
+                    value = form.description,
+                    onValueChange = onDescriptionChanged,
+                    placeholder = AddStrings.PLACEHOLDER_SHORT_DESCRIPTION,
+                    minLines = AddDims.DESCRIPTION_MIN_LINES,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Done
+                    )
                 )
-            )
+                Text(
+                    text = "${form.description.length}${AddStrings.DESCRIPTION_COUNTER_SUFFIX}",
+                    color = HomeTextSecondary,
+                    fontSize = AddDims.DESCRIPTION_COUNTER_FONT_SIZE,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(AddDims.DESCRIPTION_COUNTER_PADDING)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Step1FieldLabel(
+    text: String,
+    isRequired: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = text,
+            color = Black,
+            fontSize = AddDims.FIELD_LABEL_FONT_SIZE,
+            fontWeight = FontWeight.Medium
+        )
+        if (isRequired) {
             Text(
-                text = "${form.description.length}${AddStrings.DESCRIPTION_COUNTER_SUFFIX}",
-                color = TextSecondary,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.align(Alignment.End)
+                text = AddStrings.REQUIRED_MARKER,
+                color = BrandRed,
+                fontSize = AddDims.FIELD_LABEL_FONT_SIZE
             )
         }
     }
+}
+
+@Composable
+private fun Step1Field(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    minLines: Int = 1,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        placeholder = {
+            Text(
+                text = placeholder,
+                color = HomeTextSecondary,
+                fontSize = AddDims.FIELD_PLACEHOLDER_FONT_SIZE,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        leadingIcon = leadingIcon,
+        singleLine = minLines == 1,
+        minLines = minLines,
+        shape = RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS),
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            color = Black,
+            fontSize = AddDims.FIELD_FONT_SIZE
+        ),
+        keyboardOptions = keyboardOptions,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = HomeCategoryUnselected,
+            unfocusedContainerColor = HomeCategoryUnselected,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            cursorColor = BrandBlue
+        )
+    )
 }
 
 @Composable
 private fun PropertyTypeCard(
     propertyType: PropertyType,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val (icon, iconColor) = when (propertyType.category) {
-        ResidentialCommercial.RESIDENTIAL -> propertyTypeIcon(propertyType) to TextPrimary
-        ResidentialCommercial.COMMERCIAL -> Icons.Default.Business to TextPrimary
-    }
-    val borderColor = if (isSelected) Accent else TextSecondary.copy(alpha = 0.3f)
-    val backgroundColor = if (isSelected) Accent.copy(alpha = 0.15f) else CardBackground
-    val textColor = if (isSelected) Accent else TextPrimary
-
-    Card(
-        modifier = Modifier
-            .size(width = 96.dp, height = 88.dp)
-            .clickable(onClick = onClick)
+    Column(
+        modifier = modifier
+            .height(AddDims.TYPE_CARD_HEIGHT)
+            .clip(RoundedCornerShape(AddDims.TYPE_CARD_CORNER_RADIUS))
+            .background(if (isSelected) BrandBlue.copy(alpha = 0.08f) else White)
             .border(
-                width = if (isSelected) 2.dp else 1.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(12.dp)
-            ),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+                width = if (isSelected) AddDims.TYPE_CARD_SELECTED_BORDER_WIDTH else AddDims.TYPE_CARD_BORDER_WIDTH,
+                color = if (isSelected) BrandBlue else HomeSearchBarBorder,
+                shape = RoundedCornerShape(AddDims.TYPE_CARD_CORNER_RADIUS)
+            )
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (isSelected) Accent else iconColor,
-                modifier = Modifier.size(28.dp)
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = propertyType.label,
-                color = textColor,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 2,
-                minLines = 2
-            )
-        }
+        Icon(
+            imageVector = propertyTypeIcon(propertyType),
+            contentDescription = null,
+            tint = if (isSelected) BrandBlue else HomeTextSecondary,
+            modifier = Modifier.size(AddDims.TYPE_CARD_ICON_SIZE)
+        )
+        Spacer(modifier = Modifier.height(AddDims.TYPE_CARD_ICON_TEXT_SPACING))
+        Text(
+            text = propertyType.label,
+            color = if (isSelected) BrandBlue else Black,
+            fontSize = AddDims.TYPE_CARD_LABEL_FONT_SIZE,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            maxLines = 2,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
 @Composable
-private fun ListingTypeToggle(
-    selected: RentBuy?,
-    onSelected: (RentBuy) -> Unit
+private fun ListingTypeButton(
+    rentBuy: RentBuy,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    val label = if (rentBuy == RentBuy.BUY) AddStrings.LISTING_FOR_SALE else AddStrings.LISTING_FOR_RENT
+    val icon = if (rentBuy == RentBuy.BUY) Icons.Outlined.Sell else Icons.Outlined.Key
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier
+            .height(AddDims.LISTING_BUTTON_HEIGHT)
+            .clip(RoundedCornerShape(AddDims.LISTING_BUTTON_CORNER_RADIUS))
+            .background(if (isSelected) BrandBlue.copy(alpha = 0.08f) else White)
+            .border(
+                width = if (isSelected) AddDims.LISTING_BUTTON_SELECTED_BORDER_WIDTH else AddDims.LISTING_BUTTON_BORDER_WIDTH,
+                color = if (isSelected) BrandBlue else HomeSearchBarBorder,
+                shape = RoundedCornerShape(AddDims.LISTING_BUTTON_CORNER_RADIUS)
+            )
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        RentBuy.entries.forEach { rentBuy ->
-            val isSelected = selected == rentBuy
-            val label = if (rentBuy == RentBuy.BUY) AddStrings.LISTING_FOR_SALE else AddStrings.LISTING_FOR_RENT
-            val icon = if (rentBuy == RentBuy.BUY) Icons.Default.Home else Icons.Default.Home
-            Card(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(52.dp)
-                    .clickable { onSelected(rentBuy) }
-                    .border(
-                        width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) Accent else TextSecondary.copy(alpha = 0.3f),
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isSelected) Accent.copy(alpha = 0.15f) else CardBackground
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = if (isSelected) Accent else TextPrimary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = label,
-                        color = if (isSelected) Accent else TextPrimary,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                    )
-                }
-            }
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (isSelected) BrandBlue else HomeTextSecondary,
+            modifier = Modifier.size(AddDims.LISTING_BUTTON_ICON_SIZE)
+        )
+        Spacer(modifier = Modifier.width(AddDims.LISTING_BUTTON_ICON_TEXT_SPACING))
+        Text(
+            text = label,
+            color = if (isSelected) BrandBlue else Black,
+            fontSize = AddDims.LISTING_BUTTON_FONT_SIZE,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+        )
     }
 }
 
 private fun propertyTypeIcon(propertyType: PropertyType): ImageVector {
     return when (propertyType) {
-        PropertyType.APARTMENT,
-       /* PropertyType.STUDIO_APARTMENT,
-        PropertyType.SERVICE_APARTMENT*/
-             -> Icons.Default.Home
-        PropertyType.VILLA,
-        /*PropertyType.INDEPENDENT_HOUSE,
-        PropertyType.FARM_HOUSE,
-        PropertyType.BUILDER_FLOOR,
-        PropertyType.PENTHOUSE,
-        PropertyType.DUPLEX,
-        PropertyType.ROW_HOUSE,
-        PropertyType.PAYING_GUEST,
-        PropertyType.HOSTEL*/ -> Icons.Default.Home
+        PropertyType.APARTMENT -> Icons.Outlined.Apartment
+        PropertyType.VILLA -> Icons.Outlined.Villa
         PropertyType.PLOT,
-        PropertyType.LAND,
-      /*  PropertyType.COMMERCIAL_PLOT,
-        PropertyType.COMMERCIAL_LAND*/ -> Icons.Default.Landscape
-        else -> Icons.Default.Business
+        PropertyType.LAND -> Icons.Outlined.Landscape
+        PropertyType.INDEPENDENT_HOUSE -> Icons.Outlined.House
+        else -> Icons.Outlined.Apartment
     }
 }

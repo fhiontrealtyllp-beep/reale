@@ -42,12 +42,12 @@ import coil.compose.AsyncImage
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -73,7 +73,7 @@ internal fun AddPropertyStep5Screen(
                 .fillMaxWidth()
                 .height(180.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(CardBackground)
+                .background(HomeCategoryUnselected)
         ) {
             if (form.images.isNotEmpty()) {
                 AsyncImage(
@@ -86,7 +86,7 @@ internal fun AddPropertyStep5Screen(
                 Icon(
                     imageVector = Icons.Default.Image,
                     contentDescription = null,
-                    tint = TextSecondary,
+                    tint = HomeTextSecondary,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(48.dp)
@@ -106,12 +106,12 @@ internal fun AddPropertyStep5Screen(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = null,
-                    tint = OnAccent,
+                    tint = BrandBlue,
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
                     text = AddStrings.ACTION_EDIT,
-                    color = OnAccent,
+                    color = BrandBlue,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -120,7 +120,7 @@ internal fun AddPropertyStep5Screen(
 
         Text(
             text = form.title.ifBlank { AddStrings.UNTITLED_PROPERTY },
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
@@ -132,12 +132,12 @@ internal fun AddPropertyStep5Screen(
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
-                tint = Accent,
+                tint = BrandBlue,
                 modifier = Modifier.size(16.dp)
             )
             Text(
                 text = locationText(form),
-                color = TextSecondary,
+                color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -160,18 +160,18 @@ internal fun AddPropertyStep5Screen(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = AddStrings.LABEL_DESCRIPTION,
-                    color = TextSecondary,
+                    color = HomeTextSecondary,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
                     text = form.description,
-                    color = TextPrimary,
+                    color = Black,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = if (descriptionExpanded) Int.MAX_VALUE else 3
                 )
                 Text(
                     text = if (descriptionExpanded) AddStrings.ACTION_SHOW_LESS else AddStrings.ACTION_SHOW_MORE,
-                    color = Accent,
+                    color = BrandBlue,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
@@ -194,19 +194,19 @@ internal fun AddPropertyStep5Screen(
                 checked = confirmed,
                 onCheckedChange = null,
                 colors = CheckboxDefaults.colors(
-                    checkedColor = Accent,
-                    uncheckedColor = TextSecondary,
-                    checkmarkColor = OnAccent
+                    checkedColor = BrandBlue,
+                    uncheckedColor = HomeTextSecondary,
+                    checkmarkColor = White
                 )
             )
             Text(
                 text = buildAnnotatedString {
                     append(AddStrings.CONFIRM_ACCURACY_PREFIX)
-                    withStyle(SpanStyle(color = Accent, fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(color = BrandBlue, fontWeight = FontWeight.Bold)) {
                         append(AddStrings.TERMS_AND_CONDITIONS)
                     }
                 },
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -221,10 +221,10 @@ internal fun AddPropertyStep5Screen(
                     .weight(1f)
                     .height(52.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, TextSecondary),
+                border = BorderStroke(AddDims.NAV_BUTTON_BORDER_WIDTH, HomeSearchBarBorder),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = TextPrimary,
-                    containerColor = CardBackground
+                    contentColor = Black,
+                    containerColor = HomeCategoryUnselected
                 )
             ) {
                 Text(
@@ -253,13 +253,13 @@ private fun ReviewRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            color = TextSecondary,
+            color = HomeTextSecondary,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = value.ifBlank { AddStrings.PLACEHOLDER_DASH },
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1.5f)

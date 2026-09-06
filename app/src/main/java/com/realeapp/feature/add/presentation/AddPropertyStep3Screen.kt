@@ -39,13 +39,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 
 private val photoSuggestions = AddStrings.PHOTO_SUGGESTIONS
 
@@ -73,7 +72,7 @@ internal fun AddPropertyStep3Screen(
 
         Text(
             text = AddStrings.PHOTOS_VISIBILITY_HINT,
-            color = TextSecondary,
+            color = HomeTextSecondary,
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -105,7 +104,7 @@ private fun PhotoUploadBox(
     onSelect: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dashColor = TextSecondary
+    val dashColor = HomeTextSecondary
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -127,44 +126,44 @@ private fun PhotoUploadBox(
     ) {
         if (isUploading) {
             CircularProgressIndicator(
-                color = Accent,
+                color = BrandBlue,
                 modifier = Modifier.size(36.dp),
                 strokeWidth = 2.dp
             )
             Text(
                 text = AddStrings.UPLOADING_PHOTOS,
-                color = TextSecondary,
+                color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
         } else {
             Icon(
                 imageVector = Icons.Default.Image,
                 contentDescription = null,
-                tint = Accent,
+                tint = BrandBlue,
                 modifier = Modifier.size(40.dp)
             )
             Text(
                 text = AddStrings.UPLOAD_PHOTOS_TITLE,
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = AddStrings.UPLOAD_PHOTOS_DRAG_HINT,
-                color = TextSecondary,
+                color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
                 text = AddStrings.UPLOAD_PHOTOS_FORMAT_HINT,
-                color = TextSecondary,
+                color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
             Button(
                 onClick = onSelect,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Accent,
-                    contentColor = OnAccent
+                    containerColor = BrandBlue,
+                    contentColor = White
                 )
             ) {
                 Text(
@@ -235,7 +234,7 @@ private fun PhotoCell(
                 .fillMaxWidth()
                 .height(140.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(CardBackground)
+                .background(HomeCategoryUnselected)
         ) {
             AsyncImage(
                 model = url,
@@ -246,13 +245,13 @@ private fun PhotoCell(
             if (isCover) {
                 Text(
                     text = AddStrings.BADGE_COVER,
-                    color = OnAccent,
+                    color = White,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
-                        .background(Accent, RoundedCornerShape(6.dp))
+                        .background(BrandBlue, RoundedCornerShape(6.dp))
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
@@ -262,7 +261,7 @@ private fun PhotoCell(
                     .align(Alignment.TopEnd)
                     .padding(6.dp)
                     .size(24.dp)
-                    .background(CardBackground, CircleShape)
+                    .background(HomeCategoryUnselected, CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -274,7 +273,7 @@ private fun PhotoCell(
         }
         Text(
             text = label,
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -285,7 +284,7 @@ private fun AddMoreTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val dashColor = TextSecondary
+    val dashColor = HomeTextSecondary
     Column(
         modifier = modifier
             .height(140.dp)
@@ -307,12 +306,12 @@ private fun AddMoreTile(
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
-            tint = Accent,
+            tint = BrandBlue,
             modifier = Modifier.size(32.dp)
         )
         Text(
             text = AddStrings.ACTION_ADD_MORE,
-            color = Accent,
+            color = BrandBlue,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium
         )
@@ -324,7 +323,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(CardBackground, RoundedCornerShape(12.dp))
+            .background(HomeCategoryUnselected, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -335,12 +334,12 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Lightbulb,
                 contentDescription = null,
-                tint = Accent,
+                tint = BrandBlue,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = AddStrings.TIPS_TITLE,
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -348,7 +347,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
         photoTips.forEach { tip ->
             Text(
                 text = AddStrings.BULLET_PREFIX + tip,
-                color = TextSecondary,
+                color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodySmall
             )
         }
