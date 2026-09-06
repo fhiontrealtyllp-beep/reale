@@ -473,45 +473,81 @@ private fun MyPropertiesContent(
         matchesTab && matchesSearch
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        // Status filter tabs with counts.
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+
+        // ─────────────────────────────────────
+        // STATUS FILTER TABS
+        // ─────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(64.dp)
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             listingTabs.forEach { tab ->
+
                 val selected = selectedTab == tab
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(if (selected) Accent else CardBackground)
-                        .clickable { selectedTab = tab }
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                        .background(
+                            if (selected) Accent
+                            else CardBackground
+                        )
+                        .clickable {
+                            selectedTab = tab
+                        }
+                        .padding(
+                            horizontal = 14.dp,
+                            vertical = 8.dp
+                        )
                 ) {
                     Text(
                         text = "$tab (${counts[tab] ?: 0})",
-                        color = if (selected) OnAccent else TextPrimary,
+                        color = if (selected) {
+                            OnAccent
+                        } else {
+                            TextPrimary
+                        },
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                        fontWeight = if (selected) {
+                            FontWeight.Bold
+                        } else {
+                            FontWeight.Normal
+                        }
                     )
                 }
             }
         }
 
-        // Search bar + filter shortcut.
+        // ─────────────────────────────────────
+        // SEARCH BAR
+        // ─────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = 12.dp
+                ),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text(AddStrings.SEARCH_LISTINGS_PLACEHOLDER) },
+                onValueChange = {
+                    searchQuery = it
+                },
+                placeholder = {
+                    Text(AddStrings.SEARCH_LISTINGS_PLACEHOLDER)
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -519,17 +555,22 @@ private fun MyPropertiesContent(
                         tint = TextSecondary
                     )
                 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(56.dp),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = formFieldColors()
             )
+
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(56.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(CardBackground)
-                    .clickable { onRefresh() },
+                    .clickable {
+                        onRefresh()
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -540,45 +581,88 @@ private fun MyPropertiesContent(
             }
         }
 
+        // ─────────────────────────────────────
+        // ERROR
+        // ─────────────────────────────────────
         if (!errorMessage.isNullOrBlank()) {
             Text(
                 text = errorMessage,
                 color = Error,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                modifier = Modifier.padding(
+                    horizontal = 16.dp,
+                    vertical = 4.dp
+                )
             )
         }
 
+        // ─────────────────────────────────────
+        // CONTENT
+        // ─────────────────────────────────────
         when {
-            isLoading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Accent)
-            }
-            filtered.isEmpty() -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = AddStrings.EMPTY_LISTINGS,
-                    color = TextSecondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            else -> LazyColumn(
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(filtered, key = { it.id }) { property ->
-                    MyListingCard(
-                        property = property,
-                        onViewDetails = { onPropertyClick(property) }
+
+            isLoading -> {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Accent
                     )
+                }
+            }
+
+            filtered.isEmpty() -> {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = AddStrings.EMPTY_LISTINGS,
+                        color = TextSecondary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            else -> {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 24.dp
+                    ),
+
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(
+                        filtered,
+                        key = { it.id }
+                    ) { property ->
+
+                        MyListingCard(
+                            property = property,
+                            onViewDetails = {
+                                onPropertyClick(property)
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+
 }
 
 @Composable
