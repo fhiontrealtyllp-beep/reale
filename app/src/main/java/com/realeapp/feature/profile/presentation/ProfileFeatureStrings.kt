@@ -38,6 +38,12 @@ internal object ProfileStrings {
     const val NOTIFICATIONS_SUBTITLE = "Manage your preferences"
     const val SETTINGS = "Settings"
     const val SETTINGS_SUBTITLE = "App settings and privacy"
+    const val APPEARANCE = "Appearance"
+    const val APPEARANCE_SUBTITLE = "Theme: %s"
+    const val THEME_SYSTEM = "System default"
+    const val THEME_LIGHT = "Light"
+    const val THEME_DARK = "Dark"
+    const val THEME_DIALOG_TITLE = "Choose theme"
     const val HELP_SUPPORT = "Help & Support"
     const val HELP_SUPPORT_SUBTITLE = "FAQs, support and contact us"
     const val LOGOUT = "Logout"
@@ -45,6 +51,7 @@ internal object ProfileStrings {
     const val CD_PERSONAL_INFO = "Personal information"
     const val CD_NOTIFICATIONS_ITEM = "Notifications"
     const val CD_SETTINGS = "Settings"
+    const val CD_APPEARANCE = "Appearance"
     const val CD_HELP_SUPPORT = "Help and support"
     const val CD_LOGOUT = "Logout"
     const val CD_ARROW = "Open"
@@ -147,6 +154,9 @@ internal object ProfileDims {
 
     val DIALOG_CORNER_RADIUS = 20.dp
     val DIALOG_TITLE_FONT_SIZE = 18.sp
+    val THEME_OPTION_VERTICAL_PADDING = 12.dp
+    val THEME_OPTION_RADIO_TEXT_SPACING = 12.dp
+    val THEME_OPTION_FONT_SIZE = 15.sp
     val DIALOG_BUTTON_CORNER_RADIUS = 12.dp
     val DIALOG_BUTTON_HEIGHT = 48.dp
     val DIALOG_FIELD_CORNER_RADIUS = 12.dp

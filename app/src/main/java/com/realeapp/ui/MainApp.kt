@@ -3,6 +3,7 @@ package com.realeapp.ui
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
@@ -49,9 +51,16 @@ private enum class AuthScreen {
 @Composable
 fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
+    val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
 
-    RealeTheme {
+    val darkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
+    RealeTheme(darkTheme = darkTheme) {
         Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
             when (screen) {
                 // Full-screen login UI shown above the main tab navigation.

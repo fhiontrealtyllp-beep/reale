@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Home
@@ -68,6 +69,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -95,6 +98,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
 import com.realeapp.feature.auth.domain.model.User
@@ -123,6 +127,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
@@ -231,6 +236,8 @@ fun ProfileScreen(
                     onHelpSupportClick = { launchEmail(context) },
                     onLogoutClick = viewModel::logout,
                     onUpdateField = { field, value -> viewModel.updateProfileField(field, value) },
+                    themeMode = themeMode,
+                    onThemeModeSelected = viewModel::setThemeMode,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -275,9 +282,12 @@ private fun ProfileContent(
     onHelpSupportClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onUpdateField: (String, String) -> Unit,
+    themeMode: ThemeMode,
+    onThemeModeSelected: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showEditDialog by rememberSaveable { mutableStateOf(false) }
+    var showThemeDialog by rememberSaveable { mutableStateOf(false) }
 
     val activityItems = listOf(
         ProfileMenuItem(
@@ -319,6 +329,13 @@ private fun ProfileContent(
             subtitle = ProfileStrings.SETTINGS_SUBTITLE,
             contentDescription = ProfileStrings.CD_SETTINGS,
             onClick = onSettingsClick
+        ),
+        ProfileMenuItem(
+            icon = Icons.Outlined.DarkMode,
+            title = ProfileStrings.APPEARANCE,
+            subtitle = ProfileStrings.APPEARANCE_SUBTITLE.format(themeModeLabel(themeMode)),
+            contentDescription = ProfileStrings.CD_APPEARANCE,
+            onClick = { showThemeDialog = true }
         ),
         ProfileMenuItem(
             icon = Icons.Outlined.HelpOutline,
@@ -365,6 +382,78 @@ private fun ProfileContent(
             onDismiss = { showEditDialog = false }
         )
     }
+
+    if (showThemeDialog) {
+        ThemeModeDialog(
+            selectedMode = themeMode,
+            onSelect = { mode ->
+                onThemeModeSelected(mode)
+                showThemeDialog = false
+            },
+            onDismiss = { showThemeDialog = false }
+        )
+    }
+}
+
+private fun themeModeLabel(mode: ThemeMode): String = when (mode) {
+    ThemeMode.SYSTEM -> ProfileStrings.THEME_SYSTEM
+    ThemeMode.LIGHT -> ProfileStrings.THEME_LIGHT
+    ThemeMode.DARK -> ProfileStrings.THEME_DARK
+}
+
+@Composable
+private fun ThemeModeDialog(
+    selectedMode: ThemeMode,
+    onSelect: (ThemeMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(ProfileDims.DIALOG_CORNER_RADIUS),
+        containerColor = White,
+        title = {
+            Text(
+                text = ProfileStrings.THEME_DIALOG_TITLE,
+                color = Black,
+                fontSize = ProfileDims.DIALOG_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                ThemeMode.entries.forEach { mode ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(ProfileDims.DIALOG_FIELD_CORNER_RADIUS))
+                            .clickable { onSelect(mode) }
+                            .padding(vertical = ProfileDims.THEME_OPTION_VERTICAL_PADDING),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = mode == selectedMode,
+                            onClick = { onSelect(mode) },
+                            colors = RadioButtonDefaults.colors(selectedColor = BrandBlue)
+                        )
+                        Spacer(modifier = Modifier.width(ProfileDims.THEME_OPTION_RADIO_TEXT_SPACING))
+                        Text(
+                            text = themeModeLabel(mode),
+                            color = Black,
+                            fontSize = ProfileDims.THEME_OPTION_FONT_SIZE
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = ProfileStrings.ACTION_CANCEL,
+                    color = HomeTextSecondary
+                )
+            }
+        }
+    )
 }
 
 @Composable

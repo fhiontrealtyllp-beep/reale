@@ -129,6 +129,7 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.White
@@ -480,6 +481,7 @@ private fun ThumbnailStrip(
                     modifier = Modifier
                         .size(DetailDims.THUMB_SIZE)
                         .clip(RoundedCornerShape(DetailDims.THUMB_CORNER_RADIUS))
+                        .background(HomeCategoryUnselected)
                         .then(
                             if (index == selectedImage) {
                                 Modifier.border(

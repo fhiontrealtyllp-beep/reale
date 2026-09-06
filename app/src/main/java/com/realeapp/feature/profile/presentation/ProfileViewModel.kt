@@ -2,6 +2,8 @@ package com.realeapp.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.realeapp.core.theme.ThemeMode
+import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.realeapp.feature.profile.domain.usecase.LogoutUseCase
@@ -26,7 +28,8 @@ class ProfileViewModel(
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
-    private val userSession: UserSession
+    private val userSession: UserSession,
+    private val themePreferences: ThemePreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -34,6 +37,8 @@ class ProfileViewModel(
 
     private val _sideEffect = MutableSharedFlow<String>()
     val sideEffect: SharedFlow<String> = _sideEffect.asSharedFlow()
+
+    val themeMode: StateFlow<ThemeMode> = themePreferences.themeMode
 
     init {
         load()
@@ -176,6 +181,10 @@ class ProfileViewModel(
                 }
             }
         }
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        themePreferences.setThemeMode(mode)
     }
 
     fun getCurrentUser(): User? = _uiState.value.user

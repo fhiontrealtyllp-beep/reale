@@ -1,6 +1,7 @@
 package com.realeapp.di
 
 import com.realeapp.core.like.LikeStateManager
+import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSource
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSourceImpl
 import com.realeapp.feature.add.data.repository.AddPropertyRepositoryImpl
@@ -63,7 +64,8 @@ val appModule = module {
     single { AppWriteProvider(androidContext()) }
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
-    viewModel { MainViewModel() }
+    single { ThemePreferences(androidContext()) }
+    viewModel { MainViewModel(get()) }
 }
 
 val authModule = module {
@@ -106,5 +108,5 @@ val profileModule = module {
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get()) }
 }
