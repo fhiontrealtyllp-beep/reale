@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.AppBackground
 
 @Composable
 fun AddPropertySteps(
@@ -46,7 +46,7 @@ fun AddPropertySteps(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = White
+        containerColor = AppBackground
     ) { innerPadding ->
         Column(
             modifier = Modifier

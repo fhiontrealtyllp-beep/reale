@@ -102,6 +102,7 @@ import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
 import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -109,6 +110,7 @@ import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
@@ -189,7 +191,7 @@ fun ProfileScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = White,
+        containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -645,7 +647,7 @@ private fun ProfileAvatar(
                 .clip(CircleShape)
                 .background(BrandBlue)
                 .border(
-                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, White),
+                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, OnBrandContent),
                     CircleShape
                 )
                 .clickable(onClick = onPickImage),
@@ -654,7 +656,7 @@ private fun ProfileAvatar(
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = ProfileStrings.CD_EDIT_AVATAR,
-                tint = White,
+                tint = OnBrandContent,
                 modifier = Modifier.size(ProfileDims.AVATAR_EDIT_ICON_SIZE)
             )
         }
@@ -781,7 +783,7 @@ private fun ListPropertyBanner(
                 shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandCoral,
-                    contentColor = White
+                    contentColor = OnBrandContent
                 ),
                 contentPadding = PaddingValues(horizontal = ProfileDims.LIST_PROPERTY_BUTTON_HORIZONTAL_PADDING)
             ) {
@@ -967,7 +969,7 @@ private fun EditProfileDialog(
                 shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.textButtonColors(
                     containerColor = BrandBlue,
-                    contentColor = White
+                    contentColor = OnBrandContent
                 )
             ) {
                 Text(
@@ -1062,7 +1064,7 @@ private fun ProfileLoginPrompt(
             shape = RoundedCornerShape(ProfileDims.LOGIN_BUTTON_CORNER_RADIUS),
             colors = ButtonDefaults.buttonColors(
                 containerColor = BrandBlue,
-                contentColor = White
+                contentColor = OnBrandContent
             )
         ) {
             Text(

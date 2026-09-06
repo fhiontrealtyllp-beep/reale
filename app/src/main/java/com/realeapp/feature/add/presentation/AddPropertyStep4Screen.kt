@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -151,7 +152,7 @@ internal fun AddPropertyStep4Screen(
                 checked = form.negotiable,
                 onCheckedChange = onNegotiableChanged,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = White,
+                    checkedThumbColor = OnBrandContent,
                     checkedTrackColor = BrandBlue
                 )
             )

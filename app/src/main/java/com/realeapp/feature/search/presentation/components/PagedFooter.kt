@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.TextPrimary
 
 @Composable
 fun PagedFooter(
@@ -29,7 +29,7 @@ fun PagedFooter(
             showLoader -> CircularProgressIndicator(color = Accent)
             showEndOfResults -> Text(
                 text = "End of results",
-                color = White,
+                color = TextPrimary,
                 fontSize = 14.sp
             )
         }

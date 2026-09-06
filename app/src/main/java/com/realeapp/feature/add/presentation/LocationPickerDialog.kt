@@ -77,6 +77,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.AppBackground
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.MapMarker
 import com.realeapp.ui.theme.Black
@@ -156,7 +158,7 @@ fun LocationPickerDialog(
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            containerColor = White,
+            containerColor = AppBackground,
             topBar = {
                 TopAppBar(
                     title = {
@@ -176,7 +178,7 @@ fun LocationPickerDialog(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = White
+                        containerColor = AppBackground
                     )
                 )
             },
@@ -222,13 +224,13 @@ fun LocationPickerDialog(
                         enabled = !isGeocoding,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = BrandBlue,
-                            contentColor = White
+                            contentColor = OnBrandContent
                         )
                     ) {
                         if (isGeocoding) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = White,
+                                color = OnBrandContent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -300,12 +302,12 @@ fun LocationPickerDialog(
                             .align(Alignment.TopEnd)
                             .padding(top = 16.dp, end = 16.dp),
                         containerColor = BrandBlue,
-                        contentColor = White
+                        contentColor = OnBrandContent
                     ) {
                         if (isLocating) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = White,
+                                color = OnBrandContent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -409,7 +411,7 @@ private fun PlaceholderLocationPicker(
                 .height(52.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = BrandBlue,
-                contentColor = White
+                contentColor = OnBrandContent
             )
         ) {
             Text(

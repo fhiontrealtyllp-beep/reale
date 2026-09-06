@@ -79,6 +79,7 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.components.LoginPrompt
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -87,6 +88,9 @@ import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.MediaScrim
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
@@ -183,7 +187,7 @@ fun SavedScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = White,
+        containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp),
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
@@ -429,7 +433,7 @@ private fun FilterChipRow(
             val count = counts[filter] ?: 0
             val label = String.format(SavedStrings.FILTER_COUNT_FORMAT, filter.label, count)
             val background = if (isSelected) BrandBlue else White
-            val contentColor = if (isSelected) White else BrandBlue
+            val contentColor = if (isSelected) OnBrandContent else BrandBlue
             val border = if (isSelected) null else BorderStroke(SavedDims.SEARCH_DIVIDER_WIDTH, HomeSearchBarBorder)
 
             Surface(
@@ -604,18 +608,18 @@ private fun SavedPropertyCard(
                             .align(Alignment.BottomStart)
                             .padding(SavedDims.CARD_PHOTO_COUNT_PADDING)
                             .clip(RoundedCornerShape(SavedDims.CARD_IMAGE_CORNER_RADIUS))
-                            .background(Black.copy(alpha = 0.55f))
+                            .background(MediaScrim.copy(alpha = 0.55f))
                             .padding(SavedDims.CARD_PHOTO_COUNT_PADDING)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.PhotoLibrary,
                             contentDescription = SavedStrings.CD_PHOTO_LIBRARY,
-                            tint = White,
+                            tint = OnMediaContent,
                             modifier = Modifier.size(SavedDims.CARD_IMAGE_PHOTO_ICON_SIZE)
                         )
                         Text(
                             text = property.photoCountLabel(),
-                            color = White,
+                            color = OnMediaContent,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Medium
                         )

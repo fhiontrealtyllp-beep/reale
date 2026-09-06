@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.AppBackground
 
 @Composable
 fun HomeScreen(
@@ -26,7 +26,7 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { },
-        containerColor = White,
+        containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         LazyColumn(

@@ -70,6 +70,8 @@ import com.realeapp.ui.theme.HomeCategoryIconUnselected
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import java.text.NumberFormat
 import java.util.Locale
@@ -229,7 +231,7 @@ private fun CategoryItem(
 ) {
     val icon = if (selected) category.selectedIcon else category.unselectedIcon
     val background = if (selected) BrandBlue else HomeCategoryUnselected
-    val iconTint = if (selected) White else HomeCategoryIconUnselected
+    val iconTint = if (selected) OnBrandContent else HomeCategoryIconUnselected
     val textTint = if (selected) BrandBlue else Black
     val border = if (selected) null else BorderStroke(HomeDims.CATEGORY_BORDER_WIDTH, HomeSearchBarBorder)
 
@@ -337,7 +339,7 @@ private fun FeaturedPropertyCard(
 
                 Text(
                     text = HomeStrings.BADGE_FEATURED,
-                    color = White,
+                    color = OnMediaContent,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
@@ -512,7 +514,7 @@ internal fun PromotionBanner(modifier: Modifier = Modifier) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = HomeStrings.CD_BANNER_ARROW,
-                        tint = White,
+                        tint = OnMediaContent,
                         modifier = Modifier.size(HomeDims.BANNER_ARROW_ICON_SIZE)
                     )
                 }

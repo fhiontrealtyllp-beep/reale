@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.FilterChipUnselectedContainer
 import com.realeapp.ui.theme.TextPrimary
 
@@ -39,7 +39,7 @@ fun <T> FilterChipGroup(
                     label = { Text(optionLabel(option)) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Accent,
-                        selectedLabelColor = Black,
+                        selectedLabelColor = OnAccentText,
                         containerColor = FilterChipUnselectedContainer,
                         labelColor = TextPrimary
                     )

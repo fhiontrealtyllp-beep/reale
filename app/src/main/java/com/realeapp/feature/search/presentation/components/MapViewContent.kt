@@ -51,7 +51,6 @@ import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
-import com.realeapp.ui.theme.White
 
 @Composable
 fun MapViewContent(
@@ -170,14 +169,14 @@ private fun PlaceholderMapContent(
             item {
                 Text(
                     text = "Map view",
-                    color = White,
+                    color = TextPrimary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Set MAPS_API_KEY in AndroidManifest to enable Google Maps.",
-                    color = White.copy(alpha = 0.7f),
+                    color = TextSecondary,
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -199,13 +198,13 @@ private fun PlaceholderMapContent(
                     ) {
                         Text(
                             text = property.title,
-                            color = White,
+                            color = TextPrimary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = "${property.locality}, ${property.city}",
-                            color = White.copy(alpha = 0.7f),
+                            color = TextSecondary,
                             fontSize = 12.sp
                         )
                         Text(

@@ -85,6 +85,7 @@ import com.realeapp.feature.search.presentation.components.MapViewContent
 import com.realeapp.feature.search.presentation.components.PropertyList
 import com.realeapp.feature.search.presentation.components.SearchHeader
 import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -95,6 +96,7 @@ import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
@@ -161,7 +163,7 @@ fun SearchScreen(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = if (showResults) MainBackground else White,
+        containerColor = if (showResults) MainBackground else AppBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
@@ -416,7 +418,7 @@ private fun SearchLandingContent(
                 shape = RoundedCornerShape(SearchDims.BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandCoral,
-                    contentColor = White
+                    contentColor = OnBrandContent
                 )
             ) {
                 Text(
@@ -552,7 +554,7 @@ private fun SearchTabsRow(
             ) {
                 Text(
                     text = tab.label,
-                    color = if (selected) White else Black,
+                    color = if (selected) OnBrandContent else Black,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     textAlign = TextAlign.Center,
@@ -710,7 +712,7 @@ private fun PropertyTypeSection(
                                 .size(SearchDims.TYPE_ICON_CIRCLE_SIZE)
                                 .clip(CircleShape)
                                 .background(
-                                    if (selected) White.copy(alpha = SearchDims.SELECTED_ICON_OVERLAY_ALPHA)
+                                    if (selected) OnBrandContent.copy(alpha = SearchDims.SELECTED_ICON_OVERLAY_ALPHA)
                                     else HomeCategoryUnselected
                                 ),
                             contentAlignment = Alignment.Center
@@ -718,14 +720,14 @@ private fun PropertyTypeSection(
                             Icon(
                                 imageVector = option.icon,
                                 contentDescription = option.type.label,
-                                tint = if (selected) White else BrandBlue,
+                                tint = if (selected) OnBrandContent else BrandBlue,
                                 modifier = Modifier.size(SearchDims.TYPE_ICON_SIZE)
                             )
                         }
                         Spacer(modifier = Modifier.height(SearchDims.TYPE_LABEL_SPACING))
                         Text(
                             text = option.type.label,
-                            color = if (selected) White else Black,
+                            color = if (selected) OnBrandContent else Black,
                             style = MaterialTheme.typography.bodySmall,
                             textAlign = TextAlign.Center,
                             maxLines = 2,

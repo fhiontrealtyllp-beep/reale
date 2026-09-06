@@ -125,6 +125,7 @@ import com.realeapp.feature.search.domain.model.NearbyPlaceType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -132,6 +133,9 @@ import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.MediaScrim
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -179,7 +183,7 @@ fun PropertyDetailScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = White,
+        containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp),
         bottomBar = {
             DetailBottomBar(
@@ -329,7 +333,7 @@ private fun HeroSection(
                         bottom = DetailDims.HERO_BOTTOM_CONTENT_PADDING
                     )
                     .clip(RoundedCornerShape(DetailDims.BADGE_CORNER_RADIUS))
-                    .background(Black.copy(alpha = DetailDims.OVERLAY_SCRIM_ALPHA))
+                    .background(MediaScrim.copy(alpha = DetailDims.OVERLAY_SCRIM_ALPHA))
                     .clickable(onClick = onShowPhotos)
                     .padding(
                         horizontal = DetailDims.BADGE_HORIZONTAL_PADDING,
@@ -341,12 +345,12 @@ private fun HeroSection(
                 Icon(
                     imageVector = Icons.Filled.Image,
                     contentDescription = null,
-                    tint = White,
+                    tint = OnMediaContent,
                     modifier = Modifier.size(DetailDims.BADGE_ICON_SIZE)
                 )
                 Text(
                     text = "${images.size}${DetailStrings.PHOTOS_COUNT_SUFFIX}",
-                    color = White,
+                    color = OnMediaContent,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Medium
                 )
@@ -430,7 +434,7 @@ private fun MediaPill(
     onClick: (() -> Unit)?
 ) {
     val backgroundColor = if (selected) BrandBlue else White
-    val contentColor = if (selected) White else Black
+    val contentColor = if (selected) OnBrandContent else Black
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(DetailDims.MEDIA_PILL_CORNER_RADIUS))
@@ -505,12 +509,12 @@ private fun ThumbnailStrip(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Black.copy(alpha = DetailDims.OVERLAY_SCRIM_ALPHA)),
+                                .background(MediaScrim.copy(alpha = DetailDims.OVERLAY_SCRIM_ALPHA)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = DetailStrings.MORE_PHOTOS_PREFIX + (images.size - MAX_VISIBLE_THUMBS + 1),
-                                color = White,
+                                color = OnMediaContent,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -549,7 +553,7 @@ private fun FullScreenImageViewer(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Black)
+                .background(MediaScrim)
         ) {
             HorizontalPager(
                 state = pagerState,
@@ -606,14 +610,14 @@ private fun FullScreenImageViewer(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = DetailStrings.CD_CLOSE,
-                    tint = White
+                    tint = OnMediaContent
                 )
             }
 
             if (images.size > 1) {
                 Text(
                     text = "${pagerState.currentPage + 1}/${images.size}",
-                    color = White,
+                    color = OnMediaContent,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
@@ -1175,7 +1179,7 @@ private fun DetailBottomBar(
                 shape = RoundedCornerShape(DetailDims.BOTTOM_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandCoral,
-                    contentColor = White
+                    contentColor = OnBrandContent
                 )
             ) {
                 Icon(

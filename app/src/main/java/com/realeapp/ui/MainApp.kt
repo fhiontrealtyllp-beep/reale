@@ -34,8 +34,8 @@ import com.realeapp.feature.saved.presentation.SavedScreen
 import com.realeapp.feature.search.presentation.SearchScreen
 import com.realeapp.ui.components.BottomNavBar
 import com.realeapp.ui.navigation.AppScreen
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.RealeTheme
-import com.realeapp.ui.theme.White
 import com.realeapp.ui.viewmodel.MainViewModel
 import com.realeapp.util.Logger
 import org.koin.androidx.compose.koinViewModel
@@ -103,7 +103,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
 
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
-                        containerColor = White,
+                        containerColor = AppBackground,
                         contentWindowInsets = WindowInsets(0.dp),
                         bottomBar = {
                             BottomNavBar(

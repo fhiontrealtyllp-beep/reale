@@ -44,6 +44,7 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -196,7 +197,7 @@ internal fun AddPropertyStep5Screen(
                 colors = CheckboxDefaults.colors(
                     checkedColor = BrandBlue,
                     uncheckedColor = HomeTextSecondary,
-                    checkmarkColor = White
+                    checkmarkColor = OnBrandContent
                 )
             )
             Text(

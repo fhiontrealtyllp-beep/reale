@@ -42,13 +42,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.ChipBackground
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
-import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.OnMediaContent
 
 @Composable
 fun PropertyListItem(
@@ -90,9 +90,9 @@ fun PropertyListItem(
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Black.copy(alpha = 0.35f),
+                                    MediaScrim.copy(alpha = 0.35f),
                                     Color.Transparent,
-                                    Black.copy(alpha = 0.55f)
+                                    MediaScrim.copy(alpha = 0.55f)
                                 )
                             )
                         )
@@ -122,12 +122,12 @@ fun PropertyListItem(
                         .padding(8.dp)
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(Black.copy(alpha = 0.35f))
+                        .background(MediaScrim.copy(alpha = 0.35f))
                 ) {
                     Icon(
                         imageVector = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (property.isLiked == true) Accent else White,
+                        tint = if (property.isLiked == true) Accent else OnMediaContent,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -141,18 +141,18 @@ fun PropertyListItem(
                             .align(Alignment.BottomEnd)
                             .padding(12.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Black.copy(alpha = 0.45f))
+                            .background(MediaScrim.copy(alpha = 0.45f))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.PhotoLibrary,
                             contentDescription = null,
-                            tint = White,
+                            tint = OnMediaContent,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = "${property.images.size}",
-                            color = White,
+                            color = OnMediaContent,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )

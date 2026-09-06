@@ -70,10 +70,14 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.MediaScrim
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import java.text.NumberFormat
@@ -198,7 +202,7 @@ internal fun MyListingsScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = White,
+        containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
         Column(
@@ -272,7 +276,7 @@ internal fun MyListingsScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = White
+                color = AppBackground
             ) {
                 PropertyDetailScreen(
                     property = property,
@@ -359,7 +363,7 @@ private fun MyListingsTopBar(
             shape = RoundedCornerShape(MyListingsDims.ADD_BUTTON_CORNER_RADIUS),
             colors = ButtonDefaults.textButtonColors(
                 containerColor = BrandBlue,
-                contentColor = White
+                contentColor = OnBrandContent
             ),
             contentPadding = PaddingValues(horizontal = MyListingsDims.ADD_BUTTON_HORIZONTAL_PADDING)
         ) {
@@ -418,7 +422,7 @@ private fun StatusFilterChips(
             ) {
                 Text(
                     text = "$label ($count)",
-                    color = if (selected) White else Black,
+                    color = if (selected) OnBrandContent else Black,
                     fontSize = MyListingsDims.CHIP_FONT_SIZE,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
                 )
@@ -641,7 +645,7 @@ private fun ListingImage(listing: MyListing, modifier: Modifier = Modifier) {
                 .align(Alignment.BottomStart)
                 .padding(MyListingsDims.PHOTOS_BADGE_PADDING)
                 .clip(RoundedCornerShape(MyListingsDims.PHOTOS_BADGE_CORNER_RADIUS))
-                .background(Black.copy(alpha = 0.6f))
+                .background(MediaScrim.copy(alpha = 0.6f))
                 .padding(
                     horizontal = MyListingsDims.PHOTOS_BADGE_HORIZONTAL_PADDING,
                     vertical = MyListingsDims.PHOTOS_BADGE_VERTICAL_PADDING
@@ -650,12 +654,12 @@ private fun ListingImage(listing: MyListing, modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Outlined.PhotoLibrary,
                 contentDescription = MyListingsStrings.CD_PHOTOS,
-                tint = White,
+                tint = OnMediaContent,
                 modifier = Modifier.size(MyListingsDims.PHOTOS_BADGE_ICON_SIZE)
             )
             Text(
                 text = "${listing.photoCount} ${MyListingsStrings.PHOTOS_LABEL}",
-                color = White,
+                color = OnMediaContent,
                 fontSize = MyListingsDims.PHOTOS_BADGE_FONT_SIZE
             )
         }

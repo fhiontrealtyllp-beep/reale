@@ -79,6 +79,8 @@ import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import java.io.ByteArrayOutputStream
 
@@ -167,7 +169,7 @@ internal fun StepIndicator(
                     ) {
                         Text(
                             text = "${step.index}",
-                            color = if (isReached) White else HomeTextSecondary,
+                            color = if (isReached) OnBrandContent else HomeTextSecondary,
                             fontSize = AddDims.STEP_NUMBER_FONT_SIZE,
                             fontWeight = FontWeight.Bold
                         )
@@ -329,7 +331,7 @@ internal fun <T> ToggleRow(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.textButtonColors(
                     containerColor = if (isSelected) BrandBlue else HomeCategoryUnselected,
-                    contentColor = if (isSelected) White else Black
+                    contentColor = if (isSelected) OnBrandContent else Black
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -365,7 +367,7 @@ internal fun <T> FilterChipGroup(
                 label = { Text(optionLabel(option)) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = BrandBlue,
-                    selectedLabelColor = White,
+                    selectedLabelColor = OnBrandContent,
                     containerColor = HomeCategoryUnselected,
                     labelColor = Black
                 )
@@ -391,15 +393,15 @@ internal fun ContinueButton(
         shape = RoundedCornerShape(AddDims.CONTINUE_BUTTON_CORNER_RADIUS),
         colors = ButtonDefaults.buttonColors(
             containerColor = BrandCoral,
-            contentColor = White,
+            contentColor = OnBrandContent,
             disabledContainerColor = HomeTextSecondary,
-            disabledContentColor = White
+            disabledContentColor = OnBrandContent
         )
     ) {
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.width(AddDims.PROGRESS_INDICATOR_SIZE),
-                color = White,
+                color = OnBrandContent,
                 strokeWidth = AddDims.PROGRESS_INDICATOR_STROKE
             )
         } else {
@@ -603,7 +605,7 @@ internal fun ImagePreviewTile(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = AddStrings.CD_REMOVE_IMAGE,
-                tint = White
+                tint = OnMediaContent
             )
         }
     }

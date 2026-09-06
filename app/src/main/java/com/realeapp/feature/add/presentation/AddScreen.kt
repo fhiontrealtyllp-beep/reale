@@ -84,6 +84,8 @@ import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 import com.realeapp.ui.theme.White
@@ -700,7 +702,7 @@ private fun MyListingCard(
             }
             Text(
                 text = statusLabel,
-                color = White,
+                color = OnBrandContent,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
@@ -722,12 +724,12 @@ private fun MyListingCard(
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
-                        tint = White,
+                        tint = OnMediaContent,
                         modifier = Modifier.size(10.dp)
                     )
                     Text(
                         text = "${property.images.size}${AddStrings.PHOTOS_SUFFIX}",
-                        color = White,
+                        color = OnMediaContent,
                         style = MaterialTheme.typography.labelSmall
                     )
                 }

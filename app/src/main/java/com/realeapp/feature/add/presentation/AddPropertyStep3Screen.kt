@@ -42,6 +42,8 @@ import coil.compose.AsyncImage
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.Error
+import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -163,7 +165,7 @@ private fun PhotoUploadBox(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandBlue,
-                    contentColor = White
+                    contentColor = OnBrandContent
                 )
             ) {
                 Text(
@@ -245,7 +247,7 @@ private fun PhotoCell(
             if (isCover) {
                 Text(
                     text = AddStrings.BADGE_COVER,
-                    color = White,
+                    color = OnMediaContent,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -266,7 +268,7 @@ private fun PhotoCell(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = AddStrings.CD_REMOVE_PREFIX + label,
-                    tint = White,
+                    tint = OnMediaContent,
                     modifier = Modifier.size(14.dp)
                 )
             }
