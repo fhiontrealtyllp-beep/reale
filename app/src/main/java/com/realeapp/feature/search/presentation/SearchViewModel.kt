@@ -6,6 +6,7 @@ import com.realeapp.core.like.LikeStateManager
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCase
+import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCase
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
@@ -18,15 +19,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "SearchViewModel"
+private const val FEATURED_PROPERTIES_LIMIT = 10
 
 class SearchViewModel(
     private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
+    private val getFeaturedPropertiesUseCase: GetFeaturedPropertiesUseCase,
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
     private val likeStateManager: LikeStateManager = LikeStateManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+    private val _featuredProperties = MutableStateFlow<List<Property>>(emptyList())
+    val featuredProperties: StateFlow<List<Property>> = _featuredProperties.asStateFlow()
 
     private val _sideEffect = MutableSharedFlow<String>()
     val sideEffect: SharedFlow<String> = _sideEffect.asSharedFlow()
@@ -39,6 +45,7 @@ class SearchViewModel(
 
     init {
         refresh()
+        loadFeaturedProperties()
         observeLikeState()
     }
 
@@ -180,6 +187,20 @@ class SearchViewModel(
                         )
                         _sideEffect.emit(result.message)
                     }
+                }
+            }
+        }
+    }
+
+    private fun loadFeaturedProperties() {
+        viewModelScope.launch {
+            when (val result = getFeaturedPropertiesUseCase(FEATURED_PROPERTIES_LIMIT)) {
+                is Result.Success -> {
+                    Logger.d(TAG, "loadFeaturedProperties: received=${result.data.size}")
+                    _featuredProperties.value = result.data
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "loadFeaturedProperties: failed ${result.message}")
                 }
             }
         }

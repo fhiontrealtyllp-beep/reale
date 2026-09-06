@@ -8,10 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.realeapp.feature.search.domain.model.BedroomType
+import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.theme.AppBackground
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
@@ -19,9 +25,13 @@ fun HomeScreen(
     onSavedClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SearchViewModel = koinViewModel()
 ) {
-    val featuredProperties = remember { sampleFeaturedProperties() }
+    val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
+    val featuredList = remember(featuredProperties) {
+        featuredProperties.map(Property::toFeaturedProperty)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -42,7 +52,7 @@ fun HomeScreen(
             item { CategoryChips(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
             item {
                 FeaturedSection(
-                    properties = featuredProperties,
+                    properties = featuredList,
                     onSeeAllClick = onSearchClick
                 )
             }
@@ -51,35 +61,27 @@ fun HomeScreen(
     }
 }
 
-private fun sampleFeaturedProperties(): List<FeaturedProperty> = listOf(
-    FeaturedProperty(
-        id = "featured-1",
-        imageUrl = "https://images.unsplash.com/photo-1600596542815-86d7f88998bb?w=800&q=80",
-        price = 1_85_00_000.0,
-        title = "4 BHK Villa",
-        location = "Porvorim, Goa",
-        beds = 4,
-        baths = 4,
-        sqft = 2800
-    ),
-    FeaturedProperty(
-        id = "featured-2",
-        imageUrl = "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
-        price = 95_00_000.0,
-        title = "2 BHK Apartment",
-        location = "Panaji, Goa",
-        beds = 2,
-        baths = 2,
-        sqft = 1200
-    ),
-    FeaturedProperty(
-        id = "featured-3",
-        imageUrl = "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80",
-        price = 2_10_00_000.0,
-        title = "3 BHK Villa",
-        location = "Anjuna, Goa",
-        beds = 3,
-        baths = 3,
-        sqft = 2200
-    )
+private fun Property.toFeaturedProperty(): FeaturedProperty = FeaturedProperty(
+    id = documentId ?: id,
+    imageUrl = images.firstOrNull().orEmpty(),
+    price = price,
+    title = title,
+    location = listOf(locality, city).filter(String::isNotBlank).joinToString(HomeStrings.LOCATION_SEPARATOR),
+    beds = bedroomType.toBedroomCount(),
+    baths = bathrooms ?: 0,
+    sqft = (superBuiltUpArea ?: builtUpArea ?: carpetArea ?: 0.0).toInt(),
+    isLiked = isLiked ?: false
 )
+
+private fun BedroomType?.toBedroomCount(): Int = when (this) {
+    BedroomType.ONE_RK,
+    BedroomType.ONE_BHK -> 1
+    BedroomType.TWO_BHK -> 2
+    BedroomType.THREE_BHK -> 3
+    BedroomType.FOUR_BHK -> 4
+    BedroomType.FIVE_BHK -> 5
+    BedroomType.SIX_BHK,
+    BedroomType.SIX_PLUS_BHK -> 6
+    BedroomType.STUDIO_APARTMENT,
+    null -> 0
+}

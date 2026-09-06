@@ -52,6 +52,8 @@ import com.realeapp.feature.search.data.session.UserSessionImpl
 import com.realeapp.feature.search.domain.repository.PropertyRepository
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCaseImpl
+import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
+import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCase
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCaseImpl
 import com.realeapp.feature.search.presentation.SearchViewModel
@@ -81,6 +83,7 @@ val searchModule = module {
     single<PropertyRemoteDataSource> { PropertyRemoteDataSourceImpl(get(), get()) }
     single<PropertyRepository> { PropertyRepositoryImpl(get()) }
     single<GetAllPropertiesUseCase> { GetAllPropertiesUseCaseImpl(get()) }
+    single<GetFeaturedPropertiesUseCase> { GetFeaturedPropertiesUseCaseImpl(get()) }
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
     viewModel { SearchViewModel(get(), get(), get()) }
 }

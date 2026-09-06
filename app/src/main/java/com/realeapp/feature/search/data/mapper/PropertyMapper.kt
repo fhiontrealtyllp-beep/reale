@@ -5,6 +5,7 @@ import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
+import com.realeapp.feature.search.domain.model.ListingCategory
 import com.realeapp.feature.search.domain.model.NearbyPlace
 import com.realeapp.feature.search.domain.model.NearbyPlaceType
 import com.realeapp.feature.search.domain.model.Property
@@ -34,6 +35,7 @@ object PropertyMapper {
             rating = getDouble(map, "rating"),
             agentPhone = getString(map, "agentPhone").orEmpty(),
             status = getString(map, "status"),
+            listingCategory = parseListingCategory(getString(map, "listingCategory")),
             createdAt = getString(map, "createdAt") ?: getString(map, "\$createdAt"),
             rentBuy = parseEnumFromJsonName<RentBuy>(getString(map, "rentBuy")),
             residentialCommercial = parseEnumFromJsonName<ResidentialCommercial>(getString(map, "residentialCommercial")),
@@ -133,6 +135,14 @@ object PropertyMapper {
             NearbyPlaceType.valueOf(name.orEmpty().trim().uppercase())
         } catch (_: IllegalArgumentException) {
             NearbyPlaceType.OTHER
+        }
+    }
+
+    private fun parseListingCategory(name: String?): ListingCategory {
+        return try {
+            ListingCategory.valueOf(name.orEmpty().trim().uppercase())
+        } catch (_: IllegalArgumentException) {
+            ListingCategory.NORMAL
         }
     }
 }

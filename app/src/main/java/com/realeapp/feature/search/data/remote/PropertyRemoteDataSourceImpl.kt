@@ -22,8 +22,10 @@ class PropertyRemoteDataSourceImpl(
         page: Int,
         limit: Int
     ): Result<List<Property>> {
+        Logger.d(TAG, "getAllProperties: start page=$page, limit=$limit, filter=$filter")
         return try {
             val queries = PropertyQueryBuilder.build(filter, page, limit)
+            Logger.d(TAG, "getAllProperties: queries=$queries")
 
             val response = databases.listDocuments(
                 databaseId = AppWriteConstants.DATABASE_ID,
@@ -32,21 +34,66 @@ class PropertyRemoteDataSourceImpl(
             )
 
             val documents = response.documents
+            Logger.d(TAG, "getAllProperties: received=${documents.size}, total=${response.total}")
             val properties = documents.map { doc ->
                 @Suppress("UNCHECKED_CAST")
                 val data = doc.data as? Map<String, Any?> ?: emptyMap()
+                Logger.d(
+                    TAG,
+                    "getAllProperties: documentId=${doc.id}, title=${data[FIELD_TITLE]}, rawListingCategory=${data[FIELD_LISTING_CATEGORY]}"
+                )
                 PropertyMapper.fromMap(data, doc.id)
             }
+            Logger.d(TAG, "getAllProperties: mappedCategories=${properties.groupingBy { it.listingCategory }.eachCount()}")
 
             val userId = userSession.getUserId()
             if (userId.isNullOrEmpty()) {
+                Logger.d(TAG, "getAllProperties: returning without like merge; user not logged in")
                 Result.Success(properties)
             } else {
+                Logger.d(TAG, "getAllProperties: merging likes for userId=$userId")
                 Result.Success(mergeLikes(properties, userId))
             }
         } catch (e: AppwriteException) {
+            Logger.e(TAG, "getAllProperties: AppwriteException code=${e.code}, message=${e.message}", e)
             Result.Error(e.message ?: "Appwrite error")
         } catch (e: Exception) {
+            Logger.e(TAG, "getAllProperties: unexpected error=${e.message}", e)
+            Result.Error("Unexpected error: ${e.message}")
+        }
+    }
+
+    override suspend fun getFeaturedProperties(limit: Int): Result<List<Property>> {
+        Logger.d(TAG, "getFeaturedProperties: start limit=$limit")
+        return try {
+            val queries = listOf(
+                Query.equal(FIELD_STATUS, listOf(STATUS_LIVE)),
+                Query.equal(FIELD_LISTING_CATEGORY, FEATURED_CATEGORY_VALUES),
+                Query.limit(limit)
+            )
+            Logger.d(TAG, "getFeaturedProperties: queries=$queries")
+            val response = databases.listDocuments(
+                databaseId = AppWriteConstants.DATABASE_ID,
+                collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
+                queries = queries
+            )
+            val properties = response.documents.map { document ->
+                @Suppress("UNCHECKED_CAST")
+                val data = document.data as? Map<String, Any?> ?: emptyMap()
+                Logger.d(
+                    TAG,
+                    "getFeaturedProperties: documentId=${document.id}, title=${data[FIELD_TITLE]}, rawListingCategory=${data[FIELD_LISTING_CATEGORY]}"
+                )
+                PropertyMapper.fromMap(data, document.id)
+            }
+            Logger.d(TAG, "getFeaturedProperties: received=${properties.size}, total=${response.total}")
+            val userId = userSession.getUserId()
+            Result.Success(if (userId.isNullOrEmpty()) properties else mergeLikes(properties, userId))
+        } catch (e: AppwriteException) {
+            Logger.e(TAG, "getFeaturedProperties: AppwriteException code=${e.code}, message=${e.message}", e)
+            Result.Error(e.message ?: "Appwrite error")
+        } catch (e: Exception) {
+            Logger.e(TAG, "getFeaturedProperties: unexpected error=${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
@@ -130,6 +177,15 @@ class PropertyRemoteDataSourceImpl(
         } catch (e: Exception) {
             properties
         }
+    }
+
+    private companion object {
+        const val TAG = "PropertyRemoteDataSource"
+        const val FIELD_TITLE = "title"
+        const val FIELD_STATUS = "status"
+        const val FIELD_LISTING_CATEGORY = "listingCategory"
+        const val STATUS_LIVE = "live"
+        val FEATURED_CATEGORY_VALUES = listOf("featured", "FEATURED", "Featured")
     }
 
 }

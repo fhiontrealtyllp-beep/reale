@@ -32,6 +32,7 @@ internal object HomeStrings {
 
     const val CD_FAVORITE = "Favorite"
     const val CD_PROPERTY_IMAGE = "Property image"
+    const val LOCATION_SEPARATOR = ", "
 
     const val SPEC_BEDS_LABEL = "Beds"
     const val SPEC_BATHS_LABEL = "Baths"

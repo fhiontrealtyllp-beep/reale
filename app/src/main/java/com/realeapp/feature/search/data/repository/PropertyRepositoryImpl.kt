@@ -14,6 +14,10 @@ class PropertyRepositoryImpl(
         return remoteDataSource.getAllProperties(filter, page, limit)
     }
 
+    override suspend fun getFeaturedProperties(limit: Int): Result<List<Property>> {
+        return remoteDataSource.getFeaturedProperties(limit)
+    }
+
     override suspend fun updateLikeStatus(propertyId: String, isLiked: Boolean): Result<Unit> {
         Logger.d("PropertyRepository", "updateLikeStatus: propertyId=$propertyId, isLiked=$isLiked")
         return remoteDataSource.updateLikeStatus(propertyId, isLiked)

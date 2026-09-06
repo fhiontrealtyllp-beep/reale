@@ -18,6 +18,7 @@ data class Property(
     val rating: Double? = null,
     val agentPhone: String = "",
     val status: String? = null,
+    val listingCategory: ListingCategory = ListingCategory.NORMAL,
     val createdAt: String? = null,
     val rentBuy: RentBuy? = null,
     val residentialCommercial: ResidentialCommercial? = null,
@@ -34,4 +35,10 @@ data class Property(
     val superBuiltUpArea: Double? = null
 ) {
     fun isRentProperty(): Boolean = rentBuy == RentBuy.RENT
+}
+
+enum class ListingCategory {
+    FEATURED,
+    PROMOTIONAL,
+    NORMAL
 }
