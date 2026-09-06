@@ -3,6 +3,7 @@ package com.realeapp.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -11,9 +12,10 @@ enum class AppScreen(
     val title: String,
     val icon: ImageVector
 ) {
+    Home("Home", Icons.Filled.Home),
     Search("Search", Icons.Filled.Search),
     Saved("Saved", Icons.Filled.Favorite),
-    Add("Add", Icons.Filled.Add),
+    //Add("Add", Icons.Filled.Add),
     Profile("Profile", Icons.Filled.Person);
 
     companion object {

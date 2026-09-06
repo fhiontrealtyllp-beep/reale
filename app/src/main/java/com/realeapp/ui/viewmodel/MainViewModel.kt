@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel : ViewModel() {
-    private val _selectedTab = MutableStateFlow<AppScreen>(AppScreen.Search)
+    private val _selectedTab = MutableStateFlow<AppScreen>(AppScreen.Home)
     val selectedTab: StateFlow<AppScreen> = _selectedTab.asStateFlow()
 
     fun selectTab(screen: AppScreen) {

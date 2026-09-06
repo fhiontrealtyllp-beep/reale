@@ -26,6 +26,7 @@ import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
 import com.realeapp.feature.profile.presentation.ProfileScreen
+import com.realeapp.feature.home.presentation.HomeScreen
 import com.realeapp.feature.saved.presentation.SavedScreen
 import com.realeapp.feature.search.presentation.SearchScreen
 import com.realeapp.ui.components.BottomNavBar
@@ -100,15 +101,22 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 .statusBarsPadding()
                         ) {
                             when (selectedTab) {
+                                AppScreen.Home -> HomeScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onSearchClick = { mainViewModel.selectTab(AppScreen.Search) },
+                                    onSavedClick = { mainViewModel.selectTab(AppScreen.Saved) },
+                                    //onAddClick = { mainViewModel.selectTab(AppScreen.Add) },
+                                    onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) }
+                                )
                                 AppScreen.Search -> SearchScreen(modifier = Modifier.fillMaxSize())
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Login }
                                 )
-                                AppScreen.Add -> AddScreen(
+                               /* AppScreen.Add -> AddScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Login }
-                                )
+                                )*/
                                 AppScreen.Profile -> ProfileScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Login }
