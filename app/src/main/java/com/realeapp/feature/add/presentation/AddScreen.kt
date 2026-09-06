@@ -96,6 +96,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AddScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
+    startWithAddForm: Boolean = false,
     viewModel: AddViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -103,6 +104,10 @@ fun AddScreen(
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
 
     LaunchedEffect(Unit) {
+        // Opened from an external entry point (e.g. Profile "List Your Property") straight into the form.
+        if (startWithAddForm) {
+            viewModel.onShowAddForm()
+        }
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
         }

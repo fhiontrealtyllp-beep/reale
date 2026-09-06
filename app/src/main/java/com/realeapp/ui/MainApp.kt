@@ -78,12 +78,17 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     val activity = LocalContext.current as? Activity
                     var showExitDialog by remember { mutableStateOf(false) }
                     var showMyListings by rememberSaveable { mutableStateOf(false) }
+                    var showAddProperty by rememberSaveable { mutableStateOf(false) }
 
-                    BackHandler(enabled = !showExitDialog && !showMyListings) {
+                    BackHandler(enabled = !showExitDialog && !showMyListings && !showAddProperty) {
                         showExitDialog = true
                     }
 
-                    BackHandler(enabled = showMyListings) {
+                    BackHandler(enabled = showAddProperty) {
+                        showAddProperty = false
+                    }
+
+                    BackHandler(enabled = showMyListings && !showAddProperty) {
                         showMyListings = false
                     }
 
@@ -97,6 +102,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 selectedTab = selectedTab,
                                 onTabSelected = { tab ->
                                     showMyListings = false
+                                    showAddProperty = false
                                     mainViewModel.selectTab(tab)
                                 }
                             )
@@ -129,15 +135,21 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     onLoginClick = { authScreen = AuthScreen.Login }
                                 )*/
                                 AppScreen.Profile -> {
-                                    if (showMyListings) {
-                                        MyListingsScreen(
-                                            modifier = Modifier.fillMaxSize(),
-                                            onBack = { showMyListings = false }
-                                        )
-                                    } else {
-                                        ProfileScreen(
+                                    when {
+                                        showAddProperty -> AddScreen(
                                             modifier = Modifier.fillMaxSize(),
                                             onLoginClick = { authScreen = AuthScreen.Login },
+                                            startWithAddForm = true
+                                        )
+                                        showMyListings -> MyListingsScreen(
+                                            modifier = Modifier.fillMaxSize(),
+                                            onBack = { showMyListings = false },
+                                            onAddProperty = { showAddProperty = true }
+                                        )
+                                        else -> ProfileScreen(
+                                            modifier = Modifier.fillMaxSize(),
+                                            onLoginClick = { authScreen = AuthScreen.Login },
+                                            onListPropertyClick = { showAddProperty = true },
                                             onMyListingsClick = {
                                                 Logger.d(TAG, "My Listings clicked: opening MyListingsScreen")
                                                 showMyListings = true
