@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -473,192 +474,173 @@ private fun MyPropertiesContent(
         matchesTab && matchesSearch
     }
 
-    Column(
-        modifier = modifier.fillMaxSize()
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        // ─────────────────────────────────────
-        // STATUS FILTER TABS
-        // ─────────────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            listingTabs.forEach { tab ->
-
-                val selected = selectedTab == tab
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(
-                            if (selected) Accent
-                            else CardBackground
-                        )
-                        .clickable {
-                            selectedTab = tab
-                        }
-                        .padding(
-                            horizontal = 14.dp,
-                            vertical = 8.dp
-                        )
-                ) {
-                    Text(
-                        text = "$tab (${counts[tab] ?: 0})",
-                        color = if (selected) {
-                            OnAccent
-                        } else {
-                            TextPrimary
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (selected) {
-                            FontWeight.Bold
-                        } else {
-                            FontWeight.Normal
-                        }
-                    )
-                }
-            }
-        }
-
-        // ─────────────────────────────────────
-        // SEARCH BAR
-        // ─────────────────────────────────────
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 12.dp
-                ),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = {
-                    searchQuery = it
-                },
-                placeholder = {
-                    Text(AddStrings.SEARCH_LISTINGS_PLACEHOLDER)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = TextSecondary
-                    )
-                },
+        // ─────────────────────────────
+        // TABS
+        // ─────────────────────────────
+        item {
+            FlowRow(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = formFieldColors()
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(CardBackground)
-                    .clickable {
-                        onRefresh()
-                    },
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Tune,
-                    contentDescription = AddStrings.CD_REFRESH_FILTERS,
-                    tint = TextPrimary
-                )
-            }
-        }
+                listingTabs.forEach { tab ->
 
-        // ─────────────────────────────────────
-        // ERROR
-        // ─────────────────────────────────────
-        if (!errorMessage.isNullOrBlank()) {
-            Text(
-                text = errorMessage,
-                color = Error,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(
-                    horizontal = 16.dp,
-                    vertical = 4.dp
-                )
-            )
-        }
+                    val selected = selectedTab == tab
 
-        // ─────────────────────────────────────
-        // CONTENT
-        // ─────────────────────────────────────
-        when {
-
-            isLoading -> {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = Accent
-                    )
-                }
-            }
-
-            filtered.isEmpty() -> {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = AddStrings.EMPTY_LISTINGS,
-                        color = TextSecondary,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-
-            else -> {
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        bottom = 24.dp
-                    ),
-
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        filtered,
-                        key = { it.id }
-                    ) { property ->
-
-                        MyListingCard(
-                            property = property,
-                            onViewDetails = {
-                                onPropertyClick(property)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (selected) Accent
+                                else CardBackground
+                            )
+                            .clickable {
+                                selectedTab = tab
+                            }
+                            .padding(
+                                horizontal = 14.dp,
+                                vertical = 8.dp
+                            )
+                    ) {
+                        Text(
+                            text = "$tab (${counts[tab] ?: 0})",
+                            color = if (selected) OnAccent else TextPrimary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (selected) {
+                                FontWeight.Bold
+                            } else {
+                                FontWeight.Normal
                             }
                         )
                     }
                 }
+            }
+        }
+
+        // ─────────────────────────────
+        // SEARCH
+        // ─────────────────────────────
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = {
+                        searchQuery = it
+                    },
+                    placeholder = {
+                        Text(AddStrings.SEARCH_LISTINGS_PLACEHOLDER)
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = TextSecondary
+                        )
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = formFieldColors()
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(CardBackground)
+                        .clickable {
+                            onRefresh()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = AddStrings.CD_REFRESH_FILTERS,
+                        tint = TextPrimary
+                    )
+                }
+            }
+        }
+
+        // ─────────────────────────────
+        // ERROR
+        // ─────────────────────────────
+        if (!errorMessage.isNullOrBlank()) {
+            item {
+                Text(
+                    text = errorMessage,
+                    color = Error,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+
+        // ─────────────────────────────
+        // LOADING
+        // ─────────────────────────────
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Accent)
+                }
+            }
+        }
+
+        // ─────────────────────────────
+        // EMPTY
+        // ─────────────────────────────
+        else if (filtered.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = AddStrings.EMPTY_LISTINGS,
+                        color = TextSecondary
+                    )
+                }
+            }
+        }
+
+        // ─────────────────────────────
+        // LISTINGS
+        // ─────────────────────────────
+        else {
+            items(
+                items = filtered,
+                key = { it.id }
+            ) { property ->
+
+                MyListingCard(
+                    property = property,
+                    onViewDetails = {
+                        onPropertyClick(property)
+                    }
+                )
             }
         }
     }
