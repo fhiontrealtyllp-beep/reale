@@ -46,6 +46,9 @@ val OnBrandContent = Color.White
 val OnMediaContent = Color.White
 val MediaScrim = Color.Black
 
+// Fixed navy for text/icons drawn on the always-light welcome illustration.
+val OnLightArtwork = Color(0xFF1B2A4A)
+
 // Theme-aware palette. Screens read these roles through the shared color
 // getters below so the UI repaints when the theme mode changes.
 @Immutable
@@ -126,3 +129,13 @@ val HomeCategoryIconUnselected: Color
 
 val OnSurfaceLight: Color
     @Composable @ReadOnlyComposable get() = LocalAppColors.current.onSurface
+
+// True when the dark app palette is active (respects the manual theme override).
+val IsDarkAppTheme: Boolean
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current == DarkAppColors
+
+// Navy heading text: keeps the brand navy in light mode, flips to the dark
+// theme's primary text color in dark mode.
+val NavyText: Color
+    @Composable @ReadOnlyComposable get() =
+        if (IsDarkAppTheme) TextPrimary else OnLightArtwork

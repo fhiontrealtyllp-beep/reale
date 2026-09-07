@@ -9,9 +9,11 @@ package com.realeapp
 internal object AppStrings {
     const val APP_NAME = "HomeFinder"
 
-    /** First (blue) part of the logo, derived from [APP_NAME]. */
-    val APP_NAME_FIRST = APP_NAME.dropLast(1)
+    private const val APP_NAME_SPLIT_INDEX = 4
 
-    /** Final (accent) part of the logo, derived from [APP_NAME]. */
-    val APP_NAME_ACCENT = APP_NAME.takeLast(1)
+    /** First (blue) part of the logo, derived from [APP_NAME]. */
+    val APP_NAME_FIRST = APP_NAME.take(APP_NAME_SPLIT_INDEX)
+
+    /** Second (accent) part of the logo, derived from [APP_NAME]. */
+    val APP_NAME_ACCENT = APP_NAME.drop(APP_NAME_SPLIT_INDEX)
 }

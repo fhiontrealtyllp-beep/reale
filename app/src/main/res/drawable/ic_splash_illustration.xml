@@ -1,0 +1,180 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="220dp"
+    android:viewportWidth="400"
+    android:viewportHeight="220">
+
+    <!-- Ground: gentle hill -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,208 Q200,188 400,206"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: main gable outline -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M105,200 L105,110 L170,55 L235,110 L235,200"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: gable base line -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M105,110 L235,110"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: tall chimney on left roof slope -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M138,82 L138,44 L152,44 L152,72"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: small chimney on right roof slope -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M206,86 L206,66 L218,66 L218,94"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: round attic window -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M162,86 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: main door -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M178,200 L178,148 L202,148 L202,200"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: main window -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M124,134 L144,134 L144,164 L124,164 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: left wing roof and wall -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M52,130 L112,104 M56,130 L56,200"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: left wing window -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M70,146 L92,146 L92,168 L70,168 Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: right wing roof and wall -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M225,102 L302,128 M298,128 L298,200"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- House: right wing door -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M248,200 L248,150 L272,150 L272,200"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- Palm tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M332,205 Q346,140 344,62"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="7" />
+
+    <!-- Palm tree: drooping fronds -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M344,58 Q308,22 278,28 Q306,40 342,64 Z
+            M344,60 Q298,48 258,62 Q298,64 342,68 Z
+            M342,66 Q302,78 272,102 Q308,88 344,72 Z
+            M342,54 Q322,22 314,10 Q334,28 348,56 Z
+            M346,54 Q360,20 372,12 Q362,38 350,58 Z
+            M348,56 Q376,26 400,32 Q376,44 350,62 Z
+            M350,62 Q380,58 402,74 Q378,72 348,68 Z
+            M348,68 Q376,86 388,110 Q368,92 346,74 Z" />
+
+    <!-- Left bush: scalloped top -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M12,204 Q14,186 26,190 Q30,174 42,184 Q52,172 62,186 Q70,194 66,204"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- Left bush: texture marks -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M30,196 q3,-5 6,0 M48,194 q3,-5 6,0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- Small tuft beside the palm trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M296,150 Q300,140 306,147 Q311,138 317,147"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- Right bush: scalloped top -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M288,206 Q290,186 304,190 Q310,170 326,182 Q338,164 354,178 Q368,166 380,182 Q394,178 398,196 Q402,202 398,206"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+
+    <!-- Right bush: texture marks -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M322,196 q3,-5 6,0 M344,193 q3,-5 6,0 M366,196 q3,-5 6,0"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3" />
+</vector>

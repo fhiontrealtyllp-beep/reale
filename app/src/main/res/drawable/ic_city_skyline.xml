@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="90dp"
+    android:viewportWidth="400"
+    android:viewportHeight="90">
+
+    <!-- Back layer: lighter silhouettes -->
+    <path
+        android:fillColor="#E4EDF8"
+        android:pathData="M0,90 L0,58 L22,58 L22,38 L44,38 L44,62 L68,62 L68,30 L92,30 L92,54 L118,54 L118,72 L146,72 L146,44 L172,44 L172,20 L198,20 L198,50 L224,50 L224,68 L252,68 L252,36 L278,36 L278,58 L304,58 L304,76 L332,76 L332,48 L358,48 L358,26 L384,26 L384,54 L400,54 L400,90 Z" />
+
+    <!-- Front layer: slightly darker silhouettes -->
+    <path
+        android:fillColor="#D3E0F2"
+        android:pathData="M0,90 L0,70 L30,70 L30,50 L58,50 L58,74 L86,74 L86,44 L114,44 L114,66 L140,66 L140,80 L170,80 L170,56 L196,56 L196,34 L222,34 L222,62 L250,62 L250,78 L280,78 L280,52 L306,52 L306,70 L334,70 L334,84 L362,84 L362,60 L388,60 L388,42 L400,42 L400,90 Z" />
+</vector>

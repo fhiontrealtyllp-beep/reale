@@ -77,6 +77,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.realeapp.AppStrings
 import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -216,11 +217,17 @@ fun AddScreen(
                 }
 
                 // Logged-out UI prompting the user to open the login flow.
-                !uiState.isLoggedIn -> LoginPrompt(
-                    title = AddStrings.LOGIN_PROMPT_TITLE,
-                    onLoginClick = onLoginClick,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                !uiState.isLoggedIn -> Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(AppBackground)
+                ) {
+                    LoginPrompt(
+                        title = AddStrings.LOGIN_PROMPT_TITLE,
+                        onLoginClick = onLoginClick,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
 
                 // Property creation form UI.
                 uiState.isShowingAddForm -> AddPropertySteps(

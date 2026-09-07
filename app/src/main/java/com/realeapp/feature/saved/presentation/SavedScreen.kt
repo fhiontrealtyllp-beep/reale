@@ -85,14 +85,11 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
-import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
-import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
@@ -197,8 +194,8 @@ fun SavedScreen(
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = CardBackground,
-                    contentColor = TextPrimary
+                    containerColor = White,
+                    contentColor = Black
                 )
             }
         }
@@ -221,7 +218,7 @@ fun SavedScreen(
                 !uiState.isLoggedIn -> Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MainBackground)
+                        .background(AppBackground)
                 ) {
                     LoginPrompt(
                         title = SavedStrings.LOGIN_PROMPT_TITLE,
@@ -266,7 +263,7 @@ fun SavedScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MainBackground
+                color = AppBackground
             ) {
                 PropertyDetailScreen(
                     property = property,

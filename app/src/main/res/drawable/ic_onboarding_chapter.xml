@@ -1,0 +1,258 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="360dp"
+    android:viewportWidth="400"
+    android:viewportHeight="360">
+
+    <!-- Sky: vertical gradient -->
+    <path android:pathData="M0,0 L400,0 L400,360 L0,360 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="0"
+                android:endY="360">
+                <item
+                    android:offset="0"
+                    android:color="#FFF6FBFE" />
+                <item
+                    android:offset="1"
+                    android:color="#FFDAEDF9" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Clouds -->
+    <path
+        android:fillAlpha="0.9"
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,55 a40,11 0 1,0 80,0 a40,11 0 1,0 -80,0
+            M270,42 a48,13 0 1,0 96,0 a48,13 0 1,0 -96,0
+            M160,88 a30,8 0 1,0 60,0 a30,8 0 1,0 -60,0" />
+
+    <!-- Lawn -->
+    <path
+        android:fillColor="#8FC36A"
+        android:pathData="M0,226 L400,226 L400,360 L0,360 Z" />
+
+    <!-- Garden path -->
+    <path
+        android:fillColor="#EFE6D2"
+        android:pathData="M252,232 L280,232 L330,360 L216,360 Z" />
+
+    <!-- House: left wing wall -->
+    <path
+        android:fillColor="#F5F8FA"
+        android:pathData="M88,124 L194,124 L194,234 L88,234 Z" />
+
+    <!-- House: left wing gable roof -->
+    <path
+        android:fillColor="#2B6CA3"
+        android:pathData="M74,128 L141,80 L208,128 Z" />
+
+    <!-- House: left wing attic window -->
+    <path
+        android:fillColor="#8FC3E0"
+        android:pathData="M133,102 L149,102 L149,116 L133,116 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5" />
+
+    <!-- House: left wing upper windows -->
+    <path
+        android:fillColor="#7FB8D9"
+        android:pathData="M102,140 L136,140 L136,172 L102,172 Z
+            M146,140 L180,140 L180,172 L146,172 Z" />
+
+    <!-- House: left wing upper window mullions -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M119,140 L119,172 M163,140 L163,172"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5" />
+
+    <!-- House: left wing balcony glass -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#BFE3F2"
+        android:pathData="M98,172 L184,172 L184,192 L98,192 Z" />
+
+    <!-- House: left wing balcony rail -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M98,172 L184,172"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- House: left wing lower windows -->
+    <path
+        android:fillColor="#7FB8D9"
+        android:pathData="M102,200 L134,200 L134,230 L102,230 Z
+            M148,200 L180,200 L180,230 L148,230 Z" />
+
+    <!-- House: right wing wall -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M186,106 L312,106 L312,234 L186,234 Z" />
+
+    <!-- House: right wing gable roof -->
+    <path
+        android:fillColor="#1F4E79"
+        android:pathData="M172,110 L249,54 L326,110 Z" />
+
+    <!-- House: right wing attic window -->
+    <path
+        android:fillColor="#8FC3E0"
+        android:pathData="M241,80 L257,80 L257,94 L241,94 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5" />
+
+    <!-- House: right wing upper windows -->
+    <path
+        android:fillColor="#7FB8D9"
+        android:pathData="M202,128 L240,128 L240,166 L202,166 Z
+            M252,128 L296,128 L296,166 L252,166 Z" />
+
+    <!-- House: right wing upper window mullions -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M221,128 L221,166 M274,128 L274,166"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5" />
+
+    <!-- House: right wing balcony glass -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#BFE3F2"
+        android:pathData="M196,166 L302,166 L302,188 L196,188 Z" />
+
+    <!-- House: right wing balcony rail -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M196,166 L302,166"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- House: right wing door -->
+    <path
+        android:fillColor="#2B4756"
+        android:pathData="M258,196 L288,196 L288,234 L258,234 Z" />
+
+    <!-- House: right wing lower window -->
+    <path
+        android:fillColor="#7FB8D9"
+        android:pathData="M202,198 L240,198 L240,228 L202,228 Z" />
+
+    <!-- Left tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M36,196 L36,246"
+        android:strokeColor="#6B4A32"
+        android:strokeLineCap="round"
+        android:strokeWidth="4" />
+
+    <!-- Left tree: canopy -->
+    <path
+        android:fillColor="#2E8B74"
+        android:pathData="M36,116 Q60,136 58,172 Q56,204 36,210 Q16,204 14,172 Q12,136 36,116 Z" />
+
+    <!-- Left small tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M68,210 L68,248"
+        android:strokeColor="#6B4A32"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.5" />
+
+    <!-- Left small tree: canopy -->
+    <path
+        android:fillColor="#3E9E56"
+        android:pathData="M68,148 Q88,166 86,194 Q84,220 68,224 Q52,220 50,194 Q48,166 68,148 Z" />
+
+    <!-- Left bush -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M6,252 Q12,232 28,238 Q44,228 58,240 Q70,236 76,250 L76,258 L6,258 Z" />
+
+    <!-- Right tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M356,192 L356,246"
+        android:strokeColor="#6B4A32"
+        android:strokeLineCap="round"
+        android:strokeWidth="4" />
+
+    <!-- Right tree: canopy -->
+    <path
+        android:fillColor="#2E8B74"
+        android:pathData="M356,110 Q380,134 378,170 Q376,204 356,210 Q336,204 334,170 Q332,134 356,110 Z" />
+
+    <!-- Right small tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M326,212 L326,248"
+        android:strokeColor="#6B4A32"
+        android:strokeLineCap="round"
+        android:strokeWidth="3" />
+
+    <!-- Right small tree: canopy -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M326,152 Q344,170 342,196 Q340,220 326,224 Q312,220 310,196 Q308,170 326,152 Z" />
+
+    <!-- Right bush -->
+    <path
+        android:fillColor="#3E9E56"
+        android:pathData="M330,256 Q340,236 358,242 Q376,232 392,246 L400,252 L400,262 L330,262 Z" />
+
+    <!-- Foreground bush: bottom-left -->
+    <path
+        android:fillColor="#5E9B4E"
+        android:pathData="M0,360 Q4,330 24,336 Q40,322 58,334 Q74,326 88,340 L92,360 Z" />
+
+    <!-- Foreground bush: bottom-right -->
+    <path
+        android:fillColor="#5E9B4E"
+        android:pathData="M310,360 Q316,332 336,338 Q354,324 372,336 Q390,328 400,342 L400,360 Z" />
+
+    <!-- Man: shirt body -->
+    <path
+        android:fillColor="#A9C9E8"
+        android:pathData="M146,360 L150,258 Q152,230 178,226 Q204,230 206,258 L212,360 Z" />
+
+    <!-- Man: head -->
+    <path
+        android:fillColor="#EDB591"
+        android:pathData="M163,206 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+
+    <!-- Man: hair -->
+    <path
+        android:fillColor="#2A2A33"
+        android:pathData="M162,206 Q160,188 178,186 Q196,188 194,206 Q190,194 178,194 Q166,194 162,206 Z" />
+
+    <!-- Woman: dress -->
+    <path
+        android:fillColor="#F2705B"
+        android:pathData="M204,360 L208,264 Q210,240 231,238 Q252,240 254,264 L260,360 Z" />
+
+    <!-- Woman: head -->
+    <path
+        android:fillColor="#EDB591"
+        android:pathData="M216,210 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+
+    <!-- Woman: long hair -->
+    <path
+        android:fillColor="#2A2A3A"
+        android:pathData="M230,190 Q250,192 252,214 Q256,252 250,286 Q242,298 230,298 Q216,296 211,282 Q205,252 209,216 Q211,192 230,190 Z" />
+
+    <!-- Man: arm around woman's shoulder -->
+    <path
+        android:fillColor="#A9C9E8"
+        android:pathData="M204,244 Q226,250 244,258 L240,270 Q220,262 200,256 Z" />
+
+    <!-- Woman: arm around man's waist -->
+    <path
+        android:fillColor="#F2705B"
+        android:pathData="M158,272 Q146,280 143,294 L153,297 Q157,283 166,277 Z" />
+</vector>

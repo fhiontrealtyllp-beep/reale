@@ -27,11 +27,14 @@ import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
+import com.realeapp.feature.auth.presentation.WelcomeScreen
+import com.realeapp.feature.city.presentation.CityScreen
 import com.realeapp.feature.profile.presentation.MyListingsScreen
 import com.realeapp.feature.profile.presentation.ProfileScreen
 import com.realeapp.feature.home.presentation.HomeScreen
 import com.realeapp.feature.saved.presentation.SavedScreen
 import com.realeapp.feature.search.presentation.SearchScreen
+import com.realeapp.feature.onboarding.presentation.OnboardingScreen
 import com.realeapp.ui.components.BottomNavBar
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.AppBackground
@@ -44,6 +47,7 @@ private const val TAG = "MainApp"
 
 private enum class AuthScreen {
     Main,
+    Welcome,
     Login,
     Register
 }
@@ -53,6 +57,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
+    val showOnboarding by mainViewModel.showOnboarding.collectAsStateWithLifecycle()
 
     val darkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
@@ -61,8 +66,44 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     }
 
     RealeTheme(darkTheme = darkTheme) {
-        Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
-            when (screen) {
+        if (showOnboarding) {
+            var showCityScreen by rememberSaveable { mutableStateOf(false) }
+
+            BackHandler(enabled = showCityScreen) {
+                showCityScreen = false
+            }
+
+            if (showCityScreen) {
+                CityScreen(
+                    onCitySelected = {
+                        // TODO: pass the selected city to MainViewModel once city
+                        // selection is persisted.
+                        mainViewModel.completeOnboarding()
+                    }
+                )
+            } else {
+                OnboardingScreen(
+                    onComplete = { mainViewModel.completeOnboarding() },
+                    onSkipToCity = { showCityScreen = true }
+                )
+            }
+        } else {
+            Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
+                when (screen) {
+                // Auth landing UI offering Google, mobile-number, or guest entry.
+                AuthScreen.Welcome -> {
+                    BackHandler { authScreen = AuthScreen.Main }
+                    WelcomeScreen(
+                        onGoogleClick = {
+                            // TODO: implement Google sign-in via Appwrite OAuth;
+                            // falls back to the credential login screen for now.
+                            authScreen = AuthScreen.Login
+                        },
+                        onMobileClick = { authScreen = AuthScreen.Login },
+                        onGuestClick = { authScreen = AuthScreen.Main }
+                    )
+                }
+
                 // Full-screen login UI shown above the main tab navigation.
                 AuthScreen.Login -> LoginScreen(
                     onLoginSuccess = {
@@ -137,7 +178,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 AppScreen.Search -> SearchScreen(modifier = Modifier.fillMaxSize())
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),
-                                    onLoginClick = { authScreen = AuthScreen.Login }
+                                    onLoginClick = { authScreen = AuthScreen.Welcome }
                                 )
                                /* AppScreen.Add -> AddScreen(
                                     modifier = Modifier.fillMaxSize(),
@@ -147,7 +188,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     when {
                                         showAddProperty -> AddScreen(
                                             modifier = Modifier.fillMaxSize(),
-                                            onLoginClick = { authScreen = AuthScreen.Login },
+                                            onLoginClick = { authScreen = AuthScreen.Welcome },
                                             startWithAddForm = true
                                         )
                                         showMyListings -> MyListingsScreen(
@@ -157,7 +198,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                         )
                                         else -> ProfileScreen(
                                             modifier = Modifier.fillMaxSize(),
-                                            onLoginClick = { authScreen = AuthScreen.Login },
+                                            onLoginClick = { authScreen = AuthScreen.Welcome },
                                             onListPropertyClick = { showAddProperty = true },
                                             onMyListingsClick = {
                                                 Logger.d(TAG, "My Listings clicked: opening MyListingsScreen")
@@ -196,6 +237,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     }
                 }
             }
+        }
         }
     }
 }

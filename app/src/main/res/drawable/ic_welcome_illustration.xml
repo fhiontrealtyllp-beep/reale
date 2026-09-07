@@ -1,0 +1,127 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="300dp"
+    android:viewportWidth="400"
+    android:viewportHeight="300">
+
+    <!-- Soft backdrop blob -->
+    <path
+        android:fillColor="#EAF2FB"
+        android:pathData="M200,28 m-125,0 a125,112 0 1,0 250,0 a125,112 0 1,0 -250,0" />
+
+    <!-- Backdrop behind the script text so it stays readable on dark themes -->
+    <path
+        android:fillColor="#EAF2FB"
+        android:pathData="M322,78 m-72,0 a72,58 0 1,0 144,0 a72,58 0 1,0 -144,0" />
+
+    <!-- Clouds -->
+    <path
+        android:fillAlpha="0.9"
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,62 a32,9 0 1,0 64,0 a32,9 0 1,0 -64,0
+            M255,44 a38,10 0 1,0 76,0 a38,10 0 1,0 -76,0
+            M185,88 a24,7 0 1,0 48,0 a24,7 0 1,0 -48,0" />
+
+    <!-- Ground line -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M60,238 L340,238"
+        android:strokeColor="#D5E2F0"
+        android:strokeLineCap="round"
+        android:strokeWidth="3" />
+
+    <!-- House: left wing -->
+    <path
+        android:fillColor="#F5F8FB"
+        android:pathData="M118,150 L196,150 L196,236 L118,236 Z" />
+
+    <!-- House: left wing roof -->
+    <path
+        android:fillColor="#2B6CA3"
+        android:pathData="M108,152 L157,118 L206,152 Z" />
+
+    <!-- House: left wing window -->
+    <path
+        android:fillColor="#8FC3E0"
+        android:pathData="M136,168 L178,168 L178,200 L136,200 Z" />
+
+    <!-- House: left wing window mullion -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M157,168 L157,200"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- House: main block -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M190,108 L292,108 L292,236 L190,236 Z" />
+
+    <!-- House: main block right shading -->
+    <path
+        android:fillColor="#E7EEF5"
+        android:pathData="M272,108 L292,108 L292,236 L272,236 Z" />
+
+    <!-- House: flat roof slab -->
+    <path
+        android:fillColor="#F7FAFC"
+        android:pathData="M182,96 L300,96 L300,110 L182,110 Z" />
+
+    <!-- House: upper glass wall -->
+    <path
+        android:fillColor="#2B4756"
+        android:pathData="M202,120 L262,120 L262,158 L202,158 Z" />
+
+    <!-- House: upper glass mullions -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M222,120 L222,158 M242,120 L242,158"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- House: balcony rail -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#BFE3F2"
+        android:pathData="M198,158 L266,158 L266,176 L198,176 Z" />
+
+    <!-- House: lower glass door -->
+    <path
+        android:fillColor="#33505F"
+        android:pathData="M206,190 L240,190 L240,236 L206,236 Z" />
+
+    <!-- House: lower glass mullion -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M223,190 L223,236"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- House: lower window -->
+    <path
+        android:fillColor="#7FB8D9"
+        android:pathData="M250,192 L284,192 L284,222 L250,222 Z" />
+
+    <!-- Left tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M96,196 L96,238"
+        android:strokeColor="#6B4A32"
+        android:strokeLineCap="round"
+        android:strokeWidth="4" />
+
+    <!-- Left tree: canopy -->
+    <path
+        android:fillColor="#2E8B74"
+        android:pathData="M96,128 Q118,148 116,180 Q114,208 96,214 Q78,208 76,180 Q74,148 96,128 Z" />
+
+    <!-- Right bushes -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M292,238 Q298,214 316,220 Q332,208 348,222 Q360,216 366,232 L366,238 Z" />
+
+    <!-- Left bush -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M56,238 Q62,220 78,226 Q92,216 106,228 L110,238 Z" />
+</vector>

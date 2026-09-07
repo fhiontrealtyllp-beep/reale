@@ -1,0 +1,208 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+    <!-- Sky: vertical gradient -->
+    <path android:pathData="M0,0 L400,0 L400,400 L0,400 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="0"
+                android:endY="400">
+                <item
+                    android:offset="0"
+                    android:color="#FFEFF8FD" />
+                <item
+                    android:offset="1"
+                    android:color="#FFC2E2F4" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Clouds -->
+    <path
+        android:fillAlpha="0.85"
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,72 a45,12 0 1,0 90,0 a45,12 0 1,0 -90,0
+            M245,48 a55,14 0 1,0 110,0 a55,14 0 1,0 -110,0
+            M145,112 a35,9 0 1,0 70,0 a35,9 0 1,0 -70,0
+            M300,124 a30,8 0 1,0 60,0 a30,8 0 1,0 -60,0" />
+
+    <!-- Sea: vertical gradient, light at horizon to deep blue -->
+    <path android:pathData="M0,172 L400,172 L400,400 L0,400 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="172"
+                android:endX="0"
+                android:endY="400">
+                <item
+                    android:offset="0"
+                    android:color="#FF9FD8F0" />
+                <item
+                    android:offset="1"
+                    android:color="#FF0E6FB0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Horizon highlight -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,172 L400,172 L400,176 L0,176 Z" />
+
+    <!-- Wave highlights -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M185,215 h38 M245,242 h50 M155,262 h32 M300,210 h28 M200,305 h45 M285,330 h35 M140,350 h30"
+        android:strokeAlpha="0.45"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2" />
+
+    <!-- Coastal hill on the left -->
+    <path
+        android:fillColor="#8FBC77"
+        android:pathData="M0,148 Q55,144 100,162 Q140,178 165,196 L0,196 Z" />
+
+    <!-- Rocky cliff base meeting the sea -->
+    <path
+        android:fillColor="#C9A97E"
+        android:pathData="M0,196 L165,196 Q140,214 100,218 L0,218 Z" />
+
+    <!-- Houses on the hill -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,158 h12 v-9 h-12 Z M64,166 h10 v-8 h-10 Z M104,176 h11 v-8 h-11 Z" />
+
+    <!-- Villa: lower floor -->
+    <path
+        android:fillColor="#EEF2F5"
+        android:pathData="M65,236 L215,236 L215,400 L65,400 Z" />
+
+    <!-- Villa: lower floor glass -->
+    <path
+        android:fillColor="#33505F"
+        android:pathData="M82,252 L198,252 L198,335 L82,335 Z" />
+
+    <!-- Villa: lower glass mullions -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M112,252 L112,335 M142,252 L142,335 M172,252 L172,335"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- Villa: upper floor block -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,152 L245,152 L245,236 L40,236 Z" />
+
+    <!-- Villa: right wall shading -->
+    <path
+        android:fillColor="#E2E9ED"
+        android:pathData="M210,152 L245,152 L245,236 L210,236 Z" />
+
+    <!-- Villa: roof slab -->
+    <path
+        android:fillColor="#F7FAFC"
+        android:pathData="M28,140 L258,140 L258,152 L28,152 Z" />
+
+    <!-- Villa: upper glass wall -->
+    <path
+        android:fillColor="#2B4756"
+        android:pathData="M56,162 L168,162 L168,200 L56,200 Z" />
+
+    <!-- Villa: upper glass mullions -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M84,162 L84,200 M112,162 L112,200 M140,162 L140,200"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- Villa: terrace door -->
+    <path
+        android:fillColor="#3A5A6B"
+        android:pathData="M180,168 L205,168 L205,200 L180,200 Z" />
+
+    <!-- Villa: balcony slab -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,224 L260,224 L260,236 L32,236 Z" />
+
+    <!-- Villa: balcony glass railing -->
+    <path
+        android:fillAlpha="0.5"
+        android:fillColor="#CFE9F5"
+        android:pathData="M40,202 L252,202 L252,224 L40,224 Z" />
+
+    <!-- Villa: railing posts and top rail -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M40,202 L252,202 M92,202 L92,224 M146,202 L146,224 M200,202 L200,224"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2" />
+
+    <!-- Villa: chair on the balcony -->
+    <path
+        android:fillAlpha="0.85"
+        android:fillColor="#D9A05B"
+        android:pathData="M90,212 L112,212 L112,220 L90,220 Z" />
+
+    <!-- Sandy strip at the shore -->
+    <path
+        android:fillColor="#E8D9B0"
+        android:pathData="M320,368 Q360,356 400,364 L400,382 Q360,374 320,380 Z" />
+
+    <!-- Palm tree: trunk -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M352,400 Q360,270 368,152"
+        android:strokeColor="#7A5A3A"
+        android:strokeLineCap="round"
+        android:strokeWidth="10" />
+
+    <!-- Palm tree: coconuts -->
+    <path
+        android:fillColor="#7A5A3A"
+        android:pathData="M356,170 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0
+            M370,174 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" />
+
+    <!-- Palm tree: fronds -->
+    <path
+        android:fillColor="#2E7D46"
+        android:pathData="M368,158 Q340,126 308,132 Q338,146 366,164 Z
+            M368,162 Q328,150 298,166 Q330,168 366,170 Z
+            M366,168 Q332,184 312,210 Q344,194 368,174 Z
+            M366,154 Q348,122 340,108 Q360,130 372,156 Z
+            M372,154 Q388,120 402,110 Q392,138 376,158 Z
+            M374,160 Q398,142 404,144 Q394,162 374,168 Z
+            M372,166 Q396,180 402,198 Q386,184 370,172 Z" />
+
+    <!-- Palm tree: lighter frond highlights -->
+    <path
+        android:fillColor="#3E9E56"
+        android:pathData="M368,160 Q340,138 315,142 Q342,152 367,166 Z
+            M370,158 Q390,132 402,126 Q394,148 374,162 Z" />
+
+    <!-- Foreground bushes: right, dark layer -->
+    <path
+        android:fillColor="#3E8E46"
+        android:pathData="M250,400 Q254,330 275,338 Q288,318 308,332 Q325,314 344,330 Q362,318 376,336 Q394,330 398,352 L400,400 Z" />
+
+    <!-- Foreground bushes: right, light layer -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M300,400 Q306,360 330,368 Q348,352 368,366 Q388,358 400,376 L400,400 Z" />
+
+    <!-- Foreground bushes: left -->
+    <path
+        android:fillColor="#57A85C"
+        android:pathData="M0,400 Q6,352 30,360 Q48,344 68,358 Q88,348 104,364 L110,400 Z" />
+</vector>
