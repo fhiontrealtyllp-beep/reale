@@ -93,8 +93,6 @@ internal object AddStrings {
     const val CD_MY_LOCATION_LINK = "Use my location"
 
     // Add form header
-    const val APP_NAME_FIRST = "Real"
-    const val APP_NAME_ACCENT = "e"
     const val ACTION_SAVE_DRAFT = "Save Draft"
     const val CD_SAVE_DRAFT = "Save draft"
     const val ADD_FORM_SUBTITLE = "List your property in a few simple steps"

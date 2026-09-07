@@ -6,9 +6,6 @@ import androidx.compose.ui.unit.dp
  * Centralized UI strings and dimensions for the Saved feature.
  */
 internal object SavedStrings {
-    const val APP_NAME_BLUE = "Real"
-    const val APP_NAME_ACCENT = "e"
-
     const val TITLE = "Saved Properties"
     const val SUBTITLE = "Your favorite homes, all in one place."
 

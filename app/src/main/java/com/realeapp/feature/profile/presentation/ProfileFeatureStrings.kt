@@ -7,9 +7,6 @@ import androidx.compose.ui.unit.sp
  * Centralized UI strings and dimensions for the Profile feature.
  */
 internal object ProfileStrings {
-    const val APP_NAME_BLUE = "Real"
-    const val APP_NAME_ACCENT = "e"
-
     const val CD_NOTIFICATIONS = "Notifications"
 
     const val EDIT_PROFILE = "Edit Profile"

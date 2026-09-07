@@ -59,8 +59,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.realeapp.AppStrings
+import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -76,6 +79,9 @@ import com.realeapp.ui.theme.White
 import java.text.NumberFormat
 import java.util.Locale
 
+/**
+ * UI model for a featured property displayed in the home screen carousel.
+ */
 internal data class FeaturedProperty(
     val id: String,
     val imageUrl: String,
@@ -88,6 +94,12 @@ internal data class FeaturedProperty(
     val isLiked: Boolean = false
 )
 
+/**
+ * Top app bar for the home screen, showing the app logo and a notification
+ * icon with an unread badge.
+ *
+ * @param modifier Modifier to be applied to the header.
+ */
 @Composable
 internal fun HomeHeader(modifier: Modifier = Modifier) {
     Row(
@@ -106,7 +118,7 @@ internal fun HomeHeader(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(HomeDims.LOGO_ICON_SIZE)
             )
             Text(
-                text = HomeStrings.APP_NAME,
+                text = AppStrings.APP_NAME,
                 color = BrandBlue,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.ExtraBold
@@ -130,6 +142,22 @@ internal fun HomeHeader(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Preview for [HomeHeader].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun HomeHeaderPreview() {
+    RealeTheme {
+        HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
+    }
+}
+
+/**
+ * Large headline text that greets the user on the home screen.
+ *
+ * @param modifier Modifier to be applied to the title.
+ */
 @Composable
 internal fun HomeTitle(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
@@ -149,6 +177,12 @@ internal fun HomeTitle(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Tappable search bar surface that navigates to the search flow.
+ *
+ * @param onSearchClick Callback invoked when the search bar is tapped.
+ * @param modifier Modifier to be applied to the search bar.
+ */
 @Composable
 internal fun HomeSearchBar(onSearchClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
@@ -190,12 +224,20 @@ internal fun HomeSearchBar(onSearchClick: () -> Unit, modifier: Modifier = Modif
     }
 }
 
+/**
+ * Internal data class holding the icon and label state for a home category chip.
+ */
 private data class HomeCategory(
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 )
 
+/**
+ * Horizontal row of selectable category chips for Buy, Rent, New Projects and Commercial.
+ *
+ * @param modifier Modifier to be applied to the category chips row.
+ */
 @Composable
 internal fun CategoryChips(modifier: Modifier = Modifier) {
     val categories = remember {
@@ -223,6 +265,13 @@ internal fun CategoryChips(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Individual selectable category chip rendered as a circular icon with a label.
+ *
+ * @param category Category data including icon pairs and label.
+ * @param selected Whether this category is currently selected.
+ * @param onClick Callback invoked when the chip is tapped.
+ */
 @Composable
 private fun CategoryItem(
     category: HomeCategory,
@@ -265,6 +314,14 @@ private fun CategoryItem(
     }
 }
 
+/**
+ * Section that displays the list of featured properties with a "See All" action.
+ *
+ * @param properties List of featured properties to show.
+ * @param onSeeAllClick Callback invoked when the "See All" text is tapped.
+ * @param onPropertyClick Callback invoked with the selected property ID.
+ * @param modifier Modifier to be applied to the section.
+ */
 @Composable
 internal fun FeaturedSection(
     properties: List<FeaturedProperty>,
@@ -312,6 +369,14 @@ internal fun FeaturedSection(
     }
 }
 
+/**
+ * Card that renders a single featured property with image, price, location and specs.
+ *
+ * @param property Featured property data to display.
+ * @param isLiked Whether the property is currently liked.
+ * @param onLikeToggle Callback invoked when the like button is tapped.
+ * @param onClick Callback invoked when the card is tapped.
+ */
 @Composable
 private fun FeaturedPropertyCard(
     property: FeaturedProperty,
@@ -433,6 +498,12 @@ private fun FeaturedPropertyCard(
     }
 }
 
+/**
+ * Small row showing a property spec icon and its label, e.g. beds, baths or sq.ft.
+ *
+ * @param icon Icon to display.
+ * @param label Spec text to display.
+ */
 @Composable
 private fun PropertySpecChip(icon: ImageVector, label: String) {
     Row(
@@ -453,6 +524,11 @@ private fun PropertySpecChip(icon: ImageVector, label: String) {
     }
 }
 
+/**
+ * Promotional banner card with a background image, overlay text and a call-to-action arrow.
+ *
+ * @param modifier Modifier to be applied to the banner.
+ */
 @Composable
 internal fun PromotionBanner(modifier: Modifier = Modifier) {
     Card(

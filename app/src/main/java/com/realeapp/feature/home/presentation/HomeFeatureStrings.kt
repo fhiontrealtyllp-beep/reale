@@ -1,12 +1,12 @@
 package com.realeapp.feature.home.presentation
 
+import com.realeapp.AppStrings
 import androidx.compose.ui.unit.dp
 
 /**
  * Centralized UI strings and dimensions for the Home feature.
  */
 internal object HomeStrings {
-    const val APP_NAME = "Reale"
     const val HOME_TITLE_LINE1 = "Find a home"
     const val HOME_TITLE_LINE2 = "for your next chapter"
 
@@ -15,7 +15,7 @@ internal object HomeStrings {
     const val CD_FILTER_ICON = "Filter"
 
     const val CD_NOTIFICATIONS = "Notifications"
-    const val CD_LOGO = "Reale logo"
+    const val CD_LOGO = AppStrings.APP_NAME + " logo"
 
     const val CATEGORY_BUY = "Buy"
     const val CATEGORY_RENT = "Rent"

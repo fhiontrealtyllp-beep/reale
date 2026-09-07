@@ -73,6 +73,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.realeapp.AppStrings
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
@@ -408,13 +409,13 @@ private fun SavedTopBar(modifier: Modifier = Modifier) {
     ) {
         Row {
             Text(
-                text = SavedStrings.APP_NAME_BLUE,
+                text = AppStrings.APP_NAME_FIRST,
                 color = BrandBlue,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = SavedStrings.APP_NAME_ACCENT,
+                text = AppStrings.APP_NAME_ACCENT,
                 color = BrandCoral,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold

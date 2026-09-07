@@ -75,6 +75,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
+import com.realeapp.AppStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -956,13 +957,13 @@ private fun AddFormTopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = AddStrings.APP_NAME_FIRST,
+                    text = AppStrings.APP_NAME_FIRST,
                     color = BrandBlue,
                     fontSize = AddDims.HEADER_LOGO_FONT_SIZE,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = AddStrings.APP_NAME_ACCENT,
+                    text = AppStrings.APP_NAME_ACCENT,
                     color = BrandCoral,
                     fontSize = AddDims.HEADER_LOGO_FONT_SIZE,
                     fontWeight = FontWeight.ExtraBold

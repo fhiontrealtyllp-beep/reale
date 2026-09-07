@@ -7,8 +7,6 @@ import androidx.compose.ui.unit.sp
  * Centralized UI strings and dimensions for the Search feature landing screen.
  */
 internal object SearchStrings {
-    const val APP_NAME_BLUE = "Real"
-    const val APP_NAME_ACCENT = "e"
     const val TITLE = "Find a place you'll love"
 
     const val SEARCH_HINT = "Search by location, project or keyword"
