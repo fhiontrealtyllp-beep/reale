@@ -56,11 +56,14 @@ import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.RealeTheme
+import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.components.VerticalSpacer8
 import com.realeapp.ui.components.VerticalSpacer16
 import com.realeapp.ui.components.VerticalSpacer24
 import com.realeapp.ui.components.VerticalSpacer32
 import com.realeapp.util.Logger
+import androidx.compose.ui.tooling.preview.Preview
 
 private const val TAG = "LoginScreen"
 
@@ -81,6 +84,33 @@ fun LoginScreen(
         }
     }
 
+    LoginContent(
+        uiState = uiState,
+        onEmailChanged = viewModel::onEmailChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
+        onLoginClick = {
+            Logger.d(TAG, "Login button clicked: email=${uiState.email}")
+            viewModel.login()
+        },
+        onRegisterClick = onRegisterClick,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun LoginContent(
+    uiState: LoginUiState,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -140,7 +170,7 @@ fun LoginScreen(
                 // Email input UI.
                 OutlinedTextField(
                     value = uiState.email,
-                    onValueChange = viewModel::onEmailChanged,
+                    onValueChange = onEmailChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email") },
                     singleLine = true,
@@ -163,7 +193,7 @@ fun LoginScreen(
                 // Password input UI with a visibility toggle.
                 OutlinedTextField(
                     value = uiState.password,
-                    onValueChange = viewModel::onPasswordChanged,
+                    onValueChange = onPasswordChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
                     singleLine = true,
@@ -173,7 +203,7 @@ fun LoginScreen(
                         imeAction = ImeAction.Done
                     ),
                     trailingIcon = {
-                        IconButton(onClick = viewModel::onTogglePasswordVisibility) {
+                        IconButton(onClick = onTogglePasswordVisibility) {
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
@@ -205,10 +235,7 @@ fun LoginScreen(
 
                 // Primary login action; progress replaces its label during authentication.
                 TextButton(
-                    onClick = {
-                        Logger.d(TAG, "Login button clicked: email=${uiState.email}")
-                        viewModel.login()
-                    },
+                    onClick = onLoginClick,
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -260,5 +287,24 @@ fun LoginScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LoginContentPreview() {
+    RealeTheme {
+        LoginContent(
+            uiState = LoginUiState(
+                email = "john.doe@example.com",
+                password = "password123"
+            ),
+            onEmailChanged = {},
+            onPasswordChanged = {},
+            onTogglePasswordVisibility = {},
+            onLoginClick = {},
+            onRegisterClick = {},
+            onBack = {}
+        )
     }
 }

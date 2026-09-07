@@ -137,6 +137,9 @@ import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
@@ -1290,5 +1293,16 @@ private fun openInMaps(context: Context, property: Property) {
     val intent = Intent(Intent.ACTION_VIEW, uri)
     if (intent.resolveActivity(context.packageManager) != null) {
         context.startActivity(intent)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PropertyDetailScreenPreview() {
+    RealeTheme {
+        PropertyDetailScreen(
+            property = PreviewData.sampleProperty,
+            onClose = {}
+        )
     }
 }

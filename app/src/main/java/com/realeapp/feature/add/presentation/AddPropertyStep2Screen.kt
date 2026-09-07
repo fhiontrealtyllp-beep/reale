@@ -58,6 +58,9 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 private val floorOptions = listOf(AddStrings.FLOOR_GROUND) + (1..10).map { it.toString() } + listOf(AddStrings.FLOOR_TEN_PLUS)
 private val totalFloorsOptions = (1..20).map { it.toString() } + listOf(AddStrings.FLOORS_TWENTY_PLUS)
@@ -446,4 +449,25 @@ private fun BedroomType?.toBedroomCount(): Int = when (this) {
     BedroomType.SIX_BHK -> 6
     BedroomType.SIX_PLUS_BHK -> 7
     null -> 0
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddPropertyStep2ScreenPreview() {
+    RealeTheme {
+        AddPropertyStep2Screen(
+            form = PreviewData.samplePropertyForm,
+            onBedroomCountChanged = {},
+            onBathroomsChanged = {},
+            onFurnishingChanged = {},
+            onAgeChanged = {},
+            onFloorNoChanged = {},
+            onTotalFloorsChanged = {},
+            onFacingChanged = {},
+            onAmenitiesChanged = {},
+            onBuiltUpAreaChanged = {},
+            onPlotAreaChanged = {},
+            onVideoChanged = {}
+        )
+    }
 }

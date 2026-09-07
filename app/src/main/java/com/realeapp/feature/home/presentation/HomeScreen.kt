@@ -22,9 +22,12 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
+import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun HomeScreen(
@@ -36,6 +39,28 @@ fun HomeScreen(
     viewModel: SearchViewModel = koinViewModel()
 ) {
     val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
+
+    HomeContent(
+        featuredProperties = featuredProperties,
+        onSearchClick = onSearchClick,
+        onSavedClick = onSavedClick,
+        onAddClick = onAddClick,
+        onProfileClick = onProfileClick,
+        onLike = { property -> viewModel.onLikeClicked(property.documentId ?: property.id) },
+        modifier = modifier
+    )
+}
+
+@Composable
+internal fun HomeContent(
+    featuredProperties: List<Property>,
+    onSearchClick: () -> Unit,
+    onSavedClick: () -> Unit = {},
+    onAddClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onLike: (Property) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     val featuredList = remember(featuredProperties) {
         featuredProperties.map(Property::toFeaturedProperty)
     }
@@ -86,7 +111,7 @@ fun HomeScreen(
                 PropertyDetailScreen(
                     property = property,
                     onClose = { selectedProperty = null },
-                    onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
+                    onLike = { onLike(property) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -117,4 +142,15 @@ private fun BedroomType?.toBedroomCount(): Int = when (this) {
     BedroomType.SIX_PLUS_BHK -> 6
     BedroomType.STUDIO_APARTMENT,
     null -> 0
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HomeContentPreview() {
+    RealeTheme {
+        HomeContent(
+            featuredProperties = PreviewData.sampleProperties,
+            onSearchClick = {}
+        )
+    }
 }

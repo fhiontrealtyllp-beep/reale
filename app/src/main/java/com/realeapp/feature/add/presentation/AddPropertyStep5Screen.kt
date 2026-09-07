@@ -49,6 +49,9 @@ import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -331,4 +334,18 @@ private fun locationText(form: PropertyForm): String {
 private fun photosText(form: PropertyForm): String {
     val photos = "${form.images.size}${AddStrings.PHOTOS_SUFFIX}"
     return if (form.videoUrl.isNotBlank()) photos + AddStrings.VIDEO_SUFFIX else photos
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddPropertyStep5ScreenPreview() {
+    RealeTheme {
+        AddPropertyStep5Screen(
+            form = PreviewData.samplePropertyForm,
+            onSubmit = {},
+            onBack = {},
+            onEdit = {},
+            isSubmitting = false
+        )
+    }
 }

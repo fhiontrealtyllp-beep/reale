@@ -39,6 +39,9 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -244,4 +247,20 @@ private fun formatIndianAmount(value: Double): String {
 
 private fun formatPossessionDate(millis: Long): String {
     return SimpleDateFormat(AddStrings.DATE_FORMAT_POSSESSION, Locale.getDefault()).format(Date(millis))
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddPropertyStep4ScreenPreview() {
+    RealeTheme {
+        AddPropertyStep4Screen(
+            form = PreviewData.samplePropertyForm,
+            onPriceChanged = {},
+            onPriceModeChanged = {},
+            onNegotiableChanged = {},
+            onAdditionalCostsChanged = {},
+            onPropertyStatusChanged = {},
+            onPossessionDateChanged = {}
+        )
+    }
 }

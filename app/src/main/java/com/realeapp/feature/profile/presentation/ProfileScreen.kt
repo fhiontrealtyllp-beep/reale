@@ -113,8 +113,11 @@ import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.util.Logger
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ProfileScreen(
@@ -1151,5 +1154,36 @@ private fun launchEmail(context: Context) {
         context.startActivity(Intent.createChooser(intent, ProfileStrings.EMAIL_CHOOSER_TITLE))
     } else {
         Toast.makeText(context, ProfileStrings.ERROR_NO_EMAIL_APP, Toast.LENGTH_SHORT).show()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileContentPreview() {
+    RealeTheme {
+        ProfileContent(
+            user = PreviewData.sampleUser,
+            isImageUploading = false,
+            onPickImage = {},
+            onListPropertyClick = {},
+            onMyListingsClick = {},
+            onMyEnquiriesClick = {},
+            onPersonalInfoClick = {},
+            onNotificationsClick = {},
+            onSettingsClick = {},
+            onHelpSupportClick = {},
+            onLogoutClick = {},
+            onUpdateField = { _, _ -> },
+            themeMode = ThemeMode.SYSTEM,
+            onThemeModeSelected = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileLoginPromptPreview() {
+    RealeTheme {
+        ProfileLoginPrompt(onLoginClick = {})
     }
 }

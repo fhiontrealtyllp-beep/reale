@@ -50,6 +50,9 @@ import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 // Property types shown in the design's four-card row.
 private val STEP1_PROPERTY_TYPES = listOf(
@@ -385,5 +388,23 @@ private fun propertyTypeIcon(propertyType: PropertyType): ImageVector {
         PropertyType.LAND -> Icons.Outlined.Landscape
         PropertyType.INDEPENDENT_HOUSE -> Icons.Outlined.House
         else -> Icons.Outlined.Apartment
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddPropertyStep1ScreenPreview() {
+    RealeTheme {
+        AddPropertyStep1Screen(
+            form = PreviewData.samplePropertyForm,
+            onRentBuyChanged = {},
+            onPropertyTypeChanged = {},
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onCityChanged = {},
+            onLocalityChanged = {},
+            onAddressChanged = {},
+            onUseMyLocation = {}
+        )
     }
 }

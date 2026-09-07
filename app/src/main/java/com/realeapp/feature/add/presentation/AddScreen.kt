@@ -90,9 +90,12 @@ import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
@@ -1009,5 +1012,31 @@ private fun AddFormTopBar(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MyPropertiesContentPreview() {
+    RealeTheme {
+        MyPropertiesContent(
+            properties = PreviewData.sampleProperties,
+            isLoading = false,
+            errorMessage = null,
+            onRefresh = {},
+            onPropertyClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PropertySuccessScreenPreview() {
+    RealeTheme {
+        PropertySuccessScreen(
+            property = PreviewData.sampleProperty,
+            onViewListing = {},
+            onAddAnother = {}
+        )
     }
 }

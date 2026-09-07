@@ -99,7 +99,10 @@ import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -853,5 +856,36 @@ private fun ErrorContent(
         ) {
             Text(text = SearchStrings.RETRY)
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Search Landing")
+@Composable
+private fun SearchLandingContentPreview() {
+    RealeTheme {
+        SearchLandingContent(
+            onOpenFilter = {},
+            onSearch = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Search Results")
+@Composable
+private fun SearchResultsContentPreview() {
+    RealeTheme {
+        SearchResultsContent(
+            uiState = SearchUiState(
+                properties = PreviewData.sampleProperties,
+                isLoading = false,
+                hasReachedEnd = true
+            ),
+            onBack = {},
+            onOpenFilter = {},
+            onRefresh = {},
+            onLoadMore = {},
+            onLike = {},
+            onPropertyClick = {}
+        )
     }
 }

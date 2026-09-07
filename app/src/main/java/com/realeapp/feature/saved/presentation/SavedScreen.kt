@@ -93,7 +93,10 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -357,6 +360,42 @@ private fun SavedPropertyList(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Saved Properties List")
+@Composable
+private fun SavedPropertyListPreview() {
+    RealeTheme {
+        SavedPropertyList(
+            properties = PreviewData.sampleProperties,
+            isLoading = false,
+            searchQuery = "",
+            onSearchChange = {},
+            selectedFilter = SavedFilter.ALL,
+            onFilterSelected = {},
+            onRefresh = {},
+            onPropertyClick = {},
+            onLike = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Saved Properties Empty")
+@Composable
+private fun SavedPropertyListEmptyPreview() {
+    RealeTheme {
+        SavedPropertyList(
+            properties = emptyList(),
+            isLoading = false,
+            searchQuery = "",
+            onSearchChange = {},
+            selectedFilter = SavedFilter.ALL,
+            onFilterSelected = {},
+            onRefresh = {},
+            onPropertyClick = {},
+            onLike = {}
+        )
     }
 }
 

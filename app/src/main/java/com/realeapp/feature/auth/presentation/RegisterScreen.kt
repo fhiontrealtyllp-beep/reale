@@ -58,10 +58,13 @@ import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.RealeTheme
+import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.components.VerticalSpacer8
 import com.realeapp.ui.components.VerticalSpacer16
 import com.realeapp.ui.components.VerticalSpacer24
 import com.realeapp.ui.components.VerticalSpacer32
+import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +83,34 @@ fun RegisterScreen(
         }
     }
 
+    RegisterContent(
+        uiState = uiState,
+        onNameChanged = viewModel::onNameChanged,
+        onEmailChanged = viewModel::onEmailChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
+        onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
+        onRegisterClick = viewModel::register,
+        onLoginClick = onLoginClick,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun RegisterContent(
+    uiState: RegisterUiState,
+    onNameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onConfirmPasswordChanged: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -140,7 +171,7 @@ fun RegisterScreen(
                 // User name UI.
                 OutlinedTextField(
                     value = uiState.name,
-                    onValueChange = viewModel::onNameChanged,
+                    onValueChange = onNameChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Name") },
                     singleLine = true,
@@ -156,7 +187,7 @@ fun RegisterScreen(
                 // Account credentials UI: email, password, and password confirmation.
                 OutlinedTextField(
                     value = uiState.email,
-                    onValueChange = viewModel::onEmailChanged,
+                    onValueChange = onEmailChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email") },
                     singleLine = true,
@@ -171,7 +202,7 @@ fun RegisterScreen(
 
                 OutlinedTextField(
                     value = uiState.password,
-                    onValueChange = viewModel::onPasswordChanged,
+                    onValueChange = onPasswordChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
                     singleLine = true,
@@ -181,7 +212,7 @@ fun RegisterScreen(
                         imeAction = ImeAction.Next
                     ),
                     trailingIcon = {
-                        IconButton(onClick = viewModel::onTogglePasswordVisibility) {
+                        IconButton(onClick = onTogglePasswordVisibility) {
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
@@ -196,7 +227,7 @@ fun RegisterScreen(
 
                 OutlinedTextField(
                     value = uiState.confirmPassword,
-                    onValueChange = viewModel::onConfirmPasswordChanged,
+                    onValueChange = onConfirmPasswordChanged,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Confirm Password") },
                     singleLine = true,
@@ -206,7 +237,7 @@ fun RegisterScreen(
                         imeAction = ImeAction.Done
                     ),
                     trailingIcon = {
-                        IconButton(onClick = viewModel::onTogglePasswordVisibility) {
+                        IconButton(onClick = onTogglePasswordVisibility) {
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
@@ -231,7 +262,7 @@ fun RegisterScreen(
 
                 // Primary registration action; progress replaces its label while submitting.
                 TextButton(
-                    onClick = viewModel::register,
+                    onClick = onRegisterClick,
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -296,3 +327,26 @@ private fun fieldColors() = OutlinedTextFieldDefaults.colors(
     focusedLabelColor = Accent,
     unfocusedLabelColor = TextSecondary
 )
+
+@Preview(showBackground = true)
+@Composable
+private fun RegisterContentPreview() {
+    RealeTheme {
+        RegisterContent(
+            uiState = RegisterUiState(
+                name = "John Doe",
+                email = "john.doe@example.com",
+                password = "password123",
+                confirmPassword = "password123"
+            ),
+            onNameChanged = {},
+            onEmailChanged = {},
+            onPasswordChanged = {},
+            onConfirmPasswordChanged = {},
+            onTogglePasswordVisibility = {},
+            onRegisterClick = {},
+            onLoginClick = {},
+            onBack = {}
+        )
+    }
+}

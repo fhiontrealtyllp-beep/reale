@@ -46,6 +46,9 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.RealeTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 private val photoSuggestions = AddStrings.PHOTO_SUGGESTIONS
 
@@ -352,5 +355,19 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodySmall
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddPropertyStep3ScreenPreview() {
+    RealeTheme {
+        AddPropertyStep3Screen(
+            images = PreviewData.samplePropertyForm.images,
+            isUploadingImage = false,
+            imageUploadError = null,
+            onUploadImages = {},
+            onRemoveImage = {}
+        )
     }
 }
