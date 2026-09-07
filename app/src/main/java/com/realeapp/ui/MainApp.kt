@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.AddScreen
+import com.realeapp.feature.auth.presentation.EnterNumberScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
 import com.realeapp.feature.auth.presentation.RegisterScreen
+import com.realeapp.feature.auth.presentation.VerifyNumberScreen
 import com.realeapp.feature.auth.presentation.WelcomeScreen
 import com.realeapp.feature.city.presentation.CityScreen
 import com.realeapp.feature.profile.presentation.MyListingsScreen
@@ -48,6 +50,8 @@ private const val TAG = "MainApp"
 private enum class AuthScreen {
     Main,
     Welcome,
+    EnterNumber,
+    VerifyNumber,
     Login,
     Register
 }
@@ -57,6 +61,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
+    var pendingPhone by rememberSaveable { mutableStateOf("") }
     val showOnboarding by mainViewModel.showOnboarding.collectAsStateWithLifecycle()
 
     val darkTheme = when (themeMode) {
@@ -99,8 +104,48 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                             // falls back to the credential login screen for now.
                             authScreen = AuthScreen.Login
                         },
-                        onMobileClick = { authScreen = AuthScreen.Login },
-                        onGuestClick = { authScreen = AuthScreen.Main }
+                        onMobileClick = { authScreen = AuthScreen.EnterNumber },
+                        onGuestClick = {
+                            mainViewModel.selectTab(AppScreen.Home)
+                            authScreen = AuthScreen.Main
+                        }
+                    )
+                }
+
+                // Phone-number entry UI reached from the welcome screen.
+                AuthScreen.EnterNumber -> {
+                    BackHandler { authScreen = AuthScreen.Welcome }
+                    EnterNumberScreen(
+                        onBack = { authScreen = AuthScreen.Welcome },
+                        onSendOtp = { phone ->
+                            // TODO: send the OTP via Appwrite phone auth.
+                            pendingPhone = phone
+                            authScreen = AuthScreen.VerifyNumber
+                        },
+                        onGoogleClick = {
+                            // TODO: implement Google sign-in via Appwrite OAuth;
+                            // falls back to the credential login screen for now.
+                            authScreen = AuthScreen.Login
+                        }
+                    )
+                }
+
+                // OTP verification + profile capture after Send OTP.
+                AuthScreen.VerifyNumber -> {
+                    BackHandler { authScreen = AuthScreen.EnterNumber }
+                    VerifyNumberScreen(
+                        phoneNumber = pendingPhone,
+                        onBack = { authScreen = AuthScreen.EnterNumber },
+                        onEditNumber = { authScreen = AuthScreen.EnterNumber },
+                        onResendOtp = {
+                            // TODO: resend the OTP via Appwrite phone auth.
+                        },
+                        onContinue = { _, _ ->
+                            // TODO: verify the OTP and save the profile via
+                            // Appwrite, then mark the session logged in.
+                            mainViewModel.selectTab(AppScreen.Home)
+                            authScreen = AuthScreen.Main
+                        }
                     )
                 }
 

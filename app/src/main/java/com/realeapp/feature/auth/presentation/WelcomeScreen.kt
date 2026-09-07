@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import com.realeapp.AppStrings
 import com.realeapp.R
 import com.realeapp.ui.theme.AppBackground
@@ -105,20 +106,7 @@ fun WelcomeScreen(
         ) {
             WelcomeIllustration()
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = AppStrings.APP_NAME_FIRST,
-                    color = BrandBlue,
-                    fontSize = AuthDims.LOGO_FONT_SIZE,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                Text(
-                    text = AppStrings.APP_NAME_ACCENT,
-                    color = BrandCoral,
-                    fontSize = AuthDims.LOGO_FONT_SIZE,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
+            AuthBrandLogo(fontSize = AuthDims.LOGO_FONT_SIZE)
 
             Text(
                 text = AuthStrings.WELCOME_TITLE_PREFIX + AppStrings.APP_NAME,
@@ -287,7 +275,25 @@ private fun WelcomeOption(
 }
 
 @Composable
-private fun TermsText() {
+internal fun AuthBrandLogo(fontSize: TextUnit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = AppStrings.APP_NAME_FIRST,
+            color = BrandBlue,
+            fontSize = fontSize,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Text(
+            text = AppStrings.APP_NAME_ACCENT,
+            color = BrandCoral,
+            fontSize = fontSize,
+            fontWeight = FontWeight.ExtraBold
+        )
+    }
+}
+
+@Composable
+internal fun TermsText() {
     val termsText = buildAnnotatedString {
         append(AuthStrings.TERMS_PREFIX)
         withStyle(SpanStyle(color = BrandBlue)) {
