@@ -30,6 +30,11 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCStDlTgxYLbreGcAs9k6Id5QEFtPnEV3U" />
 
+        <!-- Firebase App Check debug token for testing phone auth OTP in debug builds. -->
+        <meta-data
+            android:name="com.google.firebase.appcheck.debug.FAC_DEBUG_TOKEN"
+            android:value="AVweKohloYxrFDpFGxEN6TQGfOoHzCQhtjjuUVnI2VIYC0PWS5RPiFdsSnPRHN1EX6gHW9uCM532Qh9cN4PEXBQ1nHBYhm7kWrv869QlTf3wlgXmetLi7NgQGLiWilpeWVbhtBbEQdRqQjn0ut3tN2dJaA" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.realeapp.fileprovider"

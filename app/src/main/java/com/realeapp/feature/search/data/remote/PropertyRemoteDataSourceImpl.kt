@@ -1,21 +1,26 @@
 package com.realeapp.feature.search.data.remote
 
+import com.realeapp.core.firebase.FirebaseConstants
+import com.realeapp.core.firebase.FirebaseProvider
 import com.realeapp.feature.search.data.mapper.PropertyMapper
 import com.realeapp.feature.search.data.session.UserSession
+import com.realeapp.feature.search.domain.model.ListingCategory
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
-import io.appwrite.ID
-import io.appwrite.Query
-import io.appwrite.exceptions.AppwriteException
+import kotlinx.coroutines.tasks.await
+
+private const val TAG = "PropertyRemoteDataSource"
+private const val BATCH_LIMIT = 1000L
 
 class PropertyRemoteDataSourceImpl(
     private val userSession: UserSession,
-    private val appWriteProvider: AppWriteProvider
+    private val firebaseProvider: FirebaseProvider
 ) : PropertyRemoteDataSource {
 
-    private val databases = appWriteProvider.databases
+    private val firestore = firebaseProvider.firestore
+    private val properties = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
 
     override suspend fun getAllProperties(
         filter: PropertyFilter?,
@@ -24,76 +29,67 @@ class PropertyRemoteDataSourceImpl(
     ): Result<List<Property>> {
         Logger.d(TAG, "getAllProperties: start page=$page, limit=$limit, filter=$filter")
         return try {
-            val queries = PropertyQueryBuilder.build(filter, page, limit)
-            Logger.d(TAG, "getAllProperties: queries=$queries")
+            val snapshot = properties
+                .whereEqualTo("status", "live")
+                .limit(BATCH_LIMIT)
+                .get()
+                .await()
 
-            val response = databases.listDocuments(
-                databaseId = AppWriteConstants.DATABASE_ID,
-                collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
-                queries = queries
-            )
-
-            val documents = response.documents
-            Logger.d(TAG, "getAllProperties: received=${documents.size}, total=${response.total}")
-            val properties = documents.map { doc ->
-                @Suppress("UNCHECKED_CAST")
-                val data = doc.data as? Map<String, Any?> ?: emptyMap()
-                Logger.d(
-                    TAG,
-                    "getAllProperties: documentId=${doc.id}, title=${data[FIELD_TITLE]}, rawListingCategory=${data[FIELD_LISTING_CATEGORY]}"
-                )
+            val all = snapshot.documents.map { doc ->
+                val data = doc.data ?: emptyMap()
                 PropertyMapper.fromMap(data, doc.id)
+            }.sortedByDescending { it.createdAt }
+
+            val filtered = all.filter { PropertyQueryBuilder.isClientSideMatch(it, filter) }
+
+            val start = page * limit
+            if (start >= filtered.size) {
+                return Result.Success(emptyList())
             }
-            Logger.d(TAG, "getAllProperties: mappedCategories=${properties.groupingBy { it.listingCategory }.eachCount()}")
+            val end = (start + limit).coerceAtMost(filtered.size)
+            val properties = filtered.subList(start, end)
+
+            Logger.d(TAG, "getAllProperties: received=${all.size}, matched=${filtered.size}, pageSize=${properties.size}")
 
             val userId = userSession.getUserId()
-            if (userId.isNullOrEmpty()) {
-                Logger.d(TAG, "getAllProperties: returning without like merge; user not logged in")
-                Result.Success(properties)
-            } else {
-                Logger.d(TAG, "getAllProperties: merging likes for userId=$userId")
-                Result.Success(mergeLikes(properties, userId))
-            }
-        } catch (e: AppwriteException) {
-            Logger.e(TAG, "getAllProperties: AppwriteException code=${e.code}, message=${e.message}", e)
-            Result.Error(e.message ?: "Appwrite error")
+            Result.Success(if (userId.isNullOrEmpty()) properties else mergeLikes(properties, userId))
         } catch (e: Exception) {
-            Logger.e(TAG, "getAllProperties: unexpected error=${e.message}", e)
+            Logger.e(TAG, "getAllProperties: error=${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
 
     override suspend fun getFeaturedProperties(limit: Int): Result<List<Property>> {
-        Logger.d(TAG, "getFeaturedProperties: start limit=$limit")
+        return getByCategory(ListingCategory.FEATURED, limit)
+    }
+
+    override suspend fun getPromotionalProperties(limit: Int): Result<List<Property>> {
+        return getByCategory(ListingCategory.PROMOTIONAL, limit)
+    }
+
+    private suspend fun getByCategory(category: ListingCategory, limit: Int): Result<List<Property>> {
+        Logger.d(TAG, "getByCategory: start category=$category, limit=$limit")
         return try {
-            val queries = listOf(
-                Query.equal(FIELD_STATUS, listOf(STATUS_LIVE)),
-                Query.equal(FIELD_LISTING_CATEGORY, FEATURED_CATEGORY_VALUES),
-                Query.limit(limit)
-            )
-            Logger.d(TAG, "getFeaturedProperties: queries=$queries")
-            val response = databases.listDocuments(
-                databaseId = AppWriteConstants.DATABASE_ID,
-                collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
-                queries = queries
-            )
-            val properties = response.documents.map { document ->
-                @Suppress("UNCHECKED_CAST")
-                val data = document.data as? Map<String, Any?> ?: emptyMap()
-                Logger.d(
-                    TAG,
-                    "getFeaturedProperties: documentId=${document.id}, title=${data[FIELD_TITLE]}, rawListingCategory=${data[FIELD_LISTING_CATEGORY]}"
-                )
-                PropertyMapper.fromMap(data, document.id)
-            }
-            Logger.d(TAG, "getFeaturedProperties: received=${properties.size}, total=${response.total}")
+            val snapshot = properties
+                .whereEqualTo("status", "live")
+                .limit(BATCH_LIMIT)
+                .get()
+                .await()
+
+            val all = snapshot.documents.map { doc ->
+                val data = doc.data ?: emptyMap()
+                PropertyMapper.fromMap(data, doc.id)
+            }.sortedByDescending { it.createdAt }
+
+            val filtered = all
+                .filter { it.listingCategory == category }
+                .take(limit)
+
+            Logger.d(TAG, "getByCategory: category=$category received=${all.size}, filtered=${filtered.size}")
             val userId = userSession.getUserId()
-            Result.Success(if (userId.isNullOrEmpty()) properties else mergeLikes(properties, userId))
-        } catch (e: AppwriteException) {
-            Logger.e(TAG, "getFeaturedProperties: AppwriteException code=${e.code}, message=${e.message}", e)
-            Result.Error(e.message ?: "Appwrite error")
+            Result.Success(if (userId.isNullOrEmpty()) filtered else mergeLikes(filtered, userId))
         } catch (e: Exception) {
-            Logger.e(TAG, "getFeaturedProperties: unexpected error=${e.message}", e)
+            Logger.e(TAG, "getByCategory: category=$category error=${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
@@ -108,51 +104,32 @@ class PropertyRemoteDataSourceImpl(
             Logger.w("PropertyRemoteDataSource", "updateLikeStatus: user not logged in")
             return Result.Error("User not logged in")
         }
-        Logger.d("PropertyRemoteDataSource", "updateLikeStatus: userId=$userId")
 
         return try {
             if (isLiked) {
-                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: creating like document")
-                databases.createDocument(
-                    databaseId = AppWriteConstants.DATABASE_ID,
-                    collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
-                    documentId = ID.unique(),
-                    data = mapOf(
-                        "userId" to userId,
-                        "propertyId" to propertyId
-                    )
-                )
-                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: like document created")
+                firestore.collection(FirebaseConstants.LIKES_COLLECTION)
+                    .add(mapOf("userId" to userId, "propertyId" to propertyId))
+                    .await()
             } else {
-                Logger.d("PropertyRemoteDataSource", "updateLikeStatus: querying like document to delete")
-                val response = databases.listDocuments(
-                    databaseId = AppWriteConstants.DATABASE_ID,
-                    collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
-                    queries = listOf(
-                        Query.equal("userId", listOf(userId)),
-                        Query.equal("propertyId", listOf(propertyId))
-                    )
-                )
-                val docId = response.documents.firstOrNull()?.id
-                if (docId != null) {
-                    Logger.d("PropertyRemoteDataSource", "updateLikeStatus: deleting like document docId=$docId")
-                    databases.deleteDocument(
-                        databaseId = AppWriteConstants.DATABASE_ID,
-                        collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
-                        documentId = docId
-                    )
-                    Logger.d("PropertyRemoteDataSource", "updateLikeStatus: like document deleted")
+                val existing = firestore.collection(FirebaseConstants.LIKES_COLLECTION)
+                    .whereEqualTo("userId", userId)
+                    .whereEqualTo("propertyId", propertyId)
+                    .limit(1)
+                    .get()
+                    .await()
+                    .documents
+                    .firstOrNull()
+
+                if (existing != null) {
+                    existing.reference.delete().await()
                 } else {
                     Logger.w("PropertyRemoteDataSource", "updateLikeStatus: no like found to remove")
                     return Result.Error("No like found to remove")
                 }
             }
             Result.Success(Unit)
-        } catch (e: AppwriteException) {
-            Logger.e("PropertyRemoteDataSource", "updateLikeStatus: AppwriteException ${e.message}", e)
-            Result.Error(e.message ?: "Appwrite error")
         } catch (e: Exception) {
-            Logger.e("PropertyRemoteDataSource", "updateLikeStatus: unexpected error ${e.message}", e)
+            Logger.e("PropertyRemoteDataSource", "updateLikeStatus: error ${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
@@ -162,30 +139,18 @@ class PropertyRemoteDataSourceImpl(
         userId: String
     ): List<Property> {
         return try {
-            val likedResponse = databases.listDocuments(
-                databaseId = AppWriteConstants.DATABASE_ID,
-                collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
-                queries = listOf(
-                    Query.equal("userId", listOf(userId)),
-                    Query.limit(100)
-                )
-            )
-            val likedIds = likedResponse.documents
-                .mapNotNull { it.data["propertyId"] as? String }
+            val likedSnapshot = firestore.collection(FirebaseConstants.LIKES_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            val likedIds = likedSnapshot.documents
+                .mapNotNull { it.getString("propertyId") }
                 .toSet()
+
             properties.map { it.copy(isLiked = likedIds.contains(it.documentId ?: it.id)) }
         } catch (e: Exception) {
             properties
         }
     }
-
-    private companion object {
-        const val TAG = "PropertyRemoteDataSource"
-        const val FIELD_TITLE = "title"
-        const val FIELD_STATUS = "status"
-        const val FIELD_LISTING_CATEGORY = "listingCategory"
-        const val STATUS_LIVE = "live"
-        val FEATURED_CATEGORY_VALUES = listOf("featured", "FEATURED", "Featured")
-    }
-
 }

@@ -1,65 +1,50 @@
 package com.realeapp.feature.saved.data.remote
 
+import com.realeapp.core.firebase.FirebaseConstants
+import com.realeapp.core.firebase.FirebaseProvider
 import com.realeapp.feature.search.data.mapper.PropertyMapper
-import com.realeapp.feature.search.data.remote.AppWriteConstants
-import com.realeapp.feature.search.data.remote.AppWriteProvider
-import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.utils.Result
-import io.appwrite.Query
-import io.appwrite.exceptions.AppwriteException
+import kotlinx.coroutines.tasks.await
 
 class SavedRemoteDataSourceImpl(
-    private val userSession: UserSession,
-    private val appWriteProvider: AppWriteProvider
+    private val firebaseProvider: FirebaseProvider
 ) : SavedRemoteDataSource {
 
-    private val databases = appWriteProvider.databases
+    private val firestore = firebaseProvider.firestore
+    private val likes = firestore.collection(FirebaseConstants.LIKES_COLLECTION)
+    private val properties = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
 
     override suspend fun getLikedProperties(userId: String): Result<List<Property>> {
         return try {
-            val likesResponse = databases.listDocuments(
-                databaseId = AppWriteConstants.DATABASE_ID,
-                collectionId = AppWriteConstants.LIKES_COLLECTION_ID,
-                queries = listOf(Query.equal("userId", listOf(userId)))
-            )
+            val likesSnapshot = likes
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
 
-            val likedIds = likesResponse.documents.mapNotNull {
-                it.data["propertyId"] as? String
-            }
+            val likedIds = likesSnapshot.documents.mapNotNull { it.getString("propertyId") }.distinct()
 
             if (likedIds.isEmpty()) {
                 return Result.Success(emptyList())
             }
 
-            var propertiesResponse = databases.listDocuments(
-                databaseId = AppWriteConstants.DATABASE_ID,
-                collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
-                queries = listOf(Query.equal("\$id", likedIds))
-            )
+            val propertyChunks = likedIds.chunked(10)
+            val allProperties = mutableListOf<Property>()
 
-            if (propertiesResponse.documents.isEmpty()) {
-                propertiesResponse = databases.listDocuments(
-                    databaseId = AppWriteConstants.DATABASE_ID,
-                    collectionId = AppWriteConstants.PROPERTY_COLLECTION_ID,
-                    queries = listOf(Query.equal("id", likedIds))
-                )
+            propertyChunks.forEach { chunk ->
+                val snapshot = properties
+                    .whereIn("id", chunk)
+                    .get()
+                    .await()
+
+                val chunkProperties = snapshot.documents.map { doc ->
+                    val data = doc.data ?: emptyMap()
+                    PropertyMapper.fromMap(data, doc.id)
+                }
+                allProperties.addAll(chunkProperties)
             }
 
-            val properties = propertiesResponse.documents.map { doc ->
-                @Suppress("UNCHECKED_CAST")
-                val data = doc.data as? Map<String, Any?> ?: emptyMap()
-                PropertyMapper.fromMap(data, doc.id)
-            }
-
-            val currentUserId = userSession.getUserId()
-            if (currentUserId == userId) {
-                Result.Success(properties.map { it.copy(isLiked = true) })
-            } else {
-                Result.Success(properties)
-            }
-        } catch (e: AppwriteException) {
-            Result.Error(e.message ?: "Appwrite error")
+            Result.Success(allProperties.map { it.copy(isLiked = true) })
         } catch (e: Exception) {
             Result.Error("Unexpected error: ${e.message}")
         }

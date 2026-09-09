@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +47,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +70,7 @@ import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.IsDarkAppTheme
@@ -76,6 +80,7 @@ import com.realeapp.ui.theme.OnLightArtwork
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.TextHint
 import com.realeapp.ui.theme.White
+import com.realeapp.util.findActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -91,22 +96,59 @@ private const val SECONDS_PER_MINUTE = 60
 /**
  * OTP verification + profile-capture screen reached after Send OTP.
  *
- * @param phoneNumber The digits entered on the previous screen, shown with the
- * country code so the user can confirm or edit.
+ * @param viewModel ViewModel that verifies the OTP and owns the request state.
  * @param onBack Called when the user taps the back arrow.
  * @param onEditNumber Called when the user taps Edit next to the phone number.
- * @param onResendOtp Called when the resend timer elapses and the user taps resend.
- * @param onContinue Called with (fullName, dob) when the user taps Continue.
+ * @param onContinueSuccess Called after the profile is saved and the app should
+ *        navigate to the main screen.
  * @param modifier Optional modifier for the root container.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerifyNumberScreen(
+    viewModel: PhoneAuthViewModel,
+    onBack: () -> Unit,
+    onEditNumber: () -> Unit,
+    onContinueSuccess: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            if (effect == PhoneAuthEffect.NavigateToMain) {
+                onContinueSuccess()
+            }
+        }
+    }
+
+    VerifyNumberContent(
+        phoneNumber = uiState.pendingPhone,
+        uiState = uiState,
+        onBack = onBack,
+        onEditNumber = onEditNumber,
+        onResendOtp = { viewModel.resendOtp(activity) },
+        onContinue = { otp, fullName, dob ->
+            viewModel.verifyOtpAndSaveProfile(otp, fullName, dob)
+        },
+        modifier = modifier
+    )
+}
+
+/**
+ * Stateless OTP verification + profile-capture content.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun VerifyNumberContent(
     phoneNumber: String,
+    uiState: PhoneAuthUiState,
     onBack: () -> Unit,
     onEditNumber: () -> Unit,
     onResendOtp: () -> Unit,
-    onContinue: (String, String) -> Unit,
+    onContinue: (String, String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var otp by rememberSaveable { mutableStateOf("") }
@@ -361,21 +403,44 @@ fun VerifyNumberScreen(
             Spacer(modifier = Modifier.height(AuthDims.SPACE_24))
 
             Button(
-                onClick = { onContinue(fullName, dob) },
+                onClick = { onContinue(otp, fullName, dob) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(AuthDims.SEND_OTP_HEIGHT),
                 shape = RoundedCornerShape(AuthDims.SEND_OTP_CORNER_RADIUS),
+                enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandCoral,
-                    contentColor = OnBrandContent
+                    contentColor = OnBrandContent,
+                    disabledContainerColor = BrandCoral.copy(alpha = AuthDims.BUTTON_DISABLED_ALPHA)
                 )
             ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        color = OnBrandContent,
+                        modifier = Modifier.height(AuthDims.SEND_OTP_PROGRESS_SIZE)
+                    )
+                } else {
+                    Text(
+                        text = AuthStrings.BUTTON_CONTINUE,
+                        fontSize = AuthDims.SEND_OTP_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            if (uiState.errorMessage != null) {
+                Spacer(modifier = Modifier.height(AuthDims.SPACE_12))
+
                 Text(
-                    text = AuthStrings.BUTTON_CONTINUE,
-                    fontSize = AuthDims.SEND_OTP_FONT_SIZE,
-                    fontWeight = FontWeight.Bold
+                    text = uiState.errorMessage.orEmpty(),
+                    color = Error,
+                    fontSize = AuthDims.ENTER_SUBTITLE_FONT_SIZE,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(AuthDims.SPACE_4))
             }
 
             Spacer(modifier = Modifier.height(AuthDims.SPACE_16))
@@ -550,14 +615,15 @@ private fun formatDob(millis: Long): String =
 
 @Preview(showBackground = true)
 @Composable
-private fun VerifyNumberScreenPreview() {
+private fun VerifyNumberContentPreview() {
     RealeTheme {
-        VerifyNumberScreen(
+        VerifyNumberContent(
             phoneNumber = "9876543210",
+            uiState = PhoneAuthUiState(),
             onBack = {},
             onEditNumber = {},
             onResendOtp = {},
-            onContinue = { _, _ -> }
+            onContinue = { _, _, _ -> }
         )
     }
 }

@@ -53,6 +53,19 @@ internal object AuthStrings {
     const val BUTTON_CANCEL = "Cancel"
     const val INFO_SECURE = "Your information is safe and secure with us."
 
+    const val ERROR_INVALID_PHONE = "Please enter a valid 10-digit mobile number"
+    const val ERROR_INVALID_OTP = "Please enter the 6-digit OTP"
+    const val ERROR_NAME_REQUIRED = "Full name is required to continue"
+    const val ERROR_SESSION_EXPIRED = "Session expired. Please request a new OTP"
+    const val ERROR_OTP_ACTIVITY_NOT_FOUND = "Could not start verification. Please try again."
+    const val ERROR_OTP_SEND_FAILED = "Failed to send OTP. Please try again."
+    const val ERROR_OTP_VERIFY_FAILED = "Failed to verify OTP. Please try again."
+    const val ERROR_OTP_INVALID_CODE = "Invalid OTP. Please try again."
+    const val ERROR_GOOGLE_SIGN_IN_FAILED = "Google sign-in failed. Please try again."
+    const val ERROR_GOOGLE_NO_ACCOUNT = "No Google account found. Please add one to your device."
+    const val ERROR_LOGIN_FAILED = "Login failed. Please check your credentials and try again."
+    const val ERROR_REGISTRATION_FAILED = "Registration failed. Please try again."
+
     const val CD_WELCOME_ILLUSTRATION = "House illustration"
     const val CD_GOOGLE_LOGO = "Google logo"
     const val CD_OPTION_ARROW = "Continue"
@@ -113,6 +126,8 @@ internal object AuthDims {
     val SEND_OTP_HEIGHT = 52.dp
     val SEND_OTP_CORNER_RADIUS = 14.dp
     val SEND_OTP_FONT_SIZE = 16.sp
+    val SEND_OTP_PROGRESS_SIZE = 24.dp
+    val BUTTON_DISABLED_ALPHA = 0.5f
 
     val BADGE_CIRCLE_SIZE = 56.dp
     val BADGE_ICON_SIZE = 22.dp

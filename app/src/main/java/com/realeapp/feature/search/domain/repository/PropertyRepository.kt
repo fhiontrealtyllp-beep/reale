@@ -7,5 +7,6 @@ import com.realeapp.feature.search.domain.utils.Result
 interface PropertyRepository {
     suspend fun getAllProperties(filter: PropertyFilter?, page: Int, limit: Int): Result<List<Property>>
     suspend fun getFeaturedProperties(limit: Int): Result<List<Property>>
+    suspend fun getPromotionalProperties(limit: Int): Result<List<Property>>
     suspend fun updateLikeStatus(propertyId: String, isLiked: Boolean): Result<Unit>
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.preview.PreviewData
@@ -39,13 +40,18 @@ fun HomeScreen(
     viewModel: SearchViewModel = koinViewModel()
 ) {
     val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
+    val promotionalProperty by viewModel.promotionalProperty.collectAsStateWithLifecycle()
+    val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
 
     HomeContent(
         featuredProperties = featuredProperties,
+        promotionalProperty = promotionalProperty,
+        selectedCategory = selectedCategory,
         onSearchClick = onSearchClick,
         onSavedClick = onSavedClick,
         onAddClick = onAddClick,
         onProfileClick = onProfileClick,
+        onCategorySelected = viewModel::onCategorySelected,
         onLike = { property -> viewModel.onLikeClicked(property.documentId ?: property.id) },
         modifier = modifier
     )
@@ -54,10 +60,13 @@ fun HomeScreen(
 @Composable
 internal fun HomeContent(
     featuredProperties: List<Property>,
+    promotionalProperty: Property?,
+    selectedCategory: HomeCategory,
     onSearchClick: () -> Unit,
     onSavedClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onCategorySelected: (HomeCategory) -> Unit = {},
     onLike: (Property) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -83,7 +92,13 @@ internal fun HomeContent(
             item { HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
             item { HomeTitle(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
             item { HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
-            item { CategoryChips(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
+            item {
+                CategoryChips(
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = onCategorySelected,
+                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                )
+            }
             item {
                 FeaturedSection(
                     properties = featuredList,
@@ -95,7 +110,17 @@ internal fun HomeContent(
                     }
                 )
             }
-            item { PromotionBanner(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
+            item {
+                PromotionBanner(
+                    promotionalProperty = promotionalProperty,
+                    onClick = {
+                        if (promotionalProperty != null) {
+                            selectedProperty = promotionalProperty
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                )
+            }
         }
     }
 
@@ -150,6 +175,8 @@ private fun HomeContentPreview() {
     RealeTheme {
         HomeContent(
             featuredProperties = PreviewData.sampleProperties,
+            promotionalProperty = PreviewData.sampleProperties.firstOrNull(),
+            selectedCategory = HomeCategory.BUY,
             onSearchClick = {}
         )
     }

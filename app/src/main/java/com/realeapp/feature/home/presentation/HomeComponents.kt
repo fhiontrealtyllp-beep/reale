@@ -64,6 +64,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.realeapp.AppStrings
 import com.realeapp.ui.theme.RealeTheme
+import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.domain.model.RentBuy
+import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -227,7 +230,7 @@ internal fun HomeSearchBar(onSearchClick: () -> Unit, modifier: Modifier = Modif
 /**
  * Internal data class holding the icon and label state for a home category chip.
  */
-private data class HomeCategory(
+private data class HomeCategoryUi(
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
@@ -236,19 +239,25 @@ private data class HomeCategory(
 /**
  * Horizontal row of selectable category chips for Buy, Rent, New Projects and Commercial.
  *
+ * @param selectedCategory Currently selected home category.
+ * @param onCategorySelected Callback invoked when a category chip is tapped.
  * @param modifier Modifier to be applied to the category chips row.
  */
 @Composable
-internal fun CategoryChips(modifier: Modifier = Modifier) {
+internal fun CategoryChips(
+    selectedCategory: HomeCategory,
+    onCategorySelected: (HomeCategory) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val categories = remember {
         listOf(
-            HomeCategory(HomeStrings.CATEGORY_BUY, Icons.Filled.Home, Icons.Outlined.Home),
-            HomeCategory(HomeStrings.CATEGORY_RENT, Icons.Filled.Home, Icons.Outlined.Home),
-            HomeCategory(HomeStrings.CATEGORY_NEW_PROJECTS, Icons.Filled.Apartment, Icons.Outlined.Apartment),
-            HomeCategory(HomeStrings.CATEGORY_COMMERCIAL, Icons.Filled.Business, Icons.Outlined.Business)
+            HomeCategoryUi(HomeStrings.CATEGORY_BUY, Icons.Filled.Home, Icons.Outlined.Home),
+            HomeCategoryUi(HomeStrings.CATEGORY_RENT, Icons.Filled.Home, Icons.Outlined.Home),
+            HomeCategoryUi(HomeStrings.CATEGORY_NEW_PROJECTS, Icons.Filled.Apartment, Icons.Outlined.Apartment),
+            HomeCategoryUi(HomeStrings.CATEGORY_COMMERCIAL, Icons.Filled.Business, Icons.Outlined.Business)
         )
     }
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val selectedIndex = HomeCategory.entries.indexOf(selectedCategory)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -259,7 +268,7 @@ internal fun CategoryChips(modifier: Modifier = Modifier) {
             CategoryItem(
                 category = category,
                 selected = index == selectedIndex,
-                onClick = { selectedIndex = index }
+                onClick = { onCategorySelected(HomeCategory.entries[index]) }
             )
         }
     }
@@ -274,7 +283,7 @@ internal fun CategoryChips(modifier: Modifier = Modifier) {
  */
 @Composable
 private fun CategoryItem(
-    category: HomeCategory,
+    category: HomeCategoryUi,
     selected: Boolean,
     onClick: () -> Unit
 ) {
@@ -525,12 +534,39 @@ private fun PropertySpecChip(icon: ImageVector, label: String) {
 }
 
 /**
- * Promotional banner card with a background image, overlay text and a call-to-action arrow.
+ * Promotional banner card that shows a single [Property] ad, or a fallback
+ * static banner when no promotional property is available.
  *
+ * @param promotionalProperty Promotional property to display, or null for fallback.
+ * @param onClick Callback invoked when the call-to-action arrow is tapped.
  * @param modifier Modifier to be applied to the banner.
  */
 @Composable
-internal fun PromotionBanner(modifier: Modifier = Modifier) {
+internal fun PromotionBanner(
+    promotionalProperty: Property?,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val title: String
+    val subtitle: String
+    val imageUrl: String
+
+    if (promotionalProperty != null) {
+        title = formatIndianPrice(
+            promotionalProperty.price,
+            promotionalProperty.rentBuy == RentBuy.RENT
+        )
+        subtitle = listOf(
+            promotionalProperty.locality,
+            promotionalProperty.city
+        ).filter(String::isNotBlank).joinToString(HomeStrings.LOCATION_SEPARATOR)
+        imageUrl = promotionalProperty.images.firstOrNull().orEmpty()
+    } else {
+        title = HomeStrings.BANNER_TITLE
+        subtitle = HomeStrings.BANNER_SUBTITLE
+        imageUrl = HomeStrings.BANNER_FALLBACK_IMAGE
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -542,11 +578,32 @@ internal fun PromotionBanner(modifier: Modifier = Modifier) {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
-                model = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80",
-                contentDescription = null,
+                model = imageUrl.takeIf { it.isNotBlank() } ?: HomeStrings.BANNER_FALLBACK_IMAGE,
+                contentDescription = HomeStrings.CD_PROMOTIONAL_PROPERTY_IMAGE,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
+
+            if (promotionalProperty != null) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(HomeDims.BANNER_PADDING)
+                        .clip(RoundedCornerShape(HomeDims.FEATURED_BADGE_CORNER_RADIUS))
+                        .background(BrandBlue)
+                        .padding(
+                            horizontal = HomeDims.FEATURED_BADGE_HORIZONTAL_PADDING,
+                            vertical = HomeDims.FEATURED_BADGE_VERTICAL_PADDING
+                        )
+                ) {
+                    Text(
+                        text = HomeStrings.BADGE_PROMOTIONAL,
+                        color = OnMediaContent,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
 
             Box(
                 modifier = Modifier
@@ -571,15 +628,19 @@ internal fun PromotionBanner(modifier: Modifier = Modifier) {
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = HomeStrings.BANNER_TITLE,
+                        text = title,
                         color = Black,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = HomeStrings.BANNER_SUBTITLE,
+                        text = subtitle,
                         color = HomeTextSecondary,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -588,7 +649,7 @@ internal fun PromotionBanner(modifier: Modifier = Modifier) {
                         .size(HomeDims.BANNER_ARROW_BUTTON_SIZE)
                         .clip(CircleShape)
                         .background(BrandCoral)
-                        .clickable { },
+                        .clickable(onClick = onClick),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(

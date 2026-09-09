@@ -12,6 +12,7 @@ internal object SearchStrings {
     const val SEARCH_HINT = "Search by location, project or keyword"
     const val CD_SEARCH_ICON = "Search"
     const val CD_FILTER_ICON = "Filter"
+    const val CD_SUGGESTION_LOCATION = "Location"
     const val CD_NOTIFICATIONS = "Notifications"
     const val CD_BACK = "Back"
     const val CD_LOCATION_IMAGE = "Location image"
@@ -60,6 +61,16 @@ internal object SearchDims {
     val SEARCH_CONTENT_SPACING = 12.dp
     val SEARCH_DIVIDER_WIDTH = 1.dp
     val SEARCH_DIVIDER_HEIGHT = 24.dp
+
+    val SUGGESTION_LIST_MAX_HEIGHT = 220.dp
+    val SUGGESTION_LIST_CORNER_RADIUS = 16.dp
+    val SUGGESTION_LIST_ELEVATION = 4.dp
+    val SUGGESTION_LIST_PADDING = 4.dp
+    val SUGGESTION_ITEM_HORIZONTAL_PADDING = 16.dp
+    val SUGGESTION_ITEM_VERTICAL_PADDING = 12.dp
+    val SUGGESTION_ITEM_ICON_SIZE = 20.dp
+    val SUGGESTION_ITEM_TEXT_SPACING = 12.dp
+    val SUGGESTION_ITEM_DIVIDER_HEIGHT = 1.dp
 
     val TAB_CORNER_RADIUS = 20.dp
     val TAB_VERTICAL_PADDING = 10.dp

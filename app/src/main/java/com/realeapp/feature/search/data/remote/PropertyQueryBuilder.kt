@@ -1,116 +1,55 @@
 package com.realeapp.feature.search.data.remote
 
 import com.realeapp.feature.search.data.mapper.jsonName
+import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
-import com.realeapp.feature.search.domain.model.PropertyType
-import io.appwrite.Query
 
 object PropertyQueryBuilder {
 
-    fun build(
-        filter: PropertyFilter?,
-        page: Int,
-        limit: Int,
-        status: String = "live"
-    ): List<String> {
-        val queries = mutableListOf<String>()
-        queries.add(Query.limit(limit))
-        queries.add(Query.offset(page * limit))
-        queries.add(Query.equal("status", listOf(status)))
+    fun isClientSideMatch(property: Property, filter: PropertyFilter?): Boolean {
+        filter ?: return true
 
-        filter ?: return queries
-
-        val locationQueries = buildLocationQueries(filter)
-        if (locationQueries.size == 1) {
-            queries.add(locationQueries.first())
-        } else if (locationQueries.size > 1) {
-            queries.add(Query.or(locationQueries))
+        filter.normalizedCity?.let { city ->
+            if (property.city != city) return false
         }
 
-        queries.addAll(buildOtherQueries(filter))
-
-        return queries
-    }
-
-    private fun buildLocationQueries(filter: PropertyFilter): List<String> {
-        val conditions = mutableListOf<String>()
-        filter.normalizedCity?.let {
-            conditions.add(Query.equal("city", listOf(it)))
-        }
         if (filter.normalizedLocalities.isNotEmpty()) {
-            conditions.add(Query.contains("locality", filter.normalizedLocalities))
+            if (property.locality !in filter.normalizedLocalities) return false
         }
-        filter.normalizedPincode?.let {
-            conditions.add(Query.equal("pincode", listOf(it)))
-        }
-        return conditions
-    }
 
-    private fun buildOtherQueries(filter: PropertyFilter): List<String> {
-        val queries = mutableListOf<String>()
+        filter.normalizedPincode?.let { pincode ->
+            if (property.pincode != pincode) return false
+        }
 
-        filter.rentBuy?.let {
-            queries.add(Query.equal("rentBuy", listOf(it.jsonName())))
-        }
-        filter.residentialCommercial?.let {
-            queries.add(Query.equal("residentialCommercial", listOf(it.jsonName())))
-        }
-        filter.propertyType?.let { propertyType ->
-            queries.add(Query.equal("propertyType", listOf(propertyType.jsonName())))
-            if (supportsBedrooms(propertyType)) {
-                filter.bedroomType?.let {
-                    queries.add(Query.equal("bedroomType", listOf(it.jsonName())))
-                }
-            }
-        }
-        filter.furnishing?.let {
-            queries.add(Query.equal("furnishing", listOf(it.jsonName())))
-        }
-        filter.facing?.let {
-            queries.add(Query.equal("facing", listOf(it.jsonName())))
-        }
-        filter.age?.let {
-            queries.add(Query.equal("age", listOf(it.jsonName())))
-        }
+        if (filter.rentBuy != null && property.rentBuy != filter.rentBuy) return false
+        if (filter.residentialCommercial != null && property.residentialCommercial != filter.residentialCommercial) return false
+        if (filter.propertyType != null && property.propertyType != filter.propertyType) return false
+        if (filter.bedroomType != null && property.bedroomType != filter.bedroomType) return false
+        if (filter.furnishing != null && property.furnishing != filter.furnishing) return false
+        if (filter.facing != null && property.facing != filter.facing) return false
+        if (filter.age != null && property.age != filter.age) return false
 
         filter.priceRange?.let { range ->
-            queries.add(Query.greaterThanEqual("price", range.min))
-            queries.add(Query.lessThanEqual("price", range.max))
+            if (property.price < range.min || property.price > range.max) return false
         }
-
         filter.carpetAreaRange?.let { range ->
-            queries.add(Query.greaterThanEqual("carpetArea", range.min))
-            queries.add(Query.lessThanEqual("carpetArea", range.max))
+            val value = property.carpetArea ?: return false
+            if (value < range.min || value > range.max) return false
         }
-
         filter.builtUpAreaRange?.let { range ->
-            queries.add(Query.greaterThanEqual("builtUpArea", range.min))
-            queries.add(Query.lessThanEqual("builtUpArea", range.max))
+            val value = property.builtUpArea ?: return false
+            if (value < range.min || value > range.max) return false
         }
-
         filter.superBuiltUpAreaRange?.let { range ->
-            queries.add(Query.greaterThanEqual("superBuiltUpArea", range.min))
-            queries.add(Query.lessThanEqual("superBuiltUpArea", range.max))
+            val value = property.superBuiltUpArea ?: return false
+            if (value < range.min || value > range.max) return false
         }
 
-        filter.amenities.forEach { amenity ->
-            queries.add(Query.search("amenities", amenity.jsonName()))
+        if (filter.amenities.isNotEmpty()) {
+            val propertyAmenities = property.amenities.map { it.jsonName() }.toSet()
+            if (!filter.amenities.all { it.jsonName() in propertyAmenities }) return false
         }
 
-        return queries
-    }
-
-    private fun supportsBedrooms(propertyType: PropertyType): Boolean {
-        return propertyType in setOf(
-            PropertyType.APARTMENT,
-            PropertyType.VILLA,
-           /* PropertyType.FARM_HOUSE,
-            PropertyType.BUILDER_FLOOR,
-            PropertyType.STUDIO_APARTMENT,
-            PropertyType.SERVICE_APARTMENT,
-            PropertyType.INDEPENDENT_HOUSE,
-            PropertyType.PENTHOUSE,
-            PropertyType.DUPLEX*/
-        )
+        return true
     }
 }

@@ -77,6 +77,7 @@ import coil.compose.AsyncImage
 import com.realeapp.AppStrings
 import com.realeapp.feature.search.domain.model.PriceRange
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -104,6 +105,7 @@ import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -148,6 +150,8 @@ fun SearchScreen(
     viewModel: SearchViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showResults by rememberSaveable { mutableStateOf(false) }
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -206,6 +210,10 @@ fun SearchScreen(
             )
         } else {
             SearchLandingContent(
+                query = query,
+                suggestions = suggestions,
+                onQueryChange = viewModel::onSearchQueryChanged,
+                onSuggestionSelected = viewModel::onSuggestionSelected,
                 onOpenFilter = { showFilterDialog = true },
                 onSearch = { filter ->
                     viewModel.onFilterChanged(filter)
@@ -340,6 +348,10 @@ private fun SearchResultsContent(
 
 @Composable
 private fun SearchLandingContent(
+    query: String,
+    suggestions: List<LocationSuggestion>,
+    onQueryChange: (String) -> Unit,
+    onSuggestionSelected: (LocationSuggestion) -> Unit,
     onOpenFilter: () -> Unit,
     onSearch: (PropertyFilter) -> Unit,
     modifier: Modifier = Modifier
@@ -350,6 +362,7 @@ private fun SearchLandingContent(
     val locations = remember { samplePopularLocations() }
 
     fun currentFilter() = PropertyFilter(
+        city = query.takeIf { it.isNotBlank() },
         rentBuy = searchTabs[selectedTabIndex].rentBuy,
         residentialCommercial = searchTabs[selectedTabIndex].residentialCommercial,
         propertyType = selectedType,
@@ -373,8 +386,14 @@ private fun SearchLandingContent(
         }
 
         item {
-            LandingSearchBar(
-                onClick = { onSearch(currentFilter()) },
+            LocationSearchBar(
+                query = query,
+                suggestions = suggestions,
+                onQueryChange = onQueryChange,
+                onSuggestionSelected = { suggestion ->
+                    onSuggestionSelected(suggestion)
+                    onSearch(currentFilter().copy(city = suggestion.primaryText))
+                },
                 onFilterClick = onOpenFilter,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
@@ -476,61 +495,6 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
                     .clip(CircleShape)
                     .background(BrandRed)
             )
-        }
-    }
-}
-
-@Composable
-private fun LandingSearchBar(
-    onClick: () -> Unit,
-    onFilterClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(SearchDims.SEARCH_HEIGHT)
-            .clip(RoundedCornerShape(SearchDims.SEARCH_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(SearchDims.SEARCH_CORNER_RADIUS),
-        color = White,
-        border = BorderStroke(SearchDims.BORDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = SearchDims.SEARCH_HORIZONTAL_PADDING),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = SearchStrings.CD_SEARCH_ICON,
-                tint = HomeTextSecondary,
-                modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
-            )
-            Spacer(modifier = Modifier.width(SearchDims.SEARCH_CONTENT_SPACING))
-            Text(
-                text = SearchStrings.SEARCH_HINT,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Box(
-                modifier = Modifier
-                    .width(SearchDims.SEARCH_DIVIDER_WIDTH)
-                    .height(SearchDims.SEARCH_DIVIDER_HEIGHT)
-                    .background(HomeSearchBarBorder)
-            )
-            IconButton(onClick = onFilterClick) {
-                Icon(
-                    imageVector = Icons.Filled.Tune,
-                    contentDescription = SearchStrings.CD_FILTER_ICON,
-                    tint = BrandBlue,
-                    modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
-                )
-            }
         }
     }
 }
@@ -865,6 +829,10 @@ private fun ErrorContent(
 private fun SearchLandingContentPreview() {
     RealeTheme {
         SearchLandingContent(
+            query = "",
+            suggestions = emptyList(),
+            onQueryChange = {},
+            onSuggestionSelected = {},
             onOpenFilter = {},
             onSearch = {}
         )

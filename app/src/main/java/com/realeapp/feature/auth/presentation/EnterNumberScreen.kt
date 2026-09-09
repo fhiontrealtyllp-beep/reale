@@ -30,16 +30,21 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +62,7 @@ import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -66,19 +72,55 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.TextHint
 import com.realeapp.ui.theme.White
+import com.realeapp.util.findActivity
 
 private const val PHONE_MAX_LENGTH = 10
 
 /**
  * Phone-number entry screen reached from the welcome screen's mobile option.
  *
+ * @param viewModel ViewModel that sends the OTP and owns the request state.
  * @param onBack Called when the user taps the back arrow.
- * @param onSendOtp Called with the entered digits when the user taps Send OTP.
+ * @param onSendOtpSuccess Called when the OTP request succeeds and the app should
+ *        navigate to the verification screen.
  * @param onGoogleClick Called when the user picks the Google fallback.
  * @param modifier Optional modifier for the root container.
  */
 @Composable
 fun EnterNumberScreen(
+    viewModel: PhoneAuthViewModel,
+    onBack: () -> Unit,
+    onSendOtpSuccess: () -> Unit,
+    onGoogleClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            if (effect == PhoneAuthEffect.NavigateToVerify) {
+                onSendOtpSuccess()
+            }
+        }
+    }
+
+    EnterNumberContent(
+        uiState = uiState,
+        onBack = onBack,
+        onSendOtp = { phone -> viewModel.sendOtp(activity, phone) },
+        onGoogleClick = onGoogleClick,
+        modifier = modifier
+    )
+}
+
+/**
+ * Stateless phone-number entry content.
+ */
+@Composable
+internal fun EnterNumberContent(
+    uiState: PhoneAuthUiState,
     onBack: () -> Unit,
     onSendOtp: (String) -> Unit,
     onGoogleClick: () -> Unit,
@@ -201,15 +243,36 @@ fun EnterNumberScreen(
                     .fillMaxWidth()
                     .height(AuthDims.SEND_OTP_HEIGHT),
                 shape = RoundedCornerShape(AuthDims.SEND_OTP_CORNER_RADIUS),
+                enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandCoral,
-                    contentColor = OnBrandContent
+                    contentColor = OnBrandContent,
+                    disabledContainerColor = BrandCoral.copy(alpha = AuthDims.BUTTON_DISABLED_ALPHA)
                 )
             ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        color = OnBrandContent,
+                        modifier = Modifier.height(AuthDims.SEND_OTP_PROGRESS_SIZE)
+                    )
+                } else {
+                    Text(
+                        text = AuthStrings.BUTTON_SEND_OTP,
+                        fontSize = AuthDims.SEND_OTP_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            if (uiState.errorMessage != null) {
+                Spacer(modifier = Modifier.height(AuthDims.SPACE_12))
+
                 Text(
-                    text = AuthStrings.BUTTON_SEND_OTP,
-                    fontSize = AuthDims.SEND_OTP_FONT_SIZE,
-                    fontWeight = FontWeight.Bold
+                    text = uiState.errorMessage.orEmpty(),
+                    color = Error,
+                    fontSize = AuthDims.ENTER_SUBTITLE_FONT_SIZE,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -349,9 +412,10 @@ private fun TrustBadge(
 
 @Preview(showBackground = true)
 @Composable
-private fun EnterNumberScreenPreview() {
+private fun EnterNumberContentPreview() {
     RealeTheme {
-        EnterNumberScreen(
+        EnterNumberContent(
+            uiState = PhoneAuthUiState(),
             onBack = {},
             onSendOtp = {},
             onGoogleClick = {}

@@ -29,6 +29,10 @@ internal object HomeStrings {
     const val BANNER_TITLE = "Invest in a brighter tomorrow"
     const val BANNER_SUBTITLE = "Premium homes. Greater possibilities."
     const val CD_BANNER_ARROW = "Learn more"
+    const val BANNER_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80"
+
+    const val BADGE_PROMOTIONAL = "Ad"
+    const val CD_PROMOTIONAL_PROPERTY_IMAGE = "Promotional property image"
 
     const val CD_FAVORITE = "Favorite"
     const val CD_PROPERTY_IMAGE = "Property image"

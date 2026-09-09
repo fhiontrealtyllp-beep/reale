@@ -1,15 +1,13 @@
 package com.realeapp.feature.profile.data.remote
 
+import com.realeapp.core.firebase.FirebaseConstants
+import com.realeapp.core.firebase.FirebaseProvider
 import com.realeapp.feature.auth.data.mapper.UserMapper
 import com.realeapp.feature.auth.domain.model.User
-import com.realeapp.feature.search.data.remote.AppWriteConstants
-import com.realeapp.feature.search.data.remote.AppWriteProvider
-import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
-import io.appwrite.ID
-import io.appwrite.models.InputFile
-import io.appwrite.exceptions.AppwriteException
+import java.util.UUID
+import kotlinx.coroutines.tasks.await
 
 private const val TAG = "ProfileRemoteDataSource"
 private const val ARROW = "\u279C"
@@ -17,24 +15,28 @@ private const val TICK = "\u2705"
 private const val CROSS = "\u274C"
 
 class ProfileRemoteDataSourceImpl(
-    private val userSession: UserSession,
-    private val appWriteProvider: AppWriteProvider
+    private val firebaseProvider: FirebaseProvider
 ) : ProfileRemoteDataSource {
 
-    private val account = appWriteProvider.account
-    private val storage = appWriteProvider.storage
+    private val auth = firebaseProvider.auth
+    private val firestore = firebaseProvider.firestore
+    private val storage = firebaseProvider.storage
 
     override suspend fun getUserDetails(): Result<User> {
         return try {
-            val user = account.get()
-            val currentSessionId = userSession.getUser()?.sessionId.orEmpty()
-            val mapped = UserMapper.fromAppwrite(user, currentSessionId)
-            userSession.setUser(mapped)
-            Result.Success(mapped)
-        } catch (e: AppwriteException) {
-            Result.Error(e.message ?: "Failed to load profile")
+            val firebaseUser = auth.currentUser
+                ?: return Result.Error("User not logged in")
+            val snapshot = firestore.collection(FirebaseConstants.USERS_COLLECTION)
+                .document(firebaseUser.uid)
+                .get()
+                .await()
+            val user = UserMapper.fromFirebaseUser(
+                firebaseUser,
+                snapshot.data ?: emptyMap()
+            )
+            Result.Success(user)
         } catch (e: Exception) {
-            Result.Error("Unexpected error: ${e.message}")
+            Result.Error("Failed to load profile: ${e.message}")
         }
     }
 
@@ -44,89 +46,61 @@ class ProfileRemoteDataSourceImpl(
         value: String
     ): Result<String> {
         return try {
+            val firebaseUser = auth.currentUser
+                ?: return Result.Error("User not logged in")
+
+            val userRef = firestore.collection(FirebaseConstants.USERS_COLLECTION).document(userId)
+
             when (field) {
                 "name" -> {
-                    account.updateName(name = value)
+                    auth.currentUser?.updateProfile(
+                        com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(value)
+                            .build()
+                    )?.await()
+                    userRef.update("name", value).await()
                 }
                 "email" -> {
-                    val password = userSession.getUser()?.password.orEmpty()
-                    if (password.isEmpty()) {
-                        return Result.Error("Password is required to update email")
-                    }
-                    account.updateEmail(email = value, password = password)
+                    firebaseUser.updateEmail(value).await()
+                    userRef.update("email", value).await()
                 }
-                "image", "phone", "address" -> {
-                    val currentUser = account.get()
-                    @Suppress("UNCHECKED_CAST")
-                    val prefs = (currentUser.prefs.data as? Map<String, Any>)?.toMutableMap() ?: mutableMapOf()
-                    prefs[field] = value
-                    account.updatePrefs(prefs = prefs)
+                "phone", "image", "address", "status", "city", "location" -> {
+                    userRef.update(field, value).await()
                 }
                 else -> return Result.Error("Unsupported field: $field")
             }
 
-            val updatedUser = account.get()
-            val currentSessionId = userSession.getUser()?.sessionId.orEmpty()
-            val mapped = UserMapper.fromAppwrite(updatedUser, currentSessionId)
-            userSession.setUser(mapped)
             Result.Success("$field updated successfully")
-        } catch (e: AppwriteException) {
-            Result.Error(e.message ?: "Failed to update $field")
         } catch (e: Exception) {
-            Result.Error("Unexpected error: ${e.message}")
+            Result.Error("Failed to update $field: ${e.message}")
         }
     }
 
     override suspend fun logout(sessionId: String): Result<Unit> {
-        Logger.d(TAG, "$ARROW logout() called for sessionId: $sessionId")
+        Logger.d(TAG, "$ARROW logout() called")
         return try {
-            account.deleteSession(sessionId = sessionId)
-            userSession.clear()
+            auth.signOut()
             Logger.d(TAG, "$TICK logout() succeeded")
             Result.Success(Unit)
-        } catch (e: AppwriteException) {
-            Logger.e(TAG, "$CROSS logout() failed: ${e.message}")
-            userSession.clear()
-            Result.Error(e.message ?: "Logout failed")
         } catch (e: Exception) {
-            Logger.e(TAG, "$CROSS logout() unexpected error: ${e.message}")
-            userSession.clear()
-            Result.Error("Unexpected error: ${e.message}")
+            Logger.e(TAG, "$CROSS logout() failed: ${e.message}")
+            Result.Error("Logout failed: ${e.message}")
         }
     }
 
     override suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String> {
         return try {
-            val mimeType = when (filename.substringAfterLast('.', "").lowercase()) {
-                "jpg", "jpeg" -> "image/jpeg"
-                "png" -> "image/png"
-                "gif" -> "image/gif"
-                "webp" -> "image/webp"
-                "bmp" -> "image/bmp"
-                else -> "image/jpeg"
-            }
-            val inputFile = InputFile.fromBytes(bytes, filename, mimeType)
-            val result = storage.createFile(
-                bucketId = AppWriteConstants.STORAGE_BUCKET_ID,
-                fileId = ID.unique(),
-                file = inputFile
-            )
+            val userId = auth.currentUser?.uid ?: return Result.Error("User not logged in")
+            val ext = filename.substringAfterLast('.', "jpg").lowercase()
+            val safeName = "${System.currentTimeMillis()}_${UUID.randomUUID()}.${ext}"
+            val ref = storage.reference.child("${FirebaseConstants.PROFILE_IMAGES_PATH}/$userId/$safeName")
 
-            val imageUrl = buildString {
-                append(AppWriteConstants.ENDPOINT)
-                append("/storage/buckets/")
-                append(AppWriteConstants.STORAGE_BUCKET_ID)
-                append("/files/")
-                append(result.id)
-                append("/view?project=")
-                append(AppWriteConstants.PROJECT_ID)
-            }
+            ref.putBytes(bytes).await()
+            val url = ref.downloadUrl.await().toString()
 
-            Result.Success(imageUrl)
-        } catch (e: AppwriteException) {
-            Result.Error(e.message ?: "Image upload failed")
+            Result.Success(url)
         } catch (e: Exception) {
-            Result.Error("Unexpected error: ${e.message}")
+            Result.Error("Image upload failed: ${e.message}")
         }
     }
 }

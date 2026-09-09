@@ -1,7 +1,7 @@
 package com.realeapp.ui
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -15,18 +15,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.realeapp.feature.auth.presentation.PhoneAuthEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.AddScreen
 import com.realeapp.feature.auth.presentation.EnterNumberScreen
 import com.realeapp.feature.auth.presentation.LoginScreen
+import com.realeapp.feature.auth.presentation.PhoneAuthViewModel
 import com.realeapp.feature.auth.presentation.RegisterScreen
 import com.realeapp.feature.auth.presentation.VerifyNumberScreen
 import com.realeapp.feature.auth.presentation.WelcomeScreen
@@ -61,13 +63,21 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
-    var pendingPhone by rememberSaveable { mutableStateOf("") }
+    val phoneAuthViewModel: PhoneAuthViewModel = koinViewModel()
     val showOnboarding by mainViewModel.showOnboarding.collectAsStateWithLifecycle()
 
     val darkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
+    LaunchedEffect(phoneAuthViewModel) {
+        phoneAuthViewModel.effect.collect { effect ->
+            if (effect == PhoneAuthEffect.NavigateToMain) {
+                authScreen = AuthScreen.Main
+            }
+        }
     }
 
     RealeTheme(darkTheme = darkTheme) {
@@ -97,12 +107,11 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                 when (screen) {
                 // Auth landing UI offering Google, mobile-number, or guest entry.
                 AuthScreen.Welcome -> {
+                    val activity = LocalActivity.current
                     BackHandler { authScreen = AuthScreen.Main }
                     WelcomeScreen(
                         onGoogleClick = {
-                            // TODO: implement Google sign-in via Appwrite OAuth;
-                            // falls back to the credential login screen for now.
-                            authScreen = AuthScreen.Login
+                            phoneAuthViewModel.signInWithGoogle(activity)
                         },
                         onMobileClick = { authScreen = AuthScreen.EnterNumber },
                         onGuestClick = {
@@ -114,18 +123,14 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
 
                 // Phone-number entry UI reached from the welcome screen.
                 AuthScreen.EnterNumber -> {
+                    val activity = LocalActivity.current
                     BackHandler { authScreen = AuthScreen.Welcome }
                     EnterNumberScreen(
+                        viewModel = phoneAuthViewModel,
                         onBack = { authScreen = AuthScreen.Welcome },
-                        onSendOtp = { phone ->
-                            // TODO: send the OTP via Appwrite phone auth.
-                            pendingPhone = phone
-                            authScreen = AuthScreen.VerifyNumber
-                        },
+                        onSendOtpSuccess = { authScreen = AuthScreen.VerifyNumber },
                         onGoogleClick = {
-                            // TODO: implement Google sign-in via Appwrite OAuth;
-                            // falls back to the credential login screen for now.
-                            authScreen = AuthScreen.Login
+                            phoneAuthViewModel.signInWithGoogle(activity)
                         }
                     )
                 }
@@ -134,15 +139,10 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                 AuthScreen.VerifyNumber -> {
                     BackHandler { authScreen = AuthScreen.EnterNumber }
                     VerifyNumberScreen(
-                        phoneNumber = pendingPhone,
+                        viewModel = phoneAuthViewModel,
                         onBack = { authScreen = AuthScreen.EnterNumber },
                         onEditNumber = { authScreen = AuthScreen.EnterNumber },
-                        onResendOtp = {
-                            // TODO: resend the OTP via Appwrite phone auth.
-                        },
-                        onContinue = { _, _ ->
-                            // TODO: verify the OTP and save the profile via
-                            // Appwrite, then mark the session logged in.
+                        onContinueSuccess = {
                             mainViewModel.selectTab(AppScreen.Home)
                             authScreen = AuthScreen.Main
                         }
@@ -170,7 +170,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
 
                 // Main authenticated-or-guest UI containing bottom-tab navigation.
                 AuthScreen.Main -> {
-                    val activity = LocalContext.current as? Activity
+                    val activity = LocalActivity.current
                     var showExitDialog by remember { mutableStateOf(false) }
                     var showMyListings by rememberSaveable { mutableStateOf(false) }
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
