@@ -60,8 +60,16 @@ internal object ProfileStrings {
     const val ACTION_SAVE = "Save"
     const val ACTION_CANCEL = "Cancel"
 
-    const val LOGIN_PROMPT_TITLE = "Please Login to View your profile"
+    const val ADD_ADDRESS = "Add address"
+    const val CHANGE_ADDRESS = "Change"
+    const val ADDRESS_EMPTY = "No address added"
+    const val LOCATION_CITY_SEPARATOR = ", "
+    const val ADDRESS_DIALOG_TITLE = "Your Address"
+    const val CD_ADDRESS_ICON = "Address"
+
     const val LOGIN_BUTTON = "Login"
+    const val GUEST_NAME = "Guest"
+    const val GUEST_SUBTITLE = "Login to view your profile"
     const val FALLBACK_INITIALS = "?"
 
     const val SUPPORT_EMAIL = "fhiontrealtyllp@gmail.com"
@@ -72,6 +80,7 @@ internal object ProfileStrings {
 
     const val MSG_IMAGE_UPDATED = "Profile image updated"
     const val MSG_LOGGED_OUT = "Logged out successfully"
+    const val MSG_ADDRESS_SAVED = "Address saved"
 
     // Profile field keys sent to the update API.
     const val FIELD_NAME = "name"
@@ -106,6 +115,11 @@ internal object ProfileDims {
     val PROFILE_NAME_FONT_SIZE = 18.sp
     val PROFILE_DETAIL_FONT_SIZE = 13.sp
     val PROFILE_DETAIL_SPACING = 2.dp
+
+    val ADDRESS_ROW_TOP_SPACING = 12.dp
+    val ADDRESS_ICON_SIZE = 18.dp
+    val ADDRESS_ICON_TEXT_SPACING = 8.dp
+    val ADDRESS_ACTION_FONT_SIZE = 13.sp
 
     val EDIT_PROFILE_BUTTON_HEIGHT = 36.dp
     val EDIT_PROFILE_BUTTON_CORNER_RADIUS = 20.dp
@@ -160,13 +174,10 @@ internal object ProfileDims {
     val DIALOG_FIELD_ICON_SIZE = 20.dp
     val FIELD_SPACING = 16.dp
 
-    val LOGIN_PROMPT_PADDING = 24.dp
-    val LOGIN_TITLE_TOP_SPACING = 16.dp
-    val LOGIN_BUTTON_TOP_SPACING = 24.dp
     val LOGIN_BUTTON_HEIGHT = 48.dp
     val LOGIN_BUTTON_CORNER_RADIUS = 12.dp
     val LOGIN_BUTTON_FONT_SIZE = 18.sp
+    val GUEST_AVATAR_ICON_SIZE = 40.dp
 
-    val EMPTY_ICON_SIZE = 80.dp
     val SNACKBAR_CORNER_RADIUS = 8.dp
 }

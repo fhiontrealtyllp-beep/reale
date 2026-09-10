@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.feature.onboarding.data.OnboardingPreferences
 import com.realeapp.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.realeapp.feature.profile.domain.usecase.LogoutUseCase
 import com.realeapp.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -29,6 +30,7 @@ class ProfileViewModel(
     private val logoutUseCase: LogoutUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
     private val userSession: UserSession,
+    private val onboardingPreferences: OnboardingPreferences,
     private val themePreferences: ThemePreferences
 ) : ViewModel() {
 
@@ -40,8 +42,20 @@ class ProfileViewModel(
 
     val themeMode: StateFlow<ThemeMode> = themePreferences.themeMode
 
+    // Locally cached address used when there is no logged-in user.
+    val savedAddress: StateFlow<String> = onboardingPreferences.address
+
+    // City and location cached from the onboarding city picker.
+    val savedCity: StateFlow<String> = onboardingPreferences.city
+    val savedLocation: StateFlow<String> = onboardingPreferences.location
+
     init {
         load()
+        Logger.d(
+            TAG,
+            "init: savedAddress='${savedAddress.value}', " +
+                "savedCity='${savedCity.value}', savedLocation='${savedLocation.value}'"
+        )
         SessionObserver(
             userSession = userSession,
             scope = viewModelScope,
@@ -67,6 +81,7 @@ class ProfileViewModel(
         viewModelScope.launch {
             when (val result = getUserDetailsUseCase()) {
                 is Result.Success -> {
+                    userSession.setUser(result.data)
                     _uiState.value = ProfileUiState(
                         user = result.data,
                         isLoading = false,
@@ -100,9 +115,10 @@ class ProfileViewModel(
         viewModelScope.launch {
             when (val result = updateProfileUseCase(currentUser.id, field, value)) {
                 is Result.Success -> {
-                    val refreshed = userSession.getUser()
+                    val updated = currentUser.withUpdatedField(field, value)
+                    userSession.setUser(updated)
                     _uiState.value = _uiState.value.copy(
-                        user = refreshed,
+                        user = updated,
                         isLoading = false,
                         updatingField = null,
                         updateSuccessMessage = result.data
@@ -130,9 +146,10 @@ class ProfileViewModel(
                 is Result.Success -> {
                     when (val updateResult = updateProfileUseCase(currentUser.id, ProfileStrings.FIELD_IMAGE, uploadResult.data)) {
                         is Result.Success -> {
-                            val refreshed = userSession.getUser()
+                            val updated = currentUser.copy(image = uploadResult.data)
+                            userSession.setUser(updated)
                             _uiState.value = _uiState.value.copy(
-                                user = refreshed,
+                                user = updated,
                                 isImageUploading = false,
                                 updateSuccessMessage = ProfileStrings.MSG_IMAGE_UPDATED
                             )
@@ -183,9 +200,29 @@ class ProfileViewModel(
         }
     }
 
+    fun saveAddress(address: String) {
+        if (_uiState.value.isLoggedIn && _uiState.value.user != null) {
+            updateProfileField(ProfileStrings.FIELD_ADDRESS, address)
+        } else {
+            onboardingPreferences.setAddress(address)
+            viewModelScope.launch {
+                _sideEffect.emit(ProfileStrings.MSG_ADDRESS_SAVED)
+            }
+        }
+    }
+
     fun setThemeMode(mode: ThemeMode) {
         themePreferences.setThemeMode(mode)
     }
 
     fun getCurrentUser(): User? = _uiState.value.user
+}
+
+private fun User.withUpdatedField(field: String, value: String): User = when (field) {
+    ProfileStrings.FIELD_NAME -> copy(name = value)
+    ProfileStrings.FIELD_EMAIL -> copy(email = value)
+    ProfileStrings.FIELD_PHONE -> copy(phone = value)
+    ProfileStrings.FIELD_ADDRESS -> copy(address = value)
+    ProfileStrings.FIELD_IMAGE -> copy(image = value)
+    else -> this
 }

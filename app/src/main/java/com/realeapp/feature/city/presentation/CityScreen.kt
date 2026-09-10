@@ -46,6 +46,7 @@ import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.NavyText
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
+import com.realeapp.util.Logger
 
 private const val SELECTED_CITY_BACKGROUND_ALPHA = 0.08f
 private const val CITY_ICON_BACKGROUND_ALPHA = 0.1f
@@ -126,7 +127,10 @@ fun CityScreen(
         Spacer(modifier = Modifier.height(CityDims.SPACE_16))
 
         Button(
-            onClick = { selectedCity?.let(onCitySelected) },
+            onClick = {
+                Logger.d("CityScreen", "Continue clicked, selectedCity=$selectedCity")
+                selectedCity?.let(onCitySelected)
+            },
             enabled = selectedCity != null,
             modifier = Modifier
                 .fillMaxWidth()

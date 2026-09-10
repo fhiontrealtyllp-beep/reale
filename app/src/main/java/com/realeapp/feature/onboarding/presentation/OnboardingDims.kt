@@ -39,6 +39,7 @@ internal object OnboardingDims {
     val BUTTON_HEIGHT = 56.dp
     val BUTTON_CORNER_RADIUS = 12.dp
     val BUTTON_ICON_SIZE = 20.dp
+    val BUTTON_PROGRESS_STROKE = 2.dp
 
     val TOP_BAR_HEIGHT = 56.dp
 }

@@ -49,7 +49,7 @@ class RealeApplication : Application() {
             )
         }
 
-        seedProperties()
+       // seedProperties()
     }
 
     @OptIn(DelicateCoroutinesApi::class)

@@ -90,16 +90,15 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
 
             if (showCityScreen) {
                 CityScreen(
-                    onCitySelected = {
-                        // TODO: pass the selected city to MainViewModel once city
-                        // selection is persisted.
-                        mainViewModel.completeOnboarding()
-                    }
+                    onCitySelected = { city -> mainViewModel.selectCity(city) }
                 )
             } else {
                 OnboardingScreen(
                     onComplete = { mainViewModel.completeOnboarding() },
-                    onSkipToCity = { showCityScreen = true }
+                    onSkipToCity = { showCityScreen = true },
+                    onLocationResolved = { city, location ->
+                        mainViewModel.saveOnboardingLocation(city, location)
+                    }
                 )
             }
         } else {

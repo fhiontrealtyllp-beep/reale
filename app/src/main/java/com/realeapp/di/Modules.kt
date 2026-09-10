@@ -134,5 +134,5 @@ val profileModule = module {
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }

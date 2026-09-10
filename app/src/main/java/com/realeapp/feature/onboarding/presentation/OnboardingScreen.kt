@@ -31,12 +31,17 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,7 +58,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.core.content.ContextCompat
 import com.realeapp.AppStrings
 import com.realeapp.R
+import com.realeapp.feature.onboarding.data.resolveCurrentCityAndLocation
 import com.realeapp.ui.theme.AppBackground
+import com.realeapp.util.Logger
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -74,21 +81,43 @@ private const val PROGRESS_TRACK_ALPHA_ON_SPLASH = 0.3f
  *
  * @param onComplete Called once the user finishes the flow.
  * @param onSkipToCity Called when the user skips location access to pick a city manually.
+ * @param onLocationResolved Called with the resolved (city, location) after the user grants
+ * location access and the device position is reverse-geocoded.
  * @param modifier Optional modifier for the root container.
  */
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit,
     onSkipToCity: () -> Unit,
+    onLocationResolved: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val pagerState = rememberPagerState(pageCount = { ONBOARDING_PAGE_COUNT })
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var isResolvingLocation by remember { mutableStateOf(false) }
+
+    val resolveAndFinish: () -> Unit = {
+        scope.launch {
+            isResolvingLocation = true
+            val resolved = resolveCurrentCityAndLocation(context)
+            if (resolved != null) {
+                onLocationResolved(resolved.first, resolved.second)
+            }
+            isResolvingLocation = false
+            onComplete()
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { onComplete() }
+    ) { permissions ->
+        if (permissions.any { it.value }) {
+            resolveAndFinish()
+        } else {
+            onComplete()
+        }
+    }
 
     val onSkipToLocation: () -> Unit = {
         scope.launch { pagerState.animateScrollToPage(ONBOARDING_PAGE_COUNT - 1) }
@@ -99,6 +128,7 @@ fun OnboardingScreen(
     }
 
     val onAllowLocation: () -> Unit = {
+        Logger.d("OnboardingScreen", "onAllowLocation clicked")
         val fineGranted = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -110,7 +140,7 @@ fun OnboardingScreen(
         ) == PackageManager.PERMISSION_GRANTED
 
         if (fineGranted || coarseGranted) {
-            onComplete()
+            resolveAndFinish()
         } else {
             permissionLauncher.launch(
                 arrayOf(
@@ -142,7 +172,11 @@ fun OnboardingScreen(
             currentPage = pagerState.currentPage,
             onNext = onNext,
             onAllowLocation = onAllowLocation,
-            onSkip = onSkipToCity,
+            onSkip = {
+                Logger.d("OnboardingScreen", "onSkip clicked -> navigating to city picker")
+                onSkipToCity()
+            },
+            isResolvingLocation = isResolvingLocation,
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -417,6 +451,7 @@ private fun OnboardingFooter(
     onNext: () -> Unit,
     onAllowLocation: () -> Unit,
     onSkip: () -> Unit,
+    isResolvingLocation: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val background = if (currentPage == 0) BrandBlue else AppBackground
@@ -482,6 +517,7 @@ private fun OnboardingFooter(
         } else {
             Button(
                 onClick = onAllowLocation,
+                enabled = !isResolvingLocation,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(OnboardingDims.BUTTON_HEIGHT),
@@ -491,11 +527,19 @@ private fun OnboardingFooter(
                 ),
                 shape = RoundedCornerShape(OnboardingDims.BUTTON_CORNER_RADIUS)
             ) {
-                Text(
-                    text = OnboardingStrings.BUTTON_ALLOW_LOCATION,
-                    fontSize = OnboardingDims.BUTTON_TEXT_FONT_SIZE,
-                    fontWeight = FontWeight.Bold
-                )
+                if (isResolvingLocation) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(OnboardingDims.BUTTON_ICON_SIZE),
+                        color = Color.White,
+                        strokeWidth = OnboardingDims.BUTTON_PROGRESS_STROKE
+                    )
+                } else {
+                    Text(
+                        text = OnboardingStrings.BUTTON_ALLOW_LOCATION,
+                        fontSize = OnboardingDims.BUTTON_TEXT_FONT_SIZE,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(OnboardingDims.SPACE_12))

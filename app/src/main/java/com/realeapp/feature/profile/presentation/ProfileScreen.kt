@@ -66,7 +66,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
@@ -134,6 +133,9 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val savedAddress by viewModel.savedAddress.collectAsStateWithLifecycle()
+    val savedCity by viewModel.savedCity.collectAsStateWithLifecycle()
+    val savedLocation by viewModel.savedLocation.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
@@ -222,15 +224,16 @@ fun ProfileScreen(
                     )
                 }
 
-                // Logged-out UI prompting the user to open the login flow.
-                !uiState.isLoggedIn -> ProfileLoginPrompt(
-                    onLoginClick = onLoginClick,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                // Logged-in UI containing profile details, editing, support, and logout actions.
+                // Profile UI for both guests and logged-in users; guests see a
+                // limited set of options plus a login action.
                 else -> ProfileContent(
                     user = uiState.user,
+                    isLoggedIn = uiState.isLoggedIn,
+                    onLoginClick = onLoginClick,
+                    savedAddress = savedAddress,
+                    savedCity = savedCity,
+                    savedLocation = savedLocation,
+                    onSaveAddress = viewModel::saveAddress,
                     isImageUploading = uiState.isImageUploading,
                     onPickImage = { showImageSourceDialog = true },
                     onListPropertyClick = onListPropertyClick,
@@ -277,6 +280,12 @@ private data class ProfileMenuItem(
 @Composable
 private fun ProfileContent(
     user: User?,
+    isLoggedIn: Boolean,
+    onLoginClick: () -> Unit,
+    savedAddress: String,
+    savedCity: String,
+    savedLocation: String,
+    onSaveAddress: (String) -> Unit,
     isImageUploading: Boolean,
     onPickImage: () -> Unit,
     onListPropertyClick: () -> Unit,
@@ -293,71 +302,93 @@ private fun ProfileContent(
     modifier: Modifier = Modifier
 ) {
     var showEditDialog by rememberSaveable { mutableStateOf(false) }
+    var showAddressDialog by rememberSaveable { mutableStateOf(false) }
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
 
-    val activityItems = listOf(
-        ProfileMenuItem(
-            icon = Icons.Outlined.Home,
-            title = ProfileStrings.MY_LISTINGS,
-            subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
-            contentDescription = ProfileStrings.MY_LISTINGS,
-            onClick = {
-                Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
-                onMyListingsClick()
-            }
-        ),
-        ProfileMenuItem(
-            icon = Icons.Outlined.Description,
-            title = ProfileStrings.MY_ENQUIRIES,
-            subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
-            contentDescription = ProfileStrings.MY_ENQUIRIES,
-            onClick = onMyEnquiriesClick
+    val activityItems = if (isLoggedIn) {
+        listOf(
+            ProfileMenuItem(
+                icon = Icons.Outlined.Home,
+                title = ProfileStrings.MY_LISTINGS,
+                subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
+                contentDescription = ProfileStrings.MY_LISTINGS,
+                onClick = {
+                    Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
+                    onMyListingsClick()
+                }
+            ),
+            ProfileMenuItem(
+                icon = Icons.Outlined.Description,
+                title = ProfileStrings.MY_ENQUIRIES,
+                subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
+                contentDescription = ProfileStrings.MY_ENQUIRIES,
+                onClick = onMyEnquiriesClick
+            )
         )
-    )
-    val accountItems = listOf(
-        ProfileMenuItem(
-            icon = Icons.Outlined.Person,
-            title = ProfileStrings.PERSONAL_INFORMATION,
-            subtitle = ProfileStrings.PERSONAL_INFORMATION_SUBTITLE,
-            contentDescription = ProfileStrings.CD_PERSONAL_INFO,
-            onClick = onPersonalInfoClick
-        ),
-        ProfileMenuItem(
-            icon = Icons.Outlined.Notifications,
-            title = ProfileStrings.NOTIFICATIONS,
-            subtitle = ProfileStrings.NOTIFICATIONS_SUBTITLE,
-            contentDescription = ProfileStrings.CD_NOTIFICATIONS_ITEM,
-            onClick = onNotificationsClick
-        ),
-        ProfileMenuItem(
-            icon = Icons.Outlined.Settings,
-            title = ProfileStrings.SETTINGS,
-            subtitle = ProfileStrings.SETTINGS_SUBTITLE,
-            contentDescription = ProfileStrings.CD_SETTINGS,
-            onClick = onSettingsClick
-        ),
-        ProfileMenuItem(
-            icon = Icons.Outlined.DarkMode,
-            title = ProfileStrings.APPEARANCE,
-            subtitle = ProfileStrings.APPEARANCE_SUBTITLE.format(themeModeLabel(themeMode)),
-            contentDescription = ProfileStrings.CD_APPEARANCE,
-            onClick = { showThemeDialog = true }
-        ),
-        ProfileMenuItem(
-            icon = Icons.Outlined.HelpOutline,
-            title = ProfileStrings.HELP_SUPPORT,
-            subtitle = ProfileStrings.HELP_SUPPORT_SUBTITLE,
-            contentDescription = ProfileStrings.CD_HELP_SUPPORT,
-            onClick = onHelpSupportClick
-        ),
-        ProfileMenuItem(
-            icon = Icons.AutoMirrored.Filled.ExitToApp,
-            title = ProfileStrings.LOGOUT,
-            subtitle = null,
-            contentDescription = ProfileStrings.CD_LOGOUT,
-            onClick = onLogoutClick
+    } else {
+        emptyList()
+    }
+
+    val accountItems = buildList {
+        if (isLoggedIn) {
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Person,
+                    title = ProfileStrings.PERSONAL_INFORMATION,
+                    subtitle = ProfileStrings.PERSONAL_INFORMATION_SUBTITLE,
+                    contentDescription = ProfileStrings.CD_PERSONAL_INFO,
+                    onClick = onPersonalInfoClick
+                )
+            )
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Notifications,
+                    title = ProfileStrings.NOTIFICATIONS,
+                    subtitle = ProfileStrings.NOTIFICATIONS_SUBTITLE,
+                    contentDescription = ProfileStrings.CD_NOTIFICATIONS_ITEM,
+                    onClick = onNotificationsClick
+                )
+            )
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Settings,
+                    title = ProfileStrings.SETTINGS,
+                    subtitle = ProfileStrings.SETTINGS_SUBTITLE,
+                    contentDescription = ProfileStrings.CD_SETTINGS,
+                    onClick = onSettingsClick
+                )
+            )
+        }
+        add(
+            ProfileMenuItem(
+                icon = Icons.Outlined.DarkMode,
+                title = ProfileStrings.APPEARANCE,
+                subtitle = ProfileStrings.APPEARANCE_SUBTITLE.format(themeModeLabel(themeMode)),
+                contentDescription = ProfileStrings.CD_APPEARANCE,
+                onClick = { showThemeDialog = true }
+            )
         )
-    )
+        add(
+            ProfileMenuItem(
+                icon = Icons.Outlined.HelpOutline,
+                title = ProfileStrings.HELP_SUPPORT,
+                subtitle = ProfileStrings.HELP_SUPPORT_SUBTITLE,
+                contentDescription = ProfileStrings.CD_HELP_SUPPORT,
+                onClick = onHelpSupportClick
+            )
+        )
+        if (isLoggedIn) {
+            add(
+                ProfileMenuItem(
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    title = ProfileStrings.LOGOUT,
+                    subtitle = null,
+                    contentDescription = ProfileStrings.CD_LOGOUT,
+                    onClick = onLogoutClick
+                )
+            )
+        }
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -369,15 +400,45 @@ private fun ProfileContent(
     ) {
         item { ProfileTopBar(onNotificationsClick = onNotificationsClick) }
         item {
-            ProfileCard(
-                user = user,
-                isImageUploading = isImageUploading,
-                onPickImage = onPickImage,
-                onEditProfileClick = { showEditDialog = true }
+                val displayAddress = profileDisplayAddress(
+                    isLoggedIn = isLoggedIn,
+                    user = user,
+                    savedAddress = savedAddress,
+                    savedCity = savedCity,
+                    savedLocation = savedLocation
+                )
+                Logger.d(
+                    PROFILE_MENU_TAG,
+                    "ProfileContent: isLoggedIn=$isLoggedIn, " +
+                        "savedAddress='$savedAddress', savedCity='$savedCity', " +
+                        "savedLocation='$savedLocation', displayAddress='$displayAddress'"
+                )
+
+                if (isLoggedIn) {
+                    ProfileCard(
+                        user = user,
+                        address = displayAddress,
+                        isImageUploading = isImageUploading,
+                        onPickImage = onPickImage,
+                        onEditProfileClick = { showEditDialog = true },
+                        onChangeAddressClick = { showAddressDialog = true }
+                    )
+                } else {
+                    GuestProfileCard(
+                        address = displayAddress,
+                        onLoginClick = onLoginClick,
+                        onChangeAddressClick = { showAddressDialog = true }
+                    )
+                }
+        }
+        item {
+            ListPropertyBanner(
+                onClick = if (isLoggedIn) onListPropertyClick else onLoginClick
             )
         }
-        item { ListPropertyBanner(onClick = onListPropertyClick) }
-        item { ProfileMenuSection(title = ProfileStrings.SECTION_MY_ACTIVITY, items = activityItems) }
+        if (isLoggedIn) {
+            item { ProfileMenuSection(title = ProfileStrings.SECTION_MY_ACTIVITY, items = activityItems) }
+        }
         item { ProfileMenuSection(title = ProfileStrings.SECTION_ACCOUNT, items = accountItems) }
     }
 
@@ -386,6 +447,20 @@ private fun ProfileContent(
             user = user,
             onSave = onUpdateField,
             onDismiss = { showEditDialog = false }
+        )
+    }
+
+    if (showAddressDialog) {
+        AddressDialog(
+            initialAddress = profileDisplayAddress(
+                isLoggedIn = isLoggedIn,
+                user = user,
+                savedAddress = savedAddress,
+                savedCity = savedCity,
+                savedLocation = savedLocation
+            ),
+            onSave = onSaveAddress,
+            onDismiss = { showAddressDialog = false }
         )
     }
 
@@ -398,6 +473,42 @@ private fun ProfileContent(
             },
             onDismiss = { showThemeDialog = false }
         )
+    }
+}
+
+/**
+ * Address shown for a guest: the manually saved address wins, otherwise the
+ * city and location cached from the onboarding city picker are combined.
+ */
+private fun guestDisplayAddress(
+    savedAddress: String,
+    savedCity: String,
+    savedLocation: String
+): String = savedAddress.ifBlank {
+    listOf(savedCity, savedLocation)
+        .filter { it.isNotBlank() }
+        .joinToString(ProfileStrings.LOCATION_CITY_SEPARATOR)
+}
+
+/**
+ * Address shown in the profile card. For a logged-in user it is the saved
+ * profile address; for a guest it is the manually saved address or the cached
+ * onboarding city/location. If no address exists, falls back to the cached
+ * city/location for both states.
+ */
+private fun profileDisplayAddress(
+    isLoggedIn: Boolean,
+    user: User?,
+    savedAddress: String,
+    savedCity: String,
+    savedLocation: String
+): String {
+    val fallback = guestDisplayAddress(savedAddress, savedCity, savedLocation)
+    return if (isLoggedIn) {
+        val userAddress = user?.address
+        if (userAddress.isNullOrBlank() || userAddress == "null") fallback else userAddress
+    } else {
+        fallback
     }
 }
 
@@ -509,9 +620,11 @@ private fun ProfileTopBar(
 @Composable
 private fun ProfileCard(
     user: User?,
+    address: String,
     isImageUploading: Boolean,
     onPickImage: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onChangeAddressClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -593,6 +706,129 @@ private fun ProfileCard(
                         )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(ProfileDims.ADDRESS_ROW_TOP_SPACING))
+
+            AddressRow(
+                address = address,
+                onActionClick = onChangeAddressClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddressRow(
+    address: String,
+    onActionClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val hasAddress = address.isNotBlank()
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.LocationOn,
+            contentDescription = ProfileStrings.CD_ADDRESS_ICON,
+            tint = BrandBlue,
+            modifier = Modifier.size(ProfileDims.ADDRESS_ICON_SIZE)
+        )
+        Spacer(modifier = Modifier.width(ProfileDims.ADDRESS_ICON_TEXT_SPACING))
+        Text(
+            text = if (hasAddress) address else ProfileStrings.ADDRESS_EMPTY,
+            color = if (hasAddress) Black else HomeTextSecondary,
+            fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = if (hasAddress) ProfileStrings.CHANGE_ADDRESS else ProfileStrings.ADD_ADDRESS,
+            color = BrandBlue,
+            fontSize = ProfileDims.ADDRESS_ACTION_FONT_SIZE,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable(onClick = onActionClick)
+        )
+    }
+}
+
+@Composable
+private fun GuestProfileCard(
+    address: String,
+    onLoginClick: () -> Unit,
+    onChangeAddressClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ProfileDims.CARD_CORNER_RADIUS),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.CARD_ELEVATION)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(ProfileDims.CARD_INNER_PADDING),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(ProfileDims.AVATAR_SIZE)
+                    .clip(CircleShape)
+                    .background(BrandBlue.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Person,
+                    contentDescription = ProfileStrings.CD_AVATAR,
+                    tint = BrandBlue,
+                    modifier = Modifier.size(ProfileDims.GUEST_AVATAR_ICON_SIZE)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
+
+            Text(
+                text = ProfileStrings.GUEST_NAME,
+                color = Black,
+                fontSize = ProfileDims.PROFILE_NAME_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+            Text(
+                text = ProfileStrings.GUEST_SUBTITLE,
+                color = HomeTextSecondary,
+                fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
+
+            AddressRow(
+                address = address,
+                onActionClick = onChangeAddressClick
+            )
+
+            Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
+
+            Button(
+                onClick = onLoginClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ProfileDims.LOGIN_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(ProfileDims.LOGIN_BUTTON_CORNER_RADIUS),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = BrandBlue,
+                    contentColor = OnBrandContent
+                )
+            ) {
+                Text(
+                    text = ProfileStrings.LOGIN_BUTTON,
+                    fontSize = ProfileDims.LOGIN_BUTTON_FONT_SIZE,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -995,6 +1231,66 @@ private fun EditProfileDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun AddressDialog(
+    initialAddress: String,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var address by rememberSaveable { mutableStateOf(initialAddress) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(ProfileDims.DIALOG_CORNER_RADIUS),
+        containerColor = White,
+        title = {
+            Text(
+                text = ProfileStrings.ADDRESS_DIALOG_TITLE,
+                color = Black,
+                fontSize = ProfileDims.DIALOG_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            EditProfileField(
+                value = address,
+                onValueChange = { address = it },
+                label = ProfileStrings.LABEL_ADDRESS,
+                icon = Icons.Filled.LocationOn,
+                keyboardType = KeyboardType.Text
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (address != initialAddress) onSave(address)
+                    onDismiss()
+                },
+                modifier = Modifier.height(ProfileDims.DIALOG_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = BrandBlue,
+                    contentColor = OnBrandContent
+                )
+            ) {
+                Text(
+                    text = ProfileStrings.ACTION_SAVE,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = ProfileStrings.ACTION_CANCEL,
+                    color = HomeTextSecondary
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun EditProfileField(
     value: String,
     onValueChange: (String) -> Unit,
@@ -1029,56 +1325,7 @@ private fun EditProfileField(
     )
 }
 
-private const val PROFILE_LOGIN_PROMPT_TAG = "ProfileLoginPrompt"
 private const val PROFILE_MENU_TAG = "ProfileMenu"
-
-@Composable
-private fun ProfileLoginPrompt(
-    onLoginClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    // Logged-out profile UI with a direct action to open the login screen.
-    Column(
-        modifier = modifier.padding(ProfileDims.LOGIN_PROMPT_PADDING),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Person,
-            contentDescription = null,
-            tint = BrandBlue,
-            modifier = Modifier.size(ProfileDims.EMPTY_ICON_SIZE)
-        )
-        Spacer(modifier = Modifier.height(ProfileDims.LOGIN_TITLE_TOP_SPACING))
-        Text(
-            text = ProfileStrings.LOGIN_PROMPT_TITLE,
-            color = Black,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(ProfileDims.LOGIN_BUTTON_TOP_SPACING))
-        Button(
-            onClick = {
-                Logger.d(PROFILE_LOGIN_PROMPT_TAG, "Login button clicked from profile screen")
-                onLoginClick()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(ProfileDims.LOGIN_BUTTON_HEIGHT),
-            shape = RoundedCornerShape(ProfileDims.LOGIN_BUTTON_CORNER_RADIUS),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BrandBlue,
-                contentColor = OnBrandContent
-            )
-        ) {
-            Text(
-                text = ProfileStrings.LOGIN_BUTTON,
-                fontSize = ProfileDims.LOGIN_BUTTON_FONT_SIZE,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
 
 private const val PROFILE_IMAGE_MAX_DIM = 1024
 
@@ -1164,6 +1411,12 @@ private fun ProfileContentPreview() {
     RealeTheme {
         ProfileContent(
             user = PreviewData.sampleUser,
+            isLoggedIn = true,
+            onLoginClick = {},
+            savedAddress = "",
+            savedCity = "",
+            savedLocation = "",
+            onSaveAddress = {},
             isImageUploading = false,
             onPickImage = {},
             onListPropertyClick = {},
@@ -1183,8 +1436,29 @@ private fun ProfileContentPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun ProfileLoginPromptPreview() {
+private fun ProfileContentGuestPreview() {
     RealeTheme {
-        ProfileLoginPrompt(onLoginClick = {})
+        ProfileContent(
+            user = null,
+            isLoggedIn = false,
+            onLoginClick = {},
+            savedAddress = "",
+            savedCity = "Porvorim",
+            savedLocation = "Goa",
+            onSaveAddress = {},
+            isImageUploading = false,
+            onPickImage = {},
+            onListPropertyClick = {},
+            onMyListingsClick = {},
+            onMyEnquiriesClick = {},
+            onPersonalInfoClick = {},
+            onNotificationsClick = {},
+            onSettingsClick = {},
+            onHelpSupportClick = {},
+            onLogoutClick = {},
+            onUpdateField = { _, _ -> },
+            themeMode = ThemeMode.SYSTEM,
+            onThemeModeSelected = {}
+        )
     }
 }
