@@ -23,12 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.House
 import androidx.compose.material.icons.outlined.Landscape
@@ -38,11 +33,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
@@ -52,7 +44,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -83,10 +74,6 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.presentation.components.FilterDialog
-import com.realeapp.feature.search.presentation.components.MapViewContent
-import com.realeapp.feature.search.presentation.components.PropertyList
-import com.realeapp.feature.search.presentation.components.SearchHeader
-import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -97,11 +84,9 @@ import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
-import com.realeapp.ui.theme.OnAccent
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
-import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
@@ -157,7 +142,8 @@ fun SearchScreen(
     var showFilterDialog by remember { mutableStateOf(false) }
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(showResults) {
+        if (showResults) return@LaunchedEffect
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
@@ -171,7 +157,7 @@ fun SearchScreen(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = if (showResults) MainBackground else AppBackground,
+        containerColor = AppBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
@@ -180,31 +166,11 @@ fun SearchScreen(
                     contentColor = TextPrimary
                 )
             }
-        },
-        floatingActionButton = {
-            // View toggle action switches the results UI between map and list modes.
-            if (showResults) {
-                FloatingActionButton(
-                    onClick = viewModel::onToggleView,
-                    containerColor = Accent,
-                    contentColor = OnAccent
-                ) {
-                    Icon(
-                        imageVector = if (uiState.isMapView) Icons.AutoMirrored.Filled.List else Icons.Default.Map,
-                        contentDescription = if (uiState.isMapView) SearchStrings.CD_LIST_VIEW else SearchStrings.CD_MAP_VIEW
-                    )
-                }
-            }
         }
     ) { innerPadding ->
         if (showResults) {
-            SearchResultsContent(
-                uiState = uiState,
-                onBack = { showResults = false },
-                onOpenFilter = { showFilterDialog = true },
-                onRefresh = viewModel::refresh,
-                onLoadMore = viewModel::onLoadMore,
-                onLike = viewModel::onLikeClicked,
+            PropertiesScreen(
+                viewModel = viewModel,
                 onPropertyClick = { selectedProperty = it },
                 modifier = Modifier.padding(innerPadding)
             )
@@ -262,87 +228,6 @@ fun SearchScreen(
                 viewModel.onResetFilter()
             }
         )
-    }
-}
-
-@Composable
-private fun SearchResultsContent(
-    uiState: SearchUiState,
-    onBack: () -> Unit,
-    onOpenFilter: () -> Unit,
-    onRefresh: () -> Unit,
-    onLoadMore: () -> Unit,
-    onLike: (String) -> Unit,
-    onPropertyClick: (Property) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = SearchStrings.CD_BACK,
-                    tint = TextPrimary
-                )
-            }
-            // Search and filter controls remain visible above every results state.
-            SearchHeader(
-                onOpenFilter = onOpenFilter,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            when {
-                // Full-screen loading UI while the initial search results are fetched.
-                uiState.isLoading && uiState.properties.isEmpty() -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = Accent
-                    )
-                }
-
-                // Error UI with an action to retry the search.
-                uiState.errorMessage != null -> ErrorContent(
-                    message = uiState.errorMessage.orEmpty(),
-                    onRetry = onRefresh,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                // Map results UI with tappable property markers.
-                uiState.isMapView -> MapViewContent(
-                    properties = uiState.properties,
-                    onPropertyTap = onPropertyClick,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Paginated list results UI used as the default search view.
-                else -> PropertyList(
-                    properties = uiState.properties,
-                    isLoading = uiState.isLoading,
-                    isLoadingMore = uiState.isLoadingMore,
-                    hasReachedEnd = uiState.hasReachedEnd,
-                    onRefresh = onRefresh,
-                    onLoadMore = onLoadMore,
-                    onLike = onLike,
-                    onPropertyClick = onPropertyClick,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = SearchDims.RESULTS_LIST_HORIZONTAL_PADDING,
-                        top = SearchDims.RESULTS_LIST_TOP_PADDING,
-                        end = SearchDims.RESULTS_LIST_HORIZONTAL_PADDING,
-                        bottom = SearchDims.RESULTS_LIST_BOTTOM_PADDING
-                    )
-                )
-            }
-        }
     }
 }
 
@@ -800,30 +685,6 @@ private fun samplePopularLocations(): List<PopularLocation> = listOf(
     )
 )
 
-@Composable
-private fun ErrorContent(
-    message: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.padding(SearchDims.ERROR_PADDING),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = message,
-            color = TextPrimary,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        TextButton(
-            onClick = onRetry,
-            colors = ButtonDefaults.textButtonColors(contentColor = Accent)
-        ) {
-            Text(text = SearchStrings.RETRY)
-        }
-    }
-}
-
 @Preview(showBackground = true, name = "Search Landing")
 @Composable
 private fun SearchLandingContentPreview() {
@@ -835,26 +696,6 @@ private fun SearchLandingContentPreview() {
             onSuggestionSelected = {},
             onOpenFilter = {},
             onSearch = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Search Results")
-@Composable
-private fun SearchResultsContentPreview() {
-    RealeTheme {
-        SearchResultsContent(
-            uiState = SearchUiState(
-                properties = PreviewData.sampleProperties,
-                isLoading = false,
-                hasReachedEnd = true
-            ),
-            onBack = {},
-            onOpenFilter = {},
-            onRefresh = {},
-            onLoadMore = {},
-            onLike = {},
-            onPropertyClick = {}
         )
     }
 }
