@@ -44,6 +44,9 @@ internal object PropertiesStrings {
     const val PROPERTIES_FOUND_FORMAT = "%d Properties found"
     const val END_OF_RESULTS = "End of results"
 
+    const val HEADER_TITLE_FORMAT = "Properties in %s, %s"
+    const val HEADER_CITY_FORMAT = "Properties in %s"
+
     const val EMPTY_TITLE = "No Properties Found"
     const val EMPTY_SUBTITLE = "Please look for other Filter"
     const val EMPTY_CITY_TITLE_FORMAT = "No properties in %s"
@@ -78,6 +81,7 @@ internal object PropertiesDims {
     val RESULTS_HEADER_VERTICAL_PADDING = 12.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp
     val SORT_FONT_SIZE = 14.sp
+    val HEADER_TITLE_FONT_SIZE = 12.sp
     val RESULTS_LIST_SPACING = 12.dp
     val RESULTS_LIST_VERTICAL_PADDING = 4.dp
 

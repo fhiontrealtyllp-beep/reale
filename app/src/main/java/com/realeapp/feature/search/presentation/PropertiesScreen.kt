@@ -25,16 +25,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Tune
@@ -58,7 +55,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,11 +75,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
@@ -123,8 +117,6 @@ fun PropertiesScreen(
     onOpenFilter: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-    val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
@@ -160,11 +152,6 @@ fun PropertiesScreen(
         }
     ) { innerPadding ->
         PropertiesScreenContent(
-            query = query,
-            suggestions = suggestions,
-            onQueryChange = viewModel::onSearchQueryChanged,
-            onClearQuery = { viewModel.onSearchQueryChanged("") },
-            onSuggestionSelected = viewModel::onSuggestionSelected,
             properties = visibleProperties,
             isLoading = uiState.isLoading,
             isLoadingMore = uiState.isLoadingMore,
@@ -189,11 +176,6 @@ fun PropertiesScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PropertiesScreenContent(
-    query: String,
-    suggestions: List<LocationSuggestion>,
-    onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    onSuggestionSelected: (LocationSuggestion) -> Unit,
     properties: List<Property>,
     isLoading: Boolean,
     isLoadingMore: Boolean,
@@ -234,13 +216,9 @@ private fun PropertiesScreenContent(
     ) {
         Spacer(modifier = Modifier.height(PropertiesDims.SCREEN_PADDING))
 
-        LocationSearchBar(
-            query = query,
-            suggestions = suggestions,
-            onQueryChange = onQueryChange,
-            onSuggestionSelected = onSuggestionSelected,
-            onFilterClick = onOpenFilter,
-            onClearQuery = onClearQuery
+        PropertiesHeaderTitle(
+            currentFilter = currentFilter,
+            onOpenFilter = onOpenFilter
         )
 
 
@@ -309,85 +287,53 @@ private fun PropertiesScreenContent(
 }
 
 @Composable
-private fun PropertiesSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    onFilterClick: () -> Unit,
+private fun PropertiesHeaderTitle(
+    currentFilter: PropertyFilter?,
+    onOpenFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(PropertiesDims.SEARCH_BAR_HEIGHT),
-        shape = RoundedCornerShape(PropertiesDims.SEARCH_BAR_CORNER_RADIUS),
-        color = White,
-        border = BorderStroke(PropertiesDims.BORDER_WIDTH, HomeSearchBarBorder),
-        shadowElevation = PropertiesDims.CARD_ELEVATION
+            .padding(vertical = PropertiesDims.RESULTS_HEADER_VERTICAL_PADDING),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = PropertiesDims.SEARCH_BAR_HORIZONTAL_PADDING),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Text(
+            text = buildHeaderTitle(currentFilter),
+            color = Black,
+            fontSize = PropertiesDims.HEADER_TITLE_FONT_SIZE,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+
+        IconButton(onClick = onOpenFilter) {
             Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = PropertiesStrings.CD_SEARCH,
-                tint = Gray,
+                imageVector = Icons.Filled.Tune,
+                contentDescription = PropertiesStrings.CD_FILTER,
+                tint = Black,
                 modifier = Modifier.size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
             )
-
-            Spacer(modifier = Modifier.width(PropertiesDims.SEARCH_BAR_CONTENT_SPACING))
-
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier.weight(1f),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = Black,
-                    fontSize = PropertiesDims.SEARCH_BAR_FONT_SIZE
-                ),
-                decorationBox = { innerTextField ->
-                    if (query.isEmpty()) {
-                        Text(
-                            text = PropertiesStrings.SEARCH_HINT,
-                            color = Gray,
-                            fontSize = PropertiesDims.SEARCH_BAR_FONT_SIZE,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    innerTextField()
-                }
-            )
-
-            if (query.isNotBlank()) {
-                IconButton(onClick = onClearQuery) {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = PropertiesStrings.CD_CLEAR,
-                        tint = Gray,
-                        modifier = Modifier.size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
-                    )
-                }
-            }
-
-            VerticalDivider(
-                modifier = Modifier.height(PropertiesDims.SEARCH_BAR_DIVIDER_HEIGHT),
-                color = HomeSearchBarBorder
-            )
-
-            IconButton(onClick = onFilterClick) {
-                Icon(
-                    imageVector = Icons.Filled.Tune,
-                    contentDescription = PropertiesStrings.CD_FILTER,
-                    tint = Black,
-                    modifier = Modifier.size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
-                )
-            }
         }
+    }
+}
+
+private fun buildHeaderTitle(filter: PropertyFilter?): String {
+    val city = filter?.city
+    val locality = filter?.localities?.firstOrNull()
+    return when {
+        !locality.isNullOrBlank() && !city.isNullOrBlank() -> {
+            String.format(Locale.getDefault(), PropertiesStrings.HEADER_TITLE_FORMAT, locality, city)
+        }
+        !city.isNullOrBlank() -> {
+            String.format(Locale.getDefault(), PropertiesStrings.HEADER_CITY_FORMAT, city)
+        }
+        !locality.isNullOrBlank() -> {
+            String.format(Locale.getDefault(), PropertiesStrings.HEADER_CITY_FORMAT, locality)
+        }
+        else -> PropertiesStrings.SCREEN_TITLE
     }
 }
 
@@ -766,16 +712,11 @@ private fun PropertiesListFooter(
 private fun PropertiesScreenPreview() {
     RealeTheme(darkTheme = false) {
         PropertiesScreenContent(
-            query = "Porvorim, Goa",
-            suggestions = emptyList(),
-            onQueryChange = {},
-            onClearQuery = {},
-            onSuggestionSelected = {},
             properties = PreviewData.sampleProperties,
             isLoading = false,
             isLoadingMore = false,
             hasReachedEnd = true,
-            currentFilter = null,
+            currentFilter = PropertyFilter(city = "Goa", localities = listOf("Porvorim")),
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
             selectedCategory = HomeCategory.BUY,
@@ -794,16 +735,11 @@ private fun PropertiesScreenPreview() {
 private fun PropertiesScreenDarkPreview() {
     RealeTheme(darkTheme = true) {
         PropertiesScreenContent(
-            query = "Porvorim, Goa",
-            suggestions = emptyList(),
-            onQueryChange = {},
-            onClearQuery = {},
-            onSuggestionSelected = {},
             properties = PreviewData.sampleProperties,
             isLoading = false,
             isLoadingMore = false,
             hasReachedEnd = true,
-            currentFilter = null,
+            currentFilter = PropertyFilter(city = "Goa", localities = listOf("Porvorim")),
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
             selectedCategory = HomeCategory.BUY,
