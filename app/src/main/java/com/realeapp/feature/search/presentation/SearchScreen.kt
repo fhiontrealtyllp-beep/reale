@@ -132,6 +132,7 @@ private data class PopularLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
+    onChangeCity: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -173,6 +174,7 @@ fun SearchScreen(
             PropertiesScreen(
                 viewModel = viewModel,
                 onPropertyClick = { selectedProperty = it },
+                onChangeCity = onChangeCity,
                 modifier = Modifier.padding(innerPadding)
             )
         } else {

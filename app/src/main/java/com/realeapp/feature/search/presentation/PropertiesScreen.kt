@@ -123,7 +123,8 @@ private val propertiesTabs = listOf(
 fun PropertiesScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel(),
-    onPropertyClick: (Property) -> Unit = {}
+    onPropertyClick: (Property) -> Unit = {},
+    onChangeCity: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -180,6 +181,7 @@ fun PropertiesScreen(
             onOpenFilter = { showFilterDialog = true },
             onLike = { propertyId -> viewModel.onLikeClicked(propertyId) },
             onPropertyClick = onPropertyClick,
+            onChangeCity = onChangeCity,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -220,6 +222,7 @@ private fun PropertiesScreenContent(
     onOpenFilter: () -> Unit,
     onLike: (String) -> Unit,
     onPropertyClick: (Property) -> Unit,
+    onChangeCity: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -300,7 +303,11 @@ private fun PropertiesScreenContent(
                     }
                 } else if (properties.isEmpty()) {
                     item {
-                        PropertiesEmptyResults(modifier = Modifier.fillParentMaxSize())
+                        EmptyResults(
+                            modifier = Modifier.fillParentMaxSize(),
+                            city = currentFilter?.city,
+                            onChangeCity = onChangeCity
+                        )
                     }
                 } else {
                     itemsIndexed(
@@ -799,39 +806,6 @@ private fun PropertiesListFooter(
                 text = PropertiesStrings.END_OF_RESULTS,
                 color = Black,
                 fontSize = PropertiesDims.FOOTER_FONT_SIZE
-            )
-        }
-    }
-}
-
-@Composable
-private fun PropertiesEmptyResults(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Home,
-                contentDescription = null,
-                tint = Gray.copy(alpha = 0.38f),
-                modifier = Modifier.height(PropertiesDims.EMPTY_ICON_HEIGHT)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = PropertiesStrings.EMPTY_TITLE,
-                color = Black,
-                fontSize = PropertiesDims.EMPTY_TITLE_FONT_SIZE,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = PropertiesStrings.EMPTY_SUBTITLE,
-                color = Gray.copy(alpha = 0.7f),
-                fontSize = PropertiesDims.EMPTY_SUBTITLE_FONT_SIZE
             )
         }
     }

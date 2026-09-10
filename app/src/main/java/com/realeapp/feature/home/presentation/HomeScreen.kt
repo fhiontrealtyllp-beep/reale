@@ -1,6 +1,8 @@
 package com.realeapp.feature.home.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.presentation.EmptyResults
 import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
@@ -36,23 +39,27 @@ fun HomeScreen(
     onSavedClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
+    onChangeCity: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
     val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
     val promotionalProperty by viewModel.promotionalProperty.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
+    val selectedCity by viewModel.selectedCity.collectAsStateWithLifecycle()
 
     HomeContent(
         featuredProperties = featuredProperties,
         promotionalProperty = promotionalProperty,
         selectedCategory = selectedCategory,
+        selectedCity = selectedCity,
         onSearchClick = onSearchClick,
         onSavedClick = onSavedClick,
         onAddClick = onAddClick,
         onProfileClick = onProfileClick,
         onCategorySelected = viewModel::onCategorySelected,
         onLike = { property -> viewModel.onLikeClicked(property.documentId ?: property.id) },
+        onChangeCity = onChangeCity,
         modifier = modifier
     )
 }
@@ -62,12 +69,14 @@ internal fun HomeContent(
     featuredProperties: List<Property>,
     promotionalProperty: Property?,
     selectedCategory: HomeCategory,
+    selectedCity: String? = null,
     onSearchClick: () -> Unit,
     onSavedClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onCategorySelected: (HomeCategory) -> Unit = {},
     onLike: (Property) -> Unit = {},
+    onChangeCity: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val featuredList = remember(featuredProperties) {
@@ -82,44 +91,65 @@ internal fun HomeContent(
         containerColor = AppBackground,
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(vertical = HomeDims.SCREEN_PADDING),
             verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
         ) {
-            item { HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
-            item { HomeTitle(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
-            item { HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)) }
-            item {
-                CategoryChips(
-                    selectedCategory = selectedCategory,
-                    onCategorySelected = onCategorySelected,
-                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
-                )
-            }
-            item {
-                FeaturedSection(
-                    properties = featuredList,
-                    onSeeAllClick = onSearchClick,
-                    onPropertyClick = { id ->
-                        selectedProperty = featuredProperties.find {
-                            (it.documentId ?: it.id) == id
+            HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
+            HomeTitle(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
+            HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
+            CategoryChips(
+                selectedCategory = selectedCategory,
+                onCategorySelected = onCategorySelected,
+                modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+            ) {
+                if (featuredList.isEmpty() && promotionalProperty == null) {
+                    EmptyResults(
+                        modifier = Modifier.fillMaxSize(),
+                        title = HomeStrings.NO_PROPERTIES_TITLE,
+                        subtitle = HomeStrings.NO_PROPERTIES_SUBTITLE,
+                        city = selectedCity,
+                        onChangeCity = onChangeCity
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = HomeDims.SCREEN_PADDING),
+                        verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
+                    ) {
+                        if (featuredList.isNotEmpty()) {
+                            item {
+                                FeaturedSection(
+                                    properties = featuredList,
+                                    onSeeAllClick = onSearchClick,
+                                    onPropertyClick = { id ->
+                                        selectedProperty = featuredProperties.find {
+                                            (it.documentId ?: it.id) == id
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        if (promotionalProperty != null) {
+                            item {
+                                PromotionBanner(
+                                    promotionalProperty = promotionalProperty,
+                                    onClick = { selectedProperty = promotionalProperty },
+                                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                                )
+                            }
                         }
                     }
-                )
-            }
-            item {
-                PromotionBanner(
-                    promotionalProperty = promotionalProperty,
-                    onClick = {
-                        if (promotionalProperty != null) {
-                            selectedProperty = promotionalProperty
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
-                )
+                }
             }
         }
     }

@@ -29,6 +29,7 @@ private const val TAG = "OneTimeUtils"
 private const val PREFS_NAME = "OneTimeUtilsPrefs"
 private const val KEY_SEEDED = "properties_seeded"
 private const val KEY_PANAJI_PROMO_SEEDED = "panaji_promo_seeded"
+private const val KEY_NAGPUR_SEEDED = "nagpur_seeded"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
@@ -109,6 +110,78 @@ class OneTimeUtils(
         }
     }
 
+    suspend fun seedNagpurPropertiesIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_NAGPUR_SEEDED, false)) {
+            Logger.d(TAG, "Nagpur properties already seeded, skipping.")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Nagpur property seeding...")
+        val propertiesCollection = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
+        val city = "Nagpur"
+        val normalizedCity = LocationNormalizer.normalizeCity(city) ?: city.lowercase()
+        val images = buildImageUrls(normalizedCity)
+        val pincode = "440001"
+        val baseLatitude = 21.1458
+        val baseLongitude = 79.0882
+        val localities = listOf(
+            "Civil Lines", "Sadar", "Dharampeth", "Ramdaspeth", "Laxminagar",
+            "Wardha Road", "Manish Nagar", "Hingna", "Parsodi", "Futala"
+        )
+        val rentBuyTypes = listOf(
+            RentBuy.BUY, RentBuy.BUY, RentBuy.BUY, RentBuy.BUY, RentBuy.BUY,
+            RentBuy.RENT, RentBuy.RENT, RentBuy.RENT, RentBuy.RENT, RentBuy.RENT
+        )
+        val categories = listOf(
+            ListingCategory.FEATURED,
+            ListingCategory.FEATURED,
+            ListingCategory.PROMOTIONAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL,
+            ListingCategory.NORMAL
+        )
+
+        var successCount = 0
+        for (propertyIndex in 1..10) {
+            val globalIndex = 1_000 + propertyIndex
+            val latitude = baseLatitude + (propertyIndex * 0.001)
+            val longitude = baseLongitude + (propertyIndex * 0.001)
+            val data = buildPropertyData(
+                city = normalizedCity,
+                locality = localities[(propertyIndex - 1) % localities.size],
+                pincode = pincode,
+                propertyIndex = propertyIndex,
+                globalIndex = globalIndex,
+                images = images,
+                listingCategory = categories[propertyIndex - 1],
+                latitude = latitude,
+                longitude = longitude,
+                rentBuyOverride = rentBuyTypes[propertyIndex - 1]
+            )
+
+            try {
+                val docRef = propertiesCollection.document()
+                val dataWithId = data.toMutableMap().apply { this["id"] = docRef.id }
+                docRef.set(dataWithId).await()
+                successCount++
+                Logger.d(TAG, "Seeded Nagpur property $propertyIndex -> ${docRef.id}")
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to seed Nagpur property $propertyIndex: ${e.message}", e)
+            }
+        }
+
+        if (successCount == 10) {
+            prefs.edit().putBoolean(KEY_NAGPUR_SEEDED, true).apply()
+            Logger.d(TAG, "Nagpur property seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Nagpur property seeding incomplete. Success: $successCount / 10")
+        }
+    }
+
     suspend fun seedFeaturedAndPromotionalPanajiIfNeeded() = withContext(Dispatchers.IO) {
         if (prefs.getBoolean(KEY_PANAJI_PROMO_SEEDED, false)) {
             Logger.d(TAG, "Panaji featured/promotional properties already seeded, skipping.")
@@ -178,11 +251,14 @@ class OneTimeUtils(
         propertyIndex: Int,
         globalIndex: Int,
         images: List<String>,
-        listingCategory: ListingCategory = ListingCategory.NORMAL
+        listingCategory: ListingCategory = ListingCategory.NORMAL,
+        latitude: Double = (12.0 + globalIndex * 0.01),
+        longitude: Double = (77.0 + globalIndex * 0.01),
+        rentBuyOverride: RentBuy? = null
     ): Map<String, Any?> {
         val propertyType = PropertyType.entries[globalIndex % PropertyType.entries.size]
-        val rentBuy = if (globalIndex % 2 == 0) RentBuy.BUY else RentBuy.RENT
-        val residentialCommercial = if (rentBuy == RentBuy.BUY) ResidentialCommercial.RESIDENTIAL else ResidentialCommercial.RESIDENTIAL
+        val rentBuy = rentBuyOverride ?: if (globalIndex % 2 == 0) RentBuy.BUY else RentBuy.RENT
+        val residentialCommercial = ResidentialCommercial.RESIDENTIAL
         val bedroomType = BedroomType.entries[propertyIndex % BedroomType.entries.size]
         val furnishing = Furnishing.entries[propertyIndex % Furnishing.entries.size]
         val facing = Facing.entries[propertyIndex % Facing.entries.size]
@@ -213,8 +289,8 @@ class OneTimeUtils(
             "locality" to LocationNormalizer.normalizeLocality(locality),
             "pincode" to pincode,
             "address" to "$locality, $city",
-            "latitude" to (12.0 + globalIndex * 0.01),
-            "longitude" to (77.0 + globalIndex * 0.01),
+            "latitude" to latitude,
+            "longitude" to longitude,
             "images" to images,
             "createdAt" to currentTimestamp(),
             "status" to STATUS_LIVE,

@@ -10,7 +10,7 @@ object PropertyQueryBuilder {
         filter ?: return true
 
         filter.normalizedCity?.let { city ->
-            if (property.city != city) return false
+            if (property.city.lowercase() != city) return false
         }
 
         if (filter.normalizedLocalities.isNotEmpty()) {

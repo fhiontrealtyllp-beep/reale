@@ -47,6 +47,8 @@ internal object PropertiesStrings {
 
     const val EMPTY_TITLE = "No Properties Found"
     const val EMPTY_SUBTITLE = "Please look for other Filter"
+    const val EMPTY_CITY_TITLE_FORMAT = "No properties in %s"
+    const val EMPTY_CHANGE_CITY = "Change City"
 }
 
 internal object PropertiesDims {
@@ -112,6 +114,9 @@ internal object PropertiesDims {
     val EMPTY_ICON_HEIGHT = 80.dp
     val EMPTY_TITLE_FONT_SIZE = 18.sp
     val EMPTY_SUBTITLE_FONT_SIZE = 14.sp
+    val EMPTY_TITLE_SPACING = 16.dp
+    val EMPTY_SUBTITLE_SPACING = 8.dp
+    val EMPTY_BUTTON_SPACING = 16.dp
 
     val FOOTER_PADDING = 24.dp
     val FOOTER_FONT_SIZE = 14.sp

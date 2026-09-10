@@ -49,15 +49,16 @@ class RealeApplication : Application() {
             )
         }
 
-       // seedProperties()
+        seedProperties()
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun seedProperties() {
         GlobalScope.launch(Dispatchers.IO) {
             val oneTimeUtils = OneTimeUtils(this@RealeApplication)
-            oneTimeUtils.seedPropertiesIfNeeded()
-            oneTimeUtils.seedFeaturedAndPromotionalPanajiIfNeeded()
+            //oneTimeUtils.seedPropertiesIfNeeded()
+            //oneTimeUtils.seedFeaturedAndPromotionalPanajiIfNeeded()
+            oneTimeUtils.seedNagpurPropertiesIfNeeded()
         }
     }
 }

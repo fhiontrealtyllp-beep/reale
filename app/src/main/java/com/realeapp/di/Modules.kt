@@ -5,6 +5,20 @@ import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.onboarding.data.OnboardingPreferences
 import com.realeapp.feature.onboarding.data.repository.OnboardingRepositoryImpl
 import com.realeapp.feature.onboarding.domain.repository.OnboardingRepository
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingAddressUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCompletedUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCompletedUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingLocationUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingLocationUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingAddressUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingAddressUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCityUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCityUseCaseImpl
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCompletedUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCompletedUseCaseImpl
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSource
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSourceImpl
 import com.realeapp.feature.add.data.repository.AddPropertyRepositoryImpl
@@ -86,7 +100,14 @@ val appModule = module {
     single { ThemePreferences(androidContext()) }
     single { OnboardingPreferences(androidContext()) }
     single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
-    viewModel { MainViewModel(get(), get()) }
+    single<GetOnboardingCityUseCase> { GetOnboardingCityUseCaseImpl(get()) }
+    single<GetOnboardingLocationUseCase> { GetOnboardingLocationUseCaseImpl(get()) }
+    single<GetOnboardingAddressUseCase> { GetOnboardingAddressUseCaseImpl(get()) }
+    single<GetOnboardingCompletedUseCase> { GetOnboardingCompletedUseCaseImpl(get()) }
+    single<SetOnboardingCityUseCase> { SetOnboardingCityUseCaseImpl(get()) }
+    single<SetOnboardingAddressUseCase> { SetOnboardingAddressUseCaseImpl(get()) }
+    single<SetOnboardingCompletedUseCase> { SetOnboardingCompletedUseCaseImpl(get()) }
+    viewModel { MainViewModel(get(), get(), get(), get()) }
 }
 
 val authModule = module {
@@ -111,7 +132,7 @@ val searchModule = module {
     single<LocationSuggestionRepository> { PropertyLocationSuggestionRepository(get()) }
     single<GetLocationSuggestionsUseCase> { GetLocationSuggestionsUseCaseImpl(get()) }
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
-    viewModel { SearchViewModel(get(), get(), get(), get(), get()) }
+    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }
 
 val savedModule = module {
@@ -137,5 +158,5 @@ val profileModule = module {
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }

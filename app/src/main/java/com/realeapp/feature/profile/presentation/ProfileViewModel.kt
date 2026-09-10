@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.auth.domain.model.User
-import com.realeapp.feature.onboarding.domain.repository.OnboardingRepository
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingLocationUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingAddressUseCase
 import com.realeapp.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.realeapp.feature.profile.domain.usecase.LogoutUseCase
 import com.realeapp.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -30,7 +33,10 @@ class ProfileViewModel(
     private val logoutUseCase: LogoutUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
     private val userSession: UserSession,
-    private val onboardingRepository: OnboardingRepository,
+    private val getOnboardingAddressUseCase: GetOnboardingAddressUseCase,
+    private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
+    private val getOnboardingLocationUseCase: GetOnboardingLocationUseCase,
+    private val setOnboardingAddressUseCase: SetOnboardingAddressUseCase,
     private val themePreferences: ThemePreferences
 ) : ViewModel() {
 
@@ -43,11 +49,11 @@ class ProfileViewModel(
     val themeMode: StateFlow<ThemeMode> = themePreferences.themeMode
 
     // Locally cached address used when there is no logged-in user.
-    val savedAddress: StateFlow<String> = onboardingRepository.address
+    val savedAddress: StateFlow<String> = getOnboardingAddressUseCase()
 
     // City and location cached from the onboarding city picker.
-    val savedCity: StateFlow<String> = onboardingRepository.city
-    val savedLocation: StateFlow<String> = onboardingRepository.location
+    val savedCity: StateFlow<String> = getOnboardingCityUseCase()
+    val savedLocation: StateFlow<String> = getOnboardingLocationUseCase()
 
     init {
         load()
@@ -204,7 +210,7 @@ class ProfileViewModel(
         if (_uiState.value.isLoggedIn && _uiState.value.user != null) {
             updateProfileField(ProfileStrings.FIELD_ADDRESS, address)
         } else {
-            onboardingRepository.setAddress(address)
+            setOnboardingAddressUseCase(address)
             viewModelScope.launch {
                 _sideEffect.emit(ProfileStrings.MSG_ADDRESS_SAVED)
             }

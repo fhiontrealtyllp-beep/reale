@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.city.presentation.City
-import com.realeapp.feature.onboarding.domain.repository.OnboardingRepository
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCompletedUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCityUseCase
+import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCompletedUseCase
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,9 @@ import kotlinx.coroutines.flow.stateIn
 
 class MainViewModel(
     themePreferences: ThemePreferences,
-    private val onboardingRepository: OnboardingRepository
+    private val getOnboardingCompletedUseCase: GetOnboardingCompletedUseCase,
+    private val setOnboardingCompletedUseCase: SetOnboardingCompletedUseCase,
+    private val setOnboardingCityUseCase: SetOnboardingCityUseCase
 ) : ViewModel() {
     private val _selectedTab = MutableStateFlow<AppScreen>(AppScreen.Home)
     val selectedTab: StateFlow<AppScreen> = _selectedTab.asStateFlow()
@@ -27,12 +31,12 @@ class MainViewModel(
     /**
      * Shows the onboarding flow only when it has not been completed yet.
      */
-    val showOnboarding: StateFlow<Boolean> = onboardingRepository.isOnboardingCompleted
+    val showOnboarding: StateFlow<Boolean> = getOnboardingCompletedUseCase()
         .map { !it }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            !onboardingRepository.isOnboardingCompleted.value
+            !getOnboardingCompletedUseCase().value
         )
 
     fun selectTab(screen: AppScreen) {
@@ -40,7 +44,7 @@ class MainViewModel(
     }
 
     fun completeOnboarding() {
-        onboardingRepository.setOnboardingCompleted(true)
+        setOnboardingCompletedUseCase(true)
     }
 
     /**
@@ -49,7 +53,7 @@ class MainViewModel(
      */
     fun selectCity(city: City) {
         Logger.d("MainViewModel", "selectCity: name='${city.name}', region='${city.region}'")
-        onboardingRepository.setCitySelection(city.name, city.region)
+        setOnboardingCityUseCase(city.name, city.region)
         completeOnboarding()
     }
 
@@ -60,7 +64,7 @@ class MainViewModel(
     fun saveOnboardingLocation(city: String, location: String) {
         Logger.d("MainViewModel", "saveOnboardingLocation: city='$city', location='$location'")
         if (city.isNotBlank() || location.isNotBlank()) {
-            onboardingRepository.setCitySelection(city, location)
+            setOnboardingCityUseCase(city, location)
         }
         completeOnboarding()
     }

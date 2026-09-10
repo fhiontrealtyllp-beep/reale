@@ -173,8 +173,9 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     var showExitDialog by remember { mutableStateOf(false) }
                     var showMyListings by rememberSaveable { mutableStateOf(false) }
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
+                    var showCityScreen by rememberSaveable { mutableStateOf(false) }
 
-                    BackHandler(enabled = !showExitDialog && !showMyListings && !showAddProperty) {
+                    BackHandler(enabled = !showExitDialog && !showMyListings && !showAddProperty && !showCityScreen) {
                         showExitDialog = true
                     }
 
@@ -184,6 +185,10 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
 
                     BackHandler(enabled = showMyListings && !showAddProperty) {
                         showMyListings = false
+                    }
+
+                    BackHandler(enabled = showCityScreen) {
+                        showCityScreen = false
                     }
 
                     Scaffold(
@@ -217,9 +222,13 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     onSearchClick = { mainViewModel.selectTab(AppScreen.Search) },
                                     onSavedClick = { mainViewModel.selectTab(AppScreen.Saved) },
                                     //onAddClick = { mainViewModel.selectTab(AppScreen.Add) },
-                                    onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) }
+                                    onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) },
+                                    onChangeCity = { showCityScreen = true }
                                 )
-                                AppScreen.Search -> SearchScreen(modifier = Modifier.fillMaxSize())
+                                AppScreen.Search -> SearchScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    onChangeCity = { showCityScreen = true }
+                                )
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Welcome }
@@ -276,6 +285,15 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 ) {
                                     Text("Cancel")
                                 }
+                            }
+                        )
+                    }
+
+                    if (showCityScreen) {
+                        CityScreen(
+                            onCitySelected = { city ->
+                                mainViewModel.selectCity(city)
+                                showCityScreen = false
                             }
                         )
                     }

@@ -68,6 +68,7 @@ private val famousCities = listOf(
     City("Kolkata", "India"),
     City("Dubai", "UAE"),
     City("Singapore", "Singapore"),
+    City("Nagpur", "Nagpur"),
     City("London", "United Kingdom"),
     City("New York", "United States"),
     City("Paris", "France")

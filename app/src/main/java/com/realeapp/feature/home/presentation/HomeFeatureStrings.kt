@@ -41,6 +41,9 @@ internal object HomeStrings {
     const val SPEC_BEDS_LABEL = "Beds"
     const val SPEC_BATHS_LABEL = "Baths"
     const val SPEC_SQFT_LABEL = "sq.ft"
+
+    const val NO_PROPERTIES_TITLE = "No properties found"
+    const val NO_PROPERTIES_SUBTITLE = "Try a different city or check back later"
 }
 
 internal object HomeDims {

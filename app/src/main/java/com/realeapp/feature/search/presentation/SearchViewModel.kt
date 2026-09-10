@@ -3,6 +3,7 @@ package com.realeapp.feature.search.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.realeapp.core.like.LikeStateManager
+import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.LocationSuggestion
@@ -18,9 +19,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 private const val TAG = "SearchViewModel"
@@ -34,11 +38,16 @@ class SearchViewModel(
     private val getPromotionalPropertiesUseCase: GetPromotionalPropertiesUseCase,
     private val getLocationSuggestionsUseCase: GetLocationSuggestionsUseCase,
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
+    private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
     private val likeStateManager: LikeStateManager = LikeStateManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+    val selectedCity: StateFlow<String?> = _uiState
+        .map { it.currentFilter?.city }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _rawFeaturedProperties = MutableStateFlow<List<Property>>(emptyList())
     private val _featuredProperties = MutableStateFlow<List<Property>>(emptyList())
@@ -69,11 +78,36 @@ class SearchViewModel(
         get() = _uiState.value.currentFilter
 
     init {
+        val savedCity = getOnboardingCityUseCase().value
+        Logger.d(TAG, "init: savedCity='$savedCity'")
+        if (savedCity.isNotBlank()) {
+            _uiState.value = _uiState.value.copy(
+                currentFilter = PropertyFilter(city = savedCity)
+            )
+        }
         refresh()
         loadFeaturedProperties()
         loadPromotionalProperty()
         applyCategoryFilter()
         observeLikeState()
+        observeSavedCity()
+    }
+
+    private fun observeSavedCity() {
+        viewModelScope.launch {
+            getOnboardingCityUseCase()
+                .collect { savedCity ->
+                    Logger.d(TAG, "observeSavedCity: savedCity='$savedCity'")
+                    if (savedCity.isNotBlank() && _uiState.value.currentFilter?.city != savedCity) {
+                        _uiState.value = _uiState.value.copy(
+                            currentFilter = PropertyFilter(city = savedCity)
+                        )
+                        refresh(clearList = true)
+                        loadFeaturedProperties()
+                        loadPromotionalProperty()
+                    }
+                }
+        }
     }
 
     private fun observeLikeState() {
@@ -330,9 +364,23 @@ class SearchViewModel(
 
     private fun applyCategoryFilter() {
         val category = _selectedHomeCategory.value
-        val filtered = _rawFeaturedProperties.value.filter { category.matches(it) }
+        val normalizedCity = _uiState.value.currentFilter?.normalizedCity
+        Logger.d(TAG, "applyCategoryFilter: category=$category, city=$normalizedCity")
+
+        val filtered = _rawFeaturedProperties.value.filter { property ->
+            category.matches(property) && cityMatches(property.city, normalizedCity)
+        }
         _featuredProperties.value = filtered
-        _promotionalProperty.value = _rawPromotionalProperty.value?.takeIf { category.matches(it) }
-        Logger.d(TAG, "applyCategoryFilter: category=$category, featured=${filtered.size}, promo=${_promotionalProperty.value != null}")
+
+        _promotionalProperty.value = _rawPromotionalProperty.value?.takeIf { property ->
+            category.matches(property) && cityMatches(property.city, normalizedCity)
+        }
+
+        Logger.d(TAG, "applyCategoryFilter: featured=${filtered.size}, promo=${_promotionalProperty.value != null}")
+    }
+
+    private fun cityMatches(propertyCity: String, normalizedCity: String?): Boolean {
+        if (normalizedCity == null) return true
+        return propertyCity.lowercase() == normalizedCity
     }
 }
