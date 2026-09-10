@@ -37,8 +37,6 @@ internal object SearchStrings {
     const val SECTION_LOOKING_FOR = "What are you looking for?"
     const val SECTION_BUDGET = "What's your budget?"
     const val SECTION_FILTERS = "Refine your search"
-    const val FILTER_ESSENTIAL = "Essential filters"
-    const val FILTER_MORE_OPTIONS = "More filters"
     const val FILTER_LOCALITY = "Locality"
     const val FILTER_PINCODE = "Pincode"
     const val FILTER_LISTING_INTENT = "Looking to"

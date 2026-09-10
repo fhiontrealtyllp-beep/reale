@@ -26,7 +26,6 @@ internal object PropertiesStrings {
     const val FILTER_PROPERTY_TYPE = "Property Type"
     const val FILTER_PRICE_RANGE = "Price Range"
     const val FILTER_BHK = "BHK"
-    const val FILTER_MORE_FILTERS = "More Filters"
 
     const val BADGE_FOR_SALE = "For Sale"
     const val BADGE_FOR_RENT = "For Rent"

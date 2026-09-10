@@ -97,12 +97,6 @@ fun PropertyFilters(
                 }
             }
 
-            Text(
-                text = SearchStrings.FILTER_ESSENTIAL,
-                color = Black,
-                style = MaterialTheme.typography.titleMedium
-            )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)
@@ -169,12 +163,6 @@ fun PropertyFilters(
                 selected = filter.bathrooms,
                 onSelected = { onFilterChange(filter.copy(bathrooms = it)) },
                 optionLabel = Int::toString
-            )
-
-            Text(
-                text = SearchStrings.FILTER_MORE_OPTIONS,
-                color = Black,
-                style = MaterialTheme.typography.titleMedium
             )
 
             FilterChipGroup(
