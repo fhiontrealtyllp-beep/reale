@@ -18,6 +18,11 @@ internal object PropertiesStrings {
     const val CD_PHOTOS = "Photo count"
     const val CD_PROPERTY_IMAGE = "Property image"
 
+    const val TAB_BUY = "Buy"
+    const val TAB_RENT = "Rent"
+    const val TAB_NEW_PROJECTS = "New Projects"
+    const val TAB_COMMERCIAL = "Commercial"
+
     const val FILTER_PROPERTY_TYPE = "Property Type"
     const val FILTER_PRICE_RANGE = "Price Range"
     const val FILTER_BHK = "BHK"
@@ -66,6 +71,8 @@ internal object PropertiesDims {
     val FILTER_CHIPS_SPACING = 8.dp
     val FILTER_CHIPS_TOP_PADDING = 12.dp
     val CHIP_FONT_SIZE = 12.sp
+
+    val TABS_ROW_TOP_PADDING = 12.dp
 
     val RESULTS_HEADER_VERTICAL_PADDING = 12.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp

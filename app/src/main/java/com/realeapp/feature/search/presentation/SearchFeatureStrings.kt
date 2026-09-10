@@ -72,10 +72,6 @@ internal object SearchDims {
     val SUGGESTION_ITEM_TEXT_SPACING = 12.dp
     val SUGGESTION_ITEM_DIVIDER_HEIGHT = 1.dp
 
-    val TAB_CORNER_RADIUS = 20.dp
-    val TAB_VERTICAL_PADDING = 10.dp
-    val TAB_SPACING = 10.dp
-
     val SECTION_HEADER_SPACING = 12.dp
 
     val LOCATION_CARD_WIDTH = 150.dp

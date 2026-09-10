@@ -66,6 +66,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +74,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -82,6 +84,7 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.FilterDialog
+import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.Accent
@@ -108,6 +111,13 @@ private enum class SortBy(val label: String) {
     NEWEST(PropertiesStrings.SORT_NEWEST)
 }
 
+private val propertiesTabs = listOf(
+    HomeCategory.BUY to PropertiesStrings.TAB_BUY,
+    HomeCategory.RENT to PropertiesStrings.TAB_RENT,
+    HomeCategory.NEW_PROJECTS to PropertiesStrings.TAB_NEW_PROJECTS,
+    HomeCategory.COMMERCIAL to PropertiesStrings.TAB_COMMERCIAL
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PropertiesScreen(
@@ -120,6 +130,7 @@ fun PropertiesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var showFilterDialog by remember { mutableStateOf(false) }
     var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
+    var selectedCategory by rememberSaveable { mutableStateOf(HomeCategory.BUY) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
@@ -127,12 +138,13 @@ fun PropertiesScreen(
         }
     }
 
-    val sortedProperties = remember(uiState.properties, sortBy) {
+    val visibleProperties = remember(uiState.properties, sortBy, selectedCategory) {
+        val filtered = uiState.properties.filter(selectedCategory::matches)
         when (sortBy) {
-            SortBy.RELEVANCE -> uiState.properties
-            SortBy.PRICE_LOW_HIGH -> uiState.properties.sortedBy { it.price }
-            SortBy.PRICE_HIGH_LOW -> uiState.properties.sortedByDescending { it.price }
-            SortBy.NEWEST -> uiState.properties
+            SortBy.RELEVANCE -> filtered
+            SortBy.PRICE_LOW_HIGH -> filtered.sortedBy { it.price }
+            SortBy.PRICE_HIGH_LOW -> filtered.sortedByDescending { it.price }
+            SortBy.NEWEST -> filtered
         }
     }
 
@@ -154,13 +166,15 @@ fun PropertiesScreen(
             query = query,
             onQueryChange = viewModel::onSearchQueryChanged,
             onClearQuery = { viewModel.onSearchQueryChanged("") },
-            properties = sortedProperties,
+            properties = visibleProperties,
             isLoading = uiState.isLoading,
             isLoadingMore = uiState.isLoadingMore,
             hasReachedEnd = uiState.hasReachedEnd,
             currentFilter = uiState.currentFilter,
             sortBy = sortBy,
             onSortChange = { sortBy = it },
+            selectedCategory = selectedCategory,
+            onCategoryChange = { selectedCategory = it },
             onRefresh = viewModel::refresh,
             onLoadMore = viewModel::onLoadMore,
             onOpenFilter = { showFilterDialog = true },
@@ -199,6 +213,8 @@ private fun PropertiesScreenContent(
     currentFilter: PropertyFilter?,
     sortBy: SortBy,
     onSortChange: (SortBy) -> Unit,
+    selectedCategory: HomeCategory,
+    onCategoryChange: (HomeCategory) -> Unit,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onOpenFilter: () -> Unit,
@@ -234,6 +250,16 @@ private fun PropertiesScreenContent(
             onQueryChange = onQueryChange,
             onClearQuery = onClearQuery,
             onFilterClick = onOpenFilter
+        )
+
+        Spacer(modifier = Modifier.height(PropertiesDims.TABS_ROW_TOP_PADDING))
+
+        PillTabsRow(
+            tabs = propertiesTabs.map { it.second },
+            selectedIndex = propertiesTabs.indexOfFirst { it.first == selectedCategory },
+            onSelect = { index ->
+                onCategoryChange(propertiesTabs[index].first)
+            }
         )
 
         Spacer(modifier = Modifier.height(PropertiesDims.FILTER_CHIPS_TOP_PADDING))
@@ -826,6 +852,8 @@ private fun PropertiesScreenPreview() {
             currentFilter = null,
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
+            selectedCategory = HomeCategory.BUY,
+            onCategoryChange = {},
             onRefresh = {},
             onLoadMore = {},
             onOpenFilter = {},
@@ -850,6 +878,8 @@ private fun PropertiesScreenDarkPreview() {
             currentFilter = null,
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
+            selectedCategory = HomeCategory.BUY,
+            onCategoryChange = {},
             onRefresh = {},
             onLoadMore = {},
             onOpenFilter = {},

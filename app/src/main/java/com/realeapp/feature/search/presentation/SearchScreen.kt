@@ -74,6 +74,7 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.presentation.components.FilterDialog
+import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -285,7 +286,8 @@ private fun SearchLandingContent(
         }
 
         item {
-            SearchTabsRow(
+            PillTabsRow(
+                tabs = searchTabs.map { it.label },
                 selectedIndex = selectedTabIndex,
                 onSelect = { selectedTabIndex = it },
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
@@ -380,44 +382,6 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
                     .clip(CircleShape)
                     .background(BrandRed)
             )
-        }
-    }
-}
-
-@Composable
-private fun SearchTabsRow(
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(SearchDims.TAB_SPACING)
-    ) {
-        searchTabs.forEachIndexed { index, tab ->
-            val selected = index == selectedIndex
-            Surface(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(SearchDims.TAB_CORNER_RADIUS))
-                    .clickable { onSelect(index) },
-                shape = RoundedCornerShape(SearchDims.TAB_CORNER_RADIUS),
-                color = if (selected) BrandBlue else White,
-                border = if (selected) null else BorderStroke(SearchDims.BORDER_WIDTH, HomeSearchBarBorder)
-            ) {
-                Text(
-                    text = tab.label,
-                    color = if (selected) OnBrandContent else Black,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SearchDims.TAB_VERTICAL_PADDING)
-                )
-            }
         }
     }
 }
