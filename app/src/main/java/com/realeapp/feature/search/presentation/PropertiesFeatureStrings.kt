@@ -77,11 +77,11 @@ internal object PropertiesDims {
 
     val TABS_ROW_TOP_PADDING = 12.dp
 
-    val RESULTS_HEADER_VERTICAL_PADDING = 8.dp
+    val RESULTS_HEADER_VERTICAL_PADDING = 2.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp
     val SORT_FONT_SIZE = 14.sp
     val HEADER_TITLE_FONT_SIZE = 12.sp
-    val RESULTS_LIST_SPACING = 12.dp
+    val RESULTS_LIST_SPACING = 4.dp
     val RESULTS_LIST_VERTICAL_PADDING = 4.dp
 
     val CARD_CORNER_RADIUS = 12.dp
