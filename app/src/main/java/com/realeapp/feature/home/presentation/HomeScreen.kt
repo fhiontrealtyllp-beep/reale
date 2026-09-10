@@ -24,6 +24,7 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.EmptyResults
 import com.realeapp.feature.search.presentation.HomeCategory
+import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.preview.PreviewData
@@ -40,9 +41,11 @@ fun HomeScreen(
     onAddClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onChangeCity: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
     val promotionalProperty by viewModel.promotionalProperty.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
@@ -62,6 +65,16 @@ fun HomeScreen(
         onChangeCity = onChangeCity,
         modifier = modifier
     )
+
+    if (uiState.showLoginPrompt) {
+        LoginPromptDialog(
+            onDismiss = viewModel::onLoginPromptDismissed,
+            onLoginClick = {
+                viewModel.onLoginPromptDismissed()
+                onLoginClick()
+            }
+        )
+    }
 }
 
 @Composable

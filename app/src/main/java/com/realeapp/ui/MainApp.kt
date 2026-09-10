@@ -142,7 +142,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         onBack = { authScreen = AuthScreen.EnterNumber },
                         onEditNumber = { authScreen = AuthScreen.EnterNumber },
                         onContinueSuccess = {
-                            mainViewModel.selectTab(AppScreen.Home)
+                            // Return to the previously active tab instead of forcing Home.
                             authScreen = AuthScreen.Main
                         }
                     )
@@ -223,11 +223,13 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     onSavedClick = { mainViewModel.selectTab(AppScreen.Saved) },
                                     //onAddClick = { mainViewModel.selectTab(AppScreen.Add) },
                                     onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) },
-                                    onChangeCity = { showCityScreen = true }
+                                    onChangeCity = { showCityScreen = true },
+                                    onLoginClick = { authScreen = AuthScreen.Welcome }
                                 )
                                 AppScreen.Search -> SearchScreen(
                                     modifier = Modifier.fillMaxSize(),
-                                    onChangeCity = { showCityScreen = true }
+                                    onChangeCity = { showCityScreen = true },
+                                    onLoginClick = { authScreen = AuthScreen.Welcome }
                                 )
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),

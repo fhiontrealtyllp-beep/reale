@@ -72,6 +72,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SearchScreen(
     onChangeCity: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -153,6 +154,7 @@ fun SearchScreen(
                 onPropertyClick = { selectedProperty = it },
                 onChangeCity = onChangeCity,
                 onOpenFilter = { showResults = false },
+                onLoginClick = onLoginClick,
                 modifier = Modifier.padding(innerPadding)
             )
         } else {

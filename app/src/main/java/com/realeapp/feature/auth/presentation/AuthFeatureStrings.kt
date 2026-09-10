@@ -66,6 +66,11 @@ internal object AuthStrings {
     const val ERROR_LOGIN_FAILED = "Login failed. Please check your credentials and try again."
     const val ERROR_REGISTRATION_FAILED = "Registration failed. Please try again."
 
+    const val LOGIN_PROMPT_TITLE = "Login to save"
+    const val LOGIN_PROMPT_MESSAGE = "Sign in to save your favorite properties and access them anytime."
+    const val LOGIN_PROMPT_LOGIN = "Login"
+    const val LOGIN_PROMPT_CANCEL = "Maybe later"
+
     const val CD_WELCOME_ILLUSTRATION = "House illustration"
     const val CD_GOOGLE_LOGO = "Google logo"
     const val CD_OPTION_ARROW = "Continue"
@@ -154,4 +159,20 @@ internal object AuthDims {
     val FIELD_HELPER_FONT_SIZE = 12.sp
     val INFO_FONT_SIZE = 13.sp
     val INFO_ICON_SIZE = 18.dp
+
+    val LOGIN_PROMPT_HORIZONTAL_MARGIN = 32.dp
+    val LOGIN_PROMPT_PADDING = 24.dp
+    val LOGIN_PROMPT_CORNER_RADIUS = 24.dp
+    val LOGIN_PROMPT_ELEVATION = 8.dp
+    val LOGIN_PROMPT_ICON_CONTAINER_SIZE = 64.dp
+    val LOGIN_PROMPT_ICON_SIZE = 32.dp
+    val LOGIN_PROMPT_TITLE_FONT_SIZE = 20.sp
+    val LOGIN_PROMPT_MESSAGE_FONT_SIZE = 14.sp
+    val LOGIN_PROMPT_TITLE_SPACING = 16.dp
+    val LOGIN_PROMPT_MESSAGE_SPACING = 8.dp
+    val LOGIN_PROMPT_BUTTONS_SPACING = 24.dp
+    val LOGIN_PROMPT_BUTTON_SPACING = 12.dp
+    val LOGIN_PROMPT_BUTTON_HEIGHT = 48.dp
+    val LOGIN_PROMPT_BUTTON_CORNER_RADIUS = 12.dp
+    val LOGIN_PROMPT_BUTTON_FONT_SIZE = 16.sp
 }

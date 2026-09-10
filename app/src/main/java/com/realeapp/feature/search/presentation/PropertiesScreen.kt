@@ -1,7 +1,6 @@
 package com.realeapp.feature.search.presentation
 
 import android.content.res.Configuration
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.SwapVert
@@ -46,7 +44,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -78,11 +75,11 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
-import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.SurfaceLight
+import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import java.text.NumberFormat
@@ -104,7 +101,8 @@ fun PropertiesScreen(
     viewModel: SearchViewModel = koinViewModel(),
     onPropertyClick: (Property) -> Unit = {},
     onChangeCity: () -> Unit = {},
-    onOpenFilter: () -> Unit = {}
+    onOpenFilter: () -> Unit = {},
+    onLoginClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
@@ -161,6 +159,16 @@ fun PropertiesScreen(
             onPropertyClick = onPropertyClick,
             onChangeCity = onChangeCity,
             modifier = Modifier.padding(innerPadding)
+        )
+    }
+
+    if (uiState.showLoginPrompt) {
+        LoginPromptDialog(
+            onDismiss = viewModel::onLoginPromptDismissed,
+            onLoginClick = {
+                viewModel.onLoginPromptDismissed()
+                onLoginClick()
+            }
         )
     }
 
@@ -311,43 +319,6 @@ private fun PropertiesHeaderTitle(
     }
 }
 
-
-
-
-@Composable
-private fun FilterChip(
-    label: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(PropertiesDims.FILTER_CHIP_CORNER_RADIUS),
-        color = White,
-        border = BorderStroke(PropertiesDims.BORDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(PropertiesDims.FILTER_CHIP_ICON_TEXT_SPACING),
-            modifier = Modifier.padding(
-                horizontal = PropertiesDims.FILTER_CHIP_HORIZONTAL_PADDING,
-                vertical = PropertiesDims.FILTER_CHIP_VERTICAL_PADDING
-            )
-        ) {
-            Text(
-                text = label,
-                color = Black,
-                fontSize = PropertiesDims.CHIP_FONT_SIZE,
-                fontWeight = FontWeight.Medium
-            )
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = Gray,
-                modifier = Modifier.size(PropertiesDims.FILTER_CHIP_ICON_SIZE)
-            )
-        }
-    }
-}
 
 @Composable
 private fun ResultsHeader(

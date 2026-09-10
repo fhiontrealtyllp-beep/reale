@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.realeapp.core.like.LikeStateManager
 import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
+import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.LocationSuggestion
@@ -43,6 +44,7 @@ class SearchViewModel(
     private val getLocationSuggestionsUseCase: GetLocationSuggestionsUseCase,
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
     private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
+    private val userSession: UserSession,
     private val likeStateManager: LikeStateManager = LikeStateManager
 ) : ViewModel() {
 
@@ -191,6 +193,12 @@ class SearchViewModel(
 
     fun onLikeClicked(propertyId: String) {
         Logger.d(TAG, "onLikeClicked: propertyId=$propertyId")
+        if (userSession.getUserId().isNullOrEmpty()) {
+            Logger.d(TAG, "onLikeClicked: user not logged in, showing login prompt")
+            _uiState.value = _uiState.value.copy(showLoginPrompt = true)
+            return
+        }
+
         val allIndex = _uiState.value.properties.indexOfFirst {
             it.documentId == propertyId || it.id == propertyId
         }
@@ -340,6 +348,10 @@ class SearchViewModel(
 
     fun onErrorShown() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun onLoginPromptDismissed() {
+        _uiState.value = _uiState.value.copy(showLoginPrompt = false)
     }
 
     private fun updatePropertyInList(index: Int, property: Property) {

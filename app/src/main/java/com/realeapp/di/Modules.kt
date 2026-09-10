@@ -132,7 +132,7 @@ val searchModule = module {
     single<LocationSuggestionRepository> { PropertyLocationSuggestionRepository(get()) }
     single<GetLocationSuggestionsUseCase> { GetLocationSuggestionsUseCaseImpl(get()) }
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
-    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 val savedModule = module {
