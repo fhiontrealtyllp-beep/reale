@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -83,21 +81,8 @@ fun PropertyFilters(
             modifier = Modifier.padding(SearchDims.FILTER_PANEL_PADDING),
             verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = SearchStrings.SECTION_FILTERS,
-                    color = Black,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                TextButton(onClick = { onFilterChange(PropertyFilter(city = filter.city)) }) {
-                    Text(text = SearchStrings.FILTER_RESET, color = Accent)
-                }
-            }
-
-            Row(
+            //locality pin
+           /* Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)
             ) {
@@ -116,7 +101,7 @@ fun PropertyFilters(
                     keyboardType = KeyboardType.Number,
                     modifier = Modifier.weight(1f)
                 )
-            }
+            }*/
 
             FilterChipGroup(
                 title = SearchStrings.FILTER_LISTING_INTENT,

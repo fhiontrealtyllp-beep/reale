@@ -19,8 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -150,6 +152,7 @@ fun SearchScreen(
                 viewModel = viewModel,
                 onPropertyClick = { selectedProperty = it },
                 onChangeCity = onChangeCity,
+                onOpenFilter = { showResults = false },
                 modifier = Modifier.padding(innerPadding)
             )
         } else {
@@ -248,15 +251,32 @@ private fun SearchLandingContent(
         item { SearchTopBar(modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)) }
 
         item {
-            Text(
-                text = SearchStrings.TITLE,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SearchDims.SCREEN_PADDING),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = SearchStrings.TITLE,
+                    color = HomeTextSecondary,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                IconButton(
+                    onClick = { onFilterChange(PropertyFilter(city = filter.city)) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = SearchStrings.FILTER_RESET,
+                        tint = Black
+                    )
+                }
+            }
         }
 
-        item {
+        //searchbar
+       /* item {
             LocationSearchBar(
                 query = query,
                 suggestions = suggestions,
@@ -283,7 +303,7 @@ private fun SearchLandingContent(
                 autoFocus = true,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
-        }
+        }*/
 
         item {
             PropertyFilters(

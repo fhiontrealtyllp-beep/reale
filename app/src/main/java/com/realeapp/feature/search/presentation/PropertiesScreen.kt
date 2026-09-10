@@ -83,7 +83,6 @@ import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.presentation.components.FilterDialog
 import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
@@ -120,14 +119,14 @@ fun PropertiesScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel(),
     onPropertyClick: (Property) -> Unit = {},
-    onChangeCity: () -> Unit = {}
+    onChangeCity: () -> Unit = {},
+    onOpenFilter: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showFilterDialog by remember { mutableStateOf(false) }
     var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
 
     LaunchedEffect(Unit) {
@@ -177,7 +176,7 @@ fun PropertiesScreen(
             onCategoryChange = viewModel::onCategorySelected,
             onRefresh = viewModel::refresh,
             onLoadMore = viewModel::onLoadMore,
-            onOpenFilter = { showFilterDialog = true },
+            onOpenFilter = onOpenFilter,
             onLike = { propertyId -> viewModel.onLikeClicked(propertyId) },
             onPropertyClick = onPropertyClick,
             onChangeCity = onChangeCity,
@@ -185,20 +184,6 @@ fun PropertiesScreen(
         )
     }
 
-    if (showFilterDialog) {
-        FilterDialog(
-            filter = uiState.currentFilter,
-            onDismiss = { showFilterDialog = false },
-            onApply = { newFilter ->
-                showFilterDialog = false
-                viewModel.onFilterChanged(newFilter)
-            },
-            onReset = {
-                showFilterDialog = false
-                viewModel.onResetFilter()
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
