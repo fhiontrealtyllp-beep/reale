@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,14 +27,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.KingBed
 import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.Card
@@ -45,10 +40,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -69,7 +62,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -78,7 +70,6 @@ import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.Accent
@@ -88,7 +79,6 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
-import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
@@ -137,6 +127,10 @@ fun PropertiesScreen(
         }
     }
 
+    val headerTitle = remember(uiState.currentFilter, visibleProperties) {
+        viewModel.buildHeaderTitle(uiState.currentFilter, visibleProperties.size)
+    }
+
     Scaffold(
         modifier = modifier,
         containerColor = AppBackground,
@@ -153,6 +147,7 @@ fun PropertiesScreen(
     ) { innerPadding ->
         PropertiesScreenContent(
             properties = visibleProperties,
+            headerTitle = headerTitle,
             isLoading = uiState.isLoading,
             isLoadingMore = uiState.isLoadingMore,
             hasReachedEnd = uiState.hasReachedEnd,
@@ -177,6 +172,7 @@ fun PropertiesScreen(
 @Composable
 private fun PropertiesScreenContent(
     properties: List<Property>,
+    headerTitle: String,
     isLoading: Boolean,
     isLoadingMore: Boolean,
     hasReachedEnd: Boolean,
@@ -217,7 +213,7 @@ private fun PropertiesScreenContent(
         Spacer(modifier = Modifier.height(PropertiesDims.SCREEN_PADDING))
 
         PropertiesHeaderTitle(
-            currentFilter = currentFilter,
+            headerTitle = headerTitle,
             onOpenFilter = onOpenFilter
         )
 
@@ -237,7 +233,6 @@ private fun PropertiesScreenContent(
             ) {
                 item {
                     ResultsHeader(
-                        count = properties.size,
                         sortBy = sortBy,
                         onSortChange = onSortChange
                     )
@@ -288,7 +283,7 @@ private fun PropertiesScreenContent(
 
 @Composable
 private fun PropertiesHeaderTitle(
-    currentFilter: PropertyFilter?,
+    headerTitle: String,
     onOpenFilter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -300,7 +295,7 @@ private fun PropertiesHeaderTitle(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = buildHeaderTitle(currentFilter),
+            text = headerTitle,
             color = Black,
             fontSize = PropertiesDims.HEADER_TITLE_FONT_SIZE,
             fontWeight = FontWeight.Bold,
@@ -320,22 +315,6 @@ private fun PropertiesHeaderTitle(
     }
 }
 
-private fun buildHeaderTitle(filter: PropertyFilter?): String {
-    val city = filter?.city
-    val locality = filter?.localities?.firstOrNull()
-    return when {
-        !locality.isNullOrBlank() && !city.isNullOrBlank() -> {
-            String.format(Locale.getDefault(), PropertiesStrings.HEADER_TITLE_FORMAT, locality, city)
-        }
-        !city.isNullOrBlank() -> {
-            String.format(Locale.getDefault(), PropertiesStrings.HEADER_CITY_FORMAT, city)
-        }
-        !locality.isNullOrBlank() -> {
-            String.format(Locale.getDefault(), PropertiesStrings.HEADER_CITY_FORMAT, locality)
-        }
-        else -> PropertiesStrings.SCREEN_TITLE
-    }
-}
 
 
 
@@ -376,7 +355,6 @@ private fun FilterChip(
 
 @Composable
 private fun ResultsHeader(
-    count: Int,
     sortBy: SortBy,
     onSortChange: (SortBy) -> Unit,
     modifier: Modifier = Modifier
@@ -711,6 +689,7 @@ private fun PropertiesScreenPreview() {
             isLoadingMore = false,
             hasReachedEnd = true,
             currentFilter = PropertyFilter(city = "Goa", localities = listOf("Porvorim")),
+            headerTitle = String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_IN_LOCATION_FORMAT, 5, "Porvorim", "Goa"),
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
             selectedCategory = HomeCategory.BUY,
@@ -734,6 +713,7 @@ private fun PropertiesScreenDarkPreview() {
             isLoadingMore = false,
             hasReachedEnd = true,
             currentFilter = PropertyFilter(city = "Goa", localities = listOf("Porvorim")),
+            headerTitle = String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_IN_LOCATION_FORMAT, 5, "Porvorim", "Goa"),
             sortBy = SortBy.RELEVANCE,
             onSortChange = {},
             selectedCategory = HomeCategory.BUY,

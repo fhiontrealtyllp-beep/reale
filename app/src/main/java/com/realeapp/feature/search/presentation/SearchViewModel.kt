@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 private const val TAG = "SearchViewModel"
 private const val FEATURED_PROPERTIES_LIMIT = 10
@@ -462,5 +463,22 @@ class SearchViewModel(
     private fun cityMatches(propertyCity: String, normalizedCity: String?): Boolean {
         if (normalizedCity == null) return true
         return propertyCity.lowercase() == normalizedCity
+    }
+
+    fun buildHeaderTitle(filter: PropertyFilter?, count: Int): String {
+        val city = filter?.city
+        val locality = filter?.localities?.firstOrNull()
+        return when {
+            !locality.isNullOrBlank() && !city.isNullOrBlank() -> {
+                String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_IN_LOCATION_FORMAT, count, locality, city)
+            }
+            !city.isNullOrBlank() -> {
+                String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_IN_CITY_FORMAT, count, city)
+            }
+            !locality.isNullOrBlank() -> {
+                String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_IN_CITY_FORMAT, count, locality)
+            }
+            else -> String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_FORMAT, count)
+        }
     }
 }

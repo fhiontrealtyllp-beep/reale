@@ -42,10 +42,9 @@ internal object PropertiesStrings {
     const val SORT_NEWEST = "Newest"
 
     const val PROPERTIES_FOUND_FORMAT = "%d Properties found"
+    const val PROPERTIES_FOUND_IN_LOCATION_FORMAT = "%d Properties found in %s, %s"
+    const val PROPERTIES_FOUND_IN_CITY_FORMAT = "%d Properties found in %s"
     const val END_OF_RESULTS = "End of results"
-
-    const val HEADER_TITLE_FORMAT = "Properties in %s, %s"
-    const val HEADER_CITY_FORMAT = "Properties in %s"
 
     const val EMPTY_TITLE = "No Properties Found"
     const val EMPTY_SUBTITLE = "Please look for other Filter"
@@ -78,7 +77,7 @@ internal object PropertiesDims {
 
     val TABS_ROW_TOP_PADDING = 12.dp
 
-    val RESULTS_HEADER_VERTICAL_PADDING = 12.dp
+    val RESULTS_HEADER_VERTICAL_PADDING = 8.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp
     val SORT_FONT_SIZE = 14.sp
     val HEADER_TITLE_FONT_SIZE = 12.sp
