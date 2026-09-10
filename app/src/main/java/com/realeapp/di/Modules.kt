@@ -3,6 +3,8 @@ package com.realeapp.di
 import com.realeapp.core.like.LikeStateManager
 import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.onboarding.data.OnboardingPreferences
+import com.realeapp.feature.onboarding.data.repository.OnboardingRepositoryImpl
+import com.realeapp.feature.onboarding.domain.repository.OnboardingRepository
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSource
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSourceImpl
 import com.realeapp.feature.add.data.repository.AddPropertyRepositoryImpl
@@ -83,6 +85,7 @@ val appModule = module {
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }
     single { OnboardingPreferences(androidContext()) }
+    single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
     viewModel { MainViewModel(get(), get()) }
 }
 

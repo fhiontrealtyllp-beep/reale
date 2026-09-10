@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.core.theme.ThemePreferences
 import com.realeapp.feature.city.presentation.City
-import com.realeapp.feature.onboarding.data.OnboardingPreferences
+import com.realeapp.feature.onboarding.domain.repository.OnboardingRepository
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.util.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class MainViewModel(
     themePreferences: ThemePreferences,
-    private val onboardingPreferences: OnboardingPreferences
+    private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
     private val _selectedTab = MutableStateFlow<AppScreen>(AppScreen.Home)
     val selectedTab: StateFlow<AppScreen> = _selectedTab.asStateFlow()
@@ -27,12 +27,12 @@ class MainViewModel(
     /**
      * Shows the onboarding flow only when it has not been completed yet.
      */
-    val showOnboarding: StateFlow<Boolean> = onboardingPreferences.isOnboardingCompleted
+    val showOnboarding: StateFlow<Boolean> = onboardingRepository.isOnboardingCompleted
         .map { !it }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            !onboardingPreferences.isOnboardingCompleted.value
+            !onboardingRepository.isOnboardingCompleted.value
         )
 
     fun selectTab(screen: AppScreen) {
@@ -40,7 +40,7 @@ class MainViewModel(
     }
 
     fun completeOnboarding() {
-        onboardingPreferences.setOnboardingCompleted(true)
+        onboardingRepository.setOnboardingCompleted(true)
     }
 
     /**
@@ -49,7 +49,7 @@ class MainViewModel(
      */
     fun selectCity(city: City) {
         Logger.d("MainViewModel", "selectCity: name='${city.name}', region='${city.region}'")
-        onboardingPreferences.setCitySelection(city.name, city.region)
+        onboardingRepository.setCitySelection(city.name, city.region)
         completeOnboarding()
     }
 
@@ -60,7 +60,7 @@ class MainViewModel(
     fun saveOnboardingLocation(city: String, location: String) {
         Logger.d("MainViewModel", "saveOnboardingLocation: city='$city', location='$location'")
         if (city.isNotBlank() || location.isNotBlank()) {
-            onboardingPreferences.setCitySelection(city, location)
+            onboardingRepository.setCitySelection(city, location)
         }
         completeOnboarding()
     }
