@@ -85,15 +85,6 @@ import org.koin.androidx.compose.koinViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
-private enum class SortBy(val label: String) {
-    RELEVANCE(PropertiesStrings.SORT_RELEVANCE),
-    PRICE_LOW_HIGH(PropertiesStrings.SORT_PRICE_LOW_HIGH),
-    PRICE_HIGH_LOW(PropertiesStrings.SORT_PRICE_HIGH_LOW),
-    NEWEST(PropertiesStrings.SORT_NEWEST)
-}
-
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PropertiesScreen(
@@ -107,7 +98,7 @@ fun PropertiesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
+    val sortBy = uiState.sortBy
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
@@ -151,7 +142,7 @@ fun PropertiesScreen(
             hasReachedEnd = uiState.hasReachedEnd,
             currentFilter = uiState.currentFilter,
             sortBy = sortBy,
-            onSortChange = { sortBy = it },
+            onSortChange = viewModel::onSortChanged,
             onRefresh = viewModel::refresh,
             onLoadMore = viewModel::onLoadMore,
             onOpenFilter = onOpenFilter,

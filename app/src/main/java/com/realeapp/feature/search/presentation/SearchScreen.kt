@@ -38,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,7 +79,7 @@ fun SearchScreen(
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showResults by rememberSaveable { mutableStateOf(false) }
+    val showResults = uiState.showResults
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
     var draftFilter by remember(uiState.currentFilter) {
         mutableStateOf(uiState.currentFilter ?: PropertyFilter())
@@ -95,7 +94,7 @@ fun SearchScreen(
 
     // Back press returns from the results view to the search landing view.
     BackHandler(enabled = showResults) {
-        showResults = false
+        viewModel.onShowResultsChanged(false)
     }
 
     Scaffold(
@@ -108,7 +107,7 @@ fun SearchScreen(
                     Button(
                         onClick = {
                             viewModel.onFilterChanged(draftFilter)
-                            showResults = true
+                            viewModel.onShowResultsChanged(true)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -153,7 +152,7 @@ fun SearchScreen(
                 viewModel = viewModel,
                 onPropertyClick = { selectedProperty = it },
                 onChangeCity = onChangeCity,
-                onOpenFilter = { showResults = false },
+                onOpenFilter = { viewModel.onShowResultsChanged(false) },
                 onLoginClick = onLoginClick,
                 modifier = Modifier.padding(innerPadding)
             )

@@ -10,6 +10,8 @@ data class SearchUiState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val hasReachedEnd: Boolean = false,
+    val showResults: Boolean = false,
+    val sortBy: SortBy = SortBy.RELEVANCE,
     val showLoginPrompt: Boolean = false,
     val errorMessage: String? = null
 )

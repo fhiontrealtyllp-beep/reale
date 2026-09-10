@@ -354,6 +354,14 @@ class SearchViewModel(
         _uiState.value = _uiState.value.copy(showLoginPrompt = false)
     }
 
+    fun onShowResultsChanged(showResults: Boolean) {
+        _uiState.value = _uiState.value.copy(showResults = showResults)
+    }
+
+    fun onSortChanged(sortBy: SortBy) {
+        _uiState.value = _uiState.value.copy(sortBy = sortBy)
+    }
+
     private fun updatePropertyInList(index: Int, property: Property) {
         val updated = _uiState.value.properties.toMutableList()
         updated[index] = property
