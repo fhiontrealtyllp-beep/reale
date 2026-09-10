@@ -16,8 +16,10 @@ import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCas
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCase
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -32,7 +34,6 @@ import kotlinx.coroutines.launch
 private const val TAG = "SearchViewModel"
 private const val FEATURED_PROPERTIES_LIMIT = 10
 private const val PROMOTIONAL_PROPERTIES_LIMIT = 1
-private const val SEARCH_SUGGESTIONS_DEBOUNCE_MS = 300L
 
 class SearchViewModel(
     private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
@@ -93,6 +94,7 @@ class SearchViewModel(
             _uiState.value = _uiState.value.copy(
                 currentFilter = PropertyFilter(city = savedCity)
             )
+            _searchQuery.value = savedCity
         }
         _selectedHomeCategory.value = homeCategoryFor(currentFilter)
         refresh()
@@ -112,6 +114,7 @@ class SearchViewModel(
                         _uiState.value = _uiState.value.copy(
                             currentFilter = PropertyFilter(city = savedCity)
                         )
+                        _searchQuery.value = savedCity
                         _selectedHomeCategory.value = homeCategoryFor(currentFilter)
                         refresh(clearList = true)
                         loadFeaturedProperties()
@@ -167,6 +170,7 @@ class SearchViewModel(
 
     fun onFilterChanged(filter: PropertyFilter?) {
         _uiState.value = _uiState.value.copy(currentFilter = filter)
+        _searchQuery.value = filter?.city.orEmpty()
         _selectedHomeCategory.value = homeCategoryFor(filter)
         applyCategoryFilter()
         refresh(clearList = true)
@@ -174,6 +178,7 @@ class SearchViewModel(
 
     fun onResetFilter() {
         _uiState.value = _uiState.value.copy(currentFilter = null)
+        _searchQuery.value = ""
         _selectedHomeCategory.value = homeCategoryFor(null)
         applyCategoryFilter()
         refresh(clearList = true)
@@ -238,6 +243,17 @@ class SearchViewModel(
         }
     }
 
+    suspend fun getSuggestions(query: String): List<LocationSuggestion> = withContext(Dispatchers.IO) {
+        if (query.isBlank()) return@withContext emptyList()
+        when (val result = getLocationSuggestionsUseCase(query)) {
+            is Result.Success -> result.data
+            is Result.Error -> {
+                Logger.e(TAG, "getSuggestions: ${result.message}")
+                emptyList()
+            }
+        }
+    }
+
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
         suggestionsJob?.cancel()
@@ -246,7 +262,7 @@ class SearchViewModel(
             return
         }
         suggestionsJob = viewModelScope.launch {
-            delay(SEARCH_SUGGESTIONS_DEBOUNCE_MS)
+            delay(SearchStrings.SUGGESTIONS_DEBOUNCE_MS)
             when (val result = getLocationSuggestionsUseCase(query)) {
                 is Result.Success -> {
                     Logger.d(TAG, "onSearchQueryChanged: suggestions=${result.data.size}")
@@ -262,8 +278,17 @@ class SearchViewModel(
 
     fun onSuggestionSelected(suggestion: LocationSuggestion) {
         suggestionsJob?.cancel()
-        _searchQuery.value = suggestion.primaryText
         _suggestions.value = emptyList()
+        val current = _uiState.value.currentFilter ?: PropertyFilter()
+        onFilterChanged(
+            current.copy(
+                city = suggestion.primaryText,
+                localities = suggestion.secondaryText
+                    .takeIf(String::isNotBlank)
+                    ?.let(::listOf)
+                    ?: emptyList()
+            )
+        )
     }
 
     fun onCategorySelected(category: HomeCategory) {

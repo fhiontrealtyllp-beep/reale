@@ -1,19 +1,31 @@
 package com.realeapp.feature.search.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.feature.search.domain.model.Age
@@ -22,6 +34,7 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.CarpetAreaRange
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
+import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.PriceRange
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
@@ -33,6 +46,7 @@ import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -70,8 +84,12 @@ private val areaOptions = listOf(
 fun PropertyFilters(
     filter: PropertyFilter,
     onFilterChange: (PropertyFilter) -> Unit,
+    locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
     modifier: Modifier = Modifier
 ) {
+    var showCityDialog by remember { mutableStateOf(false) }
+    var showLocalityDialog by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(SearchDims.FILTER_PANEL_CORNER_RADIUS),
@@ -81,27 +99,19 @@ fun PropertyFilters(
             modifier = Modifier.padding(SearchDims.FILTER_PANEL_PADDING),
             verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
         ) {
-            //locality pin
-           /* Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)
-            ) {
-                FilterTextField(
-                    value = filter.localities.firstOrNull().orEmpty(),
-                    onValueChange = { value ->
-                        onFilterChange(filter.copy(localities = value.takeIf(String::isNotBlank)?.let(::listOf) ?: emptyList()))
-                    },
-                    label = SearchStrings.FILTER_LOCALITY,
-                    modifier = Modifier.weight(1f)
-                )
-                FilterTextField(
-                    value = filter.pincode.orEmpty(),
-                    onValueChange = { onFilterChange(filter.copy(pincode = it.takeIf(String::isNotBlank))) },
-                    label = SearchStrings.FILTER_PINCODE,
-                    keyboardType = KeyboardType.Number,
-                    modifier = Modifier.weight(1f)
-                )
-            }*/
+            LocationSelector(
+                label = SearchStrings.FILTER_CITY,
+                value = filter.city,
+                placeholder = SearchStrings.FILTER_SELECT_CITY,
+                onClick = { showCityDialog = true }
+            )
+
+            LocationSelector(
+                label = SearchStrings.FILTER_LOCALITY,
+                value = filter.localities.firstOrNull(),
+                placeholder = SearchStrings.FILTER_SELECT_LOCALITY,
+                onClick = { showLocalityDialog = true }
+            )
 
             FilterChipGroup(
                 title = SearchStrings.FILTER_LISTING_INTENT,
@@ -196,6 +206,117 @@ fun PropertyFilters(
             )
         }
     }
+
+    if (showCityDialog) {
+        val cityProvider: suspend (String) -> List<LocationSuggestion> = { query ->
+            locationSuggestionsProvider(query)
+                .map { it.copy(secondaryText = "", fullText = it.primaryText) }
+                .distinctBy { suggestion -> suggestion.fullText.lowercase() }
+        }
+
+        LocationSelectionDialog(
+            title = SearchStrings.FILTER_CITY,
+            initialQuery = filter.city.orEmpty(),
+            suggestionProvider = cityProvider,
+            onSuggestionSelected = { suggestion ->
+                onFilterChange(
+                    filter.copy(
+                        city = suggestion.primaryText,
+                        cityLatLng = null,
+                        localities = emptyList(),
+                        pincode = null
+                    )
+                )
+            },
+            onDismiss = { showCityDialog = false }
+        )
+    }
+
+    if (showLocalityDialog) {
+        val localityProvider: suspend (String) -> List<LocationSuggestion> = { query ->
+            locationSuggestionsProvider(query)
+                .mapNotNull { suggestion ->
+                    val city = suggestion.primaryText
+                    val locality = suggestion.secondaryText.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    if (filter.city != null && !city.equals(filter.city, ignoreCase = true)) return@mapNotNull null
+                    suggestion.copy(
+                        primaryText = locality,
+                        secondaryText = city,
+                        fullText = "$locality, $city"
+                    )
+                }
+                .distinctBy { suggestion -> suggestion.fullText.lowercase() }
+        }
+
+        LocationSelectionDialog(
+            title = SearchStrings.FILTER_LOCALITY,
+            initialQuery = filter.localities.firstOrNull().orEmpty(),
+            suggestionProvider = localityProvider,
+            onSuggestionSelected = { suggestion ->
+                onFilterChange(
+                    filter.copy(
+                        city = suggestion.secondaryText.takeIf { it.isNotBlank() } ?: filter.city,
+                        cityLatLng = null,
+                        localities = listOf(suggestion.primaryText),
+                        pincode = null
+                    )
+                )
+            },
+            onDismiss = { showLocalityDialog = false }
+        )
+    }
+}
+
+@Composable
+private fun LocationSelector(
+    label: String,
+    value: String?,
+    placeholder: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val displayValue = value ?: placeholder
+    val valueColor = if (value != null) Black else HomeTextSecondary
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(SearchDims.FILTER_SELECTOR_CORNER_RADIUS))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(SearchDims.FILTER_SELECTOR_CORNER_RADIUS),
+        color = AppBackground,
+        border = BorderStroke(SearchDims.BORDER_WIDTH, HomeSearchBarBorder)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = SearchDims.FILTER_SELECTOR_HORIZONTAL_PADDING,
+                    vertical = SearchDims.FILTER_SELECTOR_VERTICAL_PADDING
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
+            ) {
+                Text(
+                    text = label,
+                    color = HomeTextSecondary,
+                )
+                Text(
+                    text = displayValue,
+                    color = valueColor,
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = HomeTextSecondary,
+                modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
+            )
+        }
+    }
 }
 
 @Composable
@@ -247,10 +368,13 @@ private fun PropertyFiltersPreview() {
     RealeTheme {
         PropertyFilters(
             filter = PropertyFilter(
+                city = "Delhi",
+                localities = listOf("Connaught Place"),
                 rentBuy = RentBuy.BUY,
                 propertyType = PropertyType.APARTMENT
             ),
-            onFilterChange = {}
+            onFilterChange = {},
+            locationSuggestionsProvider = { _ -> emptyList() }
         )
     }
 }

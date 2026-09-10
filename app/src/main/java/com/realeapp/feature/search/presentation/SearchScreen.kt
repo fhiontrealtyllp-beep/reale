@@ -163,6 +163,7 @@ fun SearchScreen(
                 onFilterChange = { draftFilter = it },
                 onQueryChange = viewModel::onSearchQueryChanged,
                 onSuggestionSelected = viewModel::onSuggestionSelected,
+                locationSuggestionsProvider = viewModel::getSuggestions,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -238,6 +239,7 @@ private fun SearchLandingContent(
     onFilterChange: (PropertyFilter) -> Unit,
     onQueryChange: (String) -> Unit,
     onSuggestionSelected: (LocationSuggestion) -> Unit,
+    locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -309,6 +311,7 @@ private fun SearchLandingContent(
             PropertyFilters(
                 filter = filter,
                 onFilterChange = onFilterChange,
+                locationSuggestionsProvider = locationSuggestionsProvider,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
         }
@@ -325,7 +328,8 @@ private fun SearchLandingContentPreview() {
             filter = PropertyFilter(),
             onFilterChange = {},
             onQueryChange = {},
-            onSuggestionSelected = {}
+            onSuggestionSelected = {},
+            locationSuggestionsProvider = { _ -> emptyList() }
         )
     }
 }

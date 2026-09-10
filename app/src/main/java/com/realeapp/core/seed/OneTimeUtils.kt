@@ -31,6 +31,7 @@ private const val KEY_SEEDED = "properties_seeded"
 private const val KEY_PANAJI_PROMO_SEEDED = "panaji_promo_seeded"
 private const val KEY_NAGPUR_SEEDED = "nagpur_seeded"
 private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seeded"
+private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
@@ -81,6 +82,13 @@ private val SEED_LOCALITIES = listOf(
 )
 
 private val SEED_PINCODES = listOf("440001", "440010", "440022")
+
+private val DELHI_LOCALITIES = listOf(
+    "Connaught Place", "Karol Bagh", "Greater Kailash", "Dwarka", "Rohini",
+    "Saket", "Lajpat Nagar", "Vasant Kunj", "Mayur Vihar", "Janakpuri"
+)
+
+private val DELHI_PINCODES = listOf("110001", "110005", "110048", "110075", "110085")
 
 class OneTimeUtils(
     context: Context,
@@ -266,23 +274,25 @@ class OneTimeUtils(
     }
 
     /**
-     * Builds the essential-filter coverage seed data without writing to
-     * Firestore. Two properties are generated for every combination of the
-     * essential chip filters (rentBuy x category x propertyType x bedroomType).
-     * Bathrooms, budget, locality and pincode are distributed across the groups
-     * so every value is represented, and each title lists the exact filter
-     * values it matches.
+     * Builds filter coverage seed data for a city. Two properties are generated
+     * for every combination of the essential chip filters
+     * (rentBuy x category x propertyType x bedroomType).
      */
-    fun buildEssentialFilterCoverageData(): List<Map<String, Any?>> {
-        val city = "Nagpur"
+    private fun buildFilterCoverageData(
+        city: String,
+        localities: List<String>,
+        pincodes: List<String>,
+        imageSeed: String,
+        baseLatitude: Double,
+        baseLongitude: Double,
+        startGlobalIndex: Int
+    ): List<Map<String, Any?>> {
         val normalizedCity = LocationNormalizer.normalizeCity(city) ?: city.lowercase()
-        val images = buildImageUrls("nagpur_filter_seed")
-        val baseLatitude = 21.1458
-        val baseLongitude = 79.0882
+        val images = buildImageUrls(imageSeed)
 
         val result = mutableListOf<Map<String, Any?>>()
         var groupIndex = 0
-        var globalIndex = 20_000
+        var globalIndex = startGlobalIndex
 
         for (rentBuy in RentBuy.entries) {
             val budgets = if (rentBuy == RentBuy.RENT) SEED_RENT_BUDGETS else SEED_BUY_BUDGETS
@@ -291,8 +301,8 @@ class OneTimeUtils(
                     for (bedroomType in BedroomType.entries) {
                         val bathrooms = (groupIndex % ESSENTIAL_FILTER_MAX_BATHROOMS) + 1
                         val budget = budgets[groupIndex % budgets.size]
-                        val locality = SEED_LOCALITIES[groupIndex % SEED_LOCALITIES.size]
-                        val pincode = SEED_PINCODES[groupIndex % SEED_PINCODES.size]
+                        val locality = localities[groupIndex % localities.size]
+                        val pincode = pincodes[groupIndex % pincodes.size]
                         val furnishing = Furnishing.entries[groupIndex % Furnishing.entries.size]
                         val facing = Facing.entries[groupIndex % Facing.entries.size]
                         val age = Age.entries[groupIndex % Age.entries.size]
@@ -336,6 +346,30 @@ class OneTimeUtils(
         return result
     }
 
+    /** Builds the essential-filter coverage seed data without writing to Firestore. */
+    fun buildEssentialFilterCoverageData(): List<Map<String, Any?>> =
+        buildFilterCoverageData(
+            city = "Nagpur",
+            localities = SEED_LOCALITIES,
+            pincodes = SEED_PINCODES,
+            imageSeed = "nagpur_filter_seed",
+            baseLatitude = 21.1458,
+            baseLongitude = 79.0882,
+            startGlobalIndex = 20_000
+        )
+
+    /** Builds the Delhi filter coverage seed data without writing to Firestore. */
+    fun buildDelhiFilterCoverageData(): List<Map<String, Any?>> =
+        buildFilterCoverageData(
+            city = "Delhi",
+            localities = DELHI_LOCALITIES,
+            pincodes = DELHI_PINCODES,
+            imageSeed = "delhi_filter_seed",
+            baseLatitude = 28.6139,
+            baseLongitude = 77.2090,
+            startGlobalIndex = 30_000
+        )
+
     /** Returns the titles of the essential-filter coverage seed data for preview. */
     fun previewEssentialFilterCoverageTitles(): List<String> =
         buildEssentialFilterCoverageData().mapNotNull { it["title"] as? String }
@@ -367,6 +401,36 @@ class OneTimeUtils(
             Logger.d(TAG, "Essential filter coverage seeding complete. Total: $successCount")
         } else {
             Logger.w(TAG, "Essential filter coverage seeding incomplete. Success: $successCount / ${seedData.size}")
+        }
+    }
+
+    suspend fun seedDelhiFilterCoverageIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_DELHI_FILTER_SEEDED, false)) {
+            Logger.d(TAG, "Delhi filter coverage already seeded, skipping.")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Delhi filter coverage seeding...")
+        val propertiesCollection = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
+        val seedData = buildDelhiFilterCoverageData()
+        var successCount = 0
+
+        for (data in seedData) {
+            try {
+                val docRef = propertiesCollection.document()
+                val dataWithId = data.toMutableMap().apply { this["id"] = docRef.id }
+                docRef.set(dataWithId).await()
+                successCount++
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to seed Delhi filter coverage property: ${e.message}", e)
+            }
+        }
+
+        if (successCount == seedData.size) {
+            prefs.edit().putBoolean(KEY_DELHI_FILTER_SEEDED, true).apply()
+            Logger.d(TAG, "Delhi filter coverage seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Delhi filter coverage seeding incomplete. Success: $successCount / ${seedData.size}")
         }
     }
 
