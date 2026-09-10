@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,12 +62,21 @@ fun LocationSearchBar(
     onQueryChange: (String) -> Unit,
     onSuggestionSelected: (LocationSuggestion) -> Unit,
     onFilterClick: () -> Unit,
+    onClearQuery: (() -> Unit)? = null,
+    autoFocus: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(autoFocus) {
+        if (autoFocus) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
 
     Column(modifier = modifier) {
         Surface(
@@ -114,6 +125,17 @@ fun LocationSearchBar(
                         innerTextField()
                     }
                 )
+
+                if (query.isNotBlank() && onClearQuery != null) {
+                    IconButton(onClick = onClearQuery) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = SearchStrings.CD_CLEAR,
+                            tint = HomeTextSecondary,
+                            modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
+                        )
+                    }
+                }
 
                 Box(
                     modifier = Modifier
@@ -215,6 +237,8 @@ private fun LocationSearchBarPreview() {
             onQueryChange = {},
             onSuggestionSelected = {},
             onFilterClick = {},
+            onClearQuery = {},
+            autoFocus = false,
             modifier = Modifier.padding(SearchDims.SCREEN_PADDING)
         )
     }

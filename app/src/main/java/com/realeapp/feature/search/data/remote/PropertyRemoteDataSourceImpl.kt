@@ -41,6 +41,15 @@ class PropertyRemoteDataSourceImpl(
             }.sortedByDescending { it.createdAt }
 
             val filtered = all.filter { PropertyQueryBuilder.isClientSideMatch(it, filter) }
+            Logger.d(TAG, "getAllProperties: received=${all.size}, matched=${filtered.size}")
+
+            if (filter != null && filtered.size < all.size) {
+                val rejections = all.asSequence()
+                    .mapNotNull { PropertyQueryBuilder.rejectionReason(it, filter) }
+                    .groupingBy { it }
+                    .eachCount()
+                Logger.d(TAG, "getAllProperties: rejection reasons=$rejections")
+            }
 
             val start = page * limit
             if (start >= filtered.size) {
@@ -49,7 +58,7 @@ class PropertyRemoteDataSourceImpl(
             val end = (start + limit).coerceAtMost(filtered.size)
             val properties = filtered.subList(start, end)
 
-            Logger.d(TAG, "getAllProperties: received=${all.size}, matched=${filtered.size}, pageSize=${properties.size}")
+            Logger.d(TAG, "getAllProperties: page=$page pageSize=${properties.size}")
 
             val userId = userSession.getUserId()
             Result.Success(if (userId.isNullOrEmpty()) properties else mergeLikes(properties, userId))

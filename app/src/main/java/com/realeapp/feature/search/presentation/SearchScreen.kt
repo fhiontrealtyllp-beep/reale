@@ -254,7 +254,12 @@ private fun SearchLandingContent(
         rentBuy = searchTabs[selectedTabIndex].rentBuy,
         residentialCommercial = searchTabs[selectedTabIndex].residentialCommercial,
         propertyType = selectedType,
-        priceRange = PriceRange(budget.start.toDouble(), budget.endInclusive.toDouble())
+        // The slider spans the full range by default; only filter by price once
+        // the user actually narrows it, otherwise default searches exclude
+        // everything outside 50L-5Cr.
+        priceRange = budget
+            .takeIf { it.start > BUDGET_MIN || it.endInclusive < BUDGET_MAX }
+            ?.let { PriceRange(it.start.toDouble(), it.endInclusive.toDouble()) }
     )
 
     LazyColumn(
@@ -283,6 +288,7 @@ private fun SearchLandingContent(
                     onSearch(currentFilter().copy(city = suggestion.primaryText))
                 },
                 onFilterClick = onOpenFilter,
+                autoFocus = true,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
         }

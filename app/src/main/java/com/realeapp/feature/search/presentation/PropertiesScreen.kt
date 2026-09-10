@@ -80,10 +80,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.FilterDialog
+import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import com.realeapp.feature.search.presentation.components.PillTabsRow
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
@@ -128,6 +130,7 @@ fun PropertiesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showFilterDialog by remember { mutableStateOf(false) }
     var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
@@ -165,8 +168,10 @@ fun PropertiesScreen(
     ) { innerPadding ->
         PropertiesScreenContent(
             query = query,
+            suggestions = suggestions,
             onQueryChange = viewModel::onSearchQueryChanged,
             onClearQuery = { viewModel.onSearchQueryChanged("") },
+            onSuggestionSelected = viewModel::onSuggestionSelected,
             properties = visibleProperties,
             isLoading = uiState.isLoading,
             isLoadingMore = uiState.isLoadingMore,
@@ -206,8 +211,10 @@ fun PropertiesScreen(
 @Composable
 private fun PropertiesScreenContent(
     query: String,
+    suggestions: List<LocationSuggestion>,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
+    onSuggestionSelected: (LocationSuggestion) -> Unit,
     properties: List<Property>,
     isLoading: Boolean,
     isLoadingMore: Boolean,
@@ -248,11 +255,13 @@ private fun PropertiesScreenContent(
     ) {
         Spacer(modifier = Modifier.height(PropertiesDims.SCREEN_PADDING))
 
-        PropertiesSearchBar(
+        LocationSearchBar(
             query = query,
+            suggestions = suggestions,
             onQueryChange = onQueryChange,
-            onClearQuery = onClearQuery,
-            onFilterClick = onOpenFilter
+            onSuggestionSelected = onSuggestionSelected,
+            onFilterClick = onOpenFilter,
+            onClearQuery = onClearQuery
         )
 
         Spacer(modifier = Modifier.height(PropertiesDims.TABS_ROW_TOP_PADDING))
@@ -264,10 +273,6 @@ private fun PropertiesScreenContent(
                 onCategoryChange(propertiesTabs[index].first)
             }
         )
-
-        Spacer(modifier = Modifier.height(PropertiesDims.FILTER_CHIPS_TOP_PADDING))
-
-        FilterChipsRow(onChipClick = onOpenFilter)
 
         Spacer(modifier = Modifier.height(PropertiesDims.SECTION_SPACING))
 
@@ -418,30 +423,7 @@ private fun PropertiesSearchBar(
     }
 }
 
-@Composable
-private fun FilterChipsRow(
-    onChipClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val chips = listOf(
-        PropertiesStrings.FILTER_PROPERTY_TYPE,
-        PropertiesStrings.FILTER_PRICE_RANGE,
-        PropertiesStrings.FILTER_BHK,
-        PropertiesStrings.FILTER_MORE_FILTERS
-    )
 
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(PropertiesDims.FILTER_CHIPS_SPACING)
-    ) {
-        items(chips.size) { index ->
-            FilterChip(
-                label = chips[index],
-                onClick = onChipClick
-            )
-        }
-    }
-}
 
 @Composable
 private fun FilterChip(
@@ -817,8 +799,10 @@ private fun PropertiesScreenPreview() {
     RealeTheme(darkTheme = false) {
         PropertiesScreenContent(
             query = "Porvorim, Goa",
+            suggestions = emptyList(),
             onQueryChange = {},
             onClearQuery = {},
+            onSuggestionSelected = {},
             properties = PreviewData.sampleProperties,
             isLoading = false,
             isLoadingMore = false,
@@ -843,8 +827,10 @@ private fun PropertiesScreenDarkPreview() {
     RealeTheme(darkTheme = true) {
         PropertiesScreenContent(
             query = "Porvorim, Goa",
+            suggestions = emptyList(),
             onQueryChange = {},
             onClearQuery = {},
+            onSuggestionSelected = {},
             properties = PreviewData.sampleProperties,
             isLoading = false,
             isLoadingMore = false,

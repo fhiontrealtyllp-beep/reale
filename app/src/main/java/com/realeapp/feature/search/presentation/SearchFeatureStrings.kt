@@ -11,6 +11,7 @@ internal object SearchStrings {
 
     const val SEARCH_HINT = "Search by location, project or keyword"
     const val CD_SEARCH_ICON = "Search"
+    const val CD_CLEAR = "Clear search"
     const val CD_FILTER_ICON = "Filter"
     const val CD_SUGGESTION_LOCATION = "Location"
     const val CD_NOTIFICATIONS = "Notifications"
