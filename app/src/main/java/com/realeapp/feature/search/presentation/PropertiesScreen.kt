@@ -390,12 +390,6 @@ private fun ResultsHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = String.format(Locale.getDefault(), PropertiesStrings.PROPERTIES_FOUND_FORMAT, count),
-            color = Black,
-            fontSize = PropertiesDims.RESULTS_COUNT_FONT_SIZE,
-            fontWeight = FontWeight.SemiBold
-        )
 
         Box {
             Row(
