@@ -194,6 +194,7 @@ class ProfileViewModel(
             when (val result = logoutUseCase(currentUser.sessionId)) {
                 is Result.Success -> {
                     Logger.d(TAG, "logout() success: userId=${currentUser.id}")
+                    userSession.clear()
                     _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
                     _sideEffect.emit(ProfileStrings.MSG_LOGGED_OUT)
                 }
