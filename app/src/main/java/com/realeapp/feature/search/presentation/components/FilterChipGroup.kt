@@ -48,3 +48,41 @@ fun <T> FilterChipGroup(
         }
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun <T> MultiFilterChipGroup(
+    title: String,
+    options: List<T>,
+    selected: List<T>,
+    onSelectionChange: (List<T>) -> Unit,
+    optionLabel: (T) -> String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FilterSectionHeader(title)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            options.forEach { option ->
+                val isSelected = option in selected
+                FilterChip(
+                    selected = isSelected,
+                    onClick = {
+                        onSelectionChange(
+                            if (isSelected) selected - option else selected + option
+                        )
+                    },
+                    label = { Text(optionLabel(option)) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Accent,
+                        selectedLabelColor = OnAccentText,
+                        containerColor = FilterChipUnselectedContainer,
+                        labelColor = TextPrimary
+                    )
+                )
+            }
+        }
+    }
+}

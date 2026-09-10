@@ -99,7 +99,7 @@ internal fun HomeContent(
         ) {
             HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
             HomeTitle(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
-            HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
+           //todo HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
             CategoryChips(
                 selectedCategory = selectedCategory,
                 onCategorySelected = onCategorySelected,

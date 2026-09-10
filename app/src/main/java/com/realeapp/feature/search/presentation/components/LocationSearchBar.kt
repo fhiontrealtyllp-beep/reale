@@ -61,7 +61,7 @@ fun LocationSearchBar(
     suggestions: List<LocationSuggestion>,
     onQueryChange: (String) -> Unit,
     onSuggestionSelected: (LocationSuggestion) -> Unit,
-    onFilterClick: () -> Unit,
+    onFilterClick: (() -> Unit)? = null,
     onClearQuery: (() -> Unit)? = null,
     autoFocus: Boolean = false,
     modifier: Modifier = Modifier
@@ -137,19 +137,21 @@ fun LocationSearchBar(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .width(SearchDims.SEARCH_DIVIDER_WIDTH)
-                        .height(SearchDims.SEARCH_DIVIDER_HEIGHT)
-                        .background(HomeSearchBarBorder)
-                )
-                IconButton(onClick = onFilterClick) {
-                    Icon(
-                        imageVector = Icons.Filled.Tune,
-                        contentDescription = SearchStrings.CD_FILTER_ICON,
-                        tint = BrandBlue,
-                        modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
+                if (onFilterClick != null) {
+                    Box(
+                        modifier = Modifier
+                            .width(SearchDims.SEARCH_DIVIDER_WIDTH)
+                            .height(SearchDims.SEARCH_DIVIDER_HEIGHT)
+                            .background(HomeSearchBarBorder)
                     )
+                    IconButton(onClick = onFilterClick) {
+                        Icon(
+                            imageVector = Icons.Filled.Tune,
+                            contentDescription = SearchStrings.CD_FILTER_ICON,
+                            tint = BrandBlue,
+                            modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
+                        )
+                    }
                 }
             }
         }

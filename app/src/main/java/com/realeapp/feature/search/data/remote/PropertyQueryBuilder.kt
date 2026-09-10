@@ -47,6 +47,9 @@ object PropertyQueryBuilder {
         if (filter.bedroomType != null && property.bedroomType != filter.bedroomType) {
             return "bedroomType(${property.bedroomType} != ${filter.bedroomType})"
         }
+        if (filter.bathrooms != null && property.bathrooms != filter.bathrooms) {
+            return "bathrooms(${property.bathrooms} != ${filter.bathrooms})"
+        }
         if (filter.furnishing != null && property.furnishing != filter.furnishing) {
             return "furnishing(${property.furnishing} != ${filter.furnishing})"
         }

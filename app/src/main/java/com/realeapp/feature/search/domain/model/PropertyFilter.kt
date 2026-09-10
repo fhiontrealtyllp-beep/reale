@@ -9,6 +9,7 @@ data class PropertyFilter(
     val residentialCommercial: ResidentialCommercial? = null,
     val propertyType: PropertyType? = null,
     val bedroomType: BedroomType? = null,
+    val bathrooms: Int? = null,
     val furnishing: Furnishing? = null,
     val facing: Facing? = null,
     val age: Age? = null,

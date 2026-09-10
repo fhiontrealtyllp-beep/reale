@@ -36,6 +36,37 @@ internal object SearchStrings {
 
     const val SECTION_LOOKING_FOR = "What are you looking for?"
     const val SECTION_BUDGET = "What's your budget?"
+    const val SECTION_FILTERS = "Refine your search"
+    const val FILTER_ESSENTIAL = "Essential filters"
+    const val FILTER_MORE_OPTIONS = "More filters"
+    const val FILTER_LOCALITY = "Locality"
+    const val FILTER_PINCODE = "Pincode"
+    const val FILTER_LISTING_INTENT = "Looking to"
+    const val FILTER_CATEGORY = "Property category"
+    const val FILTER_PROPERTY_TYPE = "Property type"
+    const val FILTER_BEDROOMS = "Bedrooms"
+    const val FILTER_BATHROOMS = "Bathrooms"
+    const val FILTER_FURNISHING = "Furnishing"
+    const val FILTER_FACING = "Facing"
+    const val FILTER_AGE = "Property age"
+    const val FILTER_AMENITIES = "Amenities"
+    const val FILTER_CARPET_AREA = "Carpet area (sq ft)"
+    const val FILTER_BUILT_UP_AREA = "Built-up area (sq ft)"
+    const val FILTER_SUPER_BUILT_UP_AREA = "Super built-up area (sq ft)"
+    const val FILTER_PRICE_UNDER_25_LAKH = "Under ₹25 L"
+    const val FILTER_PRICE_25_TO_50_LAKH = "₹25–50 L"
+    const val FILTER_PRICE_50_LAKH_TO_1_CRORE = "₹50 L–1 Cr"
+    const val FILTER_PRICE_1_TO_5_CRORE = "₹1–5 Cr"
+    const val FILTER_PRICE_5_CRORE_PLUS = "₹5 Cr+"
+    const val FILTER_RENT_UNDER_10_THOUSAND = "Under ₹10 K/mo"
+    const val FILTER_RENT_10_TO_25_THOUSAND = "₹10–25 K/mo"
+    const val FILTER_RENT_25_TO_50_THOUSAND = "₹25–50 K/mo"
+    const val FILTER_RENT_50_THOUSAND_PLUS = "₹50 K+/mo"
+    const val FILTER_AREA_UNDER_500 = "Under 500"
+    const val FILTER_AREA_500_TO_1000 = "500–1,000"
+    const val FILTER_AREA_1000_TO_2000 = "1,000–2,000"
+    const val FILTER_AREA_2000_PLUS = "2,000+"
+    const val FILTER_RESET = "Clear all"
 
     const val BTN_SEARCH_PROPERTIES = "Search Properties"
     const val RETRY = "Retry"
@@ -74,6 +105,12 @@ internal object SearchDims {
     val SUGGESTION_ITEM_DIVIDER_HEIGHT = 1.dp
 
     val SECTION_HEADER_SPACING = 12.dp
+    val FILTER_SECTION_SPACING = 16.dp
+    val FILTER_ITEM_SPACING = 8.dp
+    val FILTER_FIELD_HEIGHT = 56.dp
+    val FILTER_FIELD_CORNER_RADIUS = 12.dp
+    val FILTER_PANEL_CORNER_RADIUS = 20.dp
+    val FILTER_PANEL_PADDING = 16.dp
 
     val LOCATION_CARD_WIDTH = 150.dp
     val LOCATION_IMAGE_HEIGHT = 100.dp
@@ -93,6 +130,9 @@ internal object SearchDims {
     val BUTTON_CORNER_RADIUS = 27.dp
     val BUTTON_ICON_SIZE = 20.dp
     val BUTTON_CONTENT_SPACING = 8.dp
+    val STICKY_ACTION_HORIZONTAL_PADDING = 20.dp
+    val STICKY_ACTION_VERTICAL_PADDING = 12.dp
+    val FILTER_LIST_BOTTOM_PADDING = 24.dp
 
     val BORDER_WIDTH = 1.dp
     val CARD_ELEVATION = 2.dp

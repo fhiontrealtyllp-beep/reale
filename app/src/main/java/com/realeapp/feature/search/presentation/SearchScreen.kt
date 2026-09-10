@@ -1,12 +1,9 @@
 package com.realeapp.feature.search.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,27 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.outlined.Apartment
-import androidx.compose.material.icons.outlined.House
-import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Villa
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -47,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -55,79 +41,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.realeapp.AppStrings
-import com.realeapp.feature.search.domain.model.PriceRange
-import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.LocationSuggestion
+import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
-import com.realeapp.feature.search.domain.model.PropertyType
-import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.domain.model.ResidentialCommercial
-import com.realeapp.feature.search.presentation.components.FilterDialog
-import com.realeapp.feature.search.presentation.components.PillTabsRow
+import com.realeapp.feature.search.presentation.components.LocationSearchBar
+import com.realeapp.feature.search.presentation.components.PropertyFilters
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.HomeCategoryUnselected
-import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnBrandContent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.RealeTheme
+import com.realeapp.ui.theme.TextPrimary
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.ui.tooling.preview.Preview
-import com.realeapp.feature.search.presentation.components.LocationSearchBar
-import java.text.NumberFormat
-import java.util.Locale
-import kotlin.math.roundToInt
-
-private const val BUDGET_MIN = 5_000_000f
-private const val BUDGET_MAX = 50_000_000f
-private const val LAKH = 100_000f
-private const val CRORE = 10_000_000f
-
-private data class SearchTab(
-    val label: String,
-    val rentBuy: RentBuy?,
-    val residentialCommercial: ResidentialCommercial?
-)
-
-private val searchTabs = listOf(
-    SearchTab(SearchStrings.TAB_BUY, RentBuy.BUY, null),
-    SearchTab(SearchStrings.TAB_RENT, RentBuy.RENT, null),
-    SearchTab(SearchStrings.TAB_PROJECTS, null, null),
-    SearchTab(SearchStrings.TAB_COMMERCIAL, null, ResidentialCommercial.COMMERCIAL)
-)
-
-private data class SearchTypeOption(val type: PropertyType, val icon: ImageVector)
-
-private val searchTypeOptions = listOf(
-    SearchTypeOption(PropertyType.APARTMENT, Icons.Outlined.Apartment),
-    SearchTypeOption(PropertyType.VILLA, Icons.Outlined.Villa),
-    SearchTypeOption(PropertyType.PLOT, Icons.Outlined.Landscape),
-    SearchTypeOption(PropertyType.INDEPENDENT_HOUSE, Icons.Outlined.House)
-)
-
-private data class PopularLocation(
-    val name: String,
-    val propertyCount: Int,
-    val imageUrl: String
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,8 +78,10 @@ fun SearchScreen(
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showResults by rememberSaveable { mutableStateOf(false) }
-    var showFilterDialog by remember { mutableStateOf(false) }
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
+    var draftFilter by remember(uiState.currentFilter) {
+        mutableStateOf(uiState.currentFilter ?: PropertyFilter())
+    }
 
     LaunchedEffect(showResults) {
         if (showResults) return@LaunchedEffect
@@ -160,6 +99,42 @@ fun SearchScreen(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
         containerColor = AppBackground,
+        bottomBar = {
+            if (!showResults) {
+                Surface(color = AppBackground) {
+                    Button(
+                        onClick = {
+                            viewModel.onFilterChanged(draftFilter)
+                            showResults = true
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = SearchDims.STICKY_ACTION_HORIZONTAL_PADDING,
+                                vertical = SearchDims.STICKY_ACTION_VERTICAL_PADDING
+                            )
+                            .height(SearchDims.BUTTON_HEIGHT),
+                        shape = RoundedCornerShape(SearchDims.BUTTON_CORNER_RADIUS),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = BrandCoral,
+                            contentColor = OnBrandContent
+                        )
+                    ) {
+                        Text(
+                            text = SearchStrings.BTN_SEARCH_PROPERTIES,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.width(SearchDims.BUTTON_CONTENT_SPACING))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = SearchStrings.CD_SEARCH_ARROW,
+                            modifier = Modifier.size(SearchDims.BUTTON_ICON_SIZE)
+                        )
+                    }
+                }
+            }
+        },
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
@@ -181,13 +156,10 @@ fun SearchScreen(
             SearchLandingContent(
                 query = query,
                 suggestions = suggestions,
+                filter = draftFilter,
+                onFilterChange = { draftFilter = it },
                 onQueryChange = viewModel::onSearchQueryChanged,
                 onSuggestionSelected = viewModel::onSuggestionSelected,
-                onOpenFilter = { showFilterDialog = true },
-                onSearch = { filter ->
-                    viewModel.onFilterChanged(filter)
-                    showResults = true
-                },
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -215,144 +187,6 @@ fun SearchScreen(
             }
         }
     }
-
-    // Filter dialog overlay shown from the search header and landing search bar.
-    if (showFilterDialog) {
-        FilterDialog(
-            filter = uiState.currentFilter,
-            onDismiss = { showFilterDialog = false },
-            onApply = { newFilter ->
-                showFilterDialog = false
-                viewModel.onFilterChanged(newFilter)
-                showResults = true
-            },
-            onReset = {
-                showFilterDialog = false
-                viewModel.onResetFilter()
-            }
-        )
-    }
-}
-
-@Composable
-private fun SearchLandingContent(
-    query: String,
-    suggestions: List<LocationSuggestion>,
-    onQueryChange: (String) -> Unit,
-    onSuggestionSelected: (LocationSuggestion) -> Unit,
-    onOpenFilter: () -> Unit,
-    onSearch: (PropertyFilter) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-    var selectedType by remember { mutableStateOf<PropertyType?>(null) }
-    var budget by remember { mutableStateOf(BUDGET_MIN..BUDGET_MAX) }
-    val locations = remember { samplePopularLocations() }
-
-    fun currentFilter() = PropertyFilter(
-        city = query.takeIf { it.isNotBlank() },
-        rentBuy = searchTabs[selectedTabIndex].rentBuy,
-        residentialCommercial = searchTabs[selectedTabIndex].residentialCommercial,
-        propertyType = selectedType,
-        // The slider spans the full range by default; only filter by price once
-        // the user actually narrows it, otherwise default searches exclude
-        // everything outside 50L-5Cr.
-        priceRange = budget
-            .takeIf { it.start > BUDGET_MIN || it.endInclusive < BUDGET_MAX }
-            ?.let { PriceRange(it.start.toDouble(), it.endInclusive.toDouble()) }
-    )
-
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = SearchDims.CONTENT_VERTICAL_PADDING),
-        verticalArrangement = Arrangement.spacedBy(SearchDims.SECTION_SPACING)
-    ) {
-        item { SearchTopBar(modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)) }
-
-        item {
-            Text(
-                text = SearchStrings.TITLE,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }
-
-        item {
-            LocationSearchBar(
-                query = query,
-                suggestions = suggestions,
-                onQueryChange = onQueryChange,
-                onSuggestionSelected = { suggestion ->
-                    onSuggestionSelected(suggestion)
-                    onSearch(currentFilter().copy(city = suggestion.primaryText))
-                },
-                onFilterClick = onOpenFilter,
-                autoFocus = true,
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }
-
-        item {
-            PillTabsRow(
-                tabs = searchTabs.map { it.label },
-                selectedIndex = selectedTabIndex,
-                onSelect = { selectedTabIndex = it },
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }
-
-        item {
-            PopularLocationsSection(
-                locations = locations,
-                onLocationClick = { onSearch(currentFilter().copy(city = it.name)) },
-                onSeeAllClick = { onSearch(currentFilter()) }
-            )
-        }
-
-        item {
-            PropertyTypeSection(
-                selectedType = selectedType,
-                onSelect = { selectedType = if (selectedType == it) null else it },
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }
-
-        item {
-            BudgetSection(
-                budget = budget,
-                onBudgetChange = { budget = it },
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }
-
-        item {
-            Button(
-                onClick = { onSearch(currentFilter()) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SearchDims.SCREEN_PADDING)
-                    .height(SearchDims.BUTTON_HEIGHT),
-                shape = RoundedCornerShape(SearchDims.BUTTON_CORNER_RADIUS),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandCoral,
-                    contentColor = OnBrandContent
-                )
-            ) {
-                Text(
-                    text = SearchStrings.BTN_SEARCH_PROPERTIES,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(SearchDims.BUTTON_CONTENT_SPACING))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = SearchStrings.CD_SEARCH_ARROW,
-                    modifier = Modifier.size(SearchDims.BUTTON_ICON_SIZE)
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -376,7 +210,6 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.ExtraBold
             )
         }
-
         Box(contentAlignment = Alignment.TopEnd) {
             Icon(
                 imageVector = Icons.Outlined.Notifications,
@@ -395,279 +228,84 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SectionHeaderRow(
-    title: String,
-    action: String?,
-    onActionClick: () -> Unit,
+private fun SearchLandingContent(
+    query: String,
+    suggestions: List<LocationSuggestion>,
+    filter: PropertyFilter,
+    onFilterChange: (PropertyFilter) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onSuggestionSelected: (LocationSuggestion) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            top = SearchDims.CONTENT_VERTICAL_PADDING,
+            bottom = SearchDims.FILTER_LIST_BOTTOM_PADDING
+        ),
+        verticalArrangement = Arrangement.spacedBy(SearchDims.SECTION_SPACING)
     ) {
-        Text(
-            text = title,
-            color = Black,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        if (action != null) {
+        item { SearchTopBar(modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)) }
+
+        item {
             Text(
-                text = action,
-                color = BrandBlue,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable(onClick = onActionClick)
-            )
-        }
-    }
-}
-
-@Composable
-private fun PopularLocationsSection(
-    locations: List<PopularLocation>,
-    onLocationClick: (PopularLocation) -> Unit,
-    onSeeAllClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        SectionHeaderRow(
-            title = SearchStrings.SECTION_LOCATIONS,
-            action = SearchStrings.ACTION_SEE_ALL,
-            onActionClick = onSeeAllClick,
-            modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-        )
-        Spacer(modifier = Modifier.height(SearchDims.SECTION_HEADER_SPACING))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(SearchDims.LOCATION_CARD_SPACING),
-            contentPadding = PaddingValues(horizontal = SearchDims.SCREEN_PADDING)
-        ) {
-            items(locations, key = { it.name }) { location ->
-                LocationCard(
-                    location = location,
-                    onClick = { onLocationClick(location) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LocationCard(
-    location: PopularLocation,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .width(SearchDims.LOCATION_CARD_WIDTH)
-            .clip(RoundedCornerShape(SearchDims.LOCATION_CARD_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(SearchDims.LOCATION_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = SearchDims.CARD_ELEVATION)
-    ) {
-        Column {
-            AsyncImage(
-                model = location.imageUrl,
-                contentDescription = SearchStrings.CD_LOCATION_IMAGE,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(SearchDims.LOCATION_IMAGE_HEIGHT)
-            )
-            Column(
-                modifier = Modifier.padding(SearchDims.LOCATION_TEXT_PADDING),
-                verticalArrangement = Arrangement.spacedBy(SearchDims.LOCATION_TEXT_SPACING)
-            ) {
-                Text(
-                    text = location.name,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = "${NumberFormat.getNumberInstance(Locale.getDefault()).format(location.propertyCount)} ${SearchStrings.PROPERTIES_SUFFIX}",
-                    color = HomeTextSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PropertyTypeSection(
-    selectedType: PropertyType?,
-    onSelect: (PropertyType) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        SectionHeaderRow(
-            title = SearchStrings.SECTION_LOOKING_FOR,
-            action = null,
-            onActionClick = {}
-        )
-        Spacer(modifier = Modifier.height(SearchDims.SECTION_HEADER_SPACING))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SearchDims.TYPE_CARD_SPACING)
-        ) {
-            searchTypeOptions.forEach { option ->
-                val selected = option.type == selectedType
-                Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(SearchDims.TYPE_CARD_CORNER_RADIUS))
-                        .clickable { onSelect(option.type) },
-                    shape = RoundedCornerShape(SearchDims.TYPE_CARD_CORNER_RADIUS),
-                    color = if (selected) BrandBlue else White,
-                    border = if (selected) null else BorderStroke(SearchDims.BORDER_WIDTH, HomeSearchBarBorder)
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(vertical = SearchDims.TYPE_CARD_VERTICAL_PADDING)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(SearchDims.TYPE_ICON_CIRCLE_SIZE)
-                                .clip(CircleShape)
-                                .background(
-                                    if (selected) OnBrandContent.copy(alpha = SearchDims.SELECTED_ICON_OVERLAY_ALPHA)
-                                    else HomeCategoryUnselected
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = option.icon,
-                                contentDescription = option.type.label,
-                                tint = if (selected) OnBrandContent else BrandBlue,
-                                modifier = Modifier.size(SearchDims.TYPE_ICON_SIZE)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(SearchDims.TYPE_LABEL_SPACING))
-                        Text(
-                            text = option.type.label,
-                            color = if (selected) OnBrandContent else Black,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun BudgetSection(
-    budget: ClosedFloatingPointRange<Float>,
-    onBudgetChange: (ClosedFloatingPointRange<Float>) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = SearchStrings.SECTION_BUDGET,
-                color = Black,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = budgetRangeText(budget),
+                text = SearchStrings.TITLE,
                 color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
         }
-        RangeSlider(
-            value = budget,
-            onValueChange = onBudgetChange,
-            valueRange = BUDGET_MIN..BUDGET_MAX,
-            colors = SliderDefaults.colors(
-                thumbColor = BrandBlue,
-                activeTrackColor = BrandBlue,
-                inactiveTrackColor = HomeSearchBarBorder
+
+        item {
+            LocationSearchBar(
+                query = query,
+                suggestions = suggestions,
+                onQueryChange = { value ->
+                    onQueryChange(value)
+                    onFilterChange(filter.copy(city = value.takeIf(String::isNotBlank)))
+                },
+                onSuggestionSelected = { suggestion ->
+                    onSuggestionSelected(suggestion)
+                    onFilterChange(
+                        filter.copy(
+                            city = suggestion.primaryText,
+                            localities = suggestion.secondaryText
+                                .takeIf(String::isNotBlank)
+                                ?.let(::listOf)
+                                ?: emptyList()
+                        )
+                    )
+                },
+                onClearQuery = {
+                    onQueryChange("")
+                    onFilterChange(filter.copy(city = null, localities = emptyList()))
+                },
+                autoFocus = true,
+                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            budgetTicks().forEach { tick ->
-                Text(
-                    text = tick,
-                    color = HomeTextSecondary,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+        }
+
+        item {
+            PropertyFilters(
+                filter = filter,
+                onFilterChange = onFilterChange,
+                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
+            )
         }
     }
 }
 
-private fun budgetTicks(): List<String> = listOf(
-    budgetTick(BUDGET_MIN),
-    budgetTick(CRORE),
-    budgetTick(2 * CRORE),
-    budgetTick(BUDGET_MAX)
-)
-
-private fun budgetRangeText(range: ClosedFloatingPointRange<Float>): String =
-    "${SearchStrings.RUPEE} ${budgetTick(range.start)}" +
-        "${SearchStrings.RANGE_SEPARATOR}${SearchStrings.RUPEE} ${budgetTick(range.endInclusive)}${SearchStrings.PLUS_SUFFIX}"
-
-private fun budgetTick(value: Float): String = when {
-    value >= CRORE -> compactNumber(value / CRORE) + SearchStrings.CRORE_SUFFIX
-    else -> compactNumber(value / LAKH) + SearchStrings.LAKH_SUFFIX
-}
-
-private fun compactNumber(value: Float): String =
-    if (value == value.roundToInt().toFloat()) {
-        value.roundToInt().toString()
-    } else {
-        String.format(Locale.US, "%.1f", value)
-    }
-
-private fun samplePopularLocations(): List<PopularLocation> = listOf(
-    PopularLocation(
-        name = SearchStrings.LOCATION_NORTH_GOA,
-        propertyCount = 1250,
-        imageUrl = "https://images.unsplash.com/photo-1600596542815-86d7f88998bb?w=600&q=80"
-    ),
-    PopularLocation(
-        name = SearchStrings.LOCATION_SOUTH_GOA,
-        propertyCount = 980,
-        imageUrl = "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80"
-    ),
-    PopularLocation(
-        name = SearchStrings.LOCATION_PANAJI,
-        propertyCount = 640,
-        imageUrl = "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&q=80"
-    )
-)
-
-@Preview(showBackground = true, name = "Search Landing")
+@Preview(showBackground = true, name = "Search Filters")
 @Composable
 private fun SearchLandingContentPreview() {
     RealeTheme {
         SearchLandingContent(
             query = "",
             suggestions = emptyList(),
+            filter = PropertyFilter(),
+            onFilterChange = {},
             onQueryChange = {},
-            onSuggestionSelected = {},
-            onOpenFilter = {},
-            onSearch = {}
+            onSuggestionSelected = {}
         )
     }
 }
