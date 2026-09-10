@@ -7,6 +7,8 @@ import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.LocationSuggestion
+import com.realeapp.feature.search.domain.model.RentBuy
+import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCase
@@ -77,6 +79,13 @@ class SearchViewModel(
     private val currentFilter: PropertyFilter?
         get() = _uiState.value.currentFilter
 
+    /**
+     * Filter actually sent to the data layer: the explicit filter combined with
+     * the selected home category, so pagination runs over the categorized set.
+     */
+    private val effectiveFilter: PropertyFilter
+        get() = filterWithCategory(_uiState.value.currentFilter, _selectedHomeCategory.value)
+
     init {
         val savedCity = getOnboardingCityUseCase().value
         Logger.d(TAG, "init: savedCity='$savedCity'")
@@ -85,6 +94,7 @@ class SearchViewModel(
                 currentFilter = PropertyFilter(city = savedCity)
             )
         }
+        _selectedHomeCategory.value = homeCategoryFor(currentFilter)
         refresh()
         loadFeaturedProperties()
         loadPromotionalProperty()
@@ -102,6 +112,7 @@ class SearchViewModel(
                         _uiState.value = _uiState.value.copy(
                             currentFilter = PropertyFilter(city = savedCity)
                         )
+                        _selectedHomeCategory.value = homeCategoryFor(currentFilter)
                         refresh(clearList = true)
                         loadFeaturedProperties()
                         loadPromotionalProperty()
@@ -156,11 +167,15 @@ class SearchViewModel(
 
     fun onFilterChanged(filter: PropertyFilter?) {
         _uiState.value = _uiState.value.copy(currentFilter = filter)
+        _selectedHomeCategory.value = homeCategoryFor(filter)
+        applyCategoryFilter()
         refresh(clearList = true)
     }
 
     fun onResetFilter() {
         _uiState.value = _uiState.value.copy(currentFilter = null)
+        _selectedHomeCategory.value = homeCategoryFor(null)
+        applyCategoryFilter()
         refresh(clearList = true)
     }
 
@@ -254,7 +269,47 @@ class SearchViewModel(
     fun onCategorySelected(category: HomeCategory) {
         Logger.d(TAG, "onCategorySelected: category=$category")
         _selectedHomeCategory.value = category
+        val base = _uiState.value.currentFilter ?: PropertyFilter()
+        val newFilter = when (category) {
+            HomeCategory.RENT -> base.copy(
+                rentBuy = RentBuy.RENT,
+                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+            )
+            HomeCategory.COMMERCIAL -> base.copy(
+                rentBuy = null,
+                residentialCommercial = ResidentialCommercial.COMMERCIAL
+            )
+            HomeCategory.BUY, HomeCategory.NEW_PROJECTS -> base.copy(
+                rentBuy = RentBuy.BUY,
+                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+            )
+        }
+        _uiState.value = _uiState.value.copy(currentFilter = newFilter)
         applyCategoryFilter()
+        refresh(clearList = true)
+    }
+
+    private fun homeCategoryFor(filter: PropertyFilter?): HomeCategory = when {
+        filter?.residentialCommercial == ResidentialCommercial.COMMERCIAL -> HomeCategory.COMMERCIAL
+        filter?.rentBuy == RentBuy.RENT -> HomeCategory.RENT
+        else -> HomeCategory.BUY
+    }
+
+    private fun filterWithCategory(filter: PropertyFilter?, category: HomeCategory): PropertyFilter {
+        val base = filter ?: PropertyFilter()
+        return when (category) {
+            HomeCategory.RENT -> base.copy(
+                rentBuy = RentBuy.RENT,
+                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+            )
+            HomeCategory.COMMERCIAL -> base.copy(
+                residentialCommercial = ResidentialCommercial.COMMERCIAL
+            )
+            HomeCategory.BUY, HomeCategory.NEW_PROJECTS -> base.copy(
+                rentBuy = RentBuy.BUY,
+                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+            )
+        }
     }
 
     fun onErrorShown() {
@@ -297,7 +352,7 @@ class SearchViewModel(
     private fun loadPage(page: Int) {
         Logger.d(TAG, "loadPage: loading page=$page")
         viewModelScope.launch {
-            val result = getAllPropertiesUseCase(currentFilter, page, limit)
+            val result = getAllPropertiesUseCase(effectiveFilter, page, limit)
             when (result) {
                 is Result.Success -> {
                     val newProperties = result.data

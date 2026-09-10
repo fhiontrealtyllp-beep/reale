@@ -66,7 +66,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,10 +125,10 @@ fun PropertiesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
+    val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showFilterDialog by remember { mutableStateOf(false) }
     var sortBy by remember { mutableStateOf(SortBy.RELEVANCE) }
-    var selectedCategory by rememberSaveable { mutableStateOf(HomeCategory.BUY) }
 
     LaunchedEffect(Unit) {
         viewModel.sideEffect.collect { message ->
@@ -175,7 +174,7 @@ fun PropertiesScreen(
             sortBy = sortBy,
             onSortChange = { sortBy = it },
             selectedCategory = selectedCategory,
-            onCategoryChange = { selectedCategory = it },
+            onCategoryChange = viewModel::onCategorySelected,
             onRefresh = viewModel::refresh,
             onLoadMore = viewModel::onLoadMore,
             onOpenFilter = { showFilterDialog = true },
