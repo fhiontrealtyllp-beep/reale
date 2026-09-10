@@ -113,12 +113,7 @@ private enum class SortBy(val label: String) {
     NEWEST(PropertiesStrings.SORT_NEWEST)
 }
 
-private val propertiesTabs = listOf(
-    HomeCategory.BUY to PropertiesStrings.TAB_BUY,
-    HomeCategory.RENT to PropertiesStrings.TAB_RENT,
-    HomeCategory.NEW_PROJECTS to PropertiesStrings.TAB_NEW_PROJECTS,
-    HomeCategory.COMMERCIAL to PropertiesStrings.TAB_COMMERCIAL
-)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -264,17 +259,6 @@ private fun PropertiesScreenContent(
             onClearQuery = onClearQuery
         )
 
-        Spacer(modifier = Modifier.height(PropertiesDims.TABS_ROW_TOP_PADDING))
-
-        PillTabsRow(
-            tabs = propertiesTabs.map { it.second },
-            selectedIndex = propertiesTabs.indexOfFirst { it.first == selectedCategory },
-            onSelect = { index ->
-                onCategoryChange(propertiesTabs[index].first)
-            }
-        )
-
-        Spacer(modifier = Modifier.height(PropertiesDims.SECTION_SPACING))
 
         PullToRefreshBox(
             isRefreshing = isLoading && properties.isNotEmpty(),

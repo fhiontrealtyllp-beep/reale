@@ -30,11 +30,14 @@ private const val PREFS_NAME = "OneTimeUtilsPrefs"
 private const val KEY_SEEDED = "properties_seeded"
 private const val KEY_PANAJI_PROMO_SEEDED = "panaji_promo_seeded"
 private const val KEY_NAGPUR_SEEDED = "nagpur_seeded"
+private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seeded"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
 private const val PANAJI_FEATURED_COUNT = 5
 private const val PANAJI_PROMOTIONAL_COUNT = 5
+private const val ESSENTIAL_FILTER_SEED_COPIES = 2
+private const val ESSENTIAL_FILTER_MAX_BATHROOMS = 5
 private const val SEED_USER_ID = "seed_user"
 private const val STATUS_LIVE = "live"
 private const val AGENT_PHONE = "9876543210"
@@ -54,6 +57,30 @@ private val LOCALITY_NAMES = listOf(
 private val PINCODES = listOf(
     "560001", "411001", "403001", "440001"
 )
+
+private data class SeedBudget(val label: String, val price: Double)
+
+private val SEED_BUY_BUDGETS = listOf(
+    SeedBudget("Under \u20B925 L", 1_500_000.0),
+    SeedBudget("\u20B925-50 L", 3_500_000.0),
+    SeedBudget("\u20B950 L-1 Cr", 7_500_000.0),
+    SeedBudget("\u20B91-5 Cr", 25_000_000.0),
+    SeedBudget("\u20B95 Cr+", 60_000_000.0)
+)
+
+private val SEED_RENT_BUDGETS = listOf(
+    SeedBudget("Under \u20B910 K/mo", 5_000.0),
+    SeedBudget("\u20B910-25 K/mo", 17_000.0),
+    SeedBudget("\u20B925-50 K/mo", 37_000.0),
+    SeedBudget("\u20B950 K+/mo", 60_000.0)
+)
+
+private val SEED_LOCALITIES = listOf(
+    "Civil Lines", "Sadar", "Dharampeth", "Ramdaspeth", "Laxminagar",
+    "Wardha Road", "Manish Nagar", "Hingna", "Parsodi", "Futala"
+)
+
+private val SEED_PINCODES = listOf("440001", "440010", "440022")
 
 class OneTimeUtils(
     context: Context,
@@ -238,6 +265,111 @@ class OneTimeUtils(
         }
     }
 
+    /**
+     * Builds the essential-filter coverage seed data without writing to
+     * Firestore. Two properties are generated for every combination of the
+     * essential chip filters (rentBuy x category x propertyType x bedroomType).
+     * Bathrooms, budget, locality and pincode are distributed across the groups
+     * so every value is represented, and each title lists the exact filter
+     * values it matches.
+     */
+    fun buildEssentialFilterCoverageData(): List<Map<String, Any?>> {
+        val city = "Nagpur"
+        val normalizedCity = LocationNormalizer.normalizeCity(city) ?: city.lowercase()
+        val images = buildImageUrls("nagpur_filter_seed")
+        val baseLatitude = 21.1458
+        val baseLongitude = 79.0882
+
+        val result = mutableListOf<Map<String, Any?>>()
+        var groupIndex = 0
+        var globalIndex = 20_000
+
+        for (rentBuy in RentBuy.entries) {
+            val budgets = if (rentBuy == RentBuy.RENT) SEED_RENT_BUDGETS else SEED_BUY_BUDGETS
+            for (resComm in ResidentialCommercial.entries) {
+                for (propertyType in PropertyType.entries) {
+                    for (bedroomType in BedroomType.entries) {
+                        val bathrooms = (groupIndex % ESSENTIAL_FILTER_MAX_BATHROOMS) + 1
+                        val budget = budgets[groupIndex % budgets.size]
+                        val locality = SEED_LOCALITIES[groupIndex % SEED_LOCALITIES.size]
+                        val pincode = SEED_PINCODES[groupIndex % SEED_PINCODES.size]
+                        val furnishing = Furnishing.entries[groupIndex % Furnishing.entries.size]
+                        val facing = Facing.entries[groupIndex % Facing.entries.size]
+                        val age = Age.entries[groupIndex % Age.entries.size]
+
+                        val title = "${rentBuy.label} | ${resComm.label} | ${propertyType.label} | " +
+                            "${bedroomType.label} | $bathrooms Bath | ${budget.label} | $locality"
+                        val description = "Filter test property matching: ${rentBuy.label}, " +
+                            "${resComm.label}, ${propertyType.label}, ${bedroomType.label}, " +
+                            "$bathrooms bathrooms, ${budget.label} in $locality, $city."
+
+                        for (copy in 1..ESSENTIAL_FILTER_SEED_COPIES) {
+                            result += buildPropertyData(
+                                city = normalizedCity,
+                                locality = locality,
+                                pincode = pincode,
+                                propertyIndex = globalIndex,
+                                globalIndex = globalIndex,
+                                images = images,
+                                latitude = baseLatitude + (globalIndex * 0.0001),
+                                longitude = baseLongitude + (globalIndex * 0.0001),
+                                rentBuyOverride = rentBuy,
+                                residentialCommercialOverride = resComm,
+                                propertyTypeOverride = propertyType,
+                                bedroomTypeOverride = bedroomType,
+                                bathroomsOverride = bathrooms,
+                                furnishingOverride = furnishing,
+                                facingOverride = facing,
+                                ageOverride = age,
+                                priceOverride = budget.price,
+                                titleOverride = "$title #$copy",
+                                descriptionOverride = description
+                            )
+                            globalIndex++
+                        }
+                        groupIndex++
+                    }
+                }
+            }
+        }
+
+        return result
+    }
+
+    /** Returns the titles of the essential-filter coverage seed data for preview. */
+    fun previewEssentialFilterCoverageTitles(): List<String> =
+        buildEssentialFilterCoverageData().mapNotNull { it["title"] as? String }
+
+    suspend fun seedEssentialFilterCoverageIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_ESSENTIAL_FILTER_SEEDED, false)) {
+            Logger.d(TAG, "Essential filter coverage already seeded, skipping.")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting essential filter coverage seeding...")
+        val propertiesCollection = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
+        val seedData = buildEssentialFilterCoverageData()
+        var successCount = 0
+
+        for (data in seedData) {
+            try {
+                val docRef = propertiesCollection.document()
+                val dataWithId = data.toMutableMap().apply { this["id"] = docRef.id }
+                docRef.set(dataWithId).await()
+                successCount++
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to seed filter coverage property: ${e.message}", e)
+            }
+        }
+
+        if (successCount == seedData.size) {
+            prefs.edit().putBoolean(KEY_ESSENTIAL_FILTER_SEEDED, true).apply()
+            Logger.d(TAG, "Essential filter coverage seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Essential filter coverage seeding incomplete. Success: $successCount / ${seedData.size}")
+        }
+    }
+
     private fun buildImageUrls(city: String): List<String> {
         return (1..IMAGES_PER_CITY).map { index ->
             IMAGE_URL_TEMPLATE.format(city.lowercase().replace(" ", "_"), index)
@@ -254,36 +386,45 @@ class OneTimeUtils(
         listingCategory: ListingCategory = ListingCategory.NORMAL,
         latitude: Double = (12.0 + globalIndex * 0.01),
         longitude: Double = (77.0 + globalIndex * 0.01),
-        rentBuyOverride: RentBuy? = null
+        rentBuyOverride: RentBuy? = null,
+        residentialCommercialOverride: ResidentialCommercial? = null,
+        propertyTypeOverride: PropertyType? = null,
+        bedroomTypeOverride: BedroomType? = null,
+        bathroomsOverride: Int? = null,
+        furnishingOverride: Furnishing? = null,
+        facingOverride: Facing? = null,
+        ageOverride: Age? = null,
+        priceOverride: Double? = null,
+        titleOverride: String? = null,
+        descriptionOverride: String? = null
     ): Map<String, Any?> {
-        val propertyType = PropertyType.entries[globalIndex % PropertyType.entries.size]
+        val propertyType = propertyTypeOverride ?: PropertyType.entries[globalIndex % PropertyType.entries.size]
         val rentBuy = rentBuyOverride ?: if (globalIndex % 2 == 0) RentBuy.BUY else RentBuy.RENT
-        val residentialCommercial = ResidentialCommercial.RESIDENTIAL
-        val bedroomType = BedroomType.entries[propertyIndex % BedroomType.entries.size]
-        val furnishing = Furnishing.entries[propertyIndex % Furnishing.entries.size]
-        val facing = Facing.entries[propertyIndex % Facing.entries.size]
-        val age = Age.entries[propertyIndex % Age.entries.size]
+        val residentialCommercial = residentialCommercialOverride ?: propertyType.category
+        val bedroomType = bedroomTypeOverride ?: BedroomType.entries[propertyIndex % BedroomType.entries.size]
+        val furnishing = furnishingOverride ?: Furnishing.entries[propertyIndex % Furnishing.entries.size]
+        val facing = facingOverride ?: Facing.entries[propertyIndex % Facing.entries.size]
+        val age = ageOverride ?: Age.entries[propertyIndex % Age.entries.size]
+        val bathrooms = bathroomsOverride ?: (propertyIndex % 4) + 1
 
-        val price = if (rentBuy == RentBuy.RENT) {
+        val price = priceOverride ?: if (rentBuy == RentBuy.RENT) {
             (10_000 + (propertyIndex * 1_500)).toDouble()
         } else {
             (2_000_000 + (globalIndex * 100_000)).toDouble()
         }
 
-        val amenities = listOf(
-            Amenity.PARKING,
-            Amenity.LIFT,
-            Amenity.POWER_BACKUP,
-            Amenity.CCTV,
-            Amenity.GATED_COMMUNITY
-        ).map { it.jsonName() }
+        val amenities = Amenity.entries.map { it.jsonName() }
 
         val categoryPrefix = if (listingCategory == ListingCategory.NORMAL) "" else "${listingCategory.name} "
+        val defaultTitle = "$categoryPrefix$propertyIndex ${propertyType.label} in " +
+            city.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        val defaultDescription = "A ${propertyType.label} for ${rentBuy.label.lowercase()} in " +
+            "$locality, $city. This is a seed property created for testing."
 
         return mapOf(
             "userId" to SEED_USER_ID,
-            "title" to "$categoryPrefix$propertyIndex ${propertyType.label} in ${city.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}",
-            "description" to "A ${propertyType.label} for ${rentBuy.label.lowercase()} in $locality, $city. This is a seed property created for testing.",
+            "title" to (titleOverride ?: defaultTitle),
+            "description" to (descriptionOverride ?: defaultDescription),
             "price" to price,
             "city" to city,
             "locality" to LocationNormalizer.normalizeLocality(locality),
@@ -299,7 +440,7 @@ class OneTimeUtils(
             "residentialCommercial" to residentialCommercial.jsonName(),
             "propertyType" to propertyType.jsonName(),
             "bedroomType" to bedroomType.jsonName(),
-            "bathrooms" to (propertyIndex % 4) + 1,
+            "bathrooms" to bathrooms,
             "furnishing" to furnishing.jsonName(),
             "facing" to facing.jsonName(),
             "age" to age.jsonName(),
