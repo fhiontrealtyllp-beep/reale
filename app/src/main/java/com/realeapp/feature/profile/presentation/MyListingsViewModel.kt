@@ -22,10 +22,6 @@ internal class MyListingsViewModel(
     private val _uiState = MutableStateFlow(MyListingsUiState())
     val uiState: StateFlow<MyListingsUiState> = _uiState.asStateFlow()
 
-    init {
-        load()
-    }
-
     fun load() {
         val userId = userSession.getUserId()
         if (userId.isNullOrBlank()) {
