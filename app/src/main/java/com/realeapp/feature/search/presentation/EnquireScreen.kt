@@ -1,9 +1,5 @@
 package com.realeapp.feature.search.presentation
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,16 +13,22 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,13 +45,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
@@ -59,16 +67,17 @@ import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.TextHint
+import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
-import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnquireBottomSheet(
     property: Property,
     onDismiss: () -> Unit,
+    onViewEnquiries: () -> Unit = onDismiss,
+    onSend: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -87,15 +96,8 @@ fun EnquireBottomSheet(
         EnquireSheetContent(
             property = property,
             onClose = onDismiss,
-            onSend = { message ->
-                if (property.agentPhone.isBlank()) {
-                    Toast.makeText(context, EnquiryStrings.AGENT_PHONE_UNAVAILABLE, Toast.LENGTH_SHORT).show()
-                } else {
-                    val body = buildEnquiryMessage(property, message)
-                    sendEnquirySms(context, property.agentPhone, body)
-                }
-                onDismiss()
-            }
+            onViewEnquiries = onViewEnquiries,
+            onSend = onSend
         )
     }
 }
@@ -104,12 +106,12 @@ fun EnquireBottomSheet(
 private fun EnquireSheetContent(
     property: Property,
     onClose: () -> Unit,
+    onViewEnquiries: () -> Unit,
     onSend: (String) -> Unit
 ) {
-    val context = LocalContext.current
-
     var message by remember { mutableStateOf("") }
     var messageError by remember { mutableStateOf<String?>(null) }
+    var isSuccess by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -122,7 +124,8 @@ private fun EnquireSheetContent(
                 end = EnquiryDims.SHEET_PADDING,
                 top = EnquiryDims.SHEET_TOP_PADDING,
                 bottom = EnquiryDims.SHEET_BOTTOM_PADDING
-            )
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -138,51 +141,163 @@ private fun EnquireSheetContent(
             }
         }
 
+        if (isSuccess) {
+            EnquirySuccessContent(
+                property = property,
+                onBack = onClose,
+                onViewEnquiries = onViewEnquiries
+            )
+        } else {
+            EnquiryFormContent(
+                message = message,
+                messageError = messageError,
+                onMessageChange = {
+                    message = it
+                    messageError = null
+                },
+                onSend = {
+                    if (message.isBlank()) {
+                        messageError = EnquiryStrings.ERROR_MESSAGE_REQUIRED
+                    } else {
+                        onSend(message)
+                        isSuccess = true
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnquiryFormContent(
+    message: String,
+    messageError: String?,
+    onMessageChange: (String) -> Unit,
+    onSend: () -> Unit
+) {
+    Text(
+        text = EnquiryStrings.TITLE,
+        modifier = Modifier.fillMaxWidth(),
+        color = Black,
+        fontSize = EnquiryDims.TITLE_FONT_SIZE,
+        fontWeight = FontWeight.Bold
+    )
+
+    Spacer(modifier = Modifier.height(EnquiryDims.HEADER_SPACING))
+
+    Text(
+        text = EnquiryStrings.SUBTITLE,
+        modifier = Modifier.fillMaxWidth(),
+        color = Gray,
+        fontSize = EnquiryDims.SUBTITLE_FONT_SIZE
+    )
+
+    Spacer(modifier = Modifier.height(EnquiryDims.FORM_FIELD_SPACING))
+
+    EnquiryTextField(
+        value = message,
+        onValueChange = onMessageChange,
+        label = EnquiryStrings.LABEL_MESSAGE,
+        placeholder = EnquiryStrings.HINT_MESSAGE,
+        leadingIcon = Icons.AutoMirrored.Filled.Chat,
+        isError = messageError != null,
+        supportingText = messageError,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        )
+    )
+
+    Spacer(modifier = Modifier.height(EnquiryDims.BUTTON_TOP_SPACING))
+
+    Button(
+        onClick = onSend,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(EnquiryDims.BUTTON_HEIGHT),
+        shape = RoundedCornerShape(EnquiryDims.BUTTON_CORNER_RADIUS),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = BrandCoral,
+            contentColor = OnBrandContent
+        )
+    ) {
         Text(
-            text = EnquiryStrings.TITLE,
-            color = Black,
-            fontSize = EnquiryDims.TITLE_FONT_SIZE,
+            text = EnquiryStrings.BUTTON_SEND,
             fontWeight = FontWeight.Bold
         )
+    }
+}
 
-        Spacer(modifier = Modifier.height(EnquiryDims.HEADER_SPACING))
+@Composable
+private fun EnquirySuccessContent(
+    property: Property,
+    onBack: () -> Unit,
+    onViewEnquiries: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(EnquiryDims.SUCCESS_ICON_BACKGROUND_SIZE)
+                .background(BrandBlue.copy(alpha = 0.1f), shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Email,
+                contentDescription = null,
+                tint = BrandBlue,
+                modifier = Modifier.size(EnquiryDims.SUCCESS_ICON_SIZE)
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(EnquiryDims.SUCCESS_CHECK_SIZE)
+                    .background(VerifiedGreen, shape = CircleShape)
+                    .padding(EnquiryDims.HEADER_SPACING),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = OnBrandContent,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(EnquiryDims.SUCCESS_TITLE_TOP_SPACING))
 
         Text(
-            text = EnquiryStrings.SUBTITLE,
+            text = EnquiryStrings.SUCCESS_TITLE,
+            color = Black,
+            fontSize = EnquiryDims.TITLE_FONT_SIZE,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(EnquiryDims.SUCCESS_SUBTITLE_TOP_SPACING))
+
+        Text(
+            text = EnquiryStrings.SUCCESS_SUBTITLE,
             color = Gray,
-            fontSize = EnquiryDims.SUBTITLE_FONT_SIZE
+            fontSize = EnquiryDims.SUBTITLE_FONT_SIZE,
+            textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(EnquiryDims.FORM_FIELD_SPACING))
+        Spacer(modifier = Modifier.height(EnquiryDims.SUCCESS_PROPERTY_CARD_TOP_SPACING))
 
-        EnquiryTextField(
-            value = message,
-            onValueChange = {
-                message = it
-                messageError = null
-            },
-            label = EnquiryStrings.LABEL_MESSAGE,
-            placeholder = EnquiryStrings.HINT_MESSAGE,
-            leadingIcon = Icons.AutoMirrored.Filled.Chat,
-            isError = messageError != null,
-            supportingText = messageError,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
-            )
-        )
+        EnquirySuccessPropertyCard(property = property)
 
-        Spacer(modifier = Modifier.height(EnquiryDims.BUTTON_TOP_SPACING))
+        Spacer(modifier = Modifier.height(EnquiryDims.SUCCESS_BUTTON_TOP_SPACING))
 
         Button(
-            onClick = {
-                if (message.isBlank()) {
-                    messageError = EnquiryStrings.ERROR_MESSAGE_REQUIRED
-                } else {
-                    onSend(message)
-                    Toast.makeText(context, EnquiryStrings.BUTTON_SEND, Toast.LENGTH_SHORT).show()
-                }
-            },
+            onClick = onBack,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(EnquiryDims.BUTTON_HEIGHT),
@@ -193,9 +308,84 @@ private fun EnquireSheetContent(
             )
         ) {
             Text(
-                text = EnquiryStrings.BUTTON_SEND,
+                text = EnquiryStrings.SUCCESS_BUTTON_BACK,
                 fontWeight = FontWeight.Bold
             )
+        }
+
+        Spacer(modifier = Modifier.height(EnquiryDims.SUCCESS_LINK_TOP_SPACING))
+
+        TextButton(onClick = onViewEnquiries) {
+            Text(
+                text = EnquiryStrings.SUCCESS_LINK_ENQUIRIES,
+                color = BrandBlue,
+                fontSize = EnquiryDims.SUCCESS_LINK_FONT_SIZE,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnquirySuccessPropertyCard(
+    property: Property,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(EnquiryDims.FORM_FIELD_CORNER_RADIUS),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = EnquiryDims.PROPERTY_CARD_ELEVATION)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(EnquiryDims.PROPERTY_CARD_SPACING),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val imageUrl = property.images.firstOrNull { it.isNotBlank() }
+                ?: (DetailStrings.FALLBACK_IMAGE_PREFIX + property.id + DetailStrings.FALLBACK_IMAGE_SUFFIX)
+
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(EnquiryDims.PROPERTY_CARD_IMAGE_SIZE)
+                    .clip(RoundedCornerShape(EnquiryDims.PROPERTY_CARD_IMAGE_CORNER_RADIUS))
+            )
+
+            Spacer(modifier = Modifier.width(EnquiryDims.PROPERTY_CARD_SPACING))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = property.title,
+                    color = Black,
+                    fontSize = EnquiryDims.SUBTITLE_FONT_SIZE,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(EnquiryDims.HEADER_SPACING))
+
+                Text(
+                    text = buildShortLocation(property),
+                    color = Gray,
+                    fontSize = EnquiryDims.SUBTITLE_FONT_SIZE,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(EnquiryDims.HEADER_SPACING))
+
+                Text(
+                    text = formatIndianPrice(property.price, property.isRentProperty()),
+                    color = BrandBlue,
+                    fontSize = EnquiryDims.SUBTITLE_FONT_SIZE,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -261,30 +451,6 @@ private fun buildShortLocation(property: Property): String {
         .joinToString(", ")
 }
 
-private fun buildEnquiryMessage(
-    property: Property,
-    message: String
-): String {
-    return String.format(
-        Locale.getDefault(),
-        EnquiryStrings.ENQUIRY_SMS_TEMPLATE,
-        property.title,
-        buildShortLocation(property),
-        message.trim()
-    )
-}
-
-private fun sendEnquirySms(context: Context, phone: String, body: String) {
-    if (phone.isBlank()) return
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse(DetailStrings.SMS_URI_PREFIX + phone.trim())
-        putExtra("sms_body", body)
-        putExtra(Intent.EXTRA_TEXT, body)
-    }
-    if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

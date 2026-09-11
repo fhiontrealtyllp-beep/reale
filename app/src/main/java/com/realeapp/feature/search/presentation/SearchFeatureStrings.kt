@@ -329,26 +329,18 @@ internal object EnquiryStrings {
     const val TITLE = "Enquire Now"
     const val SUBTITLE = "Enter your details and we will connect you with the owner."
 
-    const val LABEL_FULL_NAME = "Full Name"
-    const val HINT_FULL_NAME = "Enter your full name"
-
-    const val LABEL_MOBILE = "Mobile"
-    const val HINT_MOBILE = "Enter mobile number"
-    const val MOBILE_PREFIX = "+91"
-
-    const val LABEL_EMAIL = "Email"
-    const val HINT_EMAIL = "Enter email (optional)"
-
     const val LABEL_MESSAGE = "Message"
     const val HINT_MESSAGE = "Type your message"
 
     const val BUTTON_SEND = "Send Enquiry"
 
-    const val AGENT_PHONE_UNAVAILABLE = "Agent phone number unavailable"
     const val ERROR_MESSAGE_REQUIRED = "Message is required"
 
-    const val ENQUIRY_SMS_TEMPLATE =
-        "Hi, I am interested in "
+    const val SUCCESS_TITLE = "Your Enquiry is Sent!"
+    const val SUCCESS_SUBTITLE =
+        "Thank you for your interest in this property. Our team will get in touch with you shortly."
+    const val SUCCESS_BUTTON_BACK = "Back to Property"
+    const val SUCCESS_LINK_ENQUIRIES = "View My Enquiries"
 }
 
 /**
@@ -375,6 +367,16 @@ internal object EnquiryDims {
 
     val FOOTER_TOP_SPACING = 16.dp
     val FOOTER_ICON_SIZE = 16.dp
+
+    val SUCCESS_ICON_SIZE = 80.dp
+    val SUCCESS_ICON_BACKGROUND_SIZE = 140.dp
+    val SUCCESS_CHECK_SIZE = 32.dp
+    val SUCCESS_TITLE_TOP_SPACING = 24.dp
+    val SUCCESS_SUBTITLE_TOP_SPACING = 8.dp
+    val SUCCESS_PROPERTY_CARD_TOP_SPACING = 24.dp
+    val SUCCESS_BUTTON_TOP_SPACING = 24.dp
+    val SUCCESS_LINK_TOP_SPACING = 16.dp
+    val SUCCESS_LINK_FONT_SIZE = 14.sp
 
     val PROPERTY_CARD_ELEVATION = 2.dp
     val PROPERTY_CARD_SPACING = 12.dp
