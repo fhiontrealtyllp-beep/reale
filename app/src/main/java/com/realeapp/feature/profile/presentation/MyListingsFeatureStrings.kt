@@ -48,6 +48,9 @@ internal object MyListingsStrings {
     const val CD_MORE = "More options"
 
     const val EMPTY_TITLE = "No properties found"
+    const val EMPTY_SUBTITLE = "Your listed properties will appear here."
+    const val ERROR_NOT_LOGGED_IN = "Please log in to view your listings."
+    const val ERROR_LOADING = "Unable to load listings."
 }
 
 internal object MyListingsDims {
@@ -134,4 +137,6 @@ internal object MyListingsDims {
     val ACTION_BUTTON_BORDER_WIDTH = 1.dp
 
     val DETAIL_LINE_SPACING = 4.dp
+    val LOADING_SIZE = 40.dp
+    val LOADING_STROKE = 3.dp
 }

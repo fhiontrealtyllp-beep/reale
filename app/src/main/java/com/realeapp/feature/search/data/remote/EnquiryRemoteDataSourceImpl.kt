@@ -16,6 +16,7 @@ private const val TAG = "EnquiryRemoteDataSource"
 private const val TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 private const val TIMEZONE_UTC = "UTC"
 private const val STATUS_NEW = "new"
+private const val WHERE_IN_CHUNK_SIZE = 10
 
 class EnquiryRemoteDataSourceImpl(
     private val firebaseProvider: FirebaseProvider
@@ -70,6 +71,52 @@ class EnquiryRemoteDataSourceImpl(
         } catch (e: Exception) {
             Logger.e(TAG, "getEnquiriesByUser failed: ${e.message}", e)
             Result.Error("Unable to load enquiries: ${e.message}")
+        }
+    }
+
+    override suspend fun getEnquiriesByProperty(propertyId: String): Result<List<Enquiry>> {
+        Logger.d(TAG, "getEnquiriesByProperty: propertyId=$propertyId")
+        return try {
+            val snapshot = enquiries
+                .whereEqualTo("propertyId", propertyId)
+                .get()
+                .await()
+
+            val list = snapshot.documents
+                .mapNotNull { it.toEnquiry() }
+                .sortedByDescending { it.createdAt }
+            Logger.d(TAG, "getEnquiriesByProperty: found ${list.size} enquiries")
+            Result.Success(list)
+        } catch (e: Exception) {
+            Logger.e(TAG, "getEnquiriesByProperty failed: ${e.message}", e)
+            Result.Error("Unable to load enquiries: ${e.message}")
+        }
+    }
+
+    override suspend fun getEnquiryCountsForPropertyIds(propertyIds: List<String>): Result<Map<String, Int>> {
+        Logger.d(TAG, "getEnquiryCountsForPropertyIds: propertyIds=${propertyIds.size}")
+        if (propertyIds.isEmpty()) {
+            return Result.Success(emptyMap())
+        }
+        return try {
+            val counts = mutableMapOf<String, Int>()
+            val query = enquiries
+            propertyIds.chunked(WHERE_IN_CHUNK_SIZE)
+                .forEach { chunk ->
+                    val snapshot = query
+                        .whereIn("propertyId", chunk)
+                        .get()
+                        .await()
+                    snapshot.documents.forEach { doc ->
+                        val id = doc.getString("propertyId") ?: return@forEach
+                        counts[id] = counts.getOrDefault(id, 0) + 1
+                    }
+                }
+            Logger.d(TAG, "getEnquiryCountsForPropertyIds: counts=$counts")
+            Result.Success(counts)
+        } catch (e: Exception) {
+            Logger.e(TAG, "getEnquiryCountsForPropertyIds failed: ${e.message}", e)
+            Result.Error("Unable to load enquiry counts: ${e.message}")
         }
     }
 

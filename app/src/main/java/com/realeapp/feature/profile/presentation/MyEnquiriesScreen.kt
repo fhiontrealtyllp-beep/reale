@@ -54,13 +54,15 @@ import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyEnquiriesScreen(
     onBack: () -> Unit,
+    filterPropertyId: String? = null,
     modifier: Modifier = Modifier,
-    viewModel: MyEnquiriesViewModel = koinViewModel()
+    viewModel: MyEnquiriesViewModel = koinViewModel { parametersOf(filterPropertyId) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -321,6 +323,11 @@ private fun MyEnquiriesScreenPreview() {
                                 )
                             )
                         )
+                    }
+                },
+                getEnquiriesByPropertyUseCase = object : com.realeapp.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase {
+                    override suspend fun invoke(propertyId: String): com.realeapp.feature.search.domain.utils.Result<List<Enquiry>> {
+                        return com.realeapp.feature.search.domain.utils.Result.Success(emptyList())
                     }
                 },
                 userSession = object : com.realeapp.feature.search.data.session.UserSession {

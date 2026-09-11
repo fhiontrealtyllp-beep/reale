@@ -181,6 +181,9 @@ internal object DetailStrings {
     const val ACTION_CALL = "Call"
     const val ACTION_ENQUIRE = "Enquire Now"
 
+    const val LABEL_ENQUIRIES = "Enquiries"
+    const val CD_VIEW_ENQUIRIES = "View enquiries"
+
     const val MEDIA_PHOTOS = "Photos"
     const val MEDIA_MAP = "Map"
     const val MEDIA_360 = "360°"

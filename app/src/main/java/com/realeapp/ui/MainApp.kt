@@ -174,6 +174,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     var showExitDialog by remember { mutableStateOf(false) }
                     var showMyListings by rememberSaveable { mutableStateOf(false) }
                     var showMyEnquiries by rememberSaveable { mutableStateOf(false) }
+                    var selectedEnquiryPropertyId by rememberSaveable { mutableStateOf<String?>(null) }
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
                     var showCityScreen by rememberSaveable { mutableStateOf(false) }
 
@@ -185,12 +186,13 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         showAddProperty = false
                     }
 
-                    BackHandler(enabled = showMyListings && !showAddProperty) {
-                        showMyListings = false
+                    BackHandler(enabled = showMyEnquiries && !showAddProperty) {
+                        showMyEnquiries = false
+                        selectedEnquiryPropertyId = null
                     }
 
-                    BackHandler(enabled = showMyEnquiries && !showMyListings && !showAddProperty) {
-                        showMyEnquiries = false
+                    BackHandler(enabled = showMyListings && !showMyEnquiries && !showAddProperty) {
+                        showMyListings = false
                     }
 
                     BackHandler(enabled = showCityScreen) {
@@ -208,6 +210,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 onTabSelected = { tab ->
                                     showMyListings = false
                                     showMyEnquiries = false
+                                    selectedEnquiryPropertyId = null
                                     showAddProperty = false
                                     mainViewModel.selectTab(tab)
                                 }
@@ -253,14 +256,23 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                             onLoginClick = { authScreen = AuthScreen.Welcome },
                                             startWithAddForm = true
                                         )
+                                        showMyEnquiries -> MyEnquiriesScreen(
+                                            modifier = Modifier.fillMaxSize(),
+                                            filterPropertyId = selectedEnquiryPropertyId,
+                                            onBack = {
+                                                showMyEnquiries = false
+                                                selectedEnquiryPropertyId = null
+                                            }
+                                        )
                                         showMyListings -> MyListingsScreen(
                                             modifier = Modifier.fillMaxSize(),
                                             onBack = { showMyListings = false },
-                                            onAddProperty = { showAddProperty = true }
-                                        )
-                                        showMyEnquiries -> MyEnquiriesScreen(
-                                            modifier = Modifier.fillMaxSize(),
-                                            onBack = { showMyEnquiries = false }
+                                            onAddProperty = { showAddProperty = true },
+                                            onViewEnquiries = { propertyId ->
+                                                Logger.d(TAG, "View enquiries clicked for property: $propertyId")
+                                                selectedEnquiryPropertyId = propertyId
+                                                showMyEnquiries = true
+                                            }
                                         )
                                         else -> ProfileScreen(
                                             modifier = Modifier.fillMaxSize(),
@@ -272,6 +284,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                             },
                                             onMyEnquiriesClick = {
                                                 Logger.d(TAG, "My Enquiries clicked: opening MyEnquiriesScreen")
+                                                selectedEnquiryPropertyId = null
                                                 showMyEnquiries = true
                                             }
                                         )

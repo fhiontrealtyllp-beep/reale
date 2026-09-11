@@ -20,4 +20,12 @@ class EnquiryRepositoryImpl(
     override suspend fun getEnquiriesByUser(userId: String): Result<List<Enquiry>> {
         return remoteDataSource.getEnquiriesByUser(userId)
     }
+
+    override suspend fun getEnquiriesByProperty(propertyId: String): Result<List<Enquiry>> {
+        return remoteDataSource.getEnquiriesByProperty(propertyId)
+    }
+
+    override suspend fun getEnquiryCountsForPropertyIds(propertyIds: List<String>): Result<Map<String, Int>> {
+        return remoteDataSource.getEnquiryCountsForPropertyIds(propertyIds)
+    }
 }

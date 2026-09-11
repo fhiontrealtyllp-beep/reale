@@ -129,14 +129,15 @@ class AddPropertyRemoteDataSourceImpl(
         return try {
             val snapshot = properties
                 .whereEqualTo("userId", userId)
-                .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
 
-            val properties = snapshot.documents.map { doc ->
-                val data = doc.data ?: emptyMap()
-                PropertyMapper.fromMap(data, doc.id)
-            }
+            val properties = snapshot.documents
+                .map { doc ->
+                    val data = doc.data ?: emptyMap()
+                    PropertyMapper.fromMap(data, doc.id)
+                }
+                .sortedByDescending { it.createdAt.orEmpty() }
 
             Logger.d(TAG, "$TICK getMyProperties() succeeded: found ${properties.size} properties for user: $userId")
             Result.Success(properties)

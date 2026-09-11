@@ -43,6 +43,7 @@ import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -56,6 +57,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,6 +84,7 @@ import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.RealeTheme
 import androidx.compose.ui.tooling.preview.Preview
+import org.koin.androidx.compose.koinViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -104,74 +107,6 @@ internal data class MyListing(
     val status: ListingStatus
 )
 
-// Sample listings until a "my properties" backend query exists.
-private val sampleListings = listOf(
-    MyListing(
-        id = "1",
-        imageUrl = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
-        title = "3 BHK Premium Villa",
-        location = "Porvorim, Goa",
-        type = "Villa",
-        price = 18_500_000.0,
-        beds = 3,
-        baths = 3,
-        sqft = 2400,
-        views = 245,
-        enquiries = 18,
-        shortlisted = 3,
-        photoCount = 12,
-        status = ListingStatus.ACTIVE
-    ),
-    MyListing(
-        id = "2",
-        imageUrl = "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80",
-        title = "2 BHK Sea View Apartment",
-        location = "Miramar, Goa",
-        type = "Apartment",
-        price = 12_500_000.0,
-        beds = 2,
-        baths = 2,
-        sqft = 1200,
-        views = 189,
-        enquiries = 12,
-        shortlisted = 5,
-        photoCount = 10,
-        status = ListingStatus.ACTIVE
-    ),
-    MyListing(
-        id = "3",
-        imageUrl = "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80",
-        title = "3 BHK Apartment",
-        location = "Taleigao, Goa",
-        type = "Apartment",
-        price = 9_800_000.0,
-        beds = 3,
-        baths = 3,
-        sqft = 1650,
-        views = 320,
-        enquiries = 25,
-        shortlisted = 8,
-        photoCount = 14,
-        status = ListingStatus.ACTIVE
-    ),
-    MyListing(
-        id = "4",
-        imageUrl = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80",
-        title = "Residential Plot",
-        location = "Assagao, North Goa",
-        type = "Plot",
-        price = 7_500_000.0,
-        beds = null,
-        baths = null,
-        sqft = 5000,
-        views = 112,
-        enquiries = 6,
-        shortlisted = 2,
-        photoCount = 8,
-        status = ListingStatus.INACTIVE
-    )
-)
-
 @Composable
 internal fun MyListingsScreen(
     onBack: () -> Unit,
@@ -179,14 +114,18 @@ internal fun MyListingsScreen(
     onEditListing: (MyListing) -> Unit = {},
     onViewDetails: (MyListing) -> Unit = {},
     onMoreOptions: (MyListing) -> Unit = {},
+    onViewEnquiries: (String) -> Unit = {},
+    viewModel: MyListingsViewModel = koinViewModel(),
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedFilter by rememberSaveable { mutableStateOf(0) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedListing by remember { mutableStateOf<MyListing?>(null) }
 
-    val filteredListings = remember(selectedFilter, searchQuery) {
-        sampleListings.filter { listing ->
+    val allListings = uiState.listings
+    val filteredListings = remember(allListings, selectedFilter, searchQuery) {
+        allListings.filter { listing ->
             val matchesFilter = when (selectedFilter) {
                 1 -> listing.status == ListingStatus.ACTIVE
                 2 -> listing.status == ListingStatus.INACTIVE
@@ -220,7 +159,7 @@ internal fun MyListingsScreen(
             Spacer(modifier = Modifier.height(MyListingsDims.SECTION_SPACING))
 
             StatusFilterChips(
-                listings = sampleListings,
+                listings = allListings,
                 selectedIndex = selectedFilter,
                 onSelect = { selectedFilter = it }
             )
@@ -234,35 +173,52 @@ internal fun MyListingsScreen(
 
             Spacer(modifier = Modifier.height(MyListingsDims.SECTION_SPACING))
 
-            if (filteredListings.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = MyListingsStrings.EMPTY_TITLE,
-                        color = HomeTextSecondary,
-                        style = MaterialTheme.typography.bodyLarge
+            when {
+                uiState.isLoading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = BrandBlue,
+                            modifier = Modifier.size(MyListingsDims.LOADING_SIZE)
+                        )
+                    }
+                }
+                uiState.errorMessage != null -> {
+                    ErrorMessage(
+                        message = uiState.errorMessage.orEmpty(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
                     )
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(MyListingsDims.CARD_SPACING),
-                    contentPadding = PaddingValues(bottom = MyListingsDims.SCREEN_PADDING)
-                ) {
-                    items(filteredListings, key = { it.id }) { listing ->
-                        ListingCard(
-                            listing = listing,
-                            onEdit = { onEditListing(listing) },
-                            onViewDetails = {
-                                selectedListing = listing
-                                onViewDetails(listing)
-                            },
-                            onMoreOptions = { onMoreOptions(listing) }
-                        )
+                filteredListings.isEmpty() -> {
+                    EmptyListings(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    )
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(MyListingsDims.CARD_SPACING),
+                        contentPadding = PaddingValues(bottom = MyListingsDims.SCREEN_PADDING)
+                    ) {
+                        items(filteredListings, key = { it.id }) { listing ->
+                            ListingCard(
+                                listing = listing,
+                                onEdit = { onEditListing(listing) },
+                                onViewDetails = {
+                                    selectedListing = listing
+                                    onViewDetails(listing)
+                                },
+                                onMoreOptions = { onMoreOptions(listing) }
+                            )
+                        }
                     }
                 }
             }
@@ -283,10 +239,57 @@ internal fun MyListingsScreen(
                 PropertyDetailScreen(
                     property = property,
                     onClose = { selectedListing = null },
+                    enquiryCount = listing.enquiries,
+                    onViewEnquiries = {
+                        selectedListing = null
+                        onViewEnquiries(listing.id)
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyListings(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = MyListingsStrings.EMPTY_TITLE,
+            color = Black,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(MyListingsDims.CARD_CONTENT_SPACING))
+        Text(
+            text = MyListingsStrings.EMPTY_SUBTITLE,
+            color = HomeTextSecondary,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun ErrorMessage(
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            color = Black,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(MyListingsDims.SCREEN_PADDING)
+        )
     }
 }
 
@@ -845,6 +848,27 @@ private fun ListingActions(
 @Composable
 private fun MyListingsScreenPreview() {
     RealeTheme {
-        MyListingsScreen(onBack = {})
+        MyListingsScreen(
+            onBack = {},
+            viewModel = MyListingsViewModel(
+                getMyPropertiesUseCase = object : com.realeapp.feature.add.domain.usecase.GetMyPropertiesUseCase {
+                    override suspend fun invoke(userId: String): com.realeapp.feature.search.domain.utils.Result<List<com.realeapp.feature.search.domain.model.Property>> {
+                        return com.realeapp.feature.search.domain.utils.Result.Success(emptyList())
+                    }
+                },
+                getEnquiryCountsForPropertiesUseCase = object : com.realeapp.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUseCase {
+                    override suspend fun invoke(propertyIds: List<String>): com.realeapp.feature.search.domain.utils.Result<Map<String, Int>> {
+                        return com.realeapp.feature.search.domain.utils.Result.Success(emptyMap())
+                    }
+                },
+                userSession = object : com.realeapp.feature.search.data.session.UserSession {
+                    override val user: kotlinx.coroutines.flow.StateFlow<com.realeapp.feature.auth.domain.model.User?> = kotlinx.coroutines.flow.MutableStateFlow(null)
+                    override fun getUserId(): String? = "u1"
+                    override fun getUser(): com.realeapp.feature.auth.domain.model.User? = null
+                    override fun setUser(user: com.realeapp.feature.auth.domain.model.User?) {}
+                    override fun clear() {}
+                }
+            )
+        )
     }
 }

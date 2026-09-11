@@ -161,6 +161,8 @@ fun PropertyDetailScreen(
     property: Property,
     onClose: () -> Unit,
     onLike: (() -> Unit)? = null,
+    enquiryCount: Int? = null,
+    onViewEnquiries: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -226,7 +228,11 @@ fun PropertyDetailScreen(
 
             item {
                 // Primary info UI: sale badge, title, location, and price.
-                InfoSection(property = property)
+                InfoSection(
+                    property = property,
+                    enquiryCount = enquiryCount,
+                    onViewEnquiries = onViewEnquiries
+                )
             }
 
             item {
@@ -641,7 +647,11 @@ private fun FullScreenImageViewer(
 }
 
 @Composable
-private fun InfoSection(property: Property) {
+private fun InfoSection(
+    property: Property,
+    enquiryCount: Int? = null,
+    onViewEnquiries: (() -> Unit)? = null
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -739,6 +749,22 @@ private fun InfoSection(property: Property) {
                         modifier = Modifier.size(DetailDims.LOAN_CHEVRON_SIZE)
                     )
                 }
+            }
+        }
+
+        if (enquiryCount != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DetailDims.CONTENT_SPACING)
+            ) {
+                MediaPill(
+                    icon = Icons.AutoMirrored.Filled.Chat,
+                    label = "$enquiryCount ${DetailStrings.LABEL_ENQUIRIES}",
+                    contentDescription = DetailStrings.CD_VIEW_ENQUIRIES,
+                    selected = false,
+                    onClick = onViewEnquiries
+                )
             }
         }
     }
