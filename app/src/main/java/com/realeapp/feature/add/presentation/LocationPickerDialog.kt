@@ -63,6 +63,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,7 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.MapMarker
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.IsDarkAppTheme
 import com.realeapp.ui.theme.RealeTheme
 
 private const val TAG = "LocationPickerDialog"
@@ -327,6 +329,7 @@ fun LocationPickerDialog(
                             zoomControlsEnabled = false,
                             myLocationButtonEnabled = false
                         ),
+                        mapColorScheme = if (IsDarkAppTheme) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
                         onMapLoaded = { Logger.d(TAG, "GoogleMap loaded") },
                         onMapClick = { latLng ->
                             Logger.d(TAG, "Map clicked: $latLng")

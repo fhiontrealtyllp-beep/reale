@@ -113,6 +113,7 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -135,6 +136,7 @@ import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.IsDarkAppTheme
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
@@ -1051,6 +1053,7 @@ private fun LocationContent(property: Property) {
                         zoomControlsEnabled = false,
                         myLocationButtonEnabled = false
                     ),
+                    mapColorScheme = if (IsDarkAppTheme) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
                     onMapLoaded = { isMapLoaded = true }
                 ) {
                     Marker(

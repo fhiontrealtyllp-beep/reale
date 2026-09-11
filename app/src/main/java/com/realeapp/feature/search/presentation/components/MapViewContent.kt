@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -49,6 +50,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.IsDarkAppTheme
 import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.TextSecondary
 
@@ -104,6 +106,7 @@ fun MapViewContent(
                 zoomControlsEnabled = false,
                 myLocationButtonEnabled = false
             ),
+            mapColorScheme = if (IsDarkAppTheme) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
             onMapLoaded = { isMapLoaded = true }
         ) {
             properties.forEach { property ->
