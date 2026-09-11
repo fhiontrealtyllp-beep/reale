@@ -37,8 +37,8 @@ data class Property(
     fun isRentProperty(): Boolean = rentBuy == RentBuy.RENT
 }
 
-enum class ListingCategory {
-    FEATURED,
-    PROMOTIONAL,
-    NORMAL
+enum class ListingCategory(val label: String) {
+    FEATURED("Featured"),
+    PROMOTIONAL("Promotional"),
+    NORMAL("Normal")
 }

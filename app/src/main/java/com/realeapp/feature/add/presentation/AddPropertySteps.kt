@@ -30,6 +30,22 @@ fun AddPropertySteps(
 ) {
     val form = uiState.form
     var showLocationPicker by remember { mutableStateOf(false) }
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    val imageLaunchers = rememberImageLaunchers(viewModel::uploadImages)
+
+    if (showImageSourceDialog) {
+        ImageSourceDialog(
+            onCamera = {
+                showImageSourceDialog = false
+                imageLaunchers.camera()
+            },
+            onGallery = {
+                showImageSourceDialog = false
+                imageLaunchers.gallery()
+            },
+            onDismiss = { showImageSourceDialog = false }
+        )
+    }
 
     if (showLocationPicker) {
         com.realeapp.feature.add.presentation.LocationPickerDialog(
@@ -73,6 +89,7 @@ fun AddPropertySteps(
                     onDescriptionChanged = viewModel::onDescriptionChanged,
                     onCityChanged = viewModel::onCityChanged,
                     onLocalityChanged = viewModel::onLocalityChanged,
+                    onPincodeChanged = viewModel::onPincodeChanged,
                     onAddressChanged = viewModel::onAddressChanged,
                     onUseMyLocation = { showLocationPicker = true }
                 )
@@ -82,29 +99,25 @@ fun AddPropertySteps(
                     onBathroomsChanged = viewModel::onBathroomsChanged,
                     onFurnishingChanged = viewModel::onFurnishingChanged,
                     onAgeChanged = viewModel::onAgeChanged,
-                    onFloorNoChanged = viewModel::onFloorNoChanged,
-                    onTotalFloorsChanged = viewModel::onTotalFloorsChanged,
                     onFacingChanged = viewModel::onFacingChanged,
                     onAmenitiesChanged = viewModel::onAmenitiesChanged,
+                    onCarpetAreaChanged = viewModel::onCarpetAreaChanged,
                     onBuiltUpAreaChanged = viewModel::onBuiltUpAreaChanged,
-                    onPlotAreaChanged = viewModel::onPlotAreaChanged,
-                    onVideoChanged = viewModel::onVideoChanged
+                    onSuperBuiltUpAreaChanged = viewModel::onSuperBuiltUpAreaChanged
                 )
                 AddPropertyStep.PHOTOS_MEDIA -> AddPropertyStep3Screen(
                     images = form.images,
                     isUploadingImage = uiState.isUploadingImage,
-                    imageUploadError = uiState.imageUploadError,
-                    onUploadImages = viewModel::uploadImages,
-                    onRemoveImage = viewModel::removeImageUrl
+                    uploadError = uiState.imageUploadError,
+                    onAddMore = { showImageSourceDialog = true },
+                    onRemoveImage = viewModel::removeImageUrl,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 AddPropertyStep.PRICING -> AddPropertyStep4Screen(
                     form = form,
                     onPriceChanged = viewModel::onPriceChanged,
-                    onPriceModeChanged = viewModel::onPriceModeChanged,
-                    onNegotiableChanged = viewModel::onNegotiableChanged,
-                    onAdditionalCostsChanged = viewModel::onAdditionalCostsChanged,
-                    onPropertyStatusChanged = viewModel::onPropertyStatusChanged,
-                    onPossessionDateChanged = viewModel::onPossessionDateChanged
+                    onAgentPhoneChanged = viewModel::onAgentPhoneChanged,
+                    onListingCategoryChanged = viewModel::onListingCategoryChanged
                 )
                 AddPropertyStep.REVIEW_PUBLISH -> AddPropertyStep5Screen(
                     form = form,

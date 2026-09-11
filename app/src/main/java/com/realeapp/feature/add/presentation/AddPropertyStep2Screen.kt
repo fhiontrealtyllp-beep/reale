@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Elevator
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.HolidayVillage
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Power
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -62,9 +60,6 @@ import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
 import androidx.compose.ui.tooling.preview.Preview
 
-private val floorOptions = listOf(AddStrings.FLOOR_GROUND) + (1..10).map { it.toString() } + listOf(AddStrings.FLOOR_TEN_PLUS)
-private val totalFloorsOptions = (1..20).map { it.toString() } + listOf(AddStrings.FLOORS_TWENTY_PLUS)
-
 @Composable
 internal fun AddPropertyStep2Screen(
     form: PropertyForm,
@@ -72,26 +67,17 @@ internal fun AddPropertyStep2Screen(
     onBathroomsChanged: (Int) -> Unit,
     onFurnishingChanged: (Furnishing?) -> Unit,
     onAgeChanged: (Age?) -> Unit,
-    onFloorNoChanged: (String) -> Unit,
-    onTotalFloorsChanged: (String) -> Unit,
     onFacingChanged: (Facing?) -> Unit,
     onAmenitiesChanged: (List<Amenity>) -> Unit,
+    onCarpetAreaChanged: (String) -> Unit,
     onBuiltUpAreaChanged: (String) -> Unit,
-    onPlotAreaChanged: (String) -> Unit,
-    onVideoChanged: (String) -> Unit,
+    onSuperBuiltUpAreaChanged: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val videoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let { onVideoChanged(it.toString()) }
-    }
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Section: Configuration
         SectionHeader(AddStrings.SECTION_CONFIGURATION)
 
         Row(
@@ -113,33 +99,39 @@ internal fun AddPropertyStep2Screen(
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FormTextField(
-                value = form.builtUpArea,
-                onValueChange = onBuiltUpAreaChanged,
-                label = AddStrings.LABEL_BUILT_UP_AREA_SQFT,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Decimal,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            FormTextField(
-                value = form.plotArea,
-                onValueChange = onPlotAreaChanged,
-                label = AddStrings.LABEL_PLOT_AREA_SQFT,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Decimal,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.weight(1f)
-            )
-        }
+        SectionHeader(AddStrings.SECTION_AREA_DETAILS)
 
-        // Section: Property Features
+        FormTextField(
+            value = form.carpetArea,
+            onValueChange = onCarpetAreaChanged,
+            label = AddStrings.LABEL_CARPET_AREA_SQFT,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        FormTextField(
+            value = form.builtUpArea,
+            onValueChange = onBuiltUpAreaChanged,
+            label = AddStrings.LABEL_BUILT_UP_AREA_SQFT,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+        FormTextField(
+            value = form.superBuiltUpArea,
+            onValueChange = onSuperBuiltUpAreaChanged,
+            label = AddStrings.LABEL_SUPER_BUILT_UP_AREA_SQFT,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         SectionHeader(AddStrings.SECTION_PROPERTY_FEATURES)
 
         Row(
@@ -164,44 +156,6 @@ internal fun AddPropertyStep2Screen(
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FormDropdown(
-                label = AddStrings.LABEL_FLOOR_NO,
-                options = floorOptions,
-                selected = form.floorNo.ifBlank { null },
-                optionLabel = { it },
-                onSelected = onFloorNoChanged,
-                modifier = Modifier.weight(1f)
-            )
-            FormDropdown(
-                label = AddStrings.LABEL_TOTAL_FLOORS,
-                options = totalFloorsOptions,
-                selected = form.totalFloors.ifBlank { null },
-                optionLabel = { it },
-                onSelected = onTotalFloorsChanged,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        // Section: Additional Features
-        SectionHeader(AddStrings.SECTION_ADDITIONAL_FEATURES)
-
-        AmenityFeatureGrid(
-            selected = form.amenities,
-            onToggle = { amenity ->
-                val updated = if (amenity in form.amenities) {
-                    form.amenities - amenity
-                } else {
-                    form.amenities + amenity
-                }
-                onAmenitiesChanged(updated)
-            }
-        )
-
-        // Section: Facing
         FormDropdown(
             label = AddStrings.LABEL_FACING,
             options = Facing.entries,
@@ -211,17 +165,16 @@ internal fun AddPropertyStep2Screen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Section: Property Video
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FieldLabel(text = AddStrings.LABEL_PROPERTY_VIDEO_OPTIONAL)
-            VideoUploadBox(
-                videoUrl = form.videoUrl,
-                onPick = { videoPickerLauncher.launch(AddStrings.VIDEO_MIME_FILTER) },
-                onRemove = { onVideoChanged("") }
-            )
-        }
+        SectionHeader(AddStrings.SECTION_ADDITIONAL_FEATURES)
+
+        AmenityFeatureGrid(
+            selected = form.amenities,
+            onToggle = { amenity ->
+                onAmenitiesChanged(
+                    if (amenity in form.amenities) form.amenities - amenity else form.amenities + amenity
+                )
+            }
+        )
     }
 }
 
@@ -359,87 +312,6 @@ private fun AmenityFeatureGrid(
     }
 }
 
-@Composable
-private fun VideoUploadBox(
-    videoUrl: String,
-    onPick: () -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val dashColor = HomeTextSecondary
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(140.dp)
-            .drawBehind {
-                drawRoundRect(
-                    color = dashColor,
-                    style = Stroke(
-                        width = 1.5.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 12f), 0f)
-                    ),
-                    cornerRadius = CornerRadius(16.dp.toPx())
-                )
-            }
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onPick)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        if (videoUrl.isBlank()) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudUpload,
-                    contentDescription = null,
-                    tint = BrandBlue,
-                    modifier = Modifier.size(36.dp)
-                )
-                Text(
-                    text = AddStrings.UPLOAD_VIDEO_TITLE,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = AddStrings.UPLOAD_VIDEO_HINT,
-                    color = HomeTextSecondary,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Videocam,
-                    contentDescription = null,
-                    tint = BrandBlue,
-                    modifier = Modifier.size(28.dp)
-                )
-                Text(
-                    text = AddStrings.VIDEO_SELECTED,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-                IconButton(onClick = onRemove) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = AddStrings.CD_REMOVE_VIDEO,
-                        tint = Black
-                    )
-                }
-            }
-        }
-    }
-}
-
 private fun BedroomType?.toBedroomCount(): Int = when (this) {
     BedroomType.ONE_RK, BedroomType.ONE_BHK, BedroomType.STUDIO_APARTMENT -> 1
     BedroomType.TWO_BHK -> 2
@@ -461,13 +333,11 @@ private fun AddPropertyStep2ScreenPreview() {
             onBathroomsChanged = {},
             onFurnishingChanged = {},
             onAgeChanged = {},
-            onFloorNoChanged = {},
-            onTotalFloorsChanged = {},
             onFacingChanged = {},
             onAmenitiesChanged = {},
+            onCarpetAreaChanged = {},
             onBuiltUpAreaChanged = {},
-            onPlotAreaChanged = {},
-            onVideoChanged = {}
+            onSuperBuiltUpAreaChanged = {}
         )
     }
 }

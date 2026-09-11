@@ -11,6 +11,8 @@ import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.domain.model.Age
 import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
+import com.realeapp.feature.search.domain.model.ListingCategory
+import com.realeapp.feature.search.domain.model.NearbyPlace
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
 import com.realeapp.feature.search.domain.model.PropertyType
@@ -204,13 +206,13 @@ class AddViewModel(
         }
     }
 
-    fun onBedroomTypeChanged(bedroomType: BedroomType?) {
-        updateForm { copy(bedroomType = bedroomType) }
+    fun onBathroomsChanged(bathrooms: Int) {
+        updateForm { copy(bathrooms = bathrooms.coerceIn(0, 10)) }
     }
 
-    // Stepper count -> BedroomType mapping used by the Step 2 bedrooms stepper.
     fun onBedroomCountChanged(count: Int) {
-        val bedroomType = when (count) {
+        val coerced = count.coerceIn(0, 7)
+        val bedroomType = when (coerced) {
             1 -> BedroomType.ONE_BHK
             2 -> BedroomType.TWO_BHK
             3 -> BedroomType.THREE_BHK
@@ -220,47 +222,11 @@ class AddViewModel(
             7 -> BedroomType.SIX_PLUS_BHK
             else -> null
         }
+        onBedroomTypeChanged(bedroomType)
+    }
+
+    fun onBedroomTypeChanged(bedroomType: BedroomType?) {
         updateForm { copy(bedroomType = bedroomType) }
-    }
-
-    fun onBathroomsChanged(bathrooms: Int) {
-        updateForm { copy(bathrooms = bathrooms.coerceIn(0, 10)) }
-    }
-
-    fun onFloorNoChanged(floorNo: String) {
-        updateForm { copy(floorNo = floorNo) }
-    }
-
-    fun onTotalFloorsChanged(totalFloors: String) {
-        updateForm { copy(totalFloors = totalFloors) }
-    }
-
-    fun onPlotAreaChanged(plotArea: String) {
-        updateForm { copy(plotArea = plotArea) }
-    }
-
-    fun onVideoChanged(videoUrl: String) {
-        updateForm { copy(videoUrl = videoUrl) }
-    }
-
-    fun onPriceModeChanged(pricePerSqFt: Boolean) {
-        updateForm { copy(pricePerSqFt = pricePerSqFt) }
-    }
-
-    fun onNegotiableChanged(negotiable: Boolean) {
-        updateForm { copy(negotiable = negotiable) }
-    }
-
-    fun onAdditionalCostsChanged(additionalCosts: String) {
-        updateForm { copy(additionalCosts = additionalCosts) }
-    }
-
-    fun onPropertyStatusChanged(propertyStatus: String) {
-        updateForm { copy(propertyStatus = propertyStatus) }
-    }
-
-    fun onPossessionDateChanged(possessionDate: String) {
-        updateForm { copy(possessionDate = possessionDate) }
     }
 
     fun onTitleChanged(title: String) {
@@ -321,6 +287,14 @@ class AddViewModel(
 
     fun onAgentPhoneChanged(agentPhone: String) {
         updateForm { copy(agentPhone = agentPhone) }
+    }
+
+    fun onListingCategoryChanged(listingCategory: ListingCategory) {
+        updateForm { copy(listingCategory = listingCategory) }
+    }
+
+    fun onNearbyPlacesChanged(nearbyPlaces: List<NearbyPlace>) {
+        updateForm { copy(nearbyPlaces = nearbyPlaces) }
     }
 
     fun onImagesChanged(images: List<String>) {
@@ -477,6 +451,7 @@ class AddViewModel(
             images = images.map { it.trim() }.filter { it.isNotBlank() },
             agentPhone = agentPhone.trim(),
             status = AddStrings.STATUS_LIVE,
+            listingCategory = listingCategory,
             createdAt = currentTimestamp(),
             rentBuy = rentBuy,
             residentialCommercial = residentialCommercial,
@@ -487,6 +462,7 @@ class AddViewModel(
             facing = facing,
             age = age,
             amenities = amenities,
+            nearbyPlaces = nearbyPlaces,
             carpetArea = carpetArea.toDoubleOrNull(),
             builtUpArea = builtUpArea.toDoubleOrNull(),
             superBuiltUpArea = superBuiltUpArea.toDoubleOrNull()

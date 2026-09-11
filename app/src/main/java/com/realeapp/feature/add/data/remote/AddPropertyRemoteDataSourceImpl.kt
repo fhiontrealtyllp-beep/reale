@@ -65,6 +65,13 @@ class AddPropertyRemoteDataSourceImpl(
                 "facing" to form.facing?.jsonName(),
                 "age" to form.age?.jsonName(),
                 "amenities" to JSONArray(form.amenities.map { it.jsonName() }).toString(),
+                "nearbyPlaces" to form.nearbyPlaces.map {
+                    mapOf(
+                        "name" to it.name,
+                        "distanceKm" to it.distanceKm,
+                        "type" to it.type.name
+                    )
+                },
                 "carpetArea" to form.carpetArea.toDoubleOrNull(),
                 "builtUpArea" to form.builtUpArea.toDoubleOrNull(),
                 "superBuiltUpArea" to form.superBuiltUpArea.toDoubleOrNull(),

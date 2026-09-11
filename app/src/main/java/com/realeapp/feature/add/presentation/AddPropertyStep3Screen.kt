@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.realeapp.ui.theme.BrandBlue
@@ -48,7 +49,6 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
-import androidx.compose.ui.tooling.preview.Preview
 
 private val photoSuggestions = AddStrings.PHOTO_SUGGESTIONS
 
@@ -57,22 +57,17 @@ private val photoTips = AddStrings.PHOTO_TIPS
 @Composable
 internal fun AddPropertyStep3Screen(
     images: List<String>,
-    isUploadingImage: Boolean,
-    imageUploadError: String?,
-    onUploadImages: (List<Pair<ByteArray, String>>) -> Unit,
-    onRemoveImage: (String) -> Unit,
+    isUploadingImage: Boolean = false,
+    uploadError: String? = null,
+    onAddMore: () -> Unit = {},
+    onRemoveImage: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val imageLaunchers = rememberImageLaunchers(onUploadImages)
-
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        PhotoUploadBox(
-            isUploading = isUploadingImage,
-            onSelect = imageLaunchers.gallery
-        )
+        SectionHeader(AddStrings.SECTION_PROPERTY_PHOTOS)
 
         Text(
             text = AddStrings.PHOTOS_VISIBILITY_HINT,
@@ -82,19 +77,20 @@ internal fun AddPropertyStep3Screen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (imageUploadError != null) {
-            Text(
-                text = imageUploadError,
-                color = Error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+        PhotoGrid(
+            images = images,
+            isUploadingImage = isUploadingImage,
+            onRemoveImage = onRemoveImage,
+            onAddMore = onAddMore
+        )
 
-        if (images.isNotEmpty()) {
-            PhotoGrid(
-                images = images,
-                onRemoveImage = onRemoveImage,
-                onAddMore = imageLaunchers.gallery
+        uploadError?.let { error ->
+            Text(
+                text = error,
+                color = Error,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -103,86 +99,9 @@ internal fun AddPropertyStep3Screen(
 }
 
 @Composable
-private fun PhotoUploadBox(
-    isUploading: Boolean,
-    onSelect: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val dashColor = HomeTextSecondary
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .drawBehind {
-                drawRoundRect(
-                    color = dashColor,
-                    style = Stroke(
-                        width = 1.5.dp.toPx(),
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 12f), 0f)
-                    ),
-                    cornerRadius = CornerRadius(16.dp.toPx())
-                )
-            }
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(enabled = !isUploading, onClick = onSelect)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        if (isUploading) {
-            CircularProgressIndicator(
-                color = BrandBlue,
-                modifier = Modifier.size(36.dp),
-                strokeWidth = 2.dp
-            )
-            Text(
-                text = AddStrings.UPLOADING_PHOTOS,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Default.Image,
-                contentDescription = null,
-                tint = BrandBlue,
-                modifier = Modifier.size(40.dp)
-            )
-            Text(
-                text = AddStrings.UPLOAD_PHOTOS_TITLE,
-                color = Black,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = AddStrings.UPLOAD_PHOTOS_DRAG_HINT,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = AddStrings.UPLOAD_PHOTOS_FORMAT_HINT,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodySmall
-            )
-            Button(
-                onClick = onSelect,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandBlue,
-                    contentColor = OnBrandContent
-                )
-            ) {
-                Text(
-                    text = AddStrings.ACTION_SELECT_PHOTOS,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun PhotoGrid(
     images: List<String>,
+    isUploadingImage: Boolean,
     onRemoveImage: (String) -> Unit,
     onAddMore: () -> Unit,
     modifier: Modifier = Modifier
@@ -201,7 +120,11 @@ private fun PhotoGrid(
                 rowItems.forEachIndexed { columnIndex, url ->
                     val cellModifier = Modifier.weight(1f)
                     if (url == null) {
-                        AddMoreTile(onClick = onAddMore, modifier = cellModifier)
+                        AddMoreTile(
+                            isUploadingImage = isUploadingImage,
+                            onClick = onAddMore,
+                            modifier = cellModifier
+                        )
                     } else {
                         val index = rowIndex * 2 + columnIndex
                         PhotoCell(
@@ -285,6 +208,7 @@ private fun PhotoCell(
 
 @Composable
 private fun AddMoreTile(
+    isUploadingImage: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -303,22 +227,37 @@ private fun AddMoreTile(
                 )
             }
             .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick),
+            .then(if (isUploadingImage) Modifier else Modifier.clickable(onClick = onClick)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
-            tint = BrandBlue,
-            modifier = Modifier.size(32.dp)
-        )
-        Text(
-            text = AddStrings.ACTION_ADD_MORE,
-            color = BrandBlue,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
-        )
+        if (isUploadingImage) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(32.dp),
+                color = BrandBlue,
+                strokeWidth = 2.dp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = AddStrings.UPLOADING_PHOTOS,
+                color = BrandBlue,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
+                tint = BrandBlue,
+                modifier = Modifier.size(32.dp)
+            )
+            Text(
+                text = AddStrings.ACTION_ADD_MORE,
+                color = BrandBlue,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -363,11 +302,10 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
 private fun AddPropertyStep3ScreenPreview() {
     RealeTheme {
         AddPropertyStep3Screen(
-            images = PreviewData.samplePropertyForm.images,
-            isUploadingImage = false,
-            imageUploadError = null,
-            onUploadImages = {},
-            onRemoveImage = {}
+            images = PreviewData.randomPropertyImages(8),
+            onAddMore = {},
+            onRemoveImage = {},
+            modifier = Modifier
         )
     }
 }

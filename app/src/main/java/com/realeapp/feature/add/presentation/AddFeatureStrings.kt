@@ -53,6 +53,8 @@ internal object AddStrings {
     const val LABEL_SUPER_BUILT_UP = "Super Built-up"
     const val LABEL_BUILT_UP_AREA = "Built-up Area"
     const val LABEL_BUILT_UP_AREA_SQFT = "Built-up Area (sq ft)"
+    const val LABEL_CARPET_AREA_SQFT = "Carpet Area (sq ft)"
+    const val LABEL_SUPER_BUILT_UP_AREA_SQFT = "Super Built-up Area (sq ft)"
     const val LABEL_PLOT_AREA_SQFT = "Plot Area (sq ft)"
     const val LABEL_AGENT_PHONE = "Agent Phone"
     const val LABEL_FLOOR_NO = "Floor No."
@@ -60,6 +62,7 @@ internal object AddStrings {
     const val LABEL_CONFIGURATION = "Configuration"
     const val LABEL_STATUS = "Status"
     const val LABEL_PHOTOS = "Photos"
+    const val LABEL_LISTING_CATEGORY = "Listing Category"
 
     // Shared section headers
     const val SECTION_BASIC_DETAILS = "Basic Details"
@@ -69,6 +72,8 @@ internal object AddStrings {
     const val SECTION_ADDITIONAL_FEATURES = "Additional Features"
     const val SECTION_PROPERTY_PHOTOS = "Property Photos"
     const val SECTION_PRICE_DETAILS = "Price Details"
+    const val SECTION_CONTACT_DETAILS = "Contact Details"
+    const val SECTION_AREA_DETAILS = "Area Details"
     const val SECTION_AVAILABILITY = "Availability"
 
     // Shared input affordances
@@ -307,6 +312,7 @@ internal object AddDims {
     val SCREEN_PADDING = 16.dp
     val SECTION_SPACING = 16.dp
     val FIELD_LABEL_SPACING = 8.dp
+    val FIELD_ROW_SPACING = 12.dp
 
     val HEADER_LOGO_FONT_SIZE = 22.sp
     val HEADER_TITLE_FONT_SIZE = 20.sp

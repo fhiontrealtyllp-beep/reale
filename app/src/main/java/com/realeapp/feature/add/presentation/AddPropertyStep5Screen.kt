@@ -49,8 +49,8 @@ import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
+import com.realeapp.ui.preview.PreviewData
 import androidx.compose.ui.tooling.preview.Preview
 import java.text.NumberFormat
 import java.util.Locale
@@ -152,12 +152,15 @@ internal fun AddPropertyStep5Screen(
             ReviewRow(label = AddStrings.LABEL_LISTING_TYPE, value = listingTypeLabel(form.rentBuy))
             ReviewRow(label = AddStrings.LABEL_PRICE, value = priceText(form))
             ReviewRow(label = AddStrings.LABEL_CONFIGURATION, value = configurationText(form))
+            ReviewRow(label = AddStrings.LABEL_CARPET_AREA, value = areaText(form.carpetArea))
             ReviewRow(label = AddStrings.LABEL_BUILT_UP_AREA, value = areaText(form.builtUpArea))
+            ReviewRow(label = AddStrings.LABEL_SUPER_BUILT_UP, value = areaText(form.superBuiltUpArea))
             ReviewRow(label = AddStrings.LABEL_FURNISHING, value = form.furnishing?.label.orEmpty())
             ReviewRow(label = AddStrings.LABEL_FACING, value = form.facing?.label.orEmpty())
             ReviewRow(label = AddStrings.LABEL_PROPERTY_AGE, value = form.age?.label.orEmpty())
-            ReviewRow(label = AddStrings.LABEL_STATUS, value = form.propertyStatus)
             ReviewRow(label = AddStrings.LABEL_LOCATION, value = locationText(form))
+            ReviewRow(label = AddStrings.LABEL_AGENT_PHONE, value = form.agentPhone)
+            ReviewRow(label = AddStrings.LABEL_LISTING_CATEGORY, value = form.listingCategory.label)
         }
 
         if (form.description.isNotBlank()) {
@@ -331,10 +334,8 @@ private fun locationText(form: PropertyForm): String {
         .ifBlank { AddStrings.PLACEHOLDER_DASH }
 }
 
-private fun photosText(form: PropertyForm): String {
-    val photos = "${form.images.size}${AddStrings.PHOTOS_SUFFIX}"
-    return if (form.videoUrl.isNotBlank()) photos + AddStrings.VIDEO_SUFFIX else photos
-}
+private fun photosText(form: PropertyForm): String =
+    "${form.images.size}${AddStrings.PHOTOS_SUFFIX}"
 
 @Preview(showBackground = true)
 @Composable

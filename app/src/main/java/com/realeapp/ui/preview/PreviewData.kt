@@ -15,7 +15,57 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 
+// TODO: Replace these placeholder URLs with real property images once the real assets are available.
+private val PROPERTY_IMAGE_URLS = listOf(
+    "https://picsum.photos/seed/property_01/800/600",
+    "https://picsum.photos/seed/property_02/800/600",
+    "https://picsum.photos/seed/property_03/800/600",
+    "https://picsum.photos/seed/property_04/800/600",
+    "https://picsum.photos/seed/property_05/800/600",
+    "https://picsum.photos/seed/property_06/800/600",
+    "https://picsum.photos/seed/property_07/800/600",
+    "https://picsum.photos/seed/property_08/800/600",
+    "https://picsum.photos/seed/property_09/800/600",
+    "https://picsum.photos/seed/property_10/800/600",
+    "https://picsum.photos/seed/property_11/800/600",
+    "https://picsum.photos/seed/property_12/800/600",
+    "https://picsum.photos/seed/property_13/800/600",
+    "https://picsum.photos/seed/property_14/800/600",
+    "https://picsum.photos/seed/property_15/800/600",
+    "https://picsum.photos/seed/property_16/800/600",
+    "https://picsum.photos/seed/property_17/800/600",
+    "https://picsum.photos/seed/property_18/800/600",
+    "https://picsum.photos/seed/property_19/800/600",
+    "https://picsum.photos/seed/property_20/800/600",
+    "https://picsum.photos/seed/property_21/800/600",
+    "https://picsum.photos/seed/property_22/800/600",
+    "https://picsum.photos/seed/property_23/800/600",
+    "https://picsum.photos/seed/property_24/800/600",
+    "https://picsum.photos/seed/property_25/800/600",
+    "https://picsum.photos/seed/property_26/800/600",
+    "https://picsum.photos/seed/property_27/800/600",
+    "https://picsum.photos/seed/property_28/800/600",
+    "https://picsum.photos/seed/property_29/800/600",
+    "https://picsum.photos/seed/property_30/800/600",
+    "https://picsum.photos/seed/property_31/800/600",
+    "https://picsum.photos/seed/property_32/800/600",
+    "https://picsum.photos/seed/property_33/800/600",
+    "https://picsum.photos/seed/property_34/800/600",
+    "https://picsum.photos/seed/property_35/800/600",
+    "https://picsum.photos/seed/property_36/800/600",
+    "https://picsum.photos/seed/property_37/800/600",
+    "https://picsum.photos/seed/property_38/800/600",
+    "https://picsum.photos/seed/property_39/800/600",
+    "https://picsum.photos/seed/property_40/800/600"
+)
+
 object PreviewData {
+
+    /**
+     * Returns a random subset of [count] images from the hardcoded property image pool.
+     */
+    fun randomPropertyImages(count: Int = 6): List<String> =
+        PROPERTY_IMAGE_URLS.shuffled().take(count)
 
     val sampleProperty = Property(
         id = "preview-property-1",
@@ -31,10 +81,7 @@ object PreviewData {
         address = "123 Main Road, Near Miramar Beach",
         latitude = 15.4909,
         longitude = 73.8278,
-        images = listOf(
-            "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
-            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80"
-        ),
+        images = randomPropertyImages(5),
         isLiked = true,
         rating = 4.5,
         agentPhone = "+91 98765 43210",
@@ -77,6 +124,7 @@ object PreviewData {
             locality = "Miramar",
             bedroomType = BedroomType.TWO_BHK,
             bathrooms = 2,
+            images = randomPropertyImages(5),
             isLiked = false
         ),
         sampleProperty.copy(
@@ -88,6 +136,7 @@ object PreviewData {
             propertyType = PropertyType.VILLA,
             bedroomType = BedroomType.FOUR_BHK,
             bathrooms = 4,
+            images = randomPropertyImages(5),
             isLiked = false
         )
     )
@@ -125,16 +174,9 @@ object PreviewData {
         age = Age.ONE_TO_FIVE,
         amenities = listOf(Amenity.PARKING, Amenity.LIFT, Amenity.CCTV),
         builtUpArea = "1500",
-        plotArea = "",
         bathrooms = 3,
-        floorNo = "3",
-        totalFloors = "5",
-        additionalCosts = "Maintenance: ₹5,000/month",
-        propertyStatus = "Ready to Move",
-        possessionDate = "31 Dec 2025",
         agentPhone = "+91 98765 43210",
-        images = listOf(
-            "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
-        )
+        listingCategory = ListingCategory.FEATURED,
+        images = randomPropertyImages(6)
     )
 }

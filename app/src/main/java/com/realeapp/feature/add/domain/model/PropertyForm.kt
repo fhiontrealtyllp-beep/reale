@@ -6,6 +6,8 @@ import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
+import com.realeapp.feature.search.domain.model.ListingCategory
+import com.realeapp.feature.search.domain.model.NearbyPlace
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
@@ -31,17 +33,10 @@ data class PropertyForm(
     val carpetArea: String = "",
     val builtUpArea: String = "",
     val superBuiltUpArea: String = "",
-    val plotArea: String = "",
     val bathrooms: Int = 0,
-    val floorNo: String = "",
-    val totalFloors: String = "",
-    val videoUrl: String = "",
-    val pricePerSqFt: Boolean = false,
-    val negotiable: Boolean = false,
-    val additionalCosts: String = "",
-    val propertyStatus: String = "",
-    val possessionDate: String = "",
     val agentPhone: String = "",
+    val listingCategory: ListingCategory = ListingCategory.NORMAL,
+    val nearbyPlaces: List<NearbyPlace> = emptyList(),
     val images: List<String> = emptyList()
 ) {
     fun isValid(): Boolean {

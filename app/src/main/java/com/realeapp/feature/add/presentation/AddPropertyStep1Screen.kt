@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.realeapp.feature.add.domain.model.PropertyForm
@@ -74,6 +75,7 @@ internal fun AddPropertyStep1Screen(
     onDescriptionChanged: (String) -> Unit,
     onCityChanged: (String) -> Unit,
     onLocalityChanged: (String) -> Unit,
+    onPincodeChanged: (String) -> Unit,
     onAddressChanged: (String) -> Unit,
     onUseMyLocation: () -> Unit,
     modifier: Modifier = Modifier
@@ -208,6 +210,19 @@ internal fun AddPropertyStep1Screen(
                     )
                 )
             }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_PINCODE, isRequired = false)
+            Step1Field(
+                value = form.pincode,
+                onValueChange = onPincodeChanged,
+                placeholder = AddStrings.ENTER_PREFIX + AddStrings.LABEL_PINCODE,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                )
+            )
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
@@ -403,6 +418,7 @@ private fun AddPropertyStep1ScreenPreview() {
             onDescriptionChanged = {},
             onCityChanged = {},
             onLocalityChanged = {},
+            onPincodeChanged = {},
             onAddressChanged = {},
             onUseMyLocation = {}
         )
