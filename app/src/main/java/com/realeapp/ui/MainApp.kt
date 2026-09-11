@@ -204,17 +204,19 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         containerColor = AppBackground,
                         contentWindowInsets = WindowInsets(0.dp),
                         bottomBar = {
-                            BottomNavBar(
-                                tabs = AppScreen.all,
-                                selectedTab = selectedTab,
-                                onTabSelected = { tab ->
-                                    showMyListings = false
-                                    showMyEnquiries = false
-                                    selectedEnquiryPropertyId = null
-                                    showAddProperty = false
-                                    mainViewModel.selectTab(tab)
-                                }
-                            )
+                            if (!showAddProperty) {
+                                BottomNavBar(
+                                    tabs = AppScreen.all,
+                                    selectedTab = selectedTab,
+                                    onTabSelected = { tab ->
+                                        showMyListings = false
+                                        showMyEnquiries = false
+                                        selectedEnquiryPropertyId = null
+                                        showAddProperty = false
+                                        mainViewModel.selectTab(tab)
+                                    }
+                                )
+                            }
                         }
                     ) { innerPadding ->
                         // Active tab UI selected by the bottom navigation bar.
