@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -78,6 +79,7 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.MapMarker
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.RealeTheme
 
 private const val TAG = "LocationPickerDialog"
 private val DEFAULT_FALLBACK_LOCATION = LatLng(20.5937, 78.9629)
@@ -234,7 +236,7 @@ fun LocationPickerDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp,16.dp,16.dp,   60.dp)
                 ) {
                     val selectedAddress = selectedGeocodedAddress?.address
                         ?.takeIf { it.isNotBlank() }
@@ -591,3 +593,17 @@ private suspend fun navigateToCurrentLocation(
 
 private suspend fun getCurrentLocation(context: Context): Location? =
     CurrentLocationProvider.getCurrentLocation(context)
+
+@Preview(showBackground = true, name = "Location Picker Dialog")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LocationPickerDialogPreview() {
+    RealeTheme {
+        LocationPickerDialog(
+            initialLat = "12.97",
+            initialLng = "77.75",
+            onDismiss = {},
+            onConfirm = { _, _, _, _, _, _ -> }
+        )
+    }
+}
