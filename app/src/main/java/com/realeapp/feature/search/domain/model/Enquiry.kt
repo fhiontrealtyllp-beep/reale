@@ -5,6 +5,7 @@ data class Enquiry(
     val propertyId: String,
     val propertyTitle: String,
     val propertyLocation: String,
+    val propertyImage: String,
     val agentPhone: String,
     val message: String,
     val userId: String?,

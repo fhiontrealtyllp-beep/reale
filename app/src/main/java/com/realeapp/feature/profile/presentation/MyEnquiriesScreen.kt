@@ -2,6 +2,7 @@ package com.realeapp.feature.profile.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +20,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import coil.compose.AsyncImage
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,6 +49,7 @@ import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.Gray
+import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -149,69 +153,108 @@ private fun EnquiryCard(
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = MyEnquiriesDims.CARD_ELEVATION)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(MyEnquiriesDims.CARD_PADDING),
-            verticalArrangement = Arrangement.spacedBy(MyEnquiriesDims.CARD_CONTENT_SPACING)
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            EnquiryImage(imageUrl = enquiry.propertyImage)
+
+            Spacer(modifier = Modifier.width(MyEnquiriesDims.IMAGE_TO_CONTENT_SPACING))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MyEnquiriesDims.CARD_CONTENT_SPACING)
             ) {
-                Text(
-                    text = enquiry.propertyTitle,
-                    color = Black,
-                    fontSize = MyEnquiriesDims.TITLE_FONT_SIZE,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = enquiry.propertyTitle,
+                        color = Black,
+                        fontSize = MyEnquiriesDims.TITLE_FONT_SIZE,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Spacer(modifier = Modifier.width(MyEnquiriesDims.CARD_CONTENT_SPACING))
+                    Spacer(modifier = Modifier.width(MyEnquiriesDims.CARD_CONTENT_SPACING))
+
+                    Text(
+                        text = enquiry.status.replaceFirstChar { it.uppercase() },
+                        color = White,
+                        fontSize = MyEnquiriesDims.STATUS_FONT_SIZE,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(MyEnquiriesDims.STATUS_BADGE_CORNER_RADIUS))
+                            .background(BrandBlue)
+                            .padding(
+                                horizontal = MyEnquiriesDims.STATUS_BADGE_HORIZONTAL_PADDING,
+                                vertical = MyEnquiriesDims.STATUS_BADGE_VERTICAL_PADDING
+                            )
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint = HomeTextSecondary,
+                        modifier = Modifier.size(MyEnquiriesDims.BACK_ICON_SIZE)
+                    )
+                    Spacer(modifier = Modifier.width(MyEnquiriesDims.CARD_CONTENT_SPACING))
+                    Text(
+                        text = enquiry.propertyLocation,
+                        color = HomeTextSecondary,
+                        fontSize = MyEnquiriesDims.LOCATION_FONT_SIZE,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 Text(
-                    text = enquiry.status.replaceFirstChar { it.uppercase() },
-                    color = White,
-                    fontSize = MyEnquiriesDims.STATUS_FONT_SIZE,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(MyEnquiriesDims.STATUS_BADGE_CORNER_RADIUS))
-                        .background(BrandBlue)
-                        .padding(
-                            horizontal = MyEnquiriesDims.STATUS_BADGE_HORIZONTAL_PADDING,
-                            vertical = MyEnquiriesDims.STATUS_BADGE_VERTICAL_PADDING
-                        )
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = null,
-                    tint = HomeTextSecondary,
-                    modifier = Modifier.size(MyEnquiriesDims.BACK_ICON_SIZE)
-                )
-                Spacer(modifier = Modifier.width(MyEnquiriesDims.CARD_CONTENT_SPACING))
-                Text(
-                    text = enquiry.propertyLocation,
-                    color = HomeTextSecondary,
-                    fontSize = MyEnquiriesDims.LOCATION_FONT_SIZE,
-                    maxLines = 1,
+                    text = enquiry.message,
+                    color = Gray,
+                    fontSize = MyEnquiriesDims.MESSAGE_FONT_SIZE,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
+        }
+    }
+}
 
-            Text(
-                text = enquiry.message,
-                color = Gray,
-                fontSize = MyEnquiriesDims.MESSAGE_FONT_SIZE,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+@Composable
+private fun EnquiryImage(
+    imageUrl: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(MyEnquiriesDims.IMAGE_SIZE)
+            .clip(RoundedCornerShape(MyEnquiriesDims.IMAGE_CORNER_RADIUS))
+            .background(HomeSearchBarBorder),
+        contentAlignment = Alignment.Center
+    ) {
+        if (imageUrl.isNotBlank()) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = MyEnquiriesStrings.CD_PROPERTY_IMAGE,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.Home,
+                contentDescription = MyEnquiriesStrings.CD_PROPERTY_IMAGE,
+                tint = Gray,
+                modifier = Modifier.size(MyEnquiriesDims.IMAGE_PLACEHOLDER_ICON_SIZE)
             )
         }
     }
@@ -269,6 +312,7 @@ private fun MyEnquiriesScreenPreview() {
                                     propertyId = "p1",
                                     propertyTitle = "2 BHK Apartment",
                                     propertyLocation = "Porvorim, Goa",
+                                    propertyImage = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
                                     agentPhone = "1234567890",
                                     message = "I am interested in this property. Please contact me.",
                                     userId = "u1",

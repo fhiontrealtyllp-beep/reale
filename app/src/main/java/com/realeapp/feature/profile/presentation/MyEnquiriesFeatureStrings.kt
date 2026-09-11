@@ -28,6 +28,8 @@ internal object MyEnquiriesDims {
     val CARD_CONTENT_SPACING = 8.dp
     val IMAGE_SIZE = 72.dp
     val IMAGE_CORNER_RADIUS = 12.dp
+    val IMAGE_PLACEHOLDER_ICON_SIZE = 32.dp
+    val IMAGE_TO_CONTENT_SPACING = 12.dp
     val TITLE_FONT_SIZE = 15.sp
     val LOCATION_FONT_SIZE = 13.sp
     val MESSAGE_FONT_SIZE = 13.sp
