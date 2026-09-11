@@ -321,3 +321,63 @@ internal object DetailDims {
     const val OVERLAY_SCRIM_ALPHA = 0.55f
     const val ACCENT_BACKGROUND_ALPHA = 0.1f
 }
+
+/**
+ * Centralized UI strings for the property enquiry bottom sheet.
+ */
+internal object EnquiryStrings {
+    const val TITLE = "Enquire Now"
+    const val SUBTITLE = "Enter your details and we will connect you with the owner."
+
+    const val LABEL_FULL_NAME = "Full Name"
+    const val HINT_FULL_NAME = "Enter your full name"
+
+    const val LABEL_MOBILE = "Mobile"
+    const val HINT_MOBILE = "Enter mobile number"
+    const val MOBILE_PREFIX = "+91"
+
+    const val LABEL_EMAIL = "Email"
+    const val HINT_EMAIL = "Enter email (optional)"
+
+    const val LABEL_MESSAGE = "Message"
+    const val HINT_MESSAGE = "Type your message"
+
+    const val BUTTON_SEND = "Send Enquiry"
+
+    const val AGENT_PHONE_UNAVAILABLE = "Agent phone number unavailable"
+    const val ERROR_MESSAGE_REQUIRED = "Message is required"
+
+    const val ENQUIRY_SMS_TEMPLATE =
+        "Hi, I am interested in "
+}
+
+/**
+ * Centralized dimensions for the property enquiry bottom sheet.
+ */
+internal object EnquiryDims {
+    val SHEET_CORNER_RADIUS = 20.dp
+
+    val SHEET_PADDING = 20.dp
+    val SHEET_TOP_PADDING = 16.dp
+    val SHEET_BOTTOM_PADDING = 20.dp
+
+    val TITLE_FONT_SIZE = 20.sp
+    val SUBTITLE_FONT_SIZE = 14.sp
+
+    val HEADER_SPACING = 8.dp
+    val FORM_FIELD_SPACING = 16.dp
+    val FORM_FIELD_ICON_SIZE = 24.dp
+    val FORM_FIELD_CORNER_RADIUS = 12.dp
+
+    val BUTTON_HEIGHT = 52.dp
+    val BUTTON_CORNER_RADIUS = 12.dp
+    val BUTTON_TOP_SPACING = 24.dp
+
+    val FOOTER_TOP_SPACING = 16.dp
+    val FOOTER_ICON_SIZE = 16.dp
+
+    val PROPERTY_CARD_ELEVATION = 2.dp
+    val PROPERTY_CARD_SPACING = 12.dp
+    val PROPERTY_CARD_IMAGE_SIZE = 80.dp
+    val PROPERTY_CARD_IMAGE_CORNER_RADIUS = 10.dp
+}

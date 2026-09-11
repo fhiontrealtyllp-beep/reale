@@ -175,6 +175,7 @@ fun PropertyDetailScreen(
     }
     var selectedImage by remember(property.id) { mutableIntStateOf(0) }
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
+    var showEnquire by remember { mutableStateOf(false) }
 
     val hasOverview = property.description.isNotBlank()
     val hasHighlights = property.amenities.isNotEmpty()
@@ -192,7 +193,7 @@ fun PropertyDetailScreen(
             DetailBottomBar(
                 phone = property.agentPhone,
                 onCall = { dialAgent(context, property.agentPhone) },
-                onEnquire = { messageAgent(context, property.agentPhone) }
+                onEnquire = { showEnquire = true }
             )
         }
     ) { innerPadding ->
@@ -260,6 +261,13 @@ fun PropertyDetailScreen(
             initialPage = startPage,
             contentDescription = property.title,
             onDismiss = { fullScreenPage = null }
+        )
+    }
+
+    if (showEnquire) {
+        EnquireBottomSheet(
+            property = property,
+            onDismiss = { showEnquire = false }
         )
     }
 }
@@ -1175,7 +1183,7 @@ private fun DetailBottomBar(
             }
             Button(
                 onClick = onEnquire,
-                enabled = phone.isNotBlank(),
+                enabled = true,
                 modifier = Modifier
                     .weight(1f)
                     .height(DetailDims.BOTTOM_BUTTON_HEIGHT),
