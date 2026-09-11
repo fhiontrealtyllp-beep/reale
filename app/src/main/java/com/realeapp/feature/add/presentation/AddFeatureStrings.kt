@@ -272,6 +272,7 @@ internal object AddStrings {
     const val LABEL_LATITUDE = "Latitude"
     const val LABEL_LONGITUDE = "Longitude"
     const val ACTION_CONFIRM_COORDINATES = "Confirm Coordinates"
+    const val LOCATION_LOADING = "Getting your current location..."
     const val ERROR_CURRENT_LOCATION = "Unable to get current location"
     const val MAPS_API_KEY_METADATA = "com.google.android.geo.API_KEY"
     const val MAPS_API_KEY_PLACEHOLDER = "YOUR_API_KEY"

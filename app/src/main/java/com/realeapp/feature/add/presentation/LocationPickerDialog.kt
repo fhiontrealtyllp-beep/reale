@@ -56,13 +56,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.Tasks
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -71,10 +67,10 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
+import com.realeapp.core.location.CurrentLocationProvider
+import com.realeapp.util.Logger
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.AppBackground
@@ -82,6 +78,9 @@ import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.MapMarker
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
+
+private const val TAG = "LocationPickerDialog"
+private val DEFAULT_FALLBACK_LOCATION = LatLng(20.5937, 78.9629)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,44 +94,64 @@ fun LocationPickerDialog(
     val apiKey = remember { readMapApiKey(context) }
     val coroutineScope = rememberCoroutineScope()
 
-    val initialLatLng = remember(initialLat, initialLng) {
-        LatLng(
-            initialLat.toDoubleOrNull() ?: 12.97,
-            initialLng.toDoubleOrNull() ?: 77.75
-        )
+    val hasInitialCoordinates = initialLat.isNotBlank() && initialLng.isNotBlank()
+    val initialLatLng: LatLng? = remember(initialLat, initialLng) {
+        if (hasInitialCoordinates) {
+            LatLng(
+                initialLat.toDoubleOrNull() ?: 0.0,
+                initialLng.toDoubleOrNull() ?: 0.0
+            )
+        } else {
+            null
+        }
     }
 
-    var selectedLatLng by remember { mutableStateOf(initialLatLng) }
+    var selectedLatLng by remember { mutableStateOf<LatLng?>(initialLatLng) }
     var isGeocoding by remember { mutableStateOf(false) }
-    var isLocating by remember { mutableStateOf(false) }
+    var isLocating by remember { mutableStateOf(initialLatLng == null) }
     var selectedGeocodedAddress by remember { mutableStateOf<GeocodedAddress?>(null) }
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(selectedLatLng, 15f)
+        position = CameraPosition.fromLatLngZoom(initialLatLng ?: DEFAULT_FALLBACK_LOCATION, 15f)
     }
 
-    LaunchedEffect(cameraPositionState) {
-        snapshotFlow { cameraPositionState.position.target }
-            .collect { selectedLatLng = it }
+    LaunchedEffect(cameraPositionState, selectedLatLng != null) {
+        if (selectedLatLng != null) {
+            snapshotFlow { cameraPositionState.position.target }
+                .collect { selectedLatLng = it }
+        }
     }
 
     LaunchedEffect(selectedLatLng) {
-        val latLng = selectedLatLng
+        val latLng = selectedLatLng ?: return@LaunchedEffect
+        Logger.d(TAG, "Selected location changed to $latLng, waiting to reverse geocode")
         delay(300)
         val geocoded = reverseGeocode(context, latLng.latitude, latLng.longitude)
         if (latLng == selectedLatLng) {
+            Logger.d(TAG, "Reverse geocoded selected location: $geocoded")
             selectedGeocodedAddress = geocoded
         }
     }
 
     val requestCurrentLocation: () -> Unit = {
         coroutineScope.launch {
+            Logger.d(TAG, "User requested current location")
             navigateToCurrentLocation(
                 context = context,
                 cameraPositionState = cameraPositionState,
                 setLocating = { isLocating = it },
+                onLocation = { latLng ->
+                    Logger.d(TAG, "Current location found: $latLng")
+                    selectedLatLng = latLng
+                },
                 onError = { message ->
+                    Logger.w(TAG, "Current location error: $message")
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    if (selectedLatLng == null) {
+                        Logger.d(TAG, "Falling back to default location after error")
+                        selectedLatLng = DEFAULT_FALLBACK_LOCATION
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(DEFAULT_FALLBACK_LOCATION, 4f)
+                    }
                 }
             )
         }
@@ -141,10 +160,46 @@ fun LocationPickerDialog(
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions.any { it.value }) {
+        val granted = permissions.any { it.value }
+        Logger.d(TAG, "Permission result: granted=$granted, permissions=$permissions")
+        if (granted) {
             requestCurrentLocation()
         } else {
             Toast.makeText(context, AddStrings.LOCATION_PERMISSION_REQUIRED, Toast.LENGTH_SHORT).show()
+            isLocating = false
+            if (selectedLatLng == null) {
+                Logger.d(TAG, "Permission denied, using fallback location")
+                selectedLatLng = DEFAULT_FALLBACK_LOCATION
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(DEFAULT_FALLBACK_LOCATION, 4f)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        Logger.d(TAG, "LocationPickerDialog opened. initial=$initialLatLng, hasApiKey=${!apiKey.isNullOrBlank()}")
+        if (initialLatLng == null) {
+            val fineGranted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            val coarseGranted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            Logger.d(TAG, "Initial permission check: fine=$fineGranted, coarse=$coarseGranted")
+            if (fineGranted || coarseGranted) {
+                requestCurrentLocation()
+            } else {
+                Logger.d(TAG, "No permission, launching permission request")
+                locationPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        } else {
+            Logger.d(TAG, "Using provided initial coordinates, no auto-fetch needed")
         }
     }
 
@@ -198,16 +253,14 @@ fun LocationPickerDialog(
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
+                            val latLng = selectedLatLng ?: return@Button
+                            Logger.d(TAG, "Confirming location: $latLng")
                             isGeocoding = true
                             coroutineScope.launch {
-                                val geocoded = reverseGeocode(
-                                    context,
-                                    selectedLatLng.latitude,
-                                    selectedLatLng.longitude
-                                )
+                                val geocoded = reverseGeocode(context, latLng.latitude, latLng.longitude)
                                 onConfirm(
-                                    selectedLatLng.latitude.toString(),
-                                    selectedLatLng.longitude.toString(),
+                                    latLng.latitude.toString(),
+                                    latLng.longitude.toString(),
                                     geocoded?.city,
                                     geocoded?.locality,
                                     geocoded?.pincode,
@@ -220,7 +273,7 @@ fun LocationPickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        enabled = !isGeocoding,
+                        enabled = selectedLatLng != null && !isGeocoding,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = BrandBlue,
                             contentColor = OnBrandContent
@@ -247,7 +300,42 @@ fun LocationPickerDialog(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                if (!apiKey.isNullOrBlank() && apiKey != AddStrings.MAPS_API_KEY_PLACEHOLDER) {
+                if (apiKey.isNullOrBlank() || apiKey == AddStrings.MAPS_API_KEY_PLACEHOLDER) {
+                    Logger.w(TAG, "No valid Maps API key, showing placeholder")
+                    PlaceholderLocationPicker(
+                        initialLat = initialLat,
+                        initialLng = initialLng,
+                        onConfirm = { lat, lng ->
+                            selectedLatLng = LatLng(lat, lng)
+                            coroutineScope.launch {
+                                val geocoded = reverseGeocode(context, lat, lng)
+                                onConfirm(
+                                    lat.toString(),
+                                    lng.toString(),
+                                    geocoded?.city,
+                                    geocoded?.locality,
+                                    geocoded?.pincode,
+                                    geocoded?.address
+                                )
+                                onDismiss()
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else if (selectedLatLng == null) {
+                    Logger.d(TAG, "Map not ready yet, showing loading")
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = BrandBlue)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = AddStrings.LOCATION_LOADING,
+                            color = HomeTextSecondary
+                        )
+                    }
+                } else {
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
@@ -256,7 +344,9 @@ fun LocationPickerDialog(
                             zoomControlsEnabled = false,
                             myLocationButtonEnabled = false
                         ),
+                        onMapLoaded = { Logger.d(TAG, "GoogleMap loaded") },
                         onMapClick = { latLng ->
+                            Logger.d(TAG, "Map clicked: $latLng")
                             coroutineScope.launch {
                                 cameraPositionState.animate(CameraUpdateFactory.newLatLng(latLng))
                             }
@@ -276,6 +366,7 @@ fun LocationPickerDialog(
                     SmallFloatingActionButton(
                         onClick = {
                             if (isLocating) return@SmallFloatingActionButton
+                            Logger.d(TAG, "My location button clicked")
 
                             val fineGranted = ContextCompat.checkSelfPermission(
                                 context,
@@ -317,27 +408,6 @@ fun LocationPickerDialog(
                             )
                         }
                     }
-                } else {
-                    PlaceholderLocationPicker(
-                        initialLat = initialLat,
-                        initialLng = initialLng,
-                        onConfirm = { lat, lng ->
-                            selectedLatLng = LatLng(lat, lng)
-                            coroutineScope.launch {
-                                val geocoded = reverseGeocode(context, lat, lng)
-                                onConfirm(
-                                    lat.toString(),
-                                    lng.toString(),
-                                    geocoded?.city,
-                                    geocoded?.locality,
-                                    geocoded?.pincode,
-                                    geocoded?.address
-                                )
-                                onDismiss()
-                            }
-                        },
-                        modifier = Modifier.align(Alignment.Center)
-                    )
                 }
             }
         }
@@ -440,7 +510,8 @@ private fun readMapApiKey(context: Context): String? {
             PackageManager.GET_META_DATA
         )
         appInfo.metaData?.getString(AddStrings.MAPS_API_KEY_METADATA)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        Logger.w(TAG, "Unable to read Maps API key: ${e.message}")
         null
     }
 }
@@ -450,11 +521,15 @@ private suspend fun reverseGeocode(
     latitude: Double,
     longitude: Double
 ): GeocodedAddress? = withContext(Dispatchers.IO) {
+    Logger.d(TAG, "reverseGeocode: lat=$latitude, lng=$longitude")
     try {
         val geocoder = Geocoder(context, Locale.getDefault())
         val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-        addresses?.firstOrNull()?.toGeocodedAddress()
+        val result = addresses?.firstOrNull()?.toGeocodedAddress()
+        Logger.d(TAG, "reverseGeocode: result=$result")
+        result
     } catch (e: Exception) {
+        Logger.e(TAG, "reverseGeocode failed", e)
         null
     }
 }
@@ -480,7 +555,9 @@ private fun android.location.Address.toGeocodedAddress(): GeocodedAddress {
         locality = subLocality ?: subAdminArea ?: locality,
         pincode = postalCode,
         address = toFormattedAddress() ?: ""
-    )
+    ).also {
+        Logger.d(TAG, "toGeocodedAddress: $it")
+    }
 }
 
 private data class GeocodedAddress(
@@ -494,59 +571,28 @@ private suspend fun navigateToCurrentLocation(
     context: Context,
     cameraPositionState: CameraPositionState,
     setLocating: (Boolean) -> Unit,
+    onLocation: (LatLng) -> Unit,
     onError: (String) -> Unit
 ) {
     setLocating(true)
     try {
-        val location = withContext(Dispatchers.IO) { getCurrentLocation(context) }
+        val location = getCurrentLocation(context)
         if (location != null) {
+            Logger.d(TAG, "navigateToCurrentLocation: got location $location")
             val target = LatLng(location.latitude, location.longitude)
-            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(target, 15f))
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 15f)
+            onLocation(target)
         } else {
+            Logger.w(TAG, "navigateToCurrentLocation: no location returned")
             onError(AddStrings.ERROR_CURRENT_LOCATION)
         }
     } catch (e: Exception) {
+        Logger.e(TAG, "navigateToCurrentLocation: failed", e)
         onError(AddStrings.ERROR_CURRENT_LOCATION)
     } finally {
         setLocating(false)
     }
 }
 
-private suspend fun getCurrentLocation(context: Context): Location? = withContext(Dispatchers.IO) {
-    val fineGranted = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
-    val coarseGranted = ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
-
-    if (!fineGranted && !coarseGranted) return@withContext null
-
-    val client = LocationServices.getFusedLocationProviderClient(context)
-    val token = CancellationTokenSource()
-
-    try {
-        val current = withTimeoutOrNull(10_000) {
-            suspendCancellableCoroutine<Location?> { cont ->
-                client.getCurrentLocation(
-                    Priority.PRIORITY_HIGH_ACCURACY,
-                    token.token
-                ).addOnCompleteListener { task ->
-                    if (cont.isActive) {
-                        cont.resume(
-                            if (task.isSuccessful) task.result else null,
-                            onCancellation = { _, _, _ -> }
-                        )
-                    }
-                }
-                cont.invokeOnCancellation { token.cancel() }
-            }
-        }
-        token.cancel()
-        current ?: Tasks.await(client.lastLocation)
-    } catch (e: Exception) {
-        null
-    }
-}
+private suspend fun getCurrentLocation(context: Context): Location? =
+    CurrentLocationProvider.getCurrentLocation(context)
