@@ -364,6 +364,7 @@ internal object EnquiryDims {
     val BUTTON_HEIGHT = 52.dp
     val BUTTON_CORNER_RADIUS = 12.dp
     val BUTTON_TOP_SPACING = 24.dp
+    val LOADING_INDICATOR_STROKE = 2.dp
 
     val FOOTER_TOP_SPACING = 16.dp
     val FOOTER_ICON_SIZE = 16.dp

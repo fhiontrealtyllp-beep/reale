@@ -29,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,10 +40,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.domain.usecase.SendEnquiryUseCase
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
@@ -69,16 +69,24 @@ import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.TextHint
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
+import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnquireBottomSheet(
     property: Property,
     onDismiss: () -> Unit,
     onViewEnquiries: () -> Unit = onDismiss,
-    onSend: (String) -> Unit = {},
+    viewModel: EnquireViewModel = koinViewModel(),
     modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.reset()
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -97,7 +105,9 @@ fun EnquireBottomSheet(
             property = property,
             onClose = onDismiss,
             onViewEnquiries = onViewEnquiries,
-            onSend = onSend
+            uiState = uiState,
+            onMessageChange = viewModel::onMessageChanged,
+            onSend = { viewModel.sendEnquiry(property) }
         )
     }
 }
@@ -107,12 +117,10 @@ private fun EnquireSheetContent(
     property: Property,
     onClose: () -> Unit,
     onViewEnquiries: () -> Unit,
-    onSend: (String) -> Unit
+    uiState: EnquireUiState,
+    onMessageChange: (String) -> Unit,
+    onSend: () -> Unit
 ) {
-    var message by remember { mutableStateOf("") }
-    var messageError by remember { mutableStateOf<String?>(null) }
-    var isSuccess by remember { mutableStateOf(false) }
-
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -141,7 +149,7 @@ private fun EnquireSheetContent(
             }
         }
 
-        if (isSuccess) {
+        if (uiState.isSuccess) {
             EnquirySuccessContent(
                 property = property,
                 onBack = onClose,
@@ -149,20 +157,12 @@ private fun EnquireSheetContent(
             )
         } else {
             EnquiryFormContent(
-                message = message,
-                messageError = messageError,
-                onMessageChange = {
-                    message = it
-                    messageError = null
-                },
-                onSend = {
-                    if (message.isBlank()) {
-                        messageError = EnquiryStrings.ERROR_MESSAGE_REQUIRED
-                    } else {
-                        onSend(message)
-                        isSuccess = true
-                    }
-                }
+                message = uiState.message,
+                messageError = uiState.messageError,
+                submitError = uiState.submitError,
+                isLoading = uiState.isLoading,
+                onMessageChange = onMessageChange,
+                onSend = onSend
             )
         }
     }
@@ -172,6 +172,8 @@ private fun EnquireSheetContent(
 private fun EnquiryFormContent(
     message: String,
     messageError: String?,
+    submitError: String?,
+    isLoading: Boolean,
     onMessageChange: (String) -> Unit,
     onSend: () -> Unit
 ) {
@@ -205,13 +207,15 @@ private fun EnquiryFormContent(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Done
-        )
+        ),
+        enabled = !isLoading
     )
 
     Spacer(modifier = Modifier.height(EnquiryDims.BUTTON_TOP_SPACING))
 
     Button(
         onClick = onSend,
+        enabled = !isLoading,
         modifier = Modifier
             .fillMaxWidth()
             .height(EnquiryDims.BUTTON_HEIGHT),
@@ -221,9 +225,28 @@ private fun EnquiryFormContent(
             contentColor = OnBrandContent
         )
     ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = OnBrandContent,
+                strokeWidth = EnquiryDims.LOADING_INDICATOR_STROKE,
+                modifier = Modifier.size(EnquiryDims.FORM_FIELD_ICON_SIZE)
+            )
+        } else {
+            Text(
+                text = EnquiryStrings.BUTTON_SEND,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
+    submitError?.let { error ->
+        Spacer(modifier = Modifier.height(EnquiryDims.HEADER_SPACING))
+
         Text(
-            text = EnquiryStrings.BUTTON_SEND,
-            fontWeight = FontWeight.Bold
+            text = error,
+            modifier = Modifier.fillMaxWidth(),
+            color = BrandCoral,
+            fontSize = EnquiryDims.SUBTITLE_FONT_SIZE
         )
     }
 }
@@ -399,6 +422,7 @@ private fun EnquiryTextField(
     leadingIcon: androidx.compose.ui.graphics.vector.ImageVector,
     modifier: Modifier = Modifier,
     prefix: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
     isError: Boolean = false,
     supportingText: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
@@ -407,6 +431,7 @@ private fun EnquiryTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
         label = { Text(label) },
         placeholder = { Text(placeholder) },
         leadingIcon = {
@@ -451,6 +476,11 @@ private fun buildShortLocation(property: Property): String {
         .joinToString(", ")
 }
 
+private val PreviewSendEnquiryUseCase = object : SendEnquiryUseCase {
+    override suspend fun invoke(property: Property, message: String): com.realeapp.feature.search.domain.utils.Result<Unit> {
+        return com.realeapp.feature.search.domain.utils.Result.Success(Unit)
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -463,7 +493,8 @@ private fun EnquireBottomSheetPreview() {
         ) {
             EnquireBottomSheet(
                 property = PreviewData.sampleProperty,
-                onDismiss = {}
+                onDismiss = {},
+                viewModel = EnquireViewModel(PreviewSendEnquiryUseCase)
             )
         }
     }

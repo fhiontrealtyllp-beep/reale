@@ -69,11 +69,15 @@ import com.realeapp.feature.saved.domain.usecase.GetLikedPropertiesUseCaseImpl
 import com.realeapp.feature.saved.presentation.SavedViewModel
 import com.realeapp.core.firebase.FirebaseProvider
 import com.realeapp.feature.search.data.local.PropertyLocationSuggestionRepository
+import com.realeapp.feature.search.data.remote.EnquiryRemoteDataSource
+import com.realeapp.feature.search.data.remote.EnquiryRemoteDataSourceImpl
 import com.realeapp.feature.search.data.remote.PropertyRemoteDataSource
 import com.realeapp.feature.search.data.remote.PropertyRemoteDataSourceImpl
+import com.realeapp.feature.search.data.repository.EnquiryRepositoryImpl
 import com.realeapp.feature.search.data.repository.PropertyRepositoryImpl
 import com.realeapp.feature.search.data.session.UserSession
 import com.realeapp.feature.search.data.session.UserSessionImpl
+import com.realeapp.feature.search.domain.repository.EnquiryRepository
 import com.realeapp.feature.search.domain.repository.LocationSuggestionRepository
 import com.realeapp.feature.search.domain.repository.PropertyRepository
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCase
@@ -84,8 +88,11 @@ import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCase
 import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCaseImpl
+import com.realeapp.feature.search.domain.usecase.SendEnquiryUseCase
+import com.realeapp.feature.search.domain.usecase.SendEnquiryUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCase
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCaseImpl
+import com.realeapp.feature.search.presentation.EnquireViewModel
 import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.viewmodel.MainViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -125,14 +132,18 @@ val authModule = module {
 
 val searchModule = module {
     single<PropertyRemoteDataSource> { PropertyRemoteDataSourceImpl(get(), get()) }
+    single<EnquiryRemoteDataSource> { EnquiryRemoteDataSourceImpl(get()) }
     single<PropertyRepository> { PropertyRepositoryImpl(get()) }
+    single<EnquiryRepository> { EnquiryRepositoryImpl(get()) }
     single<GetAllPropertiesUseCase> { GetAllPropertiesUseCaseImpl(get()) }
     single<GetFeaturedPropertiesUseCase> { GetFeaturedPropertiesUseCaseImpl(get()) }
     single<GetPromotionalPropertiesUseCase> { GetPromotionalPropertiesUseCaseImpl(get()) }
     single<LocationSuggestionRepository> { PropertyLocationSuggestionRepository(get()) }
     single<GetLocationSuggestionsUseCase> { GetLocationSuggestionsUseCaseImpl(get()) }
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
+    single<SendEnquiryUseCase> { SendEnquiryUseCaseImpl(get(), get()) }
     viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { EnquireViewModel(get()) }
 }
 
 val savedModule = module {
