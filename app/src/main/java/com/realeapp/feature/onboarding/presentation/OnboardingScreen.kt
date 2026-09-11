@@ -54,9 +54,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.core.content.ContextCompat
-import com.realeapp.AppStrings
+import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.R
 import com.realeapp.feature.onboarding.data.resolveCurrentCityAndLocation
 import com.realeapp.ui.theme.AppBackground
@@ -200,28 +199,6 @@ private fun OnboardingPageContent(
     }
 }
 
-@Composable
-private fun BrandLogo(
-    firstColor: Color,
-    accentColor: Color,
-    fontSize: TextUnit,
-    modifier: Modifier = Modifier
-) {
-    Row(modifier = modifier) {
-        Text(
-            text = AppStrings.APP_NAME_FIRST,
-            color = firstColor,
-            fontSize = fontSize,
-            fontWeight = FontWeight.ExtraBold
-        )
-        Text(
-            text = AppStrings.APP_NAME_ACCENT,
-            color = accentColor,
-            fontSize = fontSize,
-            fontWeight = FontWeight.ExtraBold
-        )
-    }
-}
 
 @Composable
 private fun SplashPage(modifier: Modifier = Modifier) {
@@ -234,10 +211,10 @@ private fun SplashPage(modifier: Modifier = Modifier) {
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        BrandLogo(
+        AppNameLogo(
+            fontSize = OnboardingDims.SPLASH_LOGO_FONT_SIZE,
             firstColor = OnBrandContent,
             accentColor = BrandCoral,
-            fontSize = OnboardingDims.SPLASH_LOGO_FONT_SIZE,
             modifier = Modifier.padding(horizontal = OnboardingDims.SCREEN_PADDING)
         )
 
@@ -311,9 +288,7 @@ private fun FindPlacePage(modifier: Modifier = Modifier) {
                 .padding(horizontal = OnboardingDims.SCREEN_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            BrandLogo(
-                firstColor = BrandBlue,
-                accentColor = BrandCoral,
+            AppNameLogo(
                 fontSize = OnboardingDims.FIND_PLACE_LOGO_FONT_SIZE
             )
 

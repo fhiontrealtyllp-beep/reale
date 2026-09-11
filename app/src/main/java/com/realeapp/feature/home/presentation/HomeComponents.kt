@@ -62,7 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.realeapp.AppStrings
+import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -120,11 +120,8 @@ internal fun HomeHeader(modifier: Modifier = Modifier) {
                 tint = BrandRed,
                 modifier = Modifier.size(HomeDims.LOGO_ICON_SIZE)
             )
-            Text(
-                text = AppStrings.APP_NAME,
-                color = BrandBlue,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.ExtraBold
+            AppNameLogo(
+                style = MaterialTheme.typography.titleLarge
             )
         }
 

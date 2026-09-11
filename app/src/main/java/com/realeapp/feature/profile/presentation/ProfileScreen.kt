@@ -97,7 +97,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.realeapp.AppStrings
+import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
@@ -583,20 +583,9 @@ private fun ProfileTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = AppStrings.APP_NAME_FIRST,
-                color = BrandBlue,
-                fontSize = ProfileDims.APP_NAME_FONT_SIZE,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = AppStrings.APP_NAME_ACCENT,
-                color = BrandCoral,
-                fontSize = ProfileDims.APP_NAME_FONT_SIZE,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
+        AppNameLogo(
+            fontSize = ProfileDims.APP_NAME_FONT_SIZE
+        )
 
         Box(contentAlignment = Alignment.TopEnd) {
             Icon(

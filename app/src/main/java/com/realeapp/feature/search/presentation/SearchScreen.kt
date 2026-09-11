@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.realeapp.AppStrings
+import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
@@ -201,20 +201,9 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row {
-            Text(
-                text = AppStrings.APP_NAME_FIRST,
-                color = BrandBlue,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = AppStrings.APP_NAME_ACCENT,
-                color = BrandCoral,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.ExtraBold
-            )
-        }
+        AppNameLogo(
+            style = MaterialTheme.typography.headlineMedium
+        )
         Box(contentAlignment = Alignment.TopEnd) {
             Icon(
                 imageVector = Icons.Outlined.Notifications,

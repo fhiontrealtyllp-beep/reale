@@ -68,6 +68,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.R
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
+import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Error
@@ -218,7 +219,7 @@ internal fun VerifyNumberContent(
                         .fillMaxWidth()
                         .padding(end = AuthDims.VERIFY_ILLUSTRATION_WIDTH)
                 ) {
-                    AuthBrandLogo(fontSize = AuthDims.SMALL_LOGO_FONT_SIZE)
+                    AppNameLogo(fontSize = AuthDims.SMALL_LOGO_FONT_SIZE)
 
                     Spacer(modifier = Modifier.height(AuthDims.SPACE_16))
 
