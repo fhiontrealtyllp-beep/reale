@@ -111,18 +111,22 @@ fun LocationPickerDialog(
     var isLocating by remember { mutableStateOf(initialLatLng == null) }
     var selectedGeocodedAddress by remember { mutableStateOf<GeocodedAddress?>(null) }
 
+    val initialZoom = if (initialLatLng != null) 15f else 4f
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialLatLng ?: DEFAULT_FALLBACK_LOCATION, 15f)
+        position = CameraPosition.fromLatLngZoom(initialLatLng ?: DEFAULT_FALLBACK_LOCATION, initialZoom)
     }
 
-    LaunchedEffect(cameraPositionState, selectedLatLng != null) {
-        if (selectedLatLng != null) {
-            snapshotFlow { cameraPositionState.position.target }
-                .collect { selectedLatLng = it }
-        }
+    LaunchedEffect(cameraPositionState) {
+        snapshotFlow { cameraPositionState.position.target }
+            .collect { target ->
+                if (!isLocating) {
+                    selectedLatLng = target
+                }
+            }
     }
 
-    LaunchedEffect(selectedLatLng) {
+    LaunchedEffect(selectedLatLng, isLocating) {
+        if (isLocating) return@LaunchedEffect
         val latLng = selectedLatLng ?: return@LaunchedEffect
         Logger.d(TAG, "Selected location changed to $latLng, waiting to reverse geocode")
         delay(300)
@@ -147,11 +151,6 @@ fun LocationPickerDialog(
                 onError = { message ->
                     Logger.w(TAG, "Current location error: $message")
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                    if (selectedLatLng == null) {
-                        Logger.d(TAG, "Falling back to default location after error")
-                        selectedLatLng = DEFAULT_FALLBACK_LOCATION
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(DEFAULT_FALLBACK_LOCATION, 4f)
-                    }
                 }
             )
         }
@@ -167,11 +166,6 @@ fun LocationPickerDialog(
         } else {
             Toast.makeText(context, AddStrings.LOCATION_PERMISSION_REQUIRED, Toast.LENGTH_SHORT).show()
             isLocating = false
-            if (selectedLatLng == null) {
-                Logger.d(TAG, "Permission denied, using fallback location")
-                selectedLatLng = DEFAULT_FALLBACK_LOCATION
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(DEFAULT_FALLBACK_LOCATION, 4f)
-            }
         }
     }
 
@@ -273,7 +267,7 @@ fun LocationPickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        enabled = selectedLatLng != null && !isGeocoding,
+                        enabled = selectedLatLng != null && !isGeocoding && !isLocating,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = BrandBlue,
                             contentColor = OnBrandContent
@@ -322,19 +316,6 @@ fun LocationPickerDialog(
                         },
                         modifier = Modifier.align(Alignment.Center)
                     )
-                } else if (selectedLatLng == null) {
-                    Logger.d(TAG, "Map not ready yet, showing loading")
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = BrandBlue)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = AddStrings.LOCATION_LOADING,
-                            color = HomeTextSecondary
-                        )
-                    }
                 } else {
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
@@ -405,6 +386,20 @@ fun LocationPickerDialog(
                                 imageVector = Icons.Filled.MyLocation,
                                 contentDescription = AddStrings.CD_MY_LOCATION,
                                 modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+
+                    if (isLocating) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(color = BrandBlue)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = AddStrings.LOCATION_LOADING,
+                                color = HomeTextSecondary
                             )
                         }
                     }
