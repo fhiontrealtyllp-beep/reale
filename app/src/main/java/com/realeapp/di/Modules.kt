@@ -59,6 +59,7 @@ import com.realeapp.feature.profile.domain.usecase.UpdateProfileUseCase
 import com.realeapp.feature.profile.domain.usecase.UpdateProfileUseCaseImpl
 import com.realeapp.feature.profile.domain.usecase.UploadImageUseCase as ProfileUploadImageUseCase
 import com.realeapp.feature.profile.domain.usecase.UploadImageUseCaseImpl as ProfileUploadImageUseCaseImpl
+import com.realeapp.feature.profile.presentation.MyEnquiriesViewModel
 import com.realeapp.feature.profile.presentation.ProfileViewModel
 import com.realeapp.feature.saved.data.remote.SavedRemoteDataSource
 import com.realeapp.feature.saved.data.remote.SavedRemoteDataSourceImpl
@@ -86,6 +87,8 @@ import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCase
 import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCaseImpl
+import com.realeapp.feature.search.domain.usecase.GetMyEnquiriesUseCase
+import com.realeapp.feature.search.domain.usecase.GetMyEnquiriesUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCaseImpl
 import com.realeapp.feature.search.domain.usecase.SendEnquiryUseCase
@@ -142,6 +145,7 @@ val searchModule = module {
     single<GetLocationSuggestionsUseCase> { GetLocationSuggestionsUseCaseImpl(get()) }
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
     single<SendEnquiryUseCase> { SendEnquiryUseCaseImpl(get(), get()) }
+    single<GetMyEnquiriesUseCase> { GetMyEnquiriesUseCaseImpl(get()) }
     viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
 }
@@ -170,4 +174,5 @@ val profileModule = module {
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { MyEnquiriesViewModel(get(), get()) }
 }

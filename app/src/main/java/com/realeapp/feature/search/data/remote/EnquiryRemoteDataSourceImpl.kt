@@ -2,6 +2,7 @@ package com.realeapp.feature.search.data.remote
 
 import com.realeapp.core.firebase.FirebaseConstants
 import com.realeapp.core.firebase.FirebaseProvider
+import com.realeapp.feature.search.domain.model.Enquiry
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.utils.Result
 import com.realeapp.util.Logger
@@ -50,6 +51,40 @@ class EnquiryRemoteDataSourceImpl(
             Logger.e(TAG, "sendEnquiry failed: ${e.message}", e)
             Result.Error("Unable to send enquiry: ${e.message}")
         }
+    }
+
+    override suspend fun getEnquiriesByUser(userId: String): Result<List<Enquiry>> {
+        Logger.d(TAG, "getEnquiriesByUser: userId=$userId")
+        return try {
+            val snapshot = enquiries
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+
+            val list = snapshot.documents
+                .mapNotNull { it.toEnquiry() }
+                .sortedByDescending { it.createdAt }
+            Logger.d(TAG, "getEnquiriesByUser: found ${list.size} enquiries")
+            Result.Success(list)
+        } catch (e: Exception) {
+            Logger.e(TAG, "getEnquiriesByUser failed: ${e.message}", e)
+            Result.Error("Unable to load enquiries: ${e.message}")
+        }
+    }
+
+    private fun com.google.firebase.firestore.DocumentSnapshot.toEnquiry(): Enquiry? {
+        val data = data ?: return null
+        return Enquiry(
+            id = getString("id") ?: return null,
+            propertyId = getString("propertyId") ?: return null,
+            propertyTitle = getString("propertyTitle") ?: "",
+            propertyLocation = getString("propertyLocation") ?: "",
+            agentPhone = getString("agentPhone") ?: "",
+            message = getString("message") ?: "",
+            userId = getString("userId"),
+            status = getString("status") ?: "",
+            createdAt = getString("createdAt") ?: ""
+        )
     }
 
     private fun buildShortLocation(property: Property): String {
