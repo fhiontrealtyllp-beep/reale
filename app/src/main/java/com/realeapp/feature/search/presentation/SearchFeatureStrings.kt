@@ -205,6 +205,28 @@ internal object DetailStrings {
     const val LABEL_FACING = "Facing"
     const val LABEL_FURNISHING = "Furnishing"
 
+    const val SECTION_DETAILS = "Property Details"
+
+    const val LABEL_TRANSACTION_TYPE = "Transaction Type"
+    const val LABEL_PROPERTY_CATEGORY = "Property Category"
+    const val LABEL_PROPERTY_TYPE = "Property Type"
+    const val LABEL_CONFIGURATION = "Configuration"
+    const val LABEL_BEDROOMS = "Bedrooms"
+    const val LABEL_BATHROOMS = "Bathrooms"
+    const val LABEL_AGE = "Age of Property"
+    const val LABEL_PINCODE = "Pincode"
+    const val LABEL_ADDRESS = "Address"
+    const val LABEL_CARPET_AREA = "Carpet Area"
+    const val LABEL_BUILT_UP_AREA = "Built-up Area"
+    const val LABEL_SUPER_BUILT_UP_AREA = "Super Built-up Area"
+    const val LABEL_LISTING_CATEGORY = "Listing Category"
+    const val LABEL_STATUS = "Status"
+    const val LABEL_RATING = "Rating"
+    const val LABEL_POSTED_ON = "Posted On"
+    const val VALUE_NOT_AVAILABLE = "—"
+
+    const val SQ_FT_SUFFIX = " sq ft"
+
     const val CD_BACK = "Back"
     const val CD_LIKE = "Like"
     const val CD_SHARE = "Share"
@@ -293,6 +315,9 @@ internal object DetailDims {
     val HIGHLIGHT_ITEM_SPACING = 10.dp
     val HIGHLIGHT_ROW_SPACING = 14.dp
     val HIGHLIGHT_LABEL_FONT_SIZE = 14.sp
+
+    val DETAIL_CARD_PADDING = 16.dp
+    val DETAIL_ROW_PADDING_VERTICAL = 12.dp
 
     val MAP_HEIGHT = 180.dp
     val MAP_CORNER_RADIUS = 12.dp

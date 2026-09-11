@@ -177,6 +177,6 @@ object PreviewData {
         bathrooms = 3,
         agentPhone = "+91 98765 43210",
         listingCategory = ListingCategory.FEATURED,
-        images = randomPropertyImages(6)
+        images = PROPERTY_IMAGE_URLS.take(5)
     )
 }

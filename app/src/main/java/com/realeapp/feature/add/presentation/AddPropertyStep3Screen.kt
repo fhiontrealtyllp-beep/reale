@@ -302,7 +302,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
 private fun AddPropertyStep3ScreenPreview() {
     RealeTheme {
         AddPropertyStep3Screen(
-            images = PreviewData.randomPropertyImages(8),
+            images = PreviewData.samplePropertyForm.images,
             onAddMore = {},
             onRemoveImage = {},
             modifier = Modifier

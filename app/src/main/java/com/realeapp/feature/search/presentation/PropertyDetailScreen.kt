@@ -104,6 +104,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,6 +121,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
+import com.realeapp.feature.search.domain.model.ListingCategory
 import com.realeapp.feature.search.domain.model.NearbyPlace
 import com.realeapp.feature.search.domain.model.NearbyPlaceType
 import com.realeapp.feature.search.domain.model.Property
@@ -152,7 +154,7 @@ private const val MAP_ZOOM_LEVEL = 15f
 private const val MAX_VISIBLE_THUMBS = 5
 private const val MAX_STATS = 5
 private const val DESCRIPTION_COLLAPSED_LINES = 3
-private const val ITEMS_BEFORE_SECTIONS = 4
+private const val ITEMS_BEFORE_SECTIONS = 3
 private const val HIGHLIGHTS_PER_ROW = 2
 
 
@@ -179,11 +181,13 @@ fun PropertyDetailScreen(
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
     var showEnquire by remember { mutableStateOf(false) }
 
+    val hasDetails = propertyHasDetails(property)
     val hasOverview = property.description.isNotBlank()
     val hasHighlights = property.amenities.isNotEmpty()
     val hasLocation = (property.latitude != null && property.longitude != null) ||
         !property.address.isNullOrBlank() || property.city.isNotBlank()
     val locationItemIndex = ITEMS_BEFORE_SECTIONS +
+        (if (hasDetails) 1 else 0) +
         (if (hasOverview) 1 else 0) +
         (if (hasHighlights) 1 else 0)
 
@@ -238,6 +242,13 @@ fun PropertyDetailScreen(
             item {
                 // Quick stats UI: beds, area, type, facing, furnishing.
                 StatsCard(property = property)
+            }
+
+            if (hasDetails) {
+                item {
+                    // Detailed property facts: category, configuration, age, areas, status, etc.
+                    DetailsSection(property = property)
+                }
             }
 
             if (hasOverview) {
@@ -1231,6 +1242,117 @@ private fun DetailBottomBar(
                 )
             }
         }
+    }
+}
+
+private fun propertyHasDetails(property: Property): Boolean {
+    return property.rentBuy != null ||
+        property.residentialCommercial != null ||
+        property.propertyType != null ||
+        property.bedroomType != null ||
+        property.bathrooms?.takeIf { it > 0 } != null ||
+        property.furnishing != null ||
+        property.facing != null ||
+        property.age != null ||
+        property.carpetArea?.takeIf { it > 0 } != null ||
+        property.builtUpArea?.takeIf { it > 0 } != null ||
+        property.superBuiltUpArea?.takeIf { it > 0 } != null ||
+        !property.pincode.isNullOrBlank() ||
+        !property.address.isNullOrBlank() ||
+        property.listingCategory != ListingCategory.NORMAL ||
+        !property.status.isNullOrBlank() ||
+        property.rating != null ||
+        !property.createdAt.isNullOrBlank()
+}
+
+private fun detailRows(property: Property): List<Pair<String, String>> = buildList {
+    add(DetailStrings.LABEL_TRANSACTION_TYPE to (property.rentBuy?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_PROPERTY_CATEGORY to (property.residentialCommercial?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_PROPERTY_TYPE to (property.propertyType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_CONFIGURATION to (property.bedroomType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_BEDROOMS to (bedroomCount(property.bedroomType).takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_BATHROOMS to (property.bathrooms?.takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_FURNISHING to (property.furnishing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_FACING to (property.facing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_AGE to (property.age?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_CARPET_AREA to (property.carpetArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_BUILT_UP_AREA to (property.builtUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_SUPER_BUILT_UP_AREA to (property.superBuiltUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_PINCODE to (property.pincode?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_ADDRESS to (property.address?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_LISTING_CATEGORY to property.listingCategory.label)
+    add(DetailStrings.LABEL_STATUS to (property.status?.takeIf { it.isNotBlank() }?.replaceFirstChar { c -> c.titlecase() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_RATING to (property.rating?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_POSTED_ON to (property.createdAt?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+}
+
+@Composable
+private fun DetailsSection(property: Property) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = DetailDims.SCREEN_PADDING)
+            .padding(top = DetailDims.SECTION_SPACING),
+        verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
+    ) {
+        SectionTitle(text = DetailStrings.SECTION_DETAILS)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(DetailDims.STATS_CARD_CORNER_RADIUS),
+            colors = CardDefaults.cardColors(containerColor = White),
+            border = BorderStroke(DetailDims.BORDER_WIDTH, HomeSearchBarBorder)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DetailDims.DETAIL_CARD_PADDING)
+            ) {
+                val rows = detailRows(property)
+                rows.forEachIndexed { index, (label, value) ->
+                    DetailRow(label = label, value = value)
+                    if (index != rows.lastIndex) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(DetailDims.BORDER_WIDTH)
+                                .background(HomeSearchBarBorder)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = DetailDims.DETAIL_ROW_PADDING_VERTICAL),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = HomeTextSecondary,
+            fontSize = 14.sp
+        )
+        Text(
+            text = value,
+            color = Black,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DetailsSectionPreview() {
+    RealeTheme {
+        DetailsSection(property = PreviewData.sampleProperty)
     }
 }
 

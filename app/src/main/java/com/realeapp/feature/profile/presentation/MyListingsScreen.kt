@@ -227,7 +227,9 @@ internal fun MyListingsScreen(
 
     // Full-screen property details UI shown after selecting a listing.
     selectedListing?.let { listing ->
-        val property = remember(listing.id) { listing.toProperty() }
+        val property = remember(listing.id, uiState.properties) {
+            uiState.properties.find { it.id == listing.id } ?: listing.toProperty()
+        }
         Dialog(
             onDismissRequest = { selectedListing = null },
             properties = DialogProperties(usePlatformDefaultWidth = false)

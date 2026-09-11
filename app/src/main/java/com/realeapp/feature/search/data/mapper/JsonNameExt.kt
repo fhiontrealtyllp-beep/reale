@@ -69,9 +69,29 @@ fun Enum<*>.jsonName(): String = when (this) {
     else -> name.toCamelCaseFromUnderscore()
 }
 
-inline fun <reified T : Enum<T>> parseEnumFromJsonName(name: String?): T? {
+internal inline fun <reified T : Enum<T>> parseEnumFromJsonName(name: String?): T? {
     if (name == null) return null
-    return enumValues<T>().find { it.jsonName() == name }
+    val normalized = name.normalizeEnumInput()
+    return enumValues<T>().find {
+        it.jsonName().normalizeEnumInput() == normalized ||
+            it.name.normalizeEnumInput() == normalized ||
+            it.enumLabel()?.normalizeEnumInput() == normalized
+    }
+}
+
+internal fun String.normalizeEnumInput(): String =
+    lowercase().replace(Regex("[\\s\\-_]"), "")
+
+internal fun Enum<*>.enumLabel(): String? = when (this) {
+    is Age -> label
+    is Amenity -> label
+    is BedroomType -> label
+    is Facing -> label
+    is Furnishing -> label
+    is PropertyType -> label
+    is RentBuy -> label
+    is ResidentialCommercial -> label
+    else -> null
 }
 
 fun String.toCamelCaseFromUnderscore(): String {

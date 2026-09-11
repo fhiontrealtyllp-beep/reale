@@ -53,6 +53,7 @@ internal class MyListingsViewModel(
                     }
                     _uiState.value = _uiState.value.copy(
                         listings = properties.map { it.toMyListing(counts[it.id] ?: 0) },
+                        properties = properties,
                         isLoading = false,
                         errorMessage = null
                     )

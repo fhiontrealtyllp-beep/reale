@@ -60,7 +60,7 @@ object PropertyMapper {
     private fun getDouble(map: Map<String, Any?>, key: String): Double? {
         return when (val value = map[key]) {
             is Number -> value.toDouble()
-            is String -> value.toDoubleOrNull()
+            is String -> value.parseFirstDouble()
             else -> null
         }
     }
@@ -144,5 +144,14 @@ object PropertyMapper {
         } catch (_: IllegalArgumentException) {
             ListingCategory.NORMAL
         }
+    }
+
+    private fun String.parseFirstDouble(): Double? {
+        val cleaned = replace(",", "")
+            .replace(" ", "")
+            .replace("\u00A0", "")
+            .trim()
+        val match = Regex("""[+-]?\d+\.?\d*""").find(cleaned)?.value
+        return match?.toDoubleOrNull()
     }
 }
