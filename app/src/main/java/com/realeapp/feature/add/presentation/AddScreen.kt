@@ -151,7 +151,7 @@ fun AddScreen(
             // Logged-in navigation UI; the add form uses the light-theme header
             // (logo + Save Draft + back + title), the listings view keeps TopAppBar.
             if (uiState.isLoggedIn) {
-                if (uiState.isShowingAddForm || uiState.isSubmitSuccess) {
+                if (uiState.isShowingAddForm || uiState.isSubmitSuccess || startWithAddForm) {
                     AddFormTopBar(
                         onBack = {
                             if (uiState.isSubmitSuccess) {
@@ -240,7 +240,7 @@ fun AddScreen(
                 }
 
                 // Property creation form UI.
-                uiState.isShowingAddForm -> AddPropertySteps(
+                uiState.isShowingAddForm || startWithAddForm -> AddPropertySteps(
                     uiState = uiState,
                     viewModel = viewModel,
                     modifier = Modifier.fillMaxSize()
