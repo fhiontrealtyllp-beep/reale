@@ -303,7 +303,7 @@ internal object AddStrings {
  * Centralized dimensions for the Add Property feature's light-theme redesign.
  */
 internal object AddDims {
-    val SCREEN_PADDING = 16.dp
+    val SCREEN_PADDING = 5.dp
     val SECTION_SPACING = 16.dp
     val FIELD_LABEL_SPACING = 8.dp
     val FIELD_ROW_SPACING = 12.dp

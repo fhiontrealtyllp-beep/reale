@@ -39,7 +39,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -79,15 +78,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
-import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnAccent
@@ -191,7 +187,7 @@ fun AddScreen(
         },
         topBar = {
             // Logged-in navigation UI; the add form uses the light-theme header
-            // (logo + Save Draft + back + title), the listings view keeps TopAppBar.
+            // (back arrow + title), the listings view keeps TopAppBar.
             if (uiState.isLoggedIn) {
                 if (uiState.isShowingAddForm || uiState.isSubmitSuccess || startWithAddForm) {
                     AddFormTopBar(
@@ -204,8 +200,7 @@ fun AddScreen(
                             } else {
                                 viewModel.previousStep()
                             }
-                        },
-                        onSaveDraft = viewModel::saveDraft
+                        }
                     )
                 } else {
                     TopAppBar(
@@ -1001,70 +996,42 @@ private fun formatIndianNumber(value: Double): String {
 @Composable
 private fun AddFormTopBar(
     onBack: () -> Unit,
-    onSaveDraft: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(modifier = modifier.fillMaxWidth(), color = White) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     horizontal = AddDims.SCREEN_PADDING,
                     vertical = AddDims.HEADER_VERTICAL_PADDING
-                )
+                ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AppNameLogo(
-                    fontSize = AddDims.HEADER_LOGO_FONT_SIZE
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Row(
-                    modifier = Modifier.clickable(onClick = onSaveDraft),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.BookmarkBorder,
-                        contentDescription = AddStrings.CD_SAVE_DRAFT,
-                        tint = BrandBlue,
-                        modifier = Modifier.size(AddDims.SAVE_DRAFT_ICON_SIZE)
-                    )
-                    Spacer(modifier = Modifier.width(AddDims.SAVE_DRAFT_ICON_TEXT_SPACING))
-                    Text(
-                        text = AddStrings.ACTION_SAVE_DRAFT,
-                        color = BrandBlue,
-                        fontSize = AddDims.SAVE_DRAFT_FONT_SIZE,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = AddStrings.CD_BACK,
-                    tint = Black,
-                    modifier = Modifier
-                        .size(AddDims.HEADER_BACK_ICON_SIZE)
-                        .clickable(onClick = onBack)
-                )
-                Spacer(modifier = Modifier.width(AddDims.HEADER_ROW_SPACING))
-                Column {
-                    Text(
-                        text = AddStrings.TITLE_ADD_PROPERTY,
-                        color = Black,
-                        fontSize = AddDims.HEADER_TITLE_FONT_SIZE,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = AddStrings.ADD_FORM_SUBTITLE,
-                        color = HomeTextSecondary,
-                        fontSize = AddDims.HEADER_SUBTITLE_FONT_SIZE
-                    )
-                }
-            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = AddStrings.CD_BACK,
+                tint = Black,
+                modifier = Modifier
+                    .size(AddDims.HEADER_BACK_ICON_SIZE)
+                    .clickable(onClick = onBack)
+            )
+            Spacer(modifier = Modifier.width(AddDims.HEADER_ROW_SPACING))
+            Text(
+                text = AddStrings.TITLE_ADD_PROPERTY,
+                color = Black,
+                fontSize = AddDims.HEADER_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AddFormTopBarPreview() {
+    RealeTheme {
+        AddFormTopBar(onBack = {})
     }
 }
 
