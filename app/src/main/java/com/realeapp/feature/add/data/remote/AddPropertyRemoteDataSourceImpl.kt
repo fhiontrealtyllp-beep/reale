@@ -81,7 +81,11 @@ class AddPropertyRemoteDataSourceImpl(
             val city = LocationNormalizer.normalizeCity(form.city)
             val locality = LocationNormalizer.normalizeLocality(form.locality)
             val cityDocId = city?.let { safeDocumentId(it) }.orEmpty()
-            val localityDocId = locality?.let { safeDocumentId(it) }.orEmpty()
+            val localityDocId = if (!city.isNullOrBlank() && !locality.isNullOrBlank()) {
+                safeDocumentId("$city--$locality")
+            } else {
+                locality?.let { safeDocumentId(it) }.orEmpty()
+            }
             val cityDocRef = if (cityDocId.isNotBlank()) {
                 firestore
                     .collection(FirebaseConstants.CITIES_COLLECTION)
