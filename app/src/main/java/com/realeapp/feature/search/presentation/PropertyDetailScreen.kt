@@ -146,11 +146,15 @@ import com.realeapp.ui.theme.RealeTheme
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 
 private const val MIN_ZOOM = 1f
 private const val MAX_ZOOM = 5f
+private const val ISO_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+private const val DISPLAY_TIMESTAMP_PATTERN = "dd MMM yyyy, hh:mm a"
 private const val DOUBLE_TAP_ZOOM = 2.5f
 private const val MAP_ZOOM_LEVEL = 15f
 private const val MAX_VISIBLE_THUMBS = 5
@@ -1286,7 +1290,22 @@ private fun detailRows(property: Property): List<Pair<String, String>> = buildLi
     add(DetailStrings.LABEL_LISTING_CATEGORY to property.listingCategory.label)
     add(DetailStrings.LABEL_STATUS to (property.status?.takeIf { it.isNotBlank() }?.replaceFirstChar { c -> c.titlecase() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_RATING to (property.rating?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_POSTED_ON to (property.createdAt?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    add(DetailStrings.LABEL_POSTED_ON to (property.createdAt?.takeIf { it.isNotBlank() }?.let { formatPostedOn(it) } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+}
+
+private fun formatPostedOn(createdAt: String): String {
+    return try {
+        val parser = SimpleDateFormat(ISO_TIMESTAMP_PATTERN, Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val formatter = SimpleDateFormat(DISPLAY_TIMESTAMP_PATTERN, Locale.getDefault()).apply {
+            timeZone = TimeZone.getDefault()
+        }
+        val date = parser.parse(createdAt)
+        date?.let { formatter.format(it) } ?: createdAt
+    } catch (e: Exception) {
+        createdAt
+    }
 }
 
 @Composable
