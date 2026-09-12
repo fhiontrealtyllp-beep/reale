@@ -69,6 +69,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.realeapp.ui.theme.Black
@@ -81,6 +82,7 @@ import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
+import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import java.io.ByteArrayOutputStream
 
@@ -717,5 +719,17 @@ internal fun readBytesFromUri(context: Context, uri: Uri): ByteArray? {
         context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
     } catch (e: Exception) {
         null
+    }
+}
+
+@Preview(showBackground = true, name = "Step Indicator — Step 3 of 5")
+@Composable
+private fun StepIndicatorPreview() {
+    RealeTheme {
+        StepIndicator(
+            steps = AddPropertyStep.all,
+            currentStep = AddPropertyStep.PHOTOS_MEDIA,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }
