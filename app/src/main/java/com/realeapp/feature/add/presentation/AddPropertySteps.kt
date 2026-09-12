@@ -25,6 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.theme.AppBackground
 
+/**
+ * Host for the multi-step add-property form. Shows the step indicator, the
+ * current step's screen, and the bottom navigation bar with validation
+ * errors plus Previous/Continue buttons.
+ */
 @Composable
 fun AddPropertySteps(
     uiState: AddUiState,
@@ -42,6 +47,7 @@ fun AddPropertySteps(
         scrollState.scrollTo(0)
     }
 
+    // Camera/gallery picker dialog for the photos step.
     if (showImageSourceDialog) {
         ImageSourceDialog(
             onCamera = {
@@ -56,6 +62,7 @@ fun AddPropertySteps(
         )
     }
 
+    // Map picker dialog for choosing the property location.
     if (showLocationPicker) {
         com.realeapp.feature.add.presentation.LocationPickerDialog(
             initialLat = form.latitude,
@@ -72,6 +79,8 @@ fun AddPropertySteps(
         modifier = modifier.imePadding(),
         contentWindowInsets = WindowInsets(0.dp),
         containerColor = AppBackground,
+        // Bottom bar: validation errors + Previous/Continue navigation.
+        // Hidden on the review step, which has its own Publish button.
         bottomBar = {
             if (uiState.currentStep != AddPropertyStep.REVIEW_PUBLISH) {
                 Surface(color = AppBackground) {
@@ -84,8 +93,10 @@ fun AddPropertySteps(
                             ),
                         verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
                     ) {
+                        // Red validation error texts for the current step.
                         ValidationErrorList(errors = uiState.fieldErrors)
 
+                        // Previous/Continue buttons (Continue becomes Review on the pricing step).
                         StepNavigationButtons(
                             onPrevious = viewModel::previousStep,
                             onNext = viewModel::nextStep,
@@ -105,6 +116,7 @@ fun AddPropertySteps(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(AddDims.SECTION_SPACING)
         ) {
+            // Horizontal step indicator; tapping a step validates forward jumps.
             StepIndicator(
                 steps = AddPropertyStep.all,
                 currentStep = uiState.currentStep,
@@ -112,7 +124,9 @@ fun AddPropertySteps(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // The active step's form screen.
             when (uiState.currentStep) {
+                // Step 1: title, listing type, property type, location fields.
                 AddPropertyStep.BASIC_DETAILS -> AddPropertyStep1Screen(
                     form = form,
                     onRentBuyChanged = viewModel::onRentBuyChanged,
@@ -125,6 +139,7 @@ fun AddPropertySteps(
                     onAddressChanged = viewModel::onAddressChanged,
                     onUseMyLocation = { showLocationPicker = true }
                 )
+                // Step 2: bedrooms, bathrooms, furnishing, areas, amenities.
                 AddPropertyStep.PROPERTY_DETAILS -> AddPropertyStep2Screen(
                     form = form,
                     onBedroomCountChanged = viewModel::onBedroomCountChanged,
@@ -137,6 +152,7 @@ fun AddPropertySteps(
                     onBuiltUpAreaChanged = viewModel::onBuiltUpAreaChanged,
                     onSuperBuiltUpAreaChanged = viewModel::onSuperBuiltUpAreaChanged
                 )
+                // Step 3: photo grid with add/remove and upload progress.
                 AddPropertyStep.PHOTOS_MEDIA -> AddPropertyStep3Screen(
                     images = form.images,
                     isUploadingImage = uiState.isUploadingImage,
@@ -145,12 +161,14 @@ fun AddPropertySteps(
                     onRemoveImage = viewModel::removeImageUrl,
                     modifier = Modifier.fillMaxWidth()
                 )
+                // Step 4: price, listing category, contact phone.
                 AddPropertyStep.PRICING -> AddPropertyStep4Screen(
                     form = form,
                     onPriceChanged = viewModel::onPriceChanged,
                     onAgentPhoneChanged = viewModel::onAgentPhoneChanged,
                     onListingCategoryChanged = viewModel::onListingCategoryChanged
                 )
+                // Step 5: summary review with edit shortcuts and publish action.
                 AddPropertyStep.REVIEW_PUBLISH -> AddPropertyStep5Screen(
                     form = form,
                     onSubmit = viewModel::submit,
@@ -160,6 +178,7 @@ fun AddPropertySteps(
                 )
             }
 
+            // Bottom spacing so the last field clears the navigation bar.
             Spacer(modifier = Modifier.height(AddDims.SECTION_SPACING))
         }
     }
