@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,7 +63,31 @@ fun AddPropertySteps(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0.dp),
-        containerColor = AppBackground
+        containerColor = AppBackground,
+        bottomBar = {
+            if (uiState.currentStep != AddPropertyStep.REVIEW_PUBLISH) {
+                Surface(color = AppBackground) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = AddDims.SCREEN_PADDING,
+                                vertical = AddDims.SCREEN_PADDING
+                            ),
+                        verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)
+                    ) {
+                        ValidationErrorList(errors = uiState.fieldErrors)
+
+                        StepNavigationButtons(
+                            onPrevious = viewModel::previousStep,
+                            onNext = viewModel::nextStep,
+                            nextLabel = if (uiState.currentStep == AddPropertyStep.PRICING) AddStrings.ACTION_REVIEW else AddStrings.ACTION_CONTINUE,
+                            showPrevious = !uiState.currentStep.isFirst
+                        )
+                    }
+                }
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -125,19 +150,6 @@ fun AddPropertySteps(
                     onBack = viewModel::previousStep,
                     onEdit = { viewModel.goToStep(AddPropertyStep.PHOTOS_MEDIA) },
                     isSubmitting = uiState.isSubmitting
-                )
-            }
-
-            Spacer(modifier = Modifier.height(AddDims.FIELD_LABEL_SPACING))
-
-            ValidationErrorList(errors = uiState.fieldErrors)
-
-            if (uiState.currentStep != AddPropertyStep.REVIEW_PUBLISH) {
-                StepNavigationButtons(
-                    onPrevious = viewModel::previousStep,
-                    onNext = viewModel::nextStep,
-                    nextLabel = if (uiState.currentStep == AddPropertyStep.PRICING) AddStrings.ACTION_REVIEW else AddStrings.ACTION_CONTINUE,
-                    showPrevious = !uiState.currentStep.isFirst
                 )
             }
 
