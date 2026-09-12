@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,6 +58,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -112,11 +114,13 @@ fun AddScreen(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
     startWithAddForm: Boolean = false,
+    onExitForm: () -> Unit = {},
     viewModel: AddViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
+    var showSaveDraftDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         // Opened from an external entry point (e.g. Profile "List Your Property") straight into the form.
@@ -128,10 +132,48 @@ fun AddScreen(
         }
     }
 
-    BackHandler(
-        enabled = uiState.isShowingAddForm && !uiState.isSubmitSuccess && !uiState.currentStep.isFirst
-    ) {
-        viewModel.previousStep()
+    // True while the multi-step form is on screen (not the login prompt,
+    // loading spinner, or success screen).
+    val isFormVisible = uiState.isLoggedIn && !uiState.isLoading &&
+        !uiState.isSubmitSuccess && (uiState.isShowingAddForm || startWithAddForm)
+
+    // System back from any step asks whether to keep the draft before
+    // leaving; in-step navigation stays on the on-screen Previous button.
+    BackHandler(enabled = isFormVisible) {
+        showSaveDraftDialog = true
+    }
+
+    if (showSaveDraftDialog) {
+        AlertDialog(
+            onDismissRequest = { showSaveDraftDialog = false },
+            title = { Text(AddStrings.DIALOG_SAVE_DRAFT_TITLE) },
+            text = { Text(AddStrings.DIALOG_SAVE_DRAFT_MESSAGE) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showSaveDraftDialog = false
+                        // The draft is already auto-persisted on every change;
+                        // just close the form.
+                        viewModel.onHideAddForm()
+                        onExitForm()
+                    }
+                ) {
+                    Text(AddStrings.ACTION_SAVE_DRAFT)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showSaveDraftDialog = false
+                        viewModel.discardDraft()
+                        viewModel.onHideAddForm()
+                        onExitForm()
+                    }
+                ) {
+                    Text(AddStrings.ACTION_DISCARD)
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -156,13 +198,14 @@ fun AddScreen(
                         onBack = {
                             if (uiState.isSubmitSuccess) {
                                 viewModel.onDismissSuccess()
+                                onExitForm()
                             } else if (uiState.currentStep.isFirst) {
-                                viewModel.onHideAddForm()
+                                showSaveDraftDialog = true
                             } else {
                                 viewModel.previousStep()
                             }
                         },
-                        onSaveDraft = { }
+                        onSaveDraft = viewModel::saveDraft
                     )
                 } else {
                     TopAppBar(
@@ -239,14 +282,8 @@ fun AddScreen(
                     )
                 }
 
-                // Property creation form UI.
-                uiState.isShowingAddForm || startWithAddForm -> AddPropertySteps(
-                    uiState = uiState,
-                    viewModel = viewModel,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Success UI shown after a property is published.
+                // Success UI shown after a property is published. Checked
+                // before the form branch so startWithAddForm does not hide it.
                 uiState.isSubmitSuccess -> PropertySuccessScreen(
                     property = uiState.submittedProperty ?: uiState.myProperties.firstOrNull(),
                     onViewListing = { property ->
@@ -254,6 +291,13 @@ fun AddScreen(
                         selectedProperty = property
                     },
                     onAddAnother = viewModel::onShowAddForm,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Property creation form UI.
+                uiState.isShowingAddForm || startWithAddForm -> AddPropertySteps(
+                    uiState = uiState,
+                    viewModel = viewModel,
                     modifier = Modifier.fillMaxSize()
                 )
 

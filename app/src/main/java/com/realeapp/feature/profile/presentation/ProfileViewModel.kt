@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.core.theme.ThemePreferences
+import com.realeapp.feature.add.data.local.PropertyDraftStore
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
 import com.realeapp.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
@@ -37,7 +38,8 @@ class ProfileViewModel(
     private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
     private val getOnboardingLocationUseCase: GetOnboardingLocationUseCase,
     private val setOnboardingAddressUseCase: SetOnboardingAddressUseCase,
-    private val themePreferences: ThemePreferences
+    private val themePreferences: ThemePreferences,
+    private val draftStore: PropertyDraftStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -71,6 +73,9 @@ class ProfileViewModel(
             },
             onLogout = {
                 Logger.d(TAG, "SessionObserver.onLogout: clearing profile state")
+                // Draft belongs to the logged-out account; drop it so a
+                // different user never resumes someone else's listing.
+                draftStore.clearDraft()
                 _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
             }
         )
@@ -83,7 +88,11 @@ class ProfileViewModel(
             return
         }
 
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            isLoading = true,
+            errorMessage = null,
+            hasDraft = draftStore.hasDraft()
+        )
         viewModelScope.launch {
             when (val result = getUserDetailsUseCase()) {
                 is Result.Success -> {
@@ -92,6 +101,7 @@ class ProfileViewModel(
                         user = result.data,
                         isLoading = false,
                         isLoggedIn = true,
+                        hasDraft = draftStore.hasDraft(),
                         errorMessage = null
                     )
                 }
@@ -108,6 +118,18 @@ class ProfileViewModel(
 
     fun refresh() {
         load()
+    }
+
+    /**
+     * Re-checks the persisted add-property draft. Called when the profile
+     * screen becomes visible again so the "Property Draft" row appears or
+     * disappears after the user leaves or publishes the add form.
+     */
+    fun refreshDraft() {
+        val hasDraft = draftStore.hasDraft()
+        if (_uiState.value.hasDraft != hasDraft) {
+            _uiState.value = _uiState.value.copy(hasDraft = hasDraft)
+        }
     }
 
     fun updateProfileField(field: String, value: String) {

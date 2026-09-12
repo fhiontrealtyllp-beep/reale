@@ -2,6 +2,7 @@ package com.realeapp.feature.add.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.realeapp.feature.add.data.local.PropertyDraftStore
 import com.realeapp.feature.add.data.mapper.toProperty
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.add.domain.usecase.AddPropertyUseCase
@@ -33,7 +34,8 @@ class AddViewModel(
     private val addPropertyUseCase: AddPropertyUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
     private val getMyPropertiesUseCase: GetMyPropertiesUseCase,
-    private val userSession: UserSession
+    private val userSession: UserSession,
+    private val draftStore: PropertyDraftStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddUiState())
@@ -99,10 +101,13 @@ class AddViewModel(
     }
 
     fun onShowAddForm() {
+        // Resume the persisted draft (if any) so a user who closed the app
+        // mid-flow lands on the same step with all fields prefilled.
+        val draft = draftStore.loadDraft()
         _uiState.value = _uiState.value.copy(
             isShowingAddForm = true,
-            currentStep = AddPropertyStep.BASIC_DETAILS,
-            form = PropertyForm(),
+            currentStep = draft?.stepName?.let(::stepFromName) ?: AddPropertyStep.BASIC_DETAILS,
+            form = draft?.form ?: PropertyForm(),
             fieldErrors = emptyList(),
             errorMessage = null,
             successMessage = null,
@@ -128,6 +133,7 @@ class AddViewModel(
             fieldErrors = emptyList(),
             errorMessage = null
         )
+        persistDraft()
     }
 
     /**
@@ -150,6 +156,7 @@ class AddViewModel(
                     fieldErrors = errors,
                     errorMessage = null
                 )
+                persistDraft()
                 return
             }
         }
@@ -170,6 +177,7 @@ class AddViewModel(
             fieldErrors = emptyList(),
             errorMessage = null
         )
+        persistDraft()
     }
 
     fun previousStep() {
@@ -181,6 +189,7 @@ class AddViewModel(
             fieldErrors = emptyList(),
             errorMessage = null
         )
+        persistDraft()
     }
 
     private fun validateStep(step: AddPropertyStep): List<String> {
@@ -430,6 +439,7 @@ class AddViewModel(
                         fieldErrors = emptyList(),
                         myProperties = listOf(newProperty) + _uiState.value.myProperties
                     )
+                    draftStore.clearDraft()
                     _sideEffect.emit(AddStrings.MSG_PROPERTY_ADDED)
                 }
                 is Result.Error -> {
@@ -464,5 +474,44 @@ class AddViewModel(
             fieldErrors = emptyList(),
             errorMessage = null
         )
+        persistDraft()
+    }
+
+    /**
+     * Explicit "Save Draft" action from the form header. The draft is already
+     * auto-persisted on every change; this just confirms it to the user.
+     */
+    fun saveDraft() {
+        val state = _uiState.value
+        draftStore.saveDraft(state.form, state.currentStep.name)
+        viewModelScope.launch {
+            _sideEffect.emit(AddStrings.MSG_DRAFT_SAVED)
+        }
+    }
+
+    /**
+     * Clears the persisted draft and resets the in-memory form. Used when the
+     * user chooses "Discard" on the exit confirmation dialog.
+     */
+    fun discardDraft() {
+        draftStore.clearDraft()
+        _uiState.value = _uiState.value.copy(
+            form = PropertyForm(),
+            currentStep = AddPropertyStep.BASIC_DETAILS,
+            fieldErrors = emptyList(),
+            errorMessage = null
+        )
+    }
+
+    private fun persistDraft() {
+        val state = _uiState.value
+        if (state.isShowingAddForm) {
+            draftStore.saveDraft(state.form, state.currentStep.name)
+        }
+    }
+
+    private fun stepFromName(name: String): AddPropertyStep {
+        return runCatching { AddPropertyStep.valueOf(name) }
+            .getOrDefault(AddPropertyStep.BASIC_DETAILS)
     }
 }

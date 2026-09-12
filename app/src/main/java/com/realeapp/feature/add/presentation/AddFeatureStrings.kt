@@ -88,6 +88,10 @@ internal object AddStrings {
     // Add form header
     const val ACTION_SAVE_DRAFT = "Save Draft"
     const val CD_SAVE_DRAFT = "Save draft"
+    const val ACTION_DISCARD = "Discard"
+    const val DIALOG_SAVE_DRAFT_TITLE = "Save Draft?"
+    const val DIALOG_SAVE_DRAFT_MESSAGE =
+        "Would you like to save this listing as a draft? You can continue it later from your profile."
     const val ADD_FORM_SUBTITLE = "List your property in a few simple steps"
     const val CD_CONTINUE = "Continue"
 
@@ -279,6 +283,7 @@ internal object AddStrings {
     const val ERR_LONGITUDE_INVALID = "Longitude must be a valid number"
     const val ERR_LOGIN_REQUIRED = "Please log in to add a property"
     const val MSG_PROPERTY_ADDED = "Property added successfully"
+    const val MSG_DRAFT_SAVED = "Draft saved"
     const val ACTION_SUBMIT_PROPERTY = "Submit Property"
     const val LOGIN_PROMPT_TITLE = "Please Login to Add a Property"
 

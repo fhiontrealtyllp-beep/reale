@@ -256,7 +256,8 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                         showAddProperty -> AddScreen(
                                             modifier = Modifier.fillMaxSize(),
                                             onLoginClick = { authScreen = AuthScreen.Welcome },
-                                            startWithAddForm = true
+                                            startWithAddForm = true,
+                                            onExitForm = { showAddProperty = false }
                                         )
                                         showMyEnquiries -> MyEnquiriesScreen(
                                             modifier = Modifier.fillMaxSize(),

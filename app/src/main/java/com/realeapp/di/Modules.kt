@@ -19,6 +19,7 @@ import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCityUseCase
 import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCityUseCaseImpl
 import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCompletedUseCase
 import com.realeapp.feature.onboarding.domain.usecase.SetOnboardingCompletedUseCaseImpl
+import com.realeapp.feature.add.data.local.PropertyDraftStore
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSource
 import com.realeapp.feature.add.data.remote.AddPropertyRemoteDataSourceImpl
 import com.realeapp.feature.add.data.repository.AddPropertyRepositoryImpl
@@ -170,7 +171,8 @@ val addModule = module {
     single<AddPropertyUseCase> { AddPropertyUseCaseImpl(get()) }
     single<AddUploadImageUseCase> { AddUploadImageUseCaseImpl(get()) }
     single<GetMyPropertiesUseCase> { GetMyPropertiesUseCaseImpl(get()) }
-    viewModel { AddViewModel(get(), get(), get(), get()) }
+    single { PropertyDraftStore(androidContext()) }
+    viewModel { AddViewModel(get(), get(), get(), get(), get()) }
 }
 
 val profileModule = module {
@@ -180,7 +182,7 @@ val profileModule = module {
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get()) }
 }

@@ -8,6 +8,7 @@ data class ProfileUiState(
     val isImageUploading: Boolean = false,
     val updatingField: String? = null,
     val isLoggedIn: Boolean = false,
+    val hasDraft: Boolean = false,
     val errorMessage: String? = null,
     val updateSuccessMessage: String? = null
 )

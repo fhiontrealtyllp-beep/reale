@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.HelpOutline
@@ -140,6 +141,10 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
+        // Re-check the persisted draft each time this screen is composed so
+        // the "Property Draft" row reflects the latest state (e.g. after the
+        // user publishes or leaves the add form).
+        viewModel.refreshDraft()
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
@@ -229,6 +234,7 @@ fun ProfileScreen(
                 else -> ProfileContent(
                     user = uiState.user,
                     isLoggedIn = uiState.isLoggedIn,
+                    hasDraft = uiState.hasDraft,
                     onLoginClick = onLoginClick,
                     savedAddress = savedAddress,
                     savedCity = savedCity,
@@ -281,6 +287,7 @@ private data class ProfileMenuItem(
 private fun ProfileContent(
     user: User?,
     isLoggedIn: Boolean,
+    hasDraft: Boolean,
     onLoginClick: () -> Unit,
     savedAddress: String,
     savedCity: String,
@@ -306,25 +313,40 @@ private fun ProfileContent(
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
 
     val activityItems = if (isLoggedIn) {
-        listOf(
-            ProfileMenuItem(
-                icon = Icons.Outlined.Home,
-                title = ProfileStrings.MY_LISTINGS,
-                subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
-                contentDescription = ProfileStrings.MY_LISTINGS,
-                onClick = {
-                    Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
-                    onMyListingsClick()
-                }
-            ),
-            ProfileMenuItem(
-                icon = Icons.Outlined.Description,
-                title = ProfileStrings.MY_ENQUIRIES,
-                subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
-                contentDescription = ProfileStrings.MY_ENQUIRIES,
-                onClick = onMyEnquiriesClick
+        buildList {
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Home,
+                    title = ProfileStrings.MY_LISTINGS,
+                    subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
+                    contentDescription = ProfileStrings.MY_LISTINGS,
+                    onClick = {
+                        Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
+                        onMyListingsClick()
+                    }
+                )
             )
-        )
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Description,
+                    title = ProfileStrings.MY_ENQUIRIES,
+                    subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
+                    contentDescription = ProfileStrings.MY_ENQUIRIES,
+                    onClick = onMyEnquiriesClick
+                )
+            )
+            if (hasDraft) {
+                add(
+                    ProfileMenuItem(
+                        icon = Icons.Outlined.BookmarkBorder,
+                        title = ProfileStrings.PROPERTY_DRAFT,
+                        subtitle = ProfileStrings.PROPERTY_DRAFT_SUBTITLE,
+                        contentDescription = ProfileStrings.CD_PROPERTY_DRAFT,
+                        onClick = onListPropertyClick
+                    )
+                )
+            }
+        }
     } else {
         emptyList()
     }
@@ -1401,6 +1423,7 @@ private fun ProfileContentPreview() {
         ProfileContent(
             user = PreviewData.sampleUser,
             isLoggedIn = true,
+            hasDraft = true,
             onLoginClick = {},
             savedAddress = "",
             savedCity = "",
@@ -1430,6 +1453,7 @@ private fun ProfileContentGuestPreview() {
         ProfileContent(
             user = null,
             isLoggedIn = false,
+            hasDraft = false,
             onLoginClick = {},
             savedAddress = "",
             savedCity = "Porvorim",
