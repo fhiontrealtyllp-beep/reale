@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -116,12 +118,18 @@ internal fun AddPropertyStep1Screen(
 
         Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
             Step1FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
+            // Segmented toggle: gray track with the selected half filled.
+            // For Rent is selected by default (PropertyForm.rentBuy = RENT).
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(AddDims.LISTING_BUTTON_SPACING)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(AddDims.LISTING_BUTTON_HEIGHT)
+                    .clip(CircleShape)
+                    .background(HomeCategoryUnselected)
+                    .padding(AddDims.LISTING_TOGGLE_INNER_PADDING)
             ) {
                 STEP1_LISTING_TYPES.forEach { rentBuy ->
-                    ListingTypeButton(
+                    ListingTypeSegment(
                         rentBuy = rentBuy,
                         isSelected = form.rentBuy == rentBuy,
                         onClick = { onRentBuyChanged(rentBuy) },
@@ -355,8 +363,10 @@ private fun PropertyTypeCard(
     }
 }
 
+// One half of the listing-type toggle; the selected segment is filled
+// with BrandBlue so the active choice reads like a switch position.
 @Composable
-private fun ListingTypeButton(
+private fun ListingTypeSegment(
     rentBuy: RentBuy,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -367,14 +377,9 @@ private fun ListingTypeButton(
 
     Row(
         modifier = modifier
-            .height(AddDims.LISTING_BUTTON_HEIGHT)
-            .clip(RoundedCornerShape(AddDims.LISTING_BUTTON_CORNER_RADIUS))
-            .background(if (isSelected) BrandBlue.copy(alpha = 0.08f) else White)
-            .border(
-                width = if (isSelected) AddDims.LISTING_BUTTON_SELECTED_BORDER_WIDTH else AddDims.LISTING_BUTTON_BORDER_WIDTH,
-                color = if (isSelected) BrandBlue else HomeSearchBarBorder,
-                shape = RoundedCornerShape(AddDims.LISTING_BUTTON_CORNER_RADIUS)
-            )
+            .fillMaxHeight()
+            .clip(CircleShape)
+            .background(if (isSelected) BrandBlue else Color.Transparent)
             .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -382,13 +387,13 @@ private fun ListingTypeButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (isSelected) BrandBlue else HomeTextSecondary,
+            tint = if (isSelected) White else HomeTextSecondary,
             modifier = Modifier.size(AddDims.LISTING_BUTTON_ICON_SIZE)
         )
         Spacer(modifier = Modifier.width(AddDims.LISTING_BUTTON_ICON_TEXT_SPACING))
         Text(
             text = label,
-            color = if (isSelected) BrandBlue else Black,
+            color = if (isSelected) White else HomeTextSecondary,
             fontSize = AddDims.LISTING_BUTTON_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )
