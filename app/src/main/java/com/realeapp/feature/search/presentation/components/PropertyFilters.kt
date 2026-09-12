@@ -85,6 +85,8 @@ fun PropertyFilters(
     filter: PropertyFilter,
     onFilterChange: (PropertyFilter) -> Unit,
     locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
+    citySuggestionsProvider: suspend (String) -> List<String> = { _ -> emptyList() },
+    localitySuggestionsProvider: suspend (String, String) -> List<String> = { _, _ -> emptyList() },
     modifier: Modifier = Modifier
 ) {
     var showCityDialog by remember { mutableStateOf(false) }
@@ -208,20 +210,16 @@ fun PropertyFilters(
     }
 
     if (showCityDialog) {
-        val cityProvider: suspend (String) -> List<LocationSuggestion> = { query ->
-            locationSuggestionsProvider(query)
-                .map { it.copy(secondaryText = "", fullText = it.primaryText) }
-                .distinctBy { suggestion -> suggestion.fullText.lowercase() }
-        }
-
-        LocationSelectionDialog(
+        ChipSelectionDialog(
             title = SearchStrings.FILTER_CITY,
-            initialQuery = filter.city.orEmpty(),
-            suggestionProvider = cityProvider,
-            onSuggestionSelected = { suggestion ->
+            searchHint = SearchStrings.DIALOG_SEARCH_CITY_HINT,
+            initialQuery = "",
+            selectedValue = filter.city,
+            chipProvider = citySuggestionsProvider,
+            onChipSelected = { city ->
                 onFilterChange(
                     filter.copy(
-                        city = suggestion.primaryText,
+                        city = city,
                         cityLatLng = null,
                         localities = emptyList(),
                         pincode = null
@@ -233,31 +231,17 @@ fun PropertyFilters(
     }
 
     if (showLocalityDialog) {
-        val localityProvider: suspend (String) -> List<LocationSuggestion> = { query ->
-            locationSuggestionsProvider(query)
-                .mapNotNull { suggestion ->
-                    val city = suggestion.primaryText
-                    val locality = suggestion.secondaryText.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                    if (filter.city != null && !city.equals(filter.city, ignoreCase = true)) return@mapNotNull null
-                    suggestion.copy(
-                        primaryText = locality,
-                        secondaryText = city,
-                        fullText = "$locality, $city"
-                    )
-                }
-                .distinctBy { suggestion -> suggestion.fullText.lowercase() }
-        }
-
-        LocationSelectionDialog(
+        val selectedCity = filter.city.orEmpty()
+        ChipSelectionDialog(
             title = SearchStrings.FILTER_LOCALITY,
-            initialQuery = filter.localities.firstOrNull().orEmpty(),
-            suggestionProvider = localityProvider,
-            onSuggestionSelected = { suggestion ->
+            searchHint = SearchStrings.DIALOG_SEARCH_LOCALITY_HINT,
+            initialQuery = "",
+            selectedValue = filter.localities.firstOrNull(),
+            chipProvider = { query -> localitySuggestionsProvider(selectedCity, query) },
+            onChipSelected = { locality ->
                 onFilterChange(
                     filter.copy(
-                        city = suggestion.secondaryText.takeIf { it.isNotBlank() } ?: filter.city,
-                        cityLatLng = null,
-                        localities = listOf(suggestion.primaryText),
+                        localities = listOf(locality),
                         pincode = null
                     )
                 )
@@ -374,7 +358,9 @@ private fun PropertyFiltersPreview() {
                 propertyType = PropertyType.APARTMENT
             ),
             onFilterChange = {},
-            locationSuggestionsProvider = { _ -> emptyList() }
+            locationSuggestionsProvider = { _ -> emptyList() },
+            citySuggestionsProvider = { _ -> emptyList() },
+            localitySuggestionsProvider = { _, _ -> emptyList() }
         )
     }
 }

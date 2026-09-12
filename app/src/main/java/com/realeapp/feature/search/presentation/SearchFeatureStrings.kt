@@ -69,6 +69,8 @@ internal object SearchStrings {
     const val FILTER_SELECT_CITY = "Select city"
     const val FILTER_SELECT_LOCALITY = "Select locality"
     const val DIALOG_CANCEL = "Cancel"
+    const val DIALOG_SEARCH_CITY_HINT = "Search city"
+    const val DIALOG_SEARCH_LOCALITY_HINT = "Search locality"
 
     const val BTN_SEARCH_PROPERTIES = "Search Properties"
     const val RETRY = "Retry"
@@ -157,6 +159,12 @@ internal object SearchDims {
     val RESULTS_LIST_BOTTOM_PADDING = 80.dp
 
     const val SELECTED_ICON_OVERLAY_ALPHA = 0.2f
+
+    val CHIP_DIALOG_MAX_HEIGHT = 300.dp
+    val CHIP_DIALOG_CHIP_SPACING = 8.dp
+    val CHIP_DIALOG_SECTION_SPACING = 12.dp
+    val CHIP_DIALOG_SEARCH_HEIGHT = 48.dp
+    val CHIP_DIALOG_SEARCH_CORNER_RADIUS = 24.dp
 }
 
 /**

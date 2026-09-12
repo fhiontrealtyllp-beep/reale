@@ -134,7 +134,8 @@ class AddPropertyRemoteDataSourceImpl(
                                 ref,
                                 hashMapOf<String, Any>(
                                     FirebaseConstants.UNIQUE_ID_FIELD to localityDocId,
-                                    FirebaseConstants.LOCALITY_NAME_FIELD to locality.orEmpty()
+                                    FirebaseConstants.LOCALITY_NAME_FIELD to locality.orEmpty(),
+                                    FirebaseConstants.LOCALITY_CITY_FIELD to city.orEmpty()
                                 )
                             )
                             Logger.d(TAG, "$TICK locality doc $localityDocId created in transaction")

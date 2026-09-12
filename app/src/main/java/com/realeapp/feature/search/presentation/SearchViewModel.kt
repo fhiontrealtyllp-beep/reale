@@ -12,6 +12,7 @@ import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.domain.usecase.GetAllPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
+import com.realeapp.feature.search.domain.repository.LocationSuggestionRepository
 import com.realeapp.feature.search.domain.usecase.GetLocationSuggestionsUseCase
 import com.realeapp.feature.search.domain.usecase.GetPromotionalPropertiesUseCase
 import com.realeapp.feature.search.domain.usecase.UpdatePropertyLikeUseCase
@@ -45,7 +46,8 @@ class SearchViewModel(
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
     private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
     private val userSession: UserSession,
-    private val likeStateManager: LikeStateManager = LikeStateManager
+    private val likeStateManager: LikeStateManager = LikeStateManager,
+    private val locationSuggestionRepository: LocationSuggestionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -258,6 +260,26 @@ class SearchViewModel(
             is Result.Success -> result.data
             is Result.Error -> {
                 Logger.e(TAG, "getSuggestions: ${result.message}")
+                emptyList()
+            }
+        }
+    }
+
+    suspend fun getCitySuggestions(query: String): List<String> = withContext(Dispatchers.IO) {
+        when (val result = locationSuggestionRepository.getCities(query)) {
+            is Result.Success -> result.data
+            is Result.Error -> {
+                Logger.e(TAG, "getCitySuggestions: ${result.message}")
+                emptyList()
+            }
+        }
+    }
+
+    suspend fun getLocalitySuggestions(city: String, query: String): List<String> = withContext(Dispatchers.IO) {
+        when (val result = locationSuggestionRepository.getLocalities(city, query)) {
+            is Result.Success -> result.data
+            is Result.Error -> {
+                Logger.e(TAG, "getLocalitySuggestions: ${result.message}")
                 emptyList()
             }
         }

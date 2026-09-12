@@ -165,6 +165,8 @@ fun SearchScreen(
                 onQueryChange = viewModel::onSearchQueryChanged,
                 onSuggestionSelected = viewModel::onSuggestionSelected,
                 locationSuggestionsProvider = viewModel::getSuggestions,
+                citySuggestionsProvider = viewModel::getCitySuggestions,
+                localitySuggestionsProvider = viewModel::getLocalitySuggestions,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -230,6 +232,8 @@ private fun SearchLandingContent(
     onQueryChange: (String) -> Unit,
     onSuggestionSelected: (LocationSuggestion) -> Unit,
     locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
+    citySuggestionsProvider: suspend (String) -> List<String> = { _ -> emptyList() },
+    localitySuggestionsProvider: suspend (String, String) -> List<String> = { _, _ -> emptyList() },
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -302,6 +306,8 @@ private fun SearchLandingContent(
                 filter = filter,
                 onFilterChange = onFilterChange,
                 locationSuggestionsProvider = locationSuggestionsProvider,
+                citySuggestionsProvider = citySuggestionsProvider,
+                localitySuggestionsProvider = localitySuggestionsProvider,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
             )
         }
@@ -319,7 +325,9 @@ private fun SearchLandingContentPreview() {
             onFilterChange = {},
             onQueryChange = {},
             onSuggestionSelected = {},
-            locationSuggestionsProvider = { _ -> emptyList() }
+            locationSuggestionsProvider = { _ -> emptyList() },
+            citySuggestionsProvider = { _ -> emptyList() },
+            localitySuggestionsProvider = { _, _ -> emptyList() }
         )
     }
 }

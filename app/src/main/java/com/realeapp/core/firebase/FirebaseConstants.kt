@@ -14,4 +14,5 @@ object FirebaseConstants {
     const val UNIQUE_ID_FIELD = "id"
     const val CITY_NAME_FIELD = "city"
     const val LOCALITY_NAME_FIELD = "locality"
+    const val LOCALITY_CITY_FIELD = "city"
 }

@@ -153,7 +153,7 @@ val searchModule = module {
     single<GetMyEnquiriesUseCase> { GetMyEnquiriesUseCaseImpl(get()) }
     single<GetEnquiriesByPropertyUseCase> { GetEnquiriesByPropertyUseCaseImpl(get()) }
     single<GetEnquiryCountsForPropertiesUseCase> { GetEnquiryCountsForPropertiesUseCaseImpl(get()) }
-    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
 }
 
