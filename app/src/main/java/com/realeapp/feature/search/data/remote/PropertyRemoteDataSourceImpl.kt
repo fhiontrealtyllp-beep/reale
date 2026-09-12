@@ -29,8 +29,13 @@ class PropertyRemoteDataSourceImpl(
     ): Result<List<Property>> {
         Logger.d(TAG, "getAllProperties: start page=$page, limit=$limit, filter=$filter")
         return try {
-            val snapshot = properties
+            val city = filter?.normalizedCity?.takeIf { it.isNotBlank() }
+            var query: com.google.firebase.firestore.Query = properties
                 .whereEqualTo("status", "live")
+            if (city != null) {
+                query = query.whereEqualTo("city", city)
+            }
+            val snapshot = query
                 .limit(BATCH_LIMIT)
                 .get()
                 .await()
@@ -81,7 +86,8 @@ class PropertyRemoteDataSourceImpl(
         return try {
             val snapshot = properties
                 .whereEqualTo("status", "live")
-                .limit(BATCH_LIMIT)
+                .whereEqualTo("listingCategory", category.name)
+                .limit(limit.toLong())
                 .get()
                 .await()
 
@@ -90,9 +96,7 @@ class PropertyRemoteDataSourceImpl(
                 PropertyMapper.fromMap(data, doc.id)
             }.sortedByDescending { it.createdAt }
 
-            val filtered = all
-                .filter { it.listingCategory == category }
-                .take(limit)
+            val filtered = all.take(limit)
 
             Logger.d(TAG, "getByCategory: category=$category received=${all.size}, filtered=${filtered.size}")
             val userId = userSession.getUserId()
@@ -123,7 +127,7 @@ class PropertyRemoteDataSourceImpl(
                 val existing = firestore.collection(FirebaseConstants.LIKES_COLLECTION)
                     .whereEqualTo("userId", userId)
                     .whereEqualTo("propertyId", propertyId)
-                    .limit(1)
+                    .limit(1L)
                     .get()
                     .await()
                     .documents
