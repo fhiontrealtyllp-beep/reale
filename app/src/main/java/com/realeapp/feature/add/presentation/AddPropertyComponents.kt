@@ -85,29 +85,6 @@ import com.realeapp.ui.theme.White
 import java.io.ByteArrayOutputStream
 
 @Composable
-internal fun StepHeader(
-    step: AddPropertyStep,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(AddDims.STEP_TITLE_SUBTITLE_SPACING)
-    ) {
-        Text(
-            text = step.shortLabel,
-            color = Black,
-            fontSize = AddDims.STEP_TITLE_FONT_SIZE,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = step.subtitle,
-            color = HomeTextSecondary,
-            fontSize = AddDims.STEP_SUBTITLE_FONT_SIZE
-        )
-    }
-}
-
-@Composable
 internal fun StepIndicator(
     steps: List<AddPropertyStep>,
     currentStep: AddPropertyStep,

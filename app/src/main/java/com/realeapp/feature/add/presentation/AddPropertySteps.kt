@@ -103,8 +103,6 @@ fun AddPropertySteps(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            StepHeader(step = uiState.currentStep)
-
             when (uiState.currentStep) {
                 AddPropertyStep.BASIC_DETAILS -> AddPropertyStep1Screen(
                     form = form,

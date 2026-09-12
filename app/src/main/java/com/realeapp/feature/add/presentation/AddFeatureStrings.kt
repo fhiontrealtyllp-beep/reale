@@ -9,18 +9,6 @@ import androidx.compose.ui.unit.sp
  */
 internal object AddStrings {
 
-    // Step titles & subtitles
-    const val STEP1_TITLE = "1. Basic Details"
-    const val STEP1_SUBTITLE = "Tell us about your property"
-    const val STEP2_TITLE = "2. Property Details"
-    const val STEP2_SUBTITLE = "Add key details about your property"
-    const val STEP3_TITLE = "3. Photos & Media"
-    const val STEP3_SUBTITLE = "Showcase your property with high-quality photos"
-    const val STEP4_TITLE = "4. Pricing"
-    const val STEP4_SUBTITLE = "Set the price and availability details"
-    const val STEP5_TITLE = "5. Review & Publish"
-    const val STEP5_SUBTITLE = "Please check all details before publishing"
-
     // Navigation
     const val ACTION_BACK = "Back"
     const val ACTION_CONTINUE = "Continue"
@@ -331,10 +319,6 @@ internal object AddDims {
     val STEP_LABEL_FONT_SIZE = 10.sp
     val STEP_LABEL_TOP_SPACING = 4.dp
     val STEP_CONNECTOR_HEIGHT = 2.dp
-
-    val STEP_TITLE_FONT_SIZE = 18.sp
-    val STEP_SUBTITLE_FONT_SIZE = 13.sp
-    val STEP_TITLE_SUBTITLE_SPACING = 2.dp
 
     val FIELD_LABEL_FONT_SIZE = 14.sp
     val FIELD_CORNER_RADIUS = 12.dp
