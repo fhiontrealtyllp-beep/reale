@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,12 @@ fun AddPropertySteps(
     var showLocationPicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
     val imageLaunchers = rememberImageLaunchers(viewModel::uploadImages)
+    val scrollState = rememberScrollState()
+
+    // Reset scroll to top whenever the step changes so the first field is visible.
+    LaunchedEffect(uiState.currentStep) {
+        scrollState.scrollTo(0)
+    }
 
     if (showImageSourceDialog) {
         ImageSourceDialog(
@@ -94,7 +101,7 @@ fun AddPropertySteps(
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(horizontal = AddDims.SCREEN_PADDING, vertical = AddDims.SCREEN_PADDING)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(AddDims.SECTION_SPACING)
         ) {
             StepIndicator(
