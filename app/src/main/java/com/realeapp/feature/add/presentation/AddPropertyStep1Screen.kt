@@ -63,8 +63,8 @@ private val STEP1_PROPERTY_TYPES = listOf(
     PropertyType.INDEPENDENT_HOUSE
 )
 
-// Listing type order in the design: For Sale first, For Rent second.
-private val STEP1_LISTING_TYPES = listOf(RentBuy.BUY, RentBuy.RENT)
+// Listing type order: For Rent first (default selected), For Sale second.
+private val STEP1_LISTING_TYPES = listOf(RentBuy.RENT, RentBuy.BUY)
 
 @Composable
 internal fun AddPropertyStep1Screen(

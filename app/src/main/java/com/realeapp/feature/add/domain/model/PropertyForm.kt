@@ -13,9 +13,9 @@ import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 
 data class PropertyForm(
-    val rentBuy: RentBuy? = null,
-    val residentialCommercial: ResidentialCommercial? = null,
-    val propertyType: PropertyType? = null,
+    val rentBuy: RentBuy? = RentBuy.RENT,
+    val residentialCommercial: ResidentialCommercial? = ResidentialCommercial.RESIDENTIAL,
+    val propertyType: PropertyType? = PropertyType.APARTMENT,
     val bedroomType: BedroomType? = null,
     val title: String = "",
     val description: String = "",

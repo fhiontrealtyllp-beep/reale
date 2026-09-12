@@ -31,6 +31,7 @@ internal fun AddPropertyStep4Screen(
             value = form.price,
             onValueChange = onPriceChanged,
             label = AddStrings.LABEL_PRICE,
+            isRequired = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
