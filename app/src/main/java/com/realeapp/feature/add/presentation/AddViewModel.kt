@@ -130,6 +130,32 @@ class AddViewModel(
         )
     }
 
+    /**
+     * Step-indicator tap: backward navigation is free; forward navigation
+     * validates each intermediate step and stops at the first failing one.
+     */
+    fun onStepClicked(target: AddPropertyStep) {
+        val current = _uiState.value
+        if (target == current.currentStep) return
+        if (target.index < current.currentStep.index) {
+            goToStep(target)
+            return
+        }
+        for (i in current.currentStep.index until target.index) {
+            val step = AddPropertyStep.fromIndex(i)
+            val errors = validateStep(step)
+            if (errors.isNotEmpty()) {
+                _uiState.value = _uiState.value.copy(
+                    currentStep = step,
+                    fieldErrors = errors,
+                    errorMessage = null
+                )
+                return
+            }
+        }
+        goToStep(target)
+    }
+
     fun nextStep() {
         val current = _uiState.value
         val step = current.currentStep

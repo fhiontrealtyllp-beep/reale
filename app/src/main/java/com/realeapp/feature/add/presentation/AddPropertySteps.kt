@@ -107,6 +107,7 @@ fun AddPropertySteps(
             StepIndicator(
                 steps = AddPropertyStep.all,
                 currentStep = uiState.currentStep,
+                onStepClick = viewModel::onStepClicked,
                 modifier = Modifier.fillMaxWidth()
             )
 

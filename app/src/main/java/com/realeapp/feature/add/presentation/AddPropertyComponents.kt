@@ -90,6 +90,7 @@ import java.io.ByteArrayOutputStream
 internal fun StepIndicator(
     steps: List<AddPropertyStep>,
     currentStep: AddPropertyStep,
+    onStepClick: (AddPropertyStep) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Each step column draws half-connector lines on both sides of its circle so
@@ -133,6 +134,7 @@ internal fun StepIndicator(
                             .size(AddDims.STEP_CIRCLE_SIZE)
                             .clip(CircleShape)
                             .background(if (isReached) BrandBlue else White)
+                            .clickable { onStepClick(step) }
                             .then(
                                 if (isReached) {
                                     Modifier
@@ -729,6 +731,7 @@ private fun StepIndicatorPreview() {
         StepIndicator(
             steps = AddPropertyStep.all,
             currentStep = AddPropertyStep.PHOTOS_MEDIA,
+            onStepClick = {},
             modifier = Modifier.padding(16.dp)
         )
     }
