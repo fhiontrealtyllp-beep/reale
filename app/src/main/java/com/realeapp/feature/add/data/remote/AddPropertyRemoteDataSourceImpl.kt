@@ -78,12 +78,81 @@ class AddPropertyRemoteDataSourceImpl(
                 "agentPhone" to form.agentPhone.trim()
             )
 
-            docRef.set(data).await()
+            val city = LocationNormalizer.normalizeCity(form.city)
+            val locality = LocationNormalizer.normalizeLocality(form.locality)
+            val cityDocId = city?.let { safeDocumentId(it) }.orEmpty()
+            val localityDocId = locality?.let { safeDocumentId(it) }.orEmpty()
+            val cityDocRef = if (cityDocId.isNotBlank()) {
+                firestore
+                    .collection(FirebaseConstants.CITIES_COLLECTION)
+                    .document(cityDocId)
+            } else null
+            val localityDocRef = if (localityDocId.isNotBlank()) {
+                firestore
+                    .collection(FirebaseConstants.LOCALITIES_COLLECTION)
+                    .document(localityDocId)
+            } else null
 
-            Logger.d(TAG, "$TICK addProperty() succeeded: documentId=$documentId for user: $userId")
+            Logger.d(TAG, "$ARROW cities----$cityDocId-----${city.orEmpty()}")
+            Logger.d(TAG, "$ARROW localities----$localityDocId-----${locality.orEmpty()}")
+
+            if (cityDocRef == null && localityDocRef == null) {
+                Logger.d(TAG, "$ARROW no city/locality docs to create, writing property only")
+                docRef.set(data).await()
+            } else {
+                Logger.d(TAG, "$ARROW starting transaction for property $documentId")
+                firestore.runTransaction { transaction ->
+                    val citySnap = cityDocRef?.let { ref ->
+                        Logger.d(TAG, "$ARROW checking city doc $cityDocId in transaction")
+                        transaction.get(ref)
+                    }
+                    val localitySnap = localityDocRef?.let { ref ->
+                        Logger.d(TAG, "$ARROW checking locality doc $localityDocId in transaction")
+                        transaction.get(ref)
+                    }
+
+                    cityDocRef?.let { ref ->
+                        if (citySnap?.exists() == false) {
+                            Logger.d(TAG, "$ARROW city doc $cityDocId does not exist, creating")
+                            transaction.set(
+                                ref,
+                                hashMapOf<String, Any>(
+                                    FirebaseConstants.UNIQUE_ID_FIELD to cityDocId,
+                                    FirebaseConstants.CITY_NAME_FIELD to city.orEmpty()
+                                )
+                            )
+                            Logger.d(TAG, "$TICK city doc $cityDocId created in transaction")
+                        } else {
+                            Logger.d(TAG, "$ARROW city doc $cityDocId already exists")
+                        }
+                    }
+
+                    localityDocRef?.let { ref ->
+                        if (localitySnap?.exists() == false) {
+                            Logger.d(TAG, "$ARROW locality doc $localityDocId does not exist, creating")
+                            transaction.set(
+                                ref,
+                                hashMapOf<String, Any>(
+                                    FirebaseConstants.UNIQUE_ID_FIELD to localityDocId,
+                                    FirebaseConstants.LOCALITY_NAME_FIELD to locality.orEmpty()
+                                )
+                            )
+                            Logger.d(TAG, "$TICK locality doc $localityDocId created in transaction")
+                        } else {
+                            Logger.d(TAG, "$ARROW locality doc $localityDocId already exists")
+                        }
+                    }
+
+                    Logger.d(TAG, "$ARROW writing property doc $documentId in transaction")
+                    transaction.set(docRef, data)
+                    documentId
+                }.await()
+            }
+
+            Logger.d(TAG, "$TICK addProperty() succeeded: documentId=$documentId for user: $userId, city=$city, locality=$locality")
             Result.Success(documentId)
         } catch (e: Exception) {
-            Logger.e(TAG, "$CROSS addProperty() failed: ${e.message}")
+            Logger.e(TAG, "$CROSS addProperty() failed", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
@@ -152,6 +221,15 @@ class AddPropertyRemoteDataSourceImpl(
             Logger.e(TAG, "$CROSS getMyProperties() failed: ${e.message}")
             Result.Error("Unexpected error: ${e.message}")
         }
+    }
+
+    private fun safeDocumentId(value: String): String {
+        val slug = value
+            .replace(Regex("[^\\p{L}\\p{N}\\s]+"), " ")
+            .replace(Regex("\\s+"), "-")
+            .trim('-', '.', ' ')
+            .lowercase()
+        return if (slug.isBlank() || slug == "." || slug == "..") "" else slug
     }
 
     private fun currentTimestamp(): String {

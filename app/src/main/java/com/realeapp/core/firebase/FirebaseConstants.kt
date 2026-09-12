@@ -8,4 +8,10 @@ object FirebaseConstants {
 
     const val PROPERTY_IMAGES_PATH = "property_images"
     const val PROFILE_IMAGES_PATH = "profile_images"
+
+    const val CITIES_COLLECTION = "cities"
+    const val LOCALITIES_COLLECTION = "localities"
+    const val UNIQUE_ID_FIELD = "id"
+    const val CITY_NAME_FIELD = "city"
+    const val LOCALITY_NAME_FIELD = "locality"
 }
