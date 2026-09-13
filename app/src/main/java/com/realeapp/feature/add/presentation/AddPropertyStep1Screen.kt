@@ -20,11 +20,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.House
-import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material.icons.outlined.Villa
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -398,13 +396,12 @@ private fun ListingTypeSegment(
     modifier: Modifier = Modifier
 ) {
     val label = if (rentBuy == RentBuy.BUY) AddStrings.LISTING_FOR_SALE else AddStrings.LISTING_FOR_RENT
-    val icon = if (rentBuy == RentBuy.BUY) Icons.Outlined.Sell else Icons.Outlined.Key
 
     CapsuleToggleSegment(
         label = label,
         isSelected = isSelected,
         onClick = onClick,
-        icon = icon,
+        icon = null,
         modifier = modifier
     )
 }

@@ -18,8 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.outlined.Key
-import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Icon
@@ -377,14 +375,12 @@ private fun ListingTypeToggle(
                 label = RentBuy.RENT.label,
                 isSelected = selected == RentBuy.RENT,
                 onClick = { onSelected(RentBuy.RENT) },
-                icon = Icons.Outlined.Key,
                 modifier = Modifier.weight(1f)
             )
             CapsuleToggleSegment(
                 label = RentBuy.BUY.label,
                 isSelected = selected == RentBuy.BUY,
                 onClick = { onSelected(RentBuy.BUY) },
-                icon = Icons.Outlined.Sell,
                 modifier = Modifier.weight(1f)
             )
         }
