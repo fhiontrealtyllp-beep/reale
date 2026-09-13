@@ -21,6 +21,7 @@ internal object AddStrings {
     const val LABEL_TITLE = "Title"
     const val LABEL_PROPERTY_TYPE = "Property Type"
     const val LABEL_LISTING_TYPE = "Listing Type"
+    const val LABEL_RESIDENTIAL_COMMERCIAL = "Residential / Commercial"
     const val LABEL_LOCATION = "Location"
     const val LABEL_CITY = "City"
     const val LABEL_LOCALITY = "Locality"

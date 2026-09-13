@@ -130,6 +130,7 @@ fun AddPropertySteps(
                 AddPropertyStep.BASIC_DETAILS -> AddPropertyStep1Screen(
                     form = form,
                     onRentBuyChanged = viewModel::onRentBuyChanged,
+                    onResidentialCommercialChanged = viewModel::onResidentialCommercialChanged,
                     onPropertyTypeChanged = viewModel::onPropertyTypeChanged,
                     onTitleChanged = viewModel::onTitleChanged,
                     onDescriptionChanged = viewModel::onDescriptionChanged,

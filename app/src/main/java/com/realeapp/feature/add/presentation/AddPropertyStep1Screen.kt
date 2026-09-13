@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
+import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandRed
@@ -72,6 +73,7 @@ private val STEP1_LISTING_TYPES = listOf(RentBuy.RENT, RentBuy.BUY)
 internal fun AddPropertyStep1Screen(
     form: PropertyForm,
     onRentBuyChanged: (RentBuy) -> Unit,
+    onResidentialCommercialChanged: (ResidentialCommercial) -> Unit,
     onPropertyTypeChanged: (PropertyType) -> Unit,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
@@ -86,6 +88,52 @@ internal fun AddPropertyStep1Screen(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(AddDims.SECTION_SPACING)
     ) {
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(AddDims.LISTING_BUTTON_HEIGHT)
+                    .clip(CircleShape)
+                    .background(HomeCategoryUnselected)
+                    .padding(AddDims.LISTING_TOGGLE_INNER_PADDING)
+            ) {
+                STEP1_LISTING_TYPES.forEach { rentBuy ->
+                    ListingTypeSegment(
+                        rentBuy = rentBuy,
+                        isSelected = form.rentBuy == rentBuy,
+                        onClick = { onRentBuyChanged(rentBuy) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
+            Step1FieldLabel(text = AddStrings.LABEL_RESIDENTIAL_COMMERCIAL, isRequired = true)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(AddDims.LISTING_BUTTON_HEIGHT)
+                    .clip(CircleShape)
+                    .background(HomeCategoryUnselected)
+                    .padding(AddDims.LISTING_TOGGLE_INNER_PADDING)
+            ) {
+                ResidentialCommercialSegment(
+                    label = ResidentialCommercial.RESIDENTIAL.label,
+                    isSelected = form.residentialCommercial == ResidentialCommercial.RESIDENTIAL,
+                    onClick = { onResidentialCommercialChanged(ResidentialCommercial.RESIDENTIAL) },
+                    modifier = Modifier.weight(1f)
+                )
+                ResidentialCommercialSegment(
+                    label = ResidentialCommercial.COMMERCIAL.label,
+                    isSelected = form.residentialCommercial == ResidentialCommercial.COMMERCIAL,
+                    onClick = { onResidentialCommercialChanged(ResidentialCommercial.COMMERCIAL) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
         Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
             Step1FieldLabel(text = AddStrings.LABEL_PROPERTY_TITLE, isRequired = true)
             Step1Field(
@@ -110,29 +158,6 @@ internal fun AddPropertyStep1Screen(
                         propertyType = propertyType,
                         isSelected = form.propertyType == propertyType,
                         onClick = { onPropertyTypeChanged(propertyType) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
-            Step1FieldLabel(text = AddStrings.LABEL_LISTING_TYPE, isRequired = true)
-            // Segmented toggle: gray track with the selected half filled.
-            // For Rent is selected by default (PropertyForm.rentBuy = RENT).
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(AddDims.LISTING_BUTTON_HEIGHT)
-                    .clip(CircleShape)
-                    .background(HomeCategoryUnselected)
-                    .padding(AddDims.LISTING_TOGGLE_INNER_PADDING)
-            ) {
-                STEP1_LISTING_TYPES.forEach { rentBuy ->
-                    ListingTypeSegment(
-                        rentBuy = rentBuy,
-                        isSelected = form.rentBuy == rentBuy,
-                        onClick = { onRentBuyChanged(rentBuy) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -375,6 +400,40 @@ private fun ListingTypeSegment(
     val label = if (rentBuy == RentBuy.BUY) AddStrings.LISTING_FOR_SALE else AddStrings.LISTING_FOR_RENT
     val icon = if (rentBuy == RentBuy.BUY) Icons.Outlined.Sell else Icons.Outlined.Key
 
+    CapsuleToggleSegment(
+        label = label,
+        isSelected = isSelected,
+        onClick = onClick,
+        icon = icon,
+        modifier = modifier
+    )
+}
+
+// One half of the residential/commercial toggle; mirrors the Rent/Buy capsule.
+@Composable
+private fun ResidentialCommercialSegment(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CapsuleToggleSegment(
+        label = label,
+        isSelected = isSelected,
+        onClick = onClick,
+        icon = null,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun CapsuleToggleSegment(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null
+) {
     Row(
         modifier = modifier
             .fillMaxHeight()
@@ -384,13 +443,15 @@ private fun ListingTypeSegment(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (isSelected) White else HomeTextSecondary,
-            modifier = Modifier.size(AddDims.LISTING_BUTTON_ICON_SIZE)
-        )
-        Spacer(modifier = Modifier.width(AddDims.LISTING_BUTTON_ICON_TEXT_SPACING))
+        icon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = null,
+                tint = if (isSelected) White else HomeTextSecondary,
+                modifier = Modifier.size(AddDims.LISTING_BUTTON_ICON_SIZE)
+            )
+            Spacer(modifier = Modifier.width(AddDims.LISTING_BUTTON_ICON_TEXT_SPACING))
+        }
         Text(
             text = label,
             color = if (isSelected) White else HomeTextSecondary,
@@ -418,6 +479,7 @@ private fun AddPropertyStep1ScreenPreview() {
         AddPropertyStep1Screen(
             form = PreviewData.samplePropertyForm,
             onRentBuyChanged = {},
+            onResidentialCommercialChanged = {},
             onPropertyTypeChanged = {},
             onTitleChanged = {},
             onDescriptionChanged = {},
