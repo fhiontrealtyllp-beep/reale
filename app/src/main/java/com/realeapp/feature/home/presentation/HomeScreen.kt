@@ -239,7 +239,7 @@ private fun HomeContentPreview() {
         HomeContent(
             featuredProperties = PreviewData.sampleProperties,
             promotionalProperty = PreviewData.sampleProperties.firstOrNull(),
-            selectedCategory = HomeCategory.BUY,
+            selectedCategory = HomeCategory.RENT,
             onSearchClick = {}
         )
     }

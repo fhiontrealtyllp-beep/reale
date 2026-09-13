@@ -57,6 +57,7 @@ class RealeApplication : Application() {
         GlobalScope.launch(Dispatchers.IO) {
             val oneTimeUtils = OneTimeUtils(this@RealeApplication)
             oneTimeUtils.seedDelhiFilterCoverageIfNeeded()
+            oneTimeUtils.seedBengaluruFeaturedPromotionalIfNeeded()
         }
     }
 }

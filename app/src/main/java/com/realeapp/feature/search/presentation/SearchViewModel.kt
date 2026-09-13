@@ -65,7 +65,7 @@ class SearchViewModel(
     private val _promotionalProperty = MutableStateFlow<Property?>(null)
     val promotionalProperty: StateFlow<Property?> = _promotionalProperty.asStateFlow()
 
-    private val _selectedHomeCategory = MutableStateFlow(HomeCategory.BUY)
+    private val _selectedHomeCategory = MutableStateFlow(HomeCategory.RENT)
     val selectedHomeCategory: StateFlow<HomeCategory> = _selectedHomeCategory.asStateFlow()
 
     private val _sideEffect = MutableSharedFlow<String>()
@@ -347,8 +347,8 @@ class SearchViewModel(
 
     private fun homeCategoryFor(filter: PropertyFilter?): HomeCategory = when {
         filter?.residentialCommercial == ResidentialCommercial.COMMERCIAL -> HomeCategory.COMMERCIAL
-        filter?.rentBuy == RentBuy.RENT -> HomeCategory.RENT
-        else -> HomeCategory.BUY
+        filter?.rentBuy == RentBuy.BUY -> HomeCategory.BUY
+        else -> HomeCategory.RENT
     }
 
     private fun filterWithCategory(filter: PropertyFilter?, category: HomeCategory): PropertyFilter {

@@ -32,11 +32,13 @@ private const val KEY_PANAJI_PROMO_SEEDED = "panaji_promo_seeded"
 private const val KEY_NAGPUR_SEEDED = "nagpur_seeded"
 private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seeded"
 private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
+private const val KEY_BENGALURU_FEATURED_PROMO_SEEDED = "bengaluru_featured_promo_seeded"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
 private const val PANAJI_FEATURED_COUNT = 5
 private const val PANAJI_PROMOTIONAL_COUNT = 5
+private const val BENGALURU_CATEGORY_COUNT = 10
 private const val ESSENTIAL_FILTER_SEED_COPIES = 2
 private const val ESSENTIAL_FILTER_MAX_BATHROOMS = 5
 private const val SEED_USER_ID = "seed_user"
@@ -86,6 +88,11 @@ private val SEED_PINCODES = listOf("440001", "440010", "440022")
 private val DELHI_LOCALITIES = listOf(
     "Connaught Place", "Karol Bagh", "Greater Kailash", "Dwarka", "Rohini",
     "Saket", "Lajpat Nagar", "Vasant Kunj", "Mayur Vihar", "Janakpuri"
+)
+
+private val BENGALURU_LOCALITIES = listOf(
+    "Koramangala", "Indiranagar", "Whitefield", "HSR Layout", "Electronic City",
+    "Jayanagar", "JP Nagar", "Hebbal", "Bellandur", "MG Road"
 )
 
 private val DELHI_PINCODES = listOf("110001", "110005", "110048", "110075", "110085")
@@ -431,6 +438,69 @@ class OneTimeUtils(
             Logger.d(TAG, "Delhi filter coverage seeding complete. Total: $successCount")
         } else {
             Logger.w(TAG, "Delhi filter coverage seeding incomplete. Success: $successCount / ${seedData.size}")
+        }
+    }
+
+    /**
+     * Seeds 10 FEATURED and 10 PROMOTIONAL properties for Bengaluru. Each
+     * category is split 5 BUY / 5 RENT so both home toggle states show content.
+     */
+    suspend fun seedBengaluruFeaturedPromotionalIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_BENGALURU_FEATURED_PROMO_SEEDED, false)) {
+            Logger.d(TAG, "Bengaluru featured/promotional properties already seeded, skipping.")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Bengaluru featured/promotional property seeding...")
+        val propertiesCollection = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
+        val city = "Bengaluru"
+        val normalizedCity = LocationNormalizer.normalizeCity(city) ?: city.lowercase()
+        val images = buildImageUrls(normalizedCity)
+        val pincode = "560001"
+        val baseLatitude = 12.9716
+        val baseLongitude = 77.5946
+        var successCount = 0
+        val totalCount = BENGALURU_CATEGORY_COUNT * 2
+
+        val categories = listOf(ListingCategory.FEATURED, ListingCategory.PROMOTIONAL)
+
+        var globalIndex = 40_000
+        for (listingCategory in categories) {
+            for (propertyIndex in 1..BENGALURU_CATEGORY_COUNT) {
+                // First half of each category is BUY, second half is RENT.
+                val rentBuy = if (propertyIndex <= BENGALURU_CATEGORY_COUNT / 2) RentBuy.BUY else RentBuy.RENT
+                val data = buildPropertyData(
+                    city = normalizedCity,
+                    locality = BENGALURU_LOCALITIES[(propertyIndex - 1) % BENGALURU_LOCALITIES.size],
+                    pincode = pincode,
+                    propertyIndex = propertyIndex,
+                    globalIndex = globalIndex,
+                    images = images,
+                    listingCategory = listingCategory,
+                    latitude = baseLatitude + (globalIndex * 0.0001),
+                    longitude = baseLongitude + (globalIndex * 0.0001),
+                    rentBuyOverride = rentBuy,
+                    residentialCommercialOverride = ResidentialCommercial.RESIDENTIAL
+                )
+
+                try {
+                    val docRef = propertiesCollection.document()
+                    val dataWithId = data.toMutableMap().apply { this["id"] = docRef.id }
+                    docRef.set(dataWithId).await()
+                    successCount++
+                    Logger.d(TAG, "Seeded $listingCategory Bengaluru property $propertyIndex ($rentBuy) -> ${docRef.id}")
+                } catch (e: Exception) {
+                    Logger.e(TAG, "Failed to seed $listingCategory Bengaluru property $propertyIndex: ${e.message}", e)
+                }
+                globalIndex++
+            }
+        }
+
+        if (successCount == totalCount) {
+            prefs.edit().putBoolean(KEY_BENGALURU_FEATURED_PROMO_SEEDED, true).apply()
+            Logger.d(TAG, "Bengaluru featured/promotional seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Bengaluru featured/promotional seeding incomplete. Success: $successCount / $totalCount")
         }
     }
 

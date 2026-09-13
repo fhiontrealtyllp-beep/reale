@@ -156,16 +156,16 @@ internal fun BuyRentToggle(
             .padding(HomeDims.TOGGLE_INNER_PADDING)
     ) {
         BuyRentSegment(
+            label = HomeStrings.CATEGORY_RENT,
+            isSelected = selectedCategory == HomeCategory.RENT,
+            onClick = { onCategorySelected(HomeCategory.RENT) },
+            modifier = Modifier.weight(1f)
+        )
+        BuyRentSegment(
             label = HomeStrings.CATEGORY_BUY,
             isSelected = selectedCategory == HomeCategory.BUY ||
                 selectedCategory == HomeCategory.NEW_PROJECTS,
             onClick = { onCategorySelected(HomeCategory.BUY) },
-            modifier = Modifier.weight(1f)
-        )
-        BuyRentSegment(
-            label = HomeStrings.CATEGORY_RENT,
-            isSelected = selectedCategory == HomeCategory.RENT,
-            onClick = { onCategorySelected(HomeCategory.RENT) },
             modifier = Modifier.weight(1f)
         )
     }
