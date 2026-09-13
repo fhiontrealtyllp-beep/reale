@@ -314,22 +314,6 @@ private fun FeaturedPropertyCard(
                 modifier = Modifier.fillMaxSize()
             )
 
-            Text(
-                text = HomeStrings.BADGE_FEATURED,
-                color = Black,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
-                    .clip(CircleShape)
-                    .background(White)
-                    .padding(
-                        horizontal = HomeDims.FEATURED_BADGE_HORIZONTAL_PADDING,
-                        vertical = HomeDims.FEATURED_BADGE_VERTICAL_PADDING
-                    )
-            )
-
             IconButton(
                 onClick = onLikeToggle,
                 modifier = Modifier
