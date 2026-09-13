@@ -74,7 +74,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
@@ -408,13 +407,9 @@ private fun SavedPropertyListEmptyPreview() {
 private fun SavedTopBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AppNameLogo(
-            style = MaterialTheme.typography.headlineMedium
-        )
-
         Box(contentAlignment = Alignment.TopEnd) {
             Icon(
                 imageVector = Icons.Outlined.Notifications,

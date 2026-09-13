@@ -99,7 +99,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
@@ -609,13 +608,9 @@ private fun ProfileTopBar(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AppNameLogo(
-            fontSize = ProfileDims.APP_NAME_FONT_SIZE
-        )
-
         Box(contentAlignment = Alignment.TopEnd) {
             Icon(
                 imageVector = Icons.Outlined.Notifications,
