@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -73,6 +74,7 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -210,9 +212,12 @@ internal fun MyListingsScreen(
                 }
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .navigationBarsPadding(),
                         verticalArrangement = Arrangement.spacedBy(MyListingsDims.CARD_SPACING),
-                        contentPadding = PaddingValues(bottom = MyListingsDims.SCREEN_PADDING)
+                        // Extra bottom space so the last card clears the floating glass nav capsule.
+                        contentPadding = PaddingValues(bottom = MyListingsDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE)
                     ) {
                         items(filteredListings, key = { it.id }) { listing ->
                             ListingCard(

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -74,6 +75,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.realeapp.ui.components.AppNameLogo
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
@@ -311,10 +313,15 @@ private fun SavedPropertyList(
         modifier = modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .navigationBarsPadding(),
+            // Extra bottom space so the last item clears the floating glass nav capsule.
             contentPadding = PaddingValues(
-                horizontal = SavedDims.SCREEN_PADDING,
-                vertical = SavedDims.SCREEN_PADDING
+                start = SavedDims.SCREEN_PADDING,
+                top = SavedDims.SCREEN_PADDING,
+                end = SavedDims.SCREEN_PADDING,
+                bottom = SavedDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE
             ),
             verticalArrangement = Arrangement.spacedBy(SavedDims.ITEM_SPACING)
         ) {

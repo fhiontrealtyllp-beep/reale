@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
@@ -27,6 +28,7 @@ import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.MainBackground
@@ -134,8 +136,14 @@ internal fun HomeContent(
                     )
                 } else {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = HomeDims.SCREEN_PADDING),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        // Extra bottom space so the last item clears the floating glass nav capsule.
+                        contentPadding = PaddingValues(
+                            top = HomeDims.SCREEN_PADDING,
+                            bottom = HomeDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE
+                        ),
                         verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
                     ) {
                         if (featuredList.isNotEmpty()) {

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.ui.components.AppNameLogo
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
@@ -104,7 +106,11 @@ fun SearchScreen(
         containerColor = AppBackground,
         bottomBar = {
             if (!showResults) {
-                Surface(color = AppBackground) {
+                // Lifted above the floating glass nav capsule.
+                Surface(
+                    color = AppBackground,
+                    modifier = Modifier.navigationBarsPadding()
+                ) {
                     Button(
                         onClick = {
                             viewModel.onFilterChanged(draftFilter)
@@ -113,8 +119,10 @@ fun SearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = SearchDims.STICKY_ACTION_HORIZONTAL_PADDING,
-                                vertical = SearchDims.STICKY_ACTION_VERTICAL_PADDING
+                                start = SearchDims.STICKY_ACTION_HORIZONTAL_PADDING,
+                                top = SearchDims.STICKY_ACTION_VERTICAL_PADDING,
+                                end = SearchDims.STICKY_ACTION_HORIZONTAL_PADDING,
+                                bottom = SearchDims.STICKY_ACTION_VERTICAL_PADDING + BOTTOM_NAV_CLEARANCE
                             )
                             .height(SearchDims.BUTTON_HEIGHT),
                         shape = RoundedCornerShape(SearchDims.BUTTON_CORNER_RADIUS),

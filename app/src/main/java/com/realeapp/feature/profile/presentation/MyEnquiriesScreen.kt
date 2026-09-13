@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.Enquiry
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
@@ -124,10 +126,15 @@ fun MyEnquiriesScreen(
                 }
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        // Extra bottom space so the last card clears the floating glass nav capsule.
                         contentPadding = PaddingValues(
-                            horizontal = MyEnquiriesDims.SCREEN_PADDING,
-                            vertical = MyEnquiriesDims.SECTION_SPACING
+                            start = MyEnquiriesDims.SCREEN_PADDING,
+                            top = MyEnquiriesDims.SECTION_SPACING,
+                            end = MyEnquiriesDims.SCREEN_PADDING,
+                            bottom = MyEnquiriesDims.SECTION_SPACING + BOTTOM_NAV_CLEARANCE
                         ),
                         verticalArrangement = Arrangement.spacedBy(MyEnquiriesDims.CARD_SPACING)
                     ) {

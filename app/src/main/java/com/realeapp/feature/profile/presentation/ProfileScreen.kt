@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -99,6 +100,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.realeapp.ui.components.AppNameLogo
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
@@ -413,10 +415,15 @@ private fun ProfileContent(
     }
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
+        // Extra bottom space so the last item clears the floating glass nav capsule.
         contentPadding = PaddingValues(
-            horizontal = ProfileDims.SCREEN_PADDING,
-            vertical = ProfileDims.CARD_INNER_PADDING
+            start = ProfileDims.SCREEN_PADDING,
+            top = ProfileDims.CARD_INNER_PADDING,
+            end = ProfileDims.SCREEN_PADDING,
+            bottom = ProfileDims.CARD_INNER_PADDING + BOTTOM_NAV_CLEARANCE
         ),
         verticalArrangement = Arrangement.spacedBy(ProfileDims.SECTION_SPACING)
     ) {

@@ -13,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -199,25 +200,13 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         showCityScreen = false
                     }
 
+                    // The glass nav capsule overlays content (screens scroll
+                    // behind it) instead of living in Scaffold's bottomBar.
+                    Box(modifier = Modifier.fillMaxSize()) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         containerColor = AppBackground,
-                        contentWindowInsets = WindowInsets(0.dp),
-                        bottomBar = {
-                            if (!showAddProperty) {
-                                BottomNavBar(
-                                    tabs = AppScreen.all,
-                                    selectedTab = selectedTab,
-                                    onTabSelected = { tab ->
-                                        showMyListings = false
-                                        showMyEnquiries = false
-                                        selectedEnquiryPropertyId = null
-                                        showAddProperty = false
-                                        mainViewModel.selectTab(tab)
-                                    }
-                                )
-                            }
-                        }
+                        contentWindowInsets = WindowInsets(0.dp)
                     ) { innerPadding ->
                         // Active tab UI selected by the bottom navigation bar.
                         // Status bars are applied here once; child screens opt out
@@ -295,6 +284,22 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 }
                             }
                         }
+                    }
+
+                    if (!showAddProperty) {
+                        BottomNavBar(
+                            tabs = AppScreen.all,
+                            selectedTab = selectedTab,
+                            onTabSelected = { tab ->
+                                showMyListings = false
+                                showMyEnquiries = false
+                                selectedEnquiryPropertyId = null
+                                showAddProperty = false
+                                mainViewModel.selectTab(tab)
+                            },
+                            modifier = Modifier.align(Alignment.BottomCenter)
+                        )
+                    }
                     }
 
                     if (showExitDialog) {

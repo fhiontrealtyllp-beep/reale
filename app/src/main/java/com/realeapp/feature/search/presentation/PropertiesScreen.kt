@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,6 +69,7 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
@@ -222,8 +224,14 @@ private fun PropertiesScreenContent(
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = PropertiesDims.RESULTS_LIST_VERTICAL_PADDING),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+                // Extra bottom space so the last card clears the floating glass nav capsule.
+                contentPadding = PaddingValues(
+                    top = PropertiesDims.RESULTS_LIST_VERTICAL_PADDING,
+                    bottom = PropertiesDims.RESULTS_LIST_VERTICAL_PADDING + BOTTOM_NAV_CLEARANCE
+                ),
                 verticalArrangement = Arrangement.spacedBy(PropertiesDims.RESULTS_LIST_SPACING)
             ) {
                 item {
