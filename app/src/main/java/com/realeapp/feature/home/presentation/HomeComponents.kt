@@ -1,6 +1,7 @@
 package com.realeapp.feature.home.presentation
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,10 +42,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
+import com.realeapp.R
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -307,12 +311,21 @@ private fun FeaturedPropertyCard(
                 .height(HomeDims.FEATURED_CARD_IMAGE_HEIGHT)
                 .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
         ) {
-            AsyncImage(
-                model = property.imageUrl,
-                contentDescription = HomeStrings.CD_PROPERTY_IMAGE,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+            if (LocalInspectionMode.current) {
+                Image(
+                    painter = painterResource(R.drawable.ic_welcome_home),
+                    contentDescription = HomeStrings.CD_PROPERTY_IMAGE,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                AsyncImage(
+                    model = property.imageUrl,
+                    contentDescription = HomeStrings.CD_PROPERTY_IMAGE,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             IconButton(
                 onClick = onLikeToggle,
