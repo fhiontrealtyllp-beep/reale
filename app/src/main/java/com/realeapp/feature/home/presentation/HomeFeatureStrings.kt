@@ -26,7 +26,9 @@ internal object HomeStrings {
     const val CATEGORY_COMMERCIAL = "Commercial"
 
     const val SECTION_FEATURED = "Featured Properties"
+    const val SECTION_POPULAR_IN_CITY_FORMAT = "Popular homes in %s"
     const val ACTION_SEE_ALL = "See All"
+    const val SEPARATOR_DOT = " · "
     const val BADGE_FEATURED = "Featured"
 
     const val BANNER_TITLE = "Invest in a brighter tomorrow"
@@ -76,12 +78,16 @@ internal object HomeDims {
     val TOGGLE_INNER_PADDING = 4.dp
     val TOGGLE_FONT_SIZE = 14.sp
 
-    val FEATURED_CARD_WIDTH = 260.dp
+    val FEATURED_CARD_WIDTH = 220.dp
     val FEATURED_CARD_SPACING = 16.dp
-    val FEATURED_CARD_IMAGE_HEIGHT = 160.dp
+    val FEATURED_CARD_IMAGE_HEIGHT = 200.dp
     val FEATURED_CARD_CORNER_RADIUS = 16.dp
     val FEATURED_CARD_CONTENT_PADDING = 12.dp
     val FEATURED_CARD_ELEVATION = 4.dp
+    val FEATURED_TEXT_TOP_SPACING = 8.dp
+    val FEATURED_TEXT_LINE_SPACING = 2.dp
+    val SEE_ALL_CIRCLE_SIZE = 32.dp
+    val SEE_ALL_ICON_SIZE = 16.dp
     val FEATURED_DETAILS_SPACING = 4.dp
     val FEATURED_SPEC_SPACING = 12.dp
     val FEATURED_SPEC_LABEL_SPACING = 4.dp

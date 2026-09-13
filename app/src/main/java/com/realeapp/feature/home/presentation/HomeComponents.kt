@@ -2,13 +2,13 @@ package com.realeapp.feature.home.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,20 +22,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.KingBed
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,12 +40,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.feature.search.domain.model.Property
@@ -69,7 +60,6 @@ import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
-import java.text.NumberFormat
 import java.util.Locale
 
 /**
@@ -84,55 +74,9 @@ internal data class FeaturedProperty(
     val beds: Int,
     val baths: Int,
     val sqft: Int,
+    val isRent: Boolean = false,
     val isLiked: Boolean = false
 )
-
-/**
- * Tappable search bar surface that navigates to the search flow.
- *
- * @param onSearchClick Callback invoked when the search bar is tapped.
- * @param modifier Modifier to be applied to the search bar.
- */
-@Composable
-internal fun HomeSearchBar(onSearchClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(HomeDims.SEARCH_HEIGHT)
-            .clip(RoundedCornerShape(HomeDims.SEARCH_CORNER_RADIUS))
-            .clickable(onClick = onSearchClick),
-        shape = RoundedCornerShape(HomeDims.SEARCH_CORNER_RADIUS),
-        color = White,
-        border = BorderStroke(HomeDims.CATEGORY_BORDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = HomeDims.SEARCH_HORIZONTAL_PADDING),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = HomeStrings.CD_SEARCH_ICON,
-                tint = HomeTextSecondary,
-                modifier = Modifier.size(HomeDims.SEARCH_ICON_SIZE)
-            )
-            Spacer(modifier = Modifier.width(HomeDims.SEARCH_CONTENT_SPACING))
-            Text(
-                text = HomeStrings.SEARCH_HINT,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = HomeStrings.CD_FILTER_ICON,
-                tint = BrandBlue,
-                modifier = Modifier.size(HomeDims.SEARCH_ICON_SIZE)
-            )
-        }
-    }
-}
 
 /**
  * Capsule-style Buy/Rent toggle for the home screen.
@@ -219,10 +163,12 @@ private fun BuyRentTogglePreview() {
 }
 
 /**
- * Section that displays the list of featured properties with a "See All" action.
+ * Section that displays the list of featured properties with a circular
+ * "see all" arrow action, styled like Airbnb's popular homes row.
  *
  * @param properties List of featured properties to show.
- * @param onSeeAllClick Callback invoked when the "See All" text is tapped.
+ * @param city City name used in the section title, or null for the fallback title.
+ * @param onSeeAllClick Callback invoked when the arrow button is tapped.
  * @param onPropertyClick Callback invoked with the selected property ID.
  * @param modifier Modifier to be applied to the section.
  */
@@ -231,6 +177,7 @@ internal fun FeaturedSection(
     properties: List<FeaturedProperty>,
     onSeeAllClick: () -> Unit,
     onPropertyClick: (String) -> Unit = {},
+    city: String? = null,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_CONTENT_PADDING)) {
@@ -242,18 +189,30 @@ internal fun FeaturedSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = HomeStrings.SECTION_FEATURED,
+                text = if (city.isNullOrBlank()) {
+                    HomeStrings.SECTION_FEATURED
+                } else {
+                    String.format(Locale.getDefault(), HomeStrings.SECTION_POPULAR_IN_CITY_FORMAT, city)
+                },
                 color = Black,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Text(
-                text = HomeStrings.ACTION_SEE_ALL,
-                color = BrandBlue,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable(onClick = onSeeAllClick)
-            )
+            Box(
+                modifier = Modifier
+                    .size(HomeDims.SEE_ALL_CIRCLE_SIZE)
+                    .clip(CircleShape)
+                    .border(BorderStroke(HomeDims.CATEGORY_BORDER_WIDTH, HomeSearchBarBorder), CircleShape)
+                    .clickable(onClick = onSeeAllClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = HomeStrings.ACTION_SEE_ALL,
+                    tint = Black,
+                    modifier = Modifier.size(HomeDims.SEE_ALL_ICON_SIZE)
+                )
+            }
         }
 
         LazyRow(
@@ -274,6 +233,54 @@ internal fun FeaturedSection(
 }
 
 /**
+ * Preview for [FeaturedSection].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun FeaturedSectionPreview() {
+    RealeTheme {
+        FeaturedSection(
+            properties = listOf(
+                FeaturedProperty(
+                    id = "1",
+                    imageUrl = "https://picsum.photos/seed/home1/800/600",
+                    price = 14_265.0,
+                    title = "Flat in Candolim",
+                    location = "Candolim, Goa",
+                    beds = 2,
+                    baths = 2,
+                    sqft = 1100,
+                    isRent = true
+                ),
+                FeaturedProperty(
+                    id = "2",
+                    imageUrl = "https://picsum.photos/seed/home2/800/600",
+                    price = 7_300.0,
+                    title = "Flat in Candolim",
+                    location = "Candolim, Goa",
+                    beds = 1,
+                    baths = 1,
+                    sqft = 750,
+                    isRent = true
+                ),
+                FeaturedProperty(
+                    id = "3",
+                    imageUrl = "https://picsum.photos/seed/home3/800/600",
+                    price = 4_500_000.0,
+                    title = "Villa in Assagao",
+                    location = "Assagao, Goa",
+                    beds = 3,
+                    baths = 3,
+                    sqft = 2100
+                )
+            ),
+            city = "North Goa",
+            onSeeAllClick = {}
+        )
+    }
+}
+
+/**
  * Card that renders a single featured property with image, price, location and specs.
  *
  * @param property Featured property data to display.
@@ -288,143 +295,78 @@ private fun FeaturedPropertyCard(
     onLikeToggle: () -> Unit,
     onClick: () -> Unit
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .width(HomeDims.FEATURED_CARD_WIDTH)
             .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = HomeDims.FEATURED_CARD_ELEVATION)
+            .clickable(onClick = onClick)
     ) {
-        Column {
-            Box(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(HomeDims.FEATURED_CARD_IMAGE_HEIGHT)
+                .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
+        ) {
+            AsyncImage(
+                model = property.imageUrl,
+                contentDescription = HomeStrings.CD_PROPERTY_IMAGE,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Text(
+                text = HomeStrings.BADGE_FEATURED,
+                color = Black,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(HomeDims.FEATURED_CARD_IMAGE_HEIGHT)
+                    .align(Alignment.TopStart)
+                    .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
+                    .clip(CircleShape)
+                    .background(White)
+                    .padding(
+                        horizontal = HomeDims.FEATURED_BADGE_HORIZONTAL_PADDING,
+                        vertical = HomeDims.FEATURED_BADGE_VERTICAL_PADDING
+                    )
+            )
+
+            IconButton(
+                onClick = onLikeToggle,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
+                    .size(HomeDims.HEART_BUTTON_SIZE)
             ) {
-                AsyncImage(
-                    model = property.imageUrl,
-                    contentDescription = HomeStrings.CD_PROPERTY_IMAGE,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                Icon(
+                    imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = HomeStrings.CD_FAVORITE,
+                    tint = if (isLiked) BrandRed else Black,
+                    modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
                 )
-
-                Text(
-                    text = HomeStrings.BADGE_FEATURED,
-                    color = OnMediaContent,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
-                        .clip(RoundedCornerShape(HomeDims.FEATURED_BADGE_CORNER_RADIUS))
-                        .background(BrandBlue)
-                        .padding(
-                            horizontal = HomeDims.FEATURED_BADGE_HORIZONTAL_PADDING,
-                            vertical = HomeDims.FEATURED_BADGE_VERTICAL_PADDING
-                        )
-                )
-
-                IconButton(
-                    onClick = onLikeToggle,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
-                        .size(HomeDims.HEART_BUTTON_SIZE)
-                        .clip(CircleShape)
-                        .background(White.copy(alpha = 0.9f))
-                ) {
-                    Icon(
-                        imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = HomeStrings.CD_FAVORITE,
-                        tint = if (isLiked) BrandRed else Black,
-                        modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.padding(HomeDims.FEATURED_CARD_CONTENT_PADDING),
-                verticalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_DETAILS_SPACING)
-            ) {
-                Text(
-                    text = formatIndianPrice(property.price),
-                    color = Black,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = property.title,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_SPEC_LABEL_SPACING)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint = HomeTextSecondary,
-                        modifier = Modifier.size(HomeDims.SMALL_ICON_SIZE)
-                    )
-                    Text(
-                        text = property.location,
-                        color = HomeTextSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_SPEC_SPACING)
-                ) {
-                    PropertySpecChip(
-                        icon = Icons.Outlined.KingBed,
-                        label = "${property.beds} ${HomeStrings.SPEC_BEDS_LABEL}"
-                    )
-                    PropertySpecChip(
-                        icon = Icons.Filled.Bathtub,
-                        label = "${property.baths} ${HomeStrings.SPEC_BATHS_LABEL}"
-                    )
-                    PropertySpecChip(
-                        icon = Icons.Outlined.SquareFoot,
-                        label = "${NumberFormat.getNumberInstance(Locale.getDefault()).format(property.sqft)} ${HomeStrings.SPEC_SQFT_LABEL}"
-                    )
-                }
             }
         }
-    }
-}
 
-/**
- * Small row showing a property spec icon and its label, e.g. beds, baths or sq.ft.
- *
- * @param icon Icon to display.
- * @param label Spec text to display.
- */
-@Composable
-private fun PropertySpecChip(icon: ImageVector, label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_SPEC_LABEL_SPACING)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = HomeTextSecondary,
-            modifier = Modifier.size(HomeDims.TINY_ICON_SIZE)
-        )
-        Text(
-            text = label,
-            color = HomeTextSecondary,
-            style = MaterialTheme.typography.bodySmall
-        )
+        Column(
+            modifier = Modifier.padding(top = HomeDims.FEATURED_TEXT_TOP_SPACING),
+            verticalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_TEXT_LINE_SPACING)
+        ) {
+            Text(
+                text = property.title,
+                color = Black,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = formatIndianPrice(property.price, property.isRent) +
+                    HomeStrings.SEPARATOR_DOT + property.location,
+                color = HomeTextSecondary,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
+import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.EmptyResults
 import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.auth.presentation.LoginPromptDialog
@@ -162,6 +163,7 @@ internal fun HomeContent(
                             item {
                                 FeaturedSection(
                                     properties = featuredList,
+                                    city = selectedCity,
                                     onSeeAllClick = onSearchClick,
                                     onPropertyClick = { id ->
                                         selectedProperty = featuredProperties.find {
@@ -216,6 +218,7 @@ private fun Property.toFeaturedProperty(): FeaturedProperty = FeaturedProperty(
     beds = bedroomType.toBedroomCount(),
     baths = bathrooms ?: 0,
     sqft = (superBuiltUpArea ?: builtUpArea ?: carpetArea ?: 0.0).toInt(),
+    isRent = rentBuy == RentBuy.RENT,
     isLiked = isLiked ?: false
 )
 
