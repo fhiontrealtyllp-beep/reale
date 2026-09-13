@@ -2,6 +2,7 @@ package com.realeapp.feature.home.presentation
 
 import com.realeapp.AppStrings
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Centralized UI strings and dimensions for the Home feature.
@@ -16,6 +17,8 @@ internal object HomeStrings {
 
     const val CD_NOTIFICATIONS = "Notifications"
     const val CD_LOGO = AppStrings.APP_NAME + " logo"
+
+    const val LOOKING_FOR_TITLE = "Looking for"
 
     const val CATEGORY_BUY = "Buy"
     const val CATEGORY_RENT = "Rent"
@@ -67,6 +70,11 @@ internal object HomeDims {
     val CATEGORY_ITEM_WIDTH = 72.dp
     val CATEGORY_LABEL_SPACING = 8.dp
     val CATEGORY_SPACING = 16.dp
+
+    val TOGGLE_TITLE_SPACING = 8.dp
+    val TOGGLE_ROW_HEIGHT = 48.dp
+    val TOGGLE_INNER_PADDING = 4.dp
+    val TOGGLE_FONT_SIZE = 14.sp
 
     val FEATURED_CARD_WIDTH = 260.dp
     val FEATURED_CARD_SPACING = 16.dp

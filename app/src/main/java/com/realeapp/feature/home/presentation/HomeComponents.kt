@@ -2,7 +2,6 @@ package com.realeapp.feature.home.presentation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,20 +22,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Bathtub
-import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.Apartment
-import androidx.compose.material.icons.outlined.Business
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.KingBed
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,7 +39,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,7 +63,6 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
-import com.realeapp.ui.theme.HomeCategoryIconUnselected
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -95,83 +86,6 @@ internal data class FeaturedProperty(
     val sqft: Int,
     val isLiked: Boolean = false
 )
-
-/**
- * Top app bar for the home screen, showing the app logo and a notification
- * icon with an unread badge.
- *
- * @param modifier Modifier to be applied to the header.
- */
-@Composable
-internal fun HomeHeader(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(HomeDims.LOGO_ICON_TEXT_SPACING)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Home,
-                contentDescription = HomeStrings.CD_LOGO,
-                tint = BrandRed,
-                modifier = Modifier.size(HomeDims.LOGO_ICON_SIZE)
-            )
-        }
-
-        Box(contentAlignment = Alignment.TopEnd) {
-            Icon(
-                imageVector = Icons.Outlined.Notifications,
-                contentDescription = HomeStrings.CD_NOTIFICATIONS,
-                tint = Black,
-                modifier = Modifier.size(HomeDims.LOGO_ICON_SIZE)
-            )
-            Box(
-                modifier = Modifier
-                    .size(HomeDims.NOTIFICATION_BADGE_SIZE)
-                    .clip(CircleShape)
-                    .background(BrandRed)
-            )
-        }
-    }
-}
-
-/**
- * Preview for [HomeHeader].
- */
-@Preview(showBackground = true)
-@Composable
-private fun HomeHeaderPreview() {
-    RealeTheme {
-        HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
-    }
-}
-
-/**
- * Large headline text that greets the user on the home screen.
- *
- * @param modifier Modifier to be applied to the title.
- */
-@Composable
-internal fun HomeTitle(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = HomeStrings.HOME_TITLE_LINE1,
-            color = Black,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(HomeDims.TITLE_LINE_SPACING))
-        Text(
-            text = HomeStrings.HOME_TITLE_LINE2,
-            color = Black,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 /**
  * Tappable search bar surface that navigates to the search flow.
@@ -221,97 +135,85 @@ internal fun HomeSearchBar(onSearchClick: () -> Unit, modifier: Modifier = Modif
 }
 
 /**
- * Internal data class holding the icon and label state for a home category chip.
- */
-private data class HomeCategoryUi(
-    val label: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
-)
-
-/**
- * Horizontal row of selectable category chips for Buy, Rent, New Projects and Commercial.
+ * Capsule-style Buy/Rent toggle for the home screen.
  *
  * @param selectedCategory Currently selected home category.
- * @param onCategorySelected Callback invoked when a category chip is tapped.
- * @param modifier Modifier to be applied to the category chips row.
+ * @param onCategorySelected Callback invoked when a segment is tapped.
+ * @param modifier Modifier to be applied to the toggle row.
  */
 @Composable
-internal fun CategoryChips(
+internal fun BuyRentToggle(
     selectedCategory: HomeCategory,
     onCategorySelected: (HomeCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val categories = remember {
-        listOf(
-            HomeCategoryUi(HomeStrings.CATEGORY_BUY, Icons.Filled.Home, Icons.Outlined.Home),
-            HomeCategoryUi(HomeStrings.CATEGORY_RENT, Icons.Filled.Home, Icons.Outlined.Home),
-            HomeCategoryUi(HomeStrings.CATEGORY_NEW_PROJECTS, Icons.Filled.Apartment, Icons.Outlined.Apartment),
-            HomeCategoryUi(HomeStrings.CATEGORY_COMMERCIAL, Icons.Filled.Business, Icons.Outlined.Business)
-        )
-    }
-    val selectedIndex = HomeCategory.entries.indexOf(selectedCategory)
-
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.Top
+        modifier = modifier
+            .fillMaxWidth()
+            .height(HomeDims.TOGGLE_ROW_HEIGHT)
+            .clip(CircleShape)
+            .background(HomeCategoryUnselected)
+            .padding(HomeDims.TOGGLE_INNER_PADDING)
     ) {
-        categories.forEachIndexed { index, category ->
-            CategoryItem(
-                category = category,
-                selected = index == selectedIndex,
-                onClick = { onCategorySelected(HomeCategory.entries[index]) }
-            )
-        }
+        BuyRentSegment(
+            label = HomeStrings.CATEGORY_BUY,
+            isSelected = selectedCategory == HomeCategory.BUY ||
+                selectedCategory == HomeCategory.NEW_PROJECTS,
+            onClick = { onCategorySelected(HomeCategory.BUY) },
+            modifier = Modifier.weight(1f)
+        )
+        BuyRentSegment(
+            label = HomeStrings.CATEGORY_RENT,
+            isSelected = selectedCategory == HomeCategory.RENT,
+            onClick = { onCategorySelected(HomeCategory.RENT) },
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 /**
- * Individual selectable category chip rendered as a circular icon with a label.
+ * Individual capsule segment inside [BuyRentToggle].
  *
- * @param category Category data including icon pairs and label.
- * @param selected Whether this category is currently selected.
- * @param onClick Callback invoked when the chip is tapped.
+ * @param label Segment text.
+ * @param isSelected Whether this segment is currently selected.
+ * @param onClick Callback invoked when the segment is tapped.
+ * @param modifier Modifier to be applied to the segment.
  */
 @Composable
-private fun CategoryItem(
-    category: HomeCategoryUi,
-    selected: Boolean,
-    onClick: () -> Unit
+private fun BuyRentSegment(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val icon = if (selected) category.selectedIcon else category.unselectedIcon
-    val background = if (selected) BrandBlue else HomeCategoryUnselected
-    val iconTint = if (selected) OnBrandContent else HomeCategoryIconUnselected
-    val textTint = if (selected) BrandBlue else Black
-    val border = if (selected) null else BorderStroke(HomeDims.CATEGORY_BORDER_WIDTH, HomeSearchBarBorder)
-
-    Column(
-        modifier = Modifier.width(HomeDims.CATEGORY_ITEM_WIDTH),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(CircleShape)
+            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(HomeDims.CATEGORY_CIRCLE_SIZE)
-                .clip(CircleShape)
-                .background(background)
-                .then(if (border != null) Modifier.border(border, CircleShape) else Modifier)
-                .clickable(onClick = onClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = category.label,
-                tint = iconTint,
-                modifier = Modifier.size(HomeDims.CATEGORY_ICON_SIZE)
-            )
-        }
-        Spacer(modifier = Modifier.height(HomeDims.CATEGORY_LABEL_SPACING))
         Text(
-            text = category.label,
-            color = textTint,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium
+            text = label,
+            color = if (isSelected) OnBrandContent else HomeTextSecondary,
+            fontSize = HomeDims.TOGGLE_FONT_SIZE,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
+}
+
+/**
+ * Preview for [BuyRentToggle].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun BuyRentTogglePreview() {
+    RealeTheme {
+        BuyRentToggle(
+            selectedCategory = HomeCategory.BUY,
+            onCategorySelected = {},
+            modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
         )
     }
 }

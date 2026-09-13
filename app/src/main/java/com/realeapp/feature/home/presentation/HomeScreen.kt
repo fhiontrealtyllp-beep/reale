@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -31,6 +34,7 @@ import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
+import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
@@ -112,14 +116,22 @@ internal fun HomeContent(
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
         ) {
-            HomeHeader(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
-            HomeTitle(modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
            //todo HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
-            CategoryChips(
-                selectedCategory = selectedCategory,
-                onCategorySelected = onCategorySelected,
-                modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
-            )
+            Column(
+                modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING),
+                verticalArrangement = Arrangement.spacedBy(HomeDims.TOGGLE_TITLE_SPACING)
+            ) {
+                Text(
+                    text = HomeStrings.LOOKING_FOR_TITLE,
+                    color = Black,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                BuyRentToggle(
+                    selectedCategory = selectedCategory,
+                    onCategorySelected = onCategorySelected
+                )
+            }
 
             Box(
                 modifier = Modifier
