@@ -355,7 +355,7 @@ private fun FeaturedPropertyCard(
                 color = Black,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
@@ -363,7 +363,7 @@ private fun FeaturedPropertyCard(
                     HomeStrings.SEPARATOR_DOT + property.location,
                 color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodySmall,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }
