@@ -55,6 +55,8 @@ import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
+import com.realeapp.feature.search.domain.model.RentBuy
+import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import com.realeapp.feature.search.presentation.components.PropertyFilters
 import com.realeapp.ui.theme.AppBackground
@@ -85,7 +87,12 @@ fun SearchScreen(
     val showResults = uiState.showResults
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
     var draftFilter by remember(uiState.currentFilter) {
-        mutableStateOf(uiState.currentFilter ?: PropertyFilter())
+        mutableStateOf(
+            uiState.currentFilter ?: PropertyFilter(
+                rentBuy = RentBuy.RENT,
+                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+            )
+        )
     }
 
     LaunchedEffect(showResults) {
@@ -269,7 +276,15 @@ private fun SearchLandingContent(
                     style = MaterialTheme.typography.titleMedium
                 )
                 IconButton(
-                    onClick = { onFilterChange(PropertyFilter(city = filter.city)) }
+                    onClick = {
+                        onFilterChange(
+                            PropertyFilter(
+                                city = filter.city,
+                                rentBuy = RentBuy.RENT,
+                                residentialCommercial = ResidentialCommercial.RESIDENTIAL
+                            )
+                        )
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,

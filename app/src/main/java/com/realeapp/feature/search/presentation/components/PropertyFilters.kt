@@ -6,13 +6,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -45,6 +54,8 @@ import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
@@ -101,6 +112,30 @@ fun PropertyFilters(
             modifier = Modifier.padding(SearchDims.FILTER_PANEL_PADDING),
             verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
         ) {
+            val effectiveRentBuy = filter.rentBuy ?: RentBuy.RENT
+            val effectiveCategory = filter.residentialCommercial ?: ResidentialCommercial.RESIDENTIAL
+
+            ListingTypeToggle(
+                selected = effectiveRentBuy,
+                onSelected = { onFilterChange(filter.copy(rentBuy = it, priceRange = null)) }
+            )
+
+            val budgetOptions = if (effectiveRentBuy == RentBuy.RENT) rentOptions else priceOptions
+            FilterChipGroup(
+                title = SearchStrings.SECTION_BUDGET,
+                options = budgetOptions,
+                selected = budgetOptions.find { it.matches(filter.priceRange?.min, filter.priceRange?.max) },
+                onSelected = { option ->
+                    onFilterChange(filter.copy(priceRange = option?.let { PriceRange(it.min, it.max) }))
+                },
+                optionLabel = { it.label }
+            )
+
+            ResidentialCommercialToggle(
+                selected = effectiveCategory,
+                onSelected = { onFilterChange(filter.copy(residentialCommercial = it)) }
+            )
+
             LocationSelector(
                 label = SearchStrings.FILTER_CITY,
                 value = filter.city,
@@ -115,30 +150,6 @@ fun PropertyFilters(
                 onClick = { showLocalityDialog = true }
             )
 
-            FilterChipGroup(
-                title = SearchStrings.FILTER_LISTING_INTENT,
-                options = RentBuy.entries,
-                selected = filter.rentBuy,
-                onSelected = { onFilterChange(filter.copy(rentBuy = it, priceRange = null)) },
-                optionLabel = { it.label }
-            )
-            val budgetOptions = if (filter.rentBuy == RentBuy.RENT) rentOptions else priceOptions
-            FilterChipGroup(
-                title = SearchStrings.SECTION_BUDGET,
-                options = budgetOptions,
-                selected = budgetOptions.find { it.matches(filter.priceRange?.min, filter.priceRange?.max) },
-                onSelected = { option ->
-                    onFilterChange(filter.copy(priceRange = option?.let { PriceRange(it.min, it.max) }))
-                },
-                optionLabel = { it.label }
-            )
-            FilterChipGroup(
-                title = SearchStrings.FILTER_CATEGORY,
-                options = ResidentialCommercial.entries,
-                selected = filter.residentialCommercial,
-                onSelected = { onFilterChange(filter.copy(residentialCommercial = it)) },
-                optionLabel = { it.label }
-            )
             FilterChipGroup(
                 title = SearchStrings.FILTER_PROPERTY_TYPE,
                 options = PropertyType.entries,
@@ -341,6 +352,113 @@ private fun AreaRangeFilter(
         onSelected = { option -> onRangeChange(option?.let { CarpetAreaRange(it.min, it.max) }) },
         optionLabel = { it.label }
     )
+}
+
+@Composable
+private fun ListingTypeToggle(
+    selected: RentBuy,
+    onSelected: (RentBuy) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
+    ) {
+        FilterSectionHeader(SearchStrings.FILTER_LISTING_INTENT)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(SearchDims.FILTER_TOGGLE_ROW_HEIGHT)
+                .clip(CircleShape)
+                .background(HomeCategoryUnselected)
+                .padding(SearchDims.FILTER_TOGGLE_INNER_PADDING)
+        ) {
+            CapsuleToggleSegment(
+                label = RentBuy.RENT.label,
+                isSelected = selected == RentBuy.RENT,
+                onClick = { onSelected(RentBuy.RENT) },
+                icon = Icons.Outlined.Key,
+                modifier = Modifier.weight(1f)
+            )
+            CapsuleToggleSegment(
+                label = RentBuy.BUY.label,
+                isSelected = selected == RentBuy.BUY,
+                onClick = { onSelected(RentBuy.BUY) },
+                icon = Icons.Outlined.Sell,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResidentialCommercialToggle(
+    selected: ResidentialCommercial,
+    onSelected: (ResidentialCommercial) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
+    ) {
+        FilterSectionHeader(SearchStrings.FILTER_CATEGORY)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(SearchDims.FILTER_TOGGLE_ROW_HEIGHT)
+                .clip(CircleShape)
+                .background(HomeCategoryUnselected)
+                .padding(SearchDims.FILTER_TOGGLE_INNER_PADDING)
+        ) {
+            CapsuleToggleSegment(
+                label = ResidentialCommercial.RESIDENTIAL.label,
+                isSelected = selected == ResidentialCommercial.RESIDENTIAL,
+                onClick = { onSelected(ResidentialCommercial.RESIDENTIAL) },
+                modifier = Modifier.weight(1f)
+            )
+            CapsuleToggleSegment(
+                label = ResidentialCommercial.COMMERCIAL.label,
+                isSelected = selected == ResidentialCommercial.COMMERCIAL,
+                onClick = { onSelected(ResidentialCommercial.COMMERCIAL) },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CapsuleToggleSegment(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+) {
+    Row(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(CircleShape)
+            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        icon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = null,
+                tint = if (isSelected) White else HomeTextSecondary,
+                modifier = Modifier.size(SearchDims.FILTER_TOGGLE_ICON_SIZE)
+            )
+            Spacer(modifier = Modifier.width(SearchDims.FILTER_TOGGLE_ICON_TEXT_SPACING))
+        }
+        Text(
+            text = label,
+            color = if (isSelected) White else HomeTextSecondary,
+            fontSize = SearchDims.FILTER_TOGGLE_FONT_SIZE,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
 }
 
 private fun RangeOption.matches(minimum: Double?, maximum: Double?): Boolean =
