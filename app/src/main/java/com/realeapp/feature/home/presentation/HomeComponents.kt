@@ -353,7 +353,7 @@ private fun FeaturedPropertyCard(
             Text(
                 text = property.title,
                 color = Black,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
