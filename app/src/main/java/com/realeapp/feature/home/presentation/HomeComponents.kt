@@ -128,6 +128,7 @@ internal fun HomeSearchBar(
                 tint = Black,
                 modifier = Modifier.size(HomeDims.SEARCH_ICON_SIZE)
             )
+            //search icon <--------------------------> start your search
             Spacer(modifier = Modifier.width(HomeDims.SEARCH_CONTENT_SPACING))
             Text(
                 text = HomeStrings.SEARCH_START,
