@@ -324,14 +324,24 @@ private fun FeaturedPropertyCard(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+            //price
             Text(
-                text = formatIndianPrice(property.price, property.isRent) +
-                    HomeStrings.SEPARATOR_DOT + property.location,
+                text = formatIndianPrice(property.price, property.isRent),
                 color = HomeTextSecondary,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+            //location
+            if (property.location.isNotBlank()) {
+                Text(
+                    text = property.location,
+                    color = HomeTextSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

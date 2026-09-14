@@ -31,7 +31,6 @@ internal object HomeStrings {
     const val SECTION_FEATURED = "Featured Properties"
     const val SECTION_POPULAR_IN_CITY_FORMAT = "Popular homes in %s"
     const val ACTION_SEE_ALL = "See All"
-    const val SEPARATOR_DOT = " · "
     const val BADGE_FEATURED = "Featured"
 
     const val BANNER_TITLE = "Invest in a brighter tomorrow"
