@@ -1,42 +1,27 @@
 package com.realeapp.feature.home.presentation
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.presentation.EmptyResults
 import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.auth.presentation.LoginPromptDialog
-import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.SearchViewModel
-import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
@@ -123,79 +108,29 @@ internal fun HomeContent(
                 onCategorySelected = onCategorySelected
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-            ) {
-                if (featuredList.isEmpty() && promotionalProperty == null) {
-                    EmptyResults(
-                        modifier = Modifier.fillMaxSize(),
-                        title = HomeStrings.NO_PROPERTIES_TITLE,
-                        subtitle = HomeStrings.NO_PROPERTIES_SUBTITLE,
-                        city = selectedCity,
-                        onChangeCity = onChangeCity
-                    )
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .navigationBarsPadding(),
-                        // Extra bottom space so the last item clears the floating glass nav capsule.
-                        // No top padding: the gap after the toggle comes from the
-                        // Column's SECTION_SPACING, same as every other component.
-                        contentPadding = PaddingValues(
-                            bottom = HomeDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
-                    ) {
-                        if (featuredList.isNotEmpty()) {
-                            item {
-                                FeaturedSection(
-                                    properties = featuredList,
-                                    city = selectedCity,
-                                    onSeeAllClick = onSearchClick,
-                                    onPropertyClick = { id ->
-                                        selectedProperty = featuredProperties.find {
-                                            (it.documentId ?: it.id) == id
-                                        }
-                                    }
-                                )
-                            }
-                        }
-
-                        if (promotionalProperty != null) {
-                            item {
-                                PromotionBanner(
-                                    promotionalProperty = promotionalProperty,
-                                    onClick = { selectedProperty = promotionalProperty },
-                                    modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
-                                )
-                            }
-                        }
+            HomePropertyFeed(
+                featuredProperties = featuredList,
+                promotionalProperty = promotionalProperty,
+                city = selectedCity,
+                onSeeAllClick = onSearchClick,
+                onPropertyClick = { id ->
+                    selectedProperty = featuredProperties.find {
+                        (it.documentId ?: it.id) == id
                     }
-                }
-            }
+                },
+                onPromotionClick = { selectedProperty = promotionalProperty },
+                onChangeCity = onChangeCity,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 
     selectedProperty?.let { property ->
-        Dialog(
-            onDismissRequest = { selectedProperty = null },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = AppBackground
-            ) {
-                PropertyDetailScreen(
-                    property = property,
-                    onClose = { selectedProperty = null },
-                    onLike = { onLike(property) },
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
+        PropertyDetailDialog(
+            property = property,
+            onClose = { selectedProperty = null },
+            onLike = { onLike(property) }
+        )
     }
 }
 
