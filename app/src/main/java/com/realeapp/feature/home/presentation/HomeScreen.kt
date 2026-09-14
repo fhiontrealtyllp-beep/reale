@@ -149,8 +149,9 @@ internal fun HomeContent(
                             .fillMaxSize()
                             .navigationBarsPadding(),
                         // Extra bottom space so the last item clears the floating glass nav capsule.
+                        // No top padding: the gap after the toggle comes from the
+                        // Column's SECTION_SPACING, same as every other component.
                         contentPadding = PaddingValues(
-                            top = HomeDims.SCREEN_PADDING,
                             bottom = HomeDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE
                         ),
                         verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
