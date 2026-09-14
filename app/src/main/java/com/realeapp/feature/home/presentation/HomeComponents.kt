@@ -170,7 +170,8 @@ internal fun HomeHeaderSection(
         )
         BuyRentToggle(
             selectedCategory = selectedCategory,
-            onCategorySelected = onCategorySelected
+            onCategorySelected = onCategorySelected,
+            modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
         )
     }
 }
