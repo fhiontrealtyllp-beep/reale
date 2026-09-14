@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -51,12 +53,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.realeapp.R
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
+import com.realeapp.feature.search.presentation.EmptyResults
 import com.realeapp.feature.search.presentation.HomeCategory
+import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
+import com.realeapp.ui.preview.PreviewData
+import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
@@ -123,7 +132,7 @@ internal fun HomeSearchBar(
             Text(
                 text = HomeStrings.SEARCH_START,
                 color = Black,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -521,6 +530,108 @@ private fun BuyRentToggleSegment(
 }
 
 /**
+ * Scrollable feed below the header: the featured-properties section followed by
+ * the promotional banner, or an empty-results placeholder when both are absent.
+ *
+ * @param featuredProperties Featured properties to show in the carousel section.
+ * @param promotionalProperty Promotional property for the banner, or null to hide it.
+ * @param city City name used in the section title and empty state.
+ * @param onSeeAllClick Callback invoked when the section's arrow is tapped.
+ * @param onPropertyClick Callback invoked with the selected property ID.
+ * @param onPromotionClick Callback invoked when the banner is tapped.
+ * @param onChangeCity Callback invoked from the empty state to change city.
+ * @param modifier Modifier to be applied to the feed container.
+ */
+@Composable
+internal fun HomePropertyFeed(
+    featuredProperties: List<FeaturedProperty>,
+    promotionalProperty: Property?,
+    city: String?,
+    onSeeAllClick: () -> Unit,
+    onPropertyClick: (String) -> Unit,
+    onPromotionClick: () -> Unit,
+    onChangeCity: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        if (featuredProperties.isEmpty() && promotionalProperty == null) {
+            EmptyResults(
+                modifier = Modifier.fillMaxSize(),
+                title = HomeStrings.NO_PROPERTIES_TITLE,
+                subtitle = HomeStrings.NO_PROPERTIES_SUBTITLE,
+                city = city,
+                onChangeCity = onChangeCity
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+                // Extra bottom space so the last item clears the floating glass nav capsule.
+                // No top padding: the gap after the header comes from the
+                // parent Column's SECTION_SPACING, same as every other component.
+                contentPadding = PaddingValues(
+                    bottom = HomeDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE
+                ),
+                verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
+            ) {
+                if (featuredProperties.isNotEmpty()) {
+                    item {
+                        FeaturedSection(
+                            properties = featuredProperties,
+                            city = city,
+                            onSeeAllClick = onSeeAllClick,
+                            onPropertyClick = onPropertyClick
+                        )
+                    }
+                }
+
+                if (promotionalProperty != null) {
+                    item {
+                        PromotionBanner(
+                            promotionalProperty = promotionalProperty,
+                            onClick = onPromotionClick,
+                            modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Full-screen dialog that shows [PropertyDetailScreen] for the selected property.
+ *
+ * @param property Property to display.
+ * @param onClose Callback invoked when the dialog is dismissed.
+ * @param onLike Callback invoked when the property's like button is tapped.
+ */
+@Composable
+internal fun PropertyDetailDialog(
+    property: Property,
+    onClose: () -> Unit,
+    onLike: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onClose,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = AppBackground
+        ) {
+            PropertyDetailScreen(
+                property = property,
+                onClose = onClose,
+                onLike = onLike,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+/**
  * Preview for [HomeSearchBar].
  */
 @Preview(showBackground = true)
@@ -649,5 +760,66 @@ private fun BuyRentTogglePreview() {
             onCategorySelected = {},
             modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
         )
+    }
+}
+
+/**
+ * Preview for [HomePropertyFeed].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun HomePropertyFeedPreview() {
+    RealeTheme {
+        HomePropertyFeed(
+            featuredProperties = listOf(
+                FeaturedProperty(
+                    id = "1",
+                    imageUrl = "https://picsum.photos/seed/home1/800/600",
+                    price = 14_265.0,
+                    title = "Flat in Candolim",
+                    location = "Candolim, Goa",
+                    beds = 2,
+                    baths = 2,
+                    sqft = 1100,
+                    isRent = true
+                ),
+                FeaturedProperty(
+                    id = "2",
+                    imageUrl = "https://picsum.photos/seed/home2/800/600",
+                    price = 4_500_000.0,
+                    title = "Villa in Assagao",
+                    location = "Assagao, Goa",
+                    beds = 3,
+                    baths = 3,
+                    sqft = 2100
+                )
+            ),
+            promotionalProperty = PreviewData.sampleProperties.firstOrNull(),
+            city = "North Goa",
+            onSeeAllClick = {},
+            onPropertyClick = {},
+            onPromotionClick = {},
+            onChangeCity = {}
+        )
+    }
+}
+
+/**
+ * Preview for [PropertyDetailDialog]'s content (dialogs don't render in previews).
+ */
+@Preview(showBackground = true)
+@Composable
+private fun PropertyDetailDialogPreview() {
+    RealeTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = AppBackground
+        ) {
+            PropertyDetailScreen(
+                property = PreviewData.sampleProperties.first(),
+                onClose = {},
+                onLike = {}
+            )
+        }
     }
 }
