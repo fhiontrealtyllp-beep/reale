@@ -87,6 +87,9 @@ internal fun HomeContent(
     val featuredList = remember(featuredProperties) {
         featuredProperties.map(Property::toFeaturedProperty)
     }
+    val propertyById = remember(featuredProperties) {
+        featuredProperties.associateBy { it.documentId ?: it.id }
+    }
 
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
 
@@ -120,6 +123,9 @@ internal fun HomeContent(
                 },
                 onPromotionClick = { selectedProperty = promotionalProperty },
                 onChangeCity = onChangeCity,
+                onLike = { featured ->
+                    propertyById[featured.id]?.let { onLike(it) }
+                },
                 modifier = Modifier.weight(1f)
             )
         }

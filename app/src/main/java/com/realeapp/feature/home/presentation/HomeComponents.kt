@@ -37,10 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -184,6 +180,7 @@ internal fun HomeHeaderSection(
  * @param city City name used in the section title, or null for the fallback title.
  * @param onSeeAllClick Callback invoked when the arrow button is tapped.
  * @param onPropertyClick Callback invoked with the selected property ID.
+ * @param onLike Callback invoked when a property's like button is tapped.
  * @param modifier Modifier to be applied to the section.
  */
 @Composable
@@ -191,6 +188,7 @@ internal fun FeaturedSection(
     properties: List<FeaturedProperty>,
     onSeeAllClick: () -> Unit,
     onPropertyClick: (String) -> Unit = {},
+    onLike: (FeaturedProperty) -> Unit = {},
     city: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -235,11 +233,10 @@ internal fun FeaturedSection(
             horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_SPACING)
         ) {
             items(properties, key = { it.id }) { property ->
-                var isLiked by remember(property.id) { mutableStateOf(property.isLiked) }
                 FeaturedPropertyCard(
                     property = property,
-                    isLiked = isLiked,
-                    onLikeToggle = { isLiked = !isLiked },
+                    isLiked = property.isLiked,
+                    onLikeToggle = { onLike(property) },
                     onClick = { onPropertyClick(property.id) }
                 )
             }
@@ -552,6 +549,7 @@ private fun BuyRentToggleSegment(
  * @param onPropertyClick Callback invoked with the selected property ID.
  * @param onPromotionClick Callback invoked when the banner is tapped.
  * @param onChangeCity Callback invoked from the empty state to change city.
+ * @param onLike Callback invoked when a featured property's like button is tapped.
  * @param modifier Modifier to be applied to the feed container.
  */
 @Composable
@@ -563,6 +561,7 @@ internal fun HomePropertyFeed(
     onPropertyClick: (String) -> Unit,
     onPromotionClick: () -> Unit,
     onChangeCity: () -> Unit,
+    onLike: (FeaturedProperty) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -593,7 +592,8 @@ internal fun HomePropertyFeed(
                             properties = featuredProperties,
                             city = city,
                             onSeeAllClick = onSeeAllClick,
-                            onPropertyClick = onPropertyClick
+                            onPropertyClick = onPropertyClick,
+                            onLike = onLike
                         )
                     }
                 }
