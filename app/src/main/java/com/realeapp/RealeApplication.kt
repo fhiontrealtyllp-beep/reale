@@ -58,6 +58,7 @@ class RealeApplication : Application() {
             val oneTimeUtils = OneTimeUtils(this@RealeApplication)
             oneTimeUtils.seedDelhiFilterCoverageIfNeeded()
             oneTimeUtils.seedBengaluruFeaturedPromotionalIfNeeded()
+            oneTimeUtils.seedBengaluruPromotionalBuyIfNeeded()
         }
     }
 }

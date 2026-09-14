@@ -36,7 +36,8 @@ import java.util.Locale
 
 private const val TAG = "SearchViewModel"
 private const val FEATURED_PROPERTIES_LIMIT = 10
-private const val PROMOTIONAL_PROPERTIES_LIMIT = 1
+private const val PROMOTIONAL_PROPERTIES_LIMIT = 50
+private const val PROMOTIONAL_BANNER_MAX = 5
 
 class SearchViewModel(
     private val getAllPropertiesUseCase: GetAllPropertiesUseCase,
@@ -61,9 +62,9 @@ class SearchViewModel(
     private val _featuredProperties = MutableStateFlow<List<Property>>(emptyList())
     val featuredProperties: StateFlow<List<Property>> = _featuredProperties.asStateFlow()
 
-    private val _rawPromotionalProperty = MutableStateFlow<Property?>(null)
-    private val _promotionalProperty = MutableStateFlow<Property?>(null)
-    val promotionalProperty: StateFlow<Property?> = _promotionalProperty.asStateFlow()
+    private val _rawPromotionalProperties = MutableStateFlow<List<Property>>(emptyList())
+    private val _promotionalProperties = MutableStateFlow<List<Property>>(emptyList())
+    val promotionalProperties: StateFlow<List<Property>> = _promotionalProperties.asStateFlow()
 
     private val _selectedHomeCategory = MutableStateFlow(HomeCategory.RENT)
     val selectedHomeCategory: StateFlow<HomeCategory> = _selectedHomeCategory.asStateFlow()
@@ -143,10 +144,8 @@ class SearchViewModel(
                 }
                 _rawFeaturedProperties.value = updatedFeatured
 
-                _rawPromotionalProperty.value?.let { ad ->
-                    _rawPromotionalProperty.value = ad.copy(
-                        isLiked = likedIds.contains(ad.documentId ?: ad.id)
-                    )
+                _rawPromotionalProperties.value = _rawPromotionalProperties.value.map { ad ->
+                    ad.copy(isLiked = likedIds.contains(ad.documentId ?: ad.id))
                 }
 
                 applyCategoryFilter()
@@ -207,8 +206,10 @@ class SearchViewModel(
         val featuredIndex = _featuredProperties.value.indexOfFirst {
             it.documentId == propertyId || it.id == propertyId
         }
-        val promotionalId = _promotionalProperty.value?.documentId ?: _promotionalProperty.value?.id
-        if (allIndex == -1 && featuredIndex == -1 && promotionalId != propertyId) {
+        val promoIndex = _rawPromotionalProperties.value.indexOfFirst {
+            it.documentId == propertyId || it.id == propertyId
+        }
+        if (allIndex == -1 && featuredIndex == -1 && promoIndex == -1) {
             Logger.w(TAG, "onLikeClicked: property not found in list id=$propertyId")
             return
         }
@@ -216,7 +217,7 @@ class SearchViewModel(
         val oldProperty = when {
             allIndex != -1 -> _uiState.value.properties[allIndex]
             featuredIndex != -1 -> _featuredProperties.value[featuredIndex]
-            else -> _promotionalProperty.value!!
+            else -> _rawPromotionalProperties.value[promoIndex]
         }
         val oldIsLiked = oldProperty.isLiked ?: false
         val newIsLiked = !oldIsLiked
@@ -226,8 +227,10 @@ class SearchViewModel(
         likeStateManager.setLiked(oldProperty, newIsLiked)
         if (allIndex != -1) updatePropertyInList(allIndex, updatedProperty)
         if (featuredIndex != -1) updateFeaturedPropertyInList(featuredIndex, updatedProperty)
-        if (promotionalId == propertyId) {
-            _rawPromotionalProperty.value = updatedProperty
+        if (promoIndex != -1) {
+            val updated = _rawPromotionalProperties.value.toMutableList()
+            updated[promoIndex] = updatedProperty
+            _rawPromotionalProperties.value = updated
             applyCategoryFilter()
         }
 
@@ -244,8 +247,10 @@ class SearchViewModel(
                     likeStateManager.setLiked(oldProperty, oldIsLiked)
                     if (allIndex != -1) updatePropertyInList(allIndex, oldProperty)
                     if (featuredIndex != -1) updateFeaturedPropertyInList(featuredIndex, oldProperty)
-                    if (promotionalId == propertyId) {
-                        _rawPromotionalProperty.value = oldProperty
+                    if (promoIndex != -1) {
+                        val reverted = _rawPromotionalProperties.value.toMutableList()
+                        reverted[promoIndex] = oldProperty
+                        _rawPromotionalProperties.value = reverted
                         applyCategoryFilter()
                     }
                     _sideEffect.emit("Failed to update like: ${result.message}")
@@ -407,7 +412,7 @@ class SearchViewModel(
             when (val result = getPromotionalPropertiesUseCase(PROMOTIONAL_PROPERTIES_LIMIT)) {
                 is Result.Success -> {
                     Logger.d(TAG, "loadPromotionalProperty: received=${result.data.size}")
-                    _rawPromotionalProperty.value = result.data.firstOrNull()
+                    _rawPromotionalProperties.value = result.data
                     applyCategoryFilter()
                 }
                 is Result.Error -> {
@@ -495,11 +500,11 @@ class SearchViewModel(
         }
         _featuredProperties.value = filtered
 
-        _promotionalProperty.value = _rawPromotionalProperty.value?.takeIf { property ->
+        _promotionalProperties.value = _rawPromotionalProperties.value.filter { property ->
             category.matches(property) && cityMatches(property.city, normalizedCity)
-        }
+        }.take(PROMOTIONAL_BANNER_MAX)
 
-        Logger.d(TAG, "applyCategoryFilter: featured=${filtered.size}, promo=${_promotionalProperty.value != null}")
+        Logger.d(TAG, "applyCategoryFilter: featured=${filtered.size}, promos=${_promotionalProperties.value.size}")
     }
 
     private fun cityMatches(propertyCity: String, normalizedCity: String?): Boolean {

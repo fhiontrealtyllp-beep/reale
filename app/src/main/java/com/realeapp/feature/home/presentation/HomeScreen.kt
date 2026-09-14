@@ -39,13 +39,13 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val featuredProperties by viewModel.featuredProperties.collectAsStateWithLifecycle()
-    val promotionalProperty by viewModel.promotionalProperty.collectAsStateWithLifecycle()
+    val promotionalProperties by viewModel.promotionalProperties.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val selectedCity by viewModel.selectedCity.collectAsStateWithLifecycle()
 
     HomeContent(
         featuredProperties = featuredProperties,
-        promotionalProperty = promotionalProperty,
+        promotionalProperties = promotionalProperties,
         selectedCategory = selectedCategory,
         selectedCity = selectedCity,
         onSearchClick = onSearchClick,
@@ -72,7 +72,7 @@ fun HomeScreen(
 @Composable
 internal fun HomeContent(
     featuredProperties: List<Property>,
-    promotionalProperty: Property?,
+    promotionalProperties: List<Property>,
     selectedCategory: HomeCategory,
     selectedCity: String? = null,
     onSearchClick: () -> Unit,
@@ -113,7 +113,7 @@ internal fun HomeContent(
 
             HomePropertyFeed(
                 featuredProperties = featuredList,
-                promotionalProperty = promotionalProperty,
+                promotionalProperties = promotionalProperties,
                 city = selectedCity,
                 onSeeAllClick = onSearchClick,
                 onPropertyClick = { id ->
@@ -121,7 +121,7 @@ internal fun HomeContent(
                         (it.documentId ?: it.id) == id
                     }
                 },
-                onPromotionClick = { selectedProperty = promotionalProperty },
+                onPromotionClick = { selectedProperty = it },
                 onChangeCity = onChangeCity,
                 onLike = { featured ->
                     propertyById[featured.id]?.let { onLike(it) }
@@ -172,7 +172,7 @@ private fun HomeContentPreview() {
     RealeTheme {
         HomeContent(
             featuredProperties = PreviewData.sampleProperties,
-            promotionalProperty = PreviewData.sampleProperties.firstOrNull(),
+            promotionalProperties = PreviewData.sampleProperties.take(2),
             selectedCategory = HomeCategory.RENT,
             onSearchClick = {}
         )

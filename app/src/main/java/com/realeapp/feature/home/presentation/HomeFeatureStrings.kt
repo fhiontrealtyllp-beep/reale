@@ -125,6 +125,7 @@ internal object HomeDims {
     val BANNER_ARROW_BUTTON_SIZE = 44.dp
     val BANNER_ARROW_ICON_SIZE = 20.dp
     val BANNER_TEXT_OVERLAY_START = 0.55f
+    const val PROMO_AUTO_SCROLL_MS = 4_000L
 
     val CATEGORY_BORDER_WIDTH = 1.dp
     val SMALL_ICON_SIZE = 14.dp

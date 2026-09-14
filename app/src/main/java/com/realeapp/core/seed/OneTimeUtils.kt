@@ -33,12 +33,14 @@ private const val KEY_NAGPUR_SEEDED = "nagpur_seeded"
 private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seeded"
 private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
 private const val KEY_BENGALURU_FEATURED_PROMO_SEEDED = "bengaluru_featured_promo_seeded"
+private const val KEY_BENGALURU_PROMO_BUY_SEEDED = "bengaluru_promo_buy_seeded"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
 private const val PANAJI_FEATURED_COUNT = 5
 private const val PANAJI_PROMOTIONAL_COUNT = 5
 private const val BENGALURU_CATEGORY_COUNT = 10
+private const val BENGALURU_PROMO_BUY_COUNT = 10
 private const val ESSENTIAL_FILTER_SEED_COPIES = 2
 private const val ESSENTIAL_FILTER_MAX_BATHROOMS = 5
 private const val SEED_USER_ID = "seed_user"
@@ -501,6 +503,62 @@ class OneTimeUtils(
             Logger.d(TAG, "Bengaluru featured/promotional seeding complete. Total: $successCount")
         } else {
             Logger.w(TAG, "Bengaluru featured/promotional seeding incomplete. Success: $successCount / $totalCount")
+        }
+    }
+
+    /**
+     * Seeds [BENGALURU_PROMO_BUY_COUNT] PROMOTIONAL properties for Bengaluru, all
+     * marked BUY so the home banner shows buy listings for that city.
+     */
+    suspend fun seedBengaluruPromotionalBuyIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_BENGALURU_PROMO_BUY_SEEDED, false)) {
+            Logger.d(TAG, "Bengaluru promotional buy properties already seeded, skipping.")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Bengaluru promotional buy property seeding...")
+        val propertiesCollection = firestore.collection(FirebaseConstants.PROPERTIES_COLLECTION)
+        val city = "Bengaluru"
+        val normalizedCity = LocationNormalizer.normalizeCity(city) ?: city.lowercase()
+        val images = buildImageUrls(normalizedCity)
+        val pincode = "560001"
+        val baseLatitude = 12.9716
+        val baseLongitude = 77.5946
+        var successCount = 0
+
+        var globalIndex = 50_000
+        for (propertyIndex in 1..BENGALURU_PROMO_BUY_COUNT) {
+            val data = buildPropertyData(
+                city = normalizedCity,
+                locality = BENGALURU_LOCALITIES[(propertyIndex - 1) % BENGALURU_LOCALITIES.size],
+                pincode = pincode,
+                propertyIndex = propertyIndex,
+                globalIndex = globalIndex,
+                images = images,
+                listingCategory = ListingCategory.PROMOTIONAL,
+                latitude = baseLatitude + (globalIndex * 0.0001),
+                longitude = baseLongitude + (globalIndex * 0.0001),
+                rentBuyOverride = RentBuy.BUY,
+                residentialCommercialOverride = ResidentialCommercial.RESIDENTIAL
+            )
+
+            try {
+                val docRef = propertiesCollection.document()
+                val dataWithId = data.toMutableMap().apply { this["id"] = docRef.id }
+                docRef.set(dataWithId).await()
+                successCount++
+                Logger.d(TAG, "Seeded PROMOTIONAL Bengaluru buy property $propertyIndex -> ${docRef.id}")
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to seed PROMOTIONAL Bengaluru buy property $propertyIndex: ${e.message}", e)
+            }
+            globalIndex++
+        }
+
+        if (successCount == BENGALURU_PROMO_BUY_COUNT) {
+            prefs.edit().putBoolean(KEY_BENGALURU_PROMO_BUY_SEEDED, true).apply()
+            Logger.d(TAG, "Bengaluru promotional buy seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Bengaluru promotional buy seeding incomplete. Success: $successCount / $BENGALURU_PROMO_BUY_COUNT")
         }
     }
 

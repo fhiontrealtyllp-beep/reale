@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import kotlinx.coroutines.delay
 import com.realeapp.R
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -345,39 +349,68 @@ private fun FeaturedPropertyCard(
 }
 
 /**
- * Promotional banner card that shows a single [Property] ad, or a fallback
- * static banner when no promotional property is available.
+ * Promotional banner that auto-slides through the given [Property] ads every
+ * few seconds, or a fallback static banner when none are available.
  *
- * @param promotionalProperty Promotional property to display, or null for fallback.
- * @param onClick Callback invoked when the call-to-action arrow is tapped.
+ * @param promotionalProperties Promotional properties to display.
+ * @param onClick Callback invoked with the property whose arrow is tapped.
  * @param modifier Modifier to be applied to the banner.
  */
 @Composable
 internal fun PromotionBanner(
-    promotionalProperty: Property?,
-    onClick: () -> Unit = {},
+    promotionalProperties: List<Property>,
+    onClick: (Property) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val title: String
-    val subtitle: String
-    val imageUrl: String
-
-    if (promotionalProperty != null) {
-        title = formatIndianPrice(
-            promotionalProperty.price,
-            promotionalProperty.rentBuy == RentBuy.RENT
+    if (promotionalProperties.isEmpty()) {
+        PromotionBannerCard(
+            title = HomeStrings.BANNER_TITLE,
+            subtitle = HomeStrings.BANNER_SUBTITLE,
+            imageUrl = HomeStrings.BANNER_FALLBACK_IMAGE,
+            showBadge = false,
+            onClick = {},
+            modifier = modifier
         )
-        subtitle = listOf(
-            promotionalProperty.locality,
-            promotionalProperty.city
-        ).filter(String::isNotBlank).joinToString(HomeStrings.LOCATION_SEPARATOR)
-        imageUrl = promotionalProperty.images.firstOrNull().orEmpty()
-    } else {
-        title = HomeStrings.BANNER_TITLE
-        subtitle = HomeStrings.BANNER_SUBTITLE
-        imageUrl = HomeStrings.BANNER_FALLBACK_IMAGE
+        return
     }
 
+    val pagerState = rememberPagerState(pageCount = { promotionalProperties.size })
+
+    LaunchedEffect(pagerState.pageCount) {
+        while (true) {
+            delay(HomeDims.PROMO_AUTO_SCROLL_MS)
+            val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier
+    ) { page ->
+        val property = promotionalProperties[page]
+        PromotionBannerCard(
+            title = formatIndianPrice(property.price, property.rentBuy == RentBuy.RENT),
+            subtitle = listOf(property.locality, property.city)
+                .filter(String::isNotBlank)
+                .joinToString(HomeStrings.LOCATION_SEPARATOR),
+            imageUrl = property.images.firstOrNull().orEmpty(),
+            showBadge = true,
+            onClick = { onClick(property) },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun PromotionBannerCard(
+    title: String,
+    subtitle: String,
+    imageUrl: String,
+    showBadge: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -395,7 +428,7 @@ internal fun PromotionBanner(
                 modifier = Modifier.fillMaxSize()
             )
 
-            if (promotionalProperty != null) {
+            if (showBadge) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -543,11 +576,11 @@ private fun BuyRentToggleSegment(
  * the promotional banner, or an empty-results placeholder when both are absent.
  *
  * @param featuredProperties Featured properties to show in the carousel section.
- * @param promotionalProperty Promotional property for the banner, or null to hide it.
+ * @param promotionalProperties Promotional properties for the auto-sliding banner.
  * @param city City name used in the section title and empty state.
  * @param onSeeAllClick Callback invoked when the section's arrow is tapped.
  * @param onPropertyClick Callback invoked with the selected property ID.
- * @param onPromotionClick Callback invoked when the banner is tapped.
+ * @param onPromotionClick Callback invoked with the tapped promotional property.
  * @param onChangeCity Callback invoked from the empty state to change city.
  * @param onLike Callback invoked when a featured property's like button is tapped.
  * @param modifier Modifier to be applied to the feed container.
@@ -555,17 +588,17 @@ private fun BuyRentToggleSegment(
 @Composable
 internal fun HomePropertyFeed(
     featuredProperties: List<FeaturedProperty>,
-    promotionalProperty: Property?,
+    promotionalProperties: List<Property>,
     city: String?,
     onSeeAllClick: () -> Unit,
     onPropertyClick: (String) -> Unit,
-    onPromotionClick: () -> Unit,
+    onPromotionClick: (Property) -> Unit,
     onChangeCity: () -> Unit,
     onLike: (FeaturedProperty) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        if (featuredProperties.isEmpty() && promotionalProperty == null) {
+        if (featuredProperties.isEmpty() && promotionalProperties.isEmpty()) {
             EmptyResults(
                 modifier = Modifier.fillMaxSize(),
                 title = HomeStrings.NO_PROPERTIES_TITLE,
@@ -598,10 +631,10 @@ internal fun HomePropertyFeed(
                     }
                 }
 
-                if (promotionalProperty != null) {
+                if (promotionalProperties.isNotEmpty()) {
                     item {
                         PromotionBanner(
-                            promotionalProperty = promotionalProperty,
+                            promotionalProperties = promotionalProperties,
                             onClick = onPromotionClick,
                             modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
                         )
@@ -754,7 +787,7 @@ private fun FeaturedPropertyCardPreview() {
 private fun PromotionBannerPreview() {
     RealeTheme {
         PromotionBanner(
-            promotionalProperty = null,
+            promotionalProperties = PreviewData.sampleProperties.take(2),
             onClick = {}
         )
     }
@@ -806,7 +839,7 @@ private fun HomePropertyFeedPreview() {
                     sqft = 2100
                 )
             ),
-            promotionalProperty = PreviewData.sampleProperties.firstOrNull(),
+            promotionalProperties = PreviewData.sampleProperties.take(2),
             city = "North Goa",
             onSeeAllClick = {},
             onPropertyClick = {},
