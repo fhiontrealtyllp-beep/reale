@@ -217,7 +217,14 @@ private fun FeaturedPropertyCard(
     Column(
         modifier = Modifier
             .width(HomeDims.FEATURED_CARD_WIDTH)
-            .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
+            // Only the top corners are rounded; a bottom rounding would clip
+            // the descenders of the title/location text below the image.
+            .clip(
+                RoundedCornerShape(
+                    topStart = HomeDims.FEATURED_CARD_CORNER_RADIUS,
+                    topEnd = HomeDims.FEATURED_CARD_CORNER_RADIUS
+                )
+            )
             .clickable(onClick = onClick)
     ) {
         Box(
@@ -534,6 +541,32 @@ private fun FeaturedSectionPreview() {
             ),
             city = "North Goa",
             onSeeAllClick = {}
+        )
+    }
+}
+
+/**
+ * Preview for [FeaturedPropertyCard].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun FeaturedPropertyCardPreview() {
+    RealeTheme {
+        FeaturedPropertyCard(
+            property = FeaturedProperty(
+                id = "1",
+                imageUrl = "https://picsum.photos/seed/home1/800/600",
+                price = 14_265.0,
+                title = "Flat in Candolim",
+                location = "Candolim, Goa",
+                beds = 2,
+                baths = 2,
+                sqft = 1100,
+                isRent = true
+            ),
+            isLiked = false,
+            onLikeToggle = {},
+            onClick = {}
         )
     }
 }
