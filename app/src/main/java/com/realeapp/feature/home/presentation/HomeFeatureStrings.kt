@@ -12,6 +12,7 @@ internal object HomeStrings {
     const val HOME_TITLE_LINE2 = "for your next chapter"
 
     const val SEARCH_HINT = "Search by location, project or keyword"
+    const val SEARCH_START = "Start your search"
     const val CD_SEARCH_ICON = "Search"
     const val CD_FILTER_ICON = "Filter"
 
@@ -20,6 +21,8 @@ internal object HomeStrings {
 
     const val LOOKING_FOR_TITLE = "Looking for"
 
+    const val CATEGORY_ALL = "All"
+    const val CATEGORY_HOMES = "Homes"
     const val CATEGORY_BUY = "Buy"
     const val CATEGORY_RENT = "Rent"
     const val CATEGORY_NEW_PROJECTS = "New Projects"
@@ -53,7 +56,8 @@ internal object HomeStrings {
 
 internal object HomeDims {
     val SCREEN_PADDING = 20.dp
-    val SECTION_SPACING = 24.dp
+    val SCREEN_TOP_PADDING = 12.dp
+    val SECTION_SPACING = 28.dp
     val TITLE_TOP_SPACING = 24.dp
     val TITLE_LINE_SPACING = 4.dp
 
@@ -61,11 +65,19 @@ internal object HomeDims {
     val LOGO_ICON_TEXT_SPACING = 8.dp
     val NOTIFICATION_BADGE_SIZE = 8.dp
 
-    val SEARCH_HEIGHT = 52.dp
-    val SEARCH_CORNER_RADIUS = 26.dp
-    val SEARCH_ICON_SIZE = 20.dp
-    val SEARCH_HORIZONTAL_PADDING = 16.dp
+    val SEARCH_HEIGHT = 72.dp
+    val SEARCH_CORNER_RADIUS = 36.dp
+    val SEARCH_ICON_SIZE = 22.dp
+    val SEARCH_HORIZONTAL_PADDING = 24.dp
     val SEARCH_CONTENT_SPACING = 12.dp
+    val SEARCH_ELEVATION = 6.dp
+
+    val CATEGORY_CHIP_HEIGHT = 52.dp
+    val CATEGORY_CHIP_RADIUS = 26.dp
+    val CATEGORY_CHIP_HORIZONTAL_PADDING = 18.dp
+    val CATEGORY_CHIP_SPACING = 10.dp
+    val CATEGORY_EMOJI_SPACING = 8.dp
+    val CATEGORY_FONT_SIZE = 16.sp
 
     val CATEGORY_CIRCLE_SIZE = 56.dp
     val CATEGORY_ICON_SIZE = 28.dp
@@ -78,24 +90,30 @@ internal object HomeDims {
     val TOGGLE_INNER_PADDING = 4.dp
     val TOGGLE_FONT_SIZE = 14.sp
 
-    val FEATURED_CARD_WIDTH = 180.dp
-    val FEATURED_CARD_SPACING = 16.dp
-    val FEATURED_CARD_IMAGE_HEIGHT = 170.dp
-    val FEATURED_CARD_CORNER_RADIUS = 16.dp
+    val FEATURED_CARD_WIDTH = 196.dp
+    val FEATURED_CARD_SPACING = 14.dp
+    val FEATURED_CARD_IMAGE_HEIGHT = 184.dp
+    val FEATURED_CARD_CORNER_RADIUS = 20.dp
     val FEATURED_CARD_CONTENT_PADDING = 12.dp
     val FEATURED_CARD_ELEVATION = 4.dp
-    val FEATURED_TEXT_TOP_SPACING = 8.dp
-    val FEATURED_TEXT_LINE_SPACING = 2.dp
-    val SEE_ALL_CIRCLE_SIZE = 32.dp
-    val SEE_ALL_ICON_SIZE = 16.dp
+
+    val FEATURED_TEXT_TOP_SPACING = 10.dp
+    val FEATURED_TEXT_LINE_SPACING = 3.dp
+    val FEATURED_TITLE_FONT_SIZE = 16.sp
+    val FEATURED_META_FONT_SIZE = 14.sp
+    val SEE_ALL_CIRCLE_SIZE = 38.dp
+    val SEE_ALL_ICON_SIZE = 19.dp
     val FEATURED_DETAILS_SPACING = 4.dp
     val FEATURED_SPEC_SPACING = 12.dp
     val FEATURED_SPEC_LABEL_SPACING = 4.dp
     val FEATURED_BADGE_CORNER_RADIUS = 6.dp
     val FEATURED_BADGE_HORIZONTAL_PADDING = 8.dp
     val FEATURED_BADGE_VERTICAL_PADDING = 4.dp
-    val HEART_BUTTON_SIZE = 32.dp
-    val HEART_ICON_SIZE = 16.dp
+
+    val HEART_BUTTON_SIZE = 36.dp
+    val HEART_ICON_SIZE = 27.dp
+    val HEART_PADDING = 8.dp
+    val HEART_STROKE_WIDTH = 1.dp
 
     val BANNER_HEIGHT = 120.dp
     val BANNER_CORNER_RADIUS = 16.dp

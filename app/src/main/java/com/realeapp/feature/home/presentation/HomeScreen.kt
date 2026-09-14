@@ -117,22 +117,18 @@ internal fun HomeContent(
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
         ) {
-           //todo HomeSearchBar(onSearchClick = onSearchClick, modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING))
-            Column(
-                modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING),
-                verticalArrangement = Arrangement.spacedBy(HomeDims.TOGGLE_TITLE_SPACING)
-            ) {
-                Text(
-                    text = HomeStrings.LOOKING_FOR_TITLE,
-                    color = Black,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
+            HomeSearchBar(
+                onSearchClick = onSearchClick,
+                modifier = Modifier.padding(
+                    start = HomeDims.SCREEN_PADDING,
+                    top = HomeDims.SCREEN_TOP_PADDING,
+                    end = HomeDims.SCREEN_PADDING
                 )
-                BuyRentToggle(
-                    selectedCategory = selectedCategory,
-                    onCategorySelected = onCategorySelected
-                )
-            }
+            )
+            BuyRentToggle(
+                selectedCategory = selectedCategory,
+                onCategorySelected = onCategorySelected
+            )
 
             Box(
                 modifier = Modifier
@@ -196,7 +192,7 @@ internal fun HomeContent(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MainBackground
+                color = AppBackground
             ) {
                 PropertyDetailScreen(
                     property = property,

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,11 +26,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -49,7 +53,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import com.realeapp.R
-import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.HomeCategory
@@ -63,6 +66,7 @@ import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
+import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import java.util.Locale
 
@@ -83,86 +87,44 @@ internal data class FeaturedProperty(
 )
 
 /**
- * Capsule-style Buy/Rent toggle for the home screen.
+ * Home search bar with a search icon and placeholder text.
  *
- * @param selectedCategory Currently selected home category.
- * @param onCategorySelected Callback invoked when a segment is tapped.
- * @param modifier Modifier to be applied to the toggle row.
+ * @param onSearchClick Callback invoked when the search bar is tapped.
+ * @param modifier Modifier to be applied to the search bar.
  */
 @Composable
-internal fun BuyRentToggle(
-    selectedCategory: HomeCategory,
-    onCategorySelected: (HomeCategory) -> Unit,
+internal fun HomeSearchBar(
+    onSearchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(HomeDims.TOGGLE_ROW_HEIGHT)
-            .clip(CircleShape)
-            .background(HomeCategoryUnselected)
-            .padding(HomeDims.TOGGLE_INNER_PADDING)
+            .height(HomeDims.SEARCH_HEIGHT)
+            .shadow(HomeDims.SEARCH_ELEVATION, CircleShape)
+            .clickable(onClick = onSearchClick),
+        shape = CircleShape,
+        color = White
     ) {
-        BuyRentSegment(
-            label = HomeStrings.CATEGORY_RENT,
-            isSelected = selectedCategory == HomeCategory.RENT,
-            onClick = { onCategorySelected(HomeCategory.RENT) },
-            modifier = Modifier.weight(1f)
-        )
-        BuyRentSegment(
-            label = HomeStrings.CATEGORY_BUY,
-            isSelected = selectedCategory == HomeCategory.BUY ||
-                selectedCategory == HomeCategory.NEW_PROJECTS,
-            onClick = { onCategorySelected(HomeCategory.BUY) },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-/**
- * Individual capsule segment inside [BuyRentToggle].
- *
- * @param label Segment text.
- * @param isSelected Whether this segment is currently selected.
- * @param onClick Callback invoked when the segment is tapped.
- * @param modifier Modifier to be applied to the segment.
- */
-@Composable
-private fun BuyRentSegment(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxHeight()
-            .clip(CircleShape)
-            .background(if (isSelected) BrandBlue else Color.Transparent)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = if (isSelected) OnBrandContent else HomeTextSecondary,
-            fontSize = HomeDims.TOGGLE_FONT_SIZE,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
-        )
-    }
-}
-
-/**
- * Preview for [BuyRentToggle].
- */
-@Preview(showBackground = true)
-@Composable
-private fun BuyRentTogglePreview() {
-    RealeTheme {
-        BuyRentToggle(
-            selectedCategory = HomeCategory.BUY,
-            onCategorySelected = {},
-            modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = HomeDims.SEARCH_HORIZONTAL_PADDING),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = HomeStrings.CD_SEARCH_ICON,
+                tint = Black,
+                modifier = Modifier.size(HomeDims.SEARCH_ICON_SIZE)
+            )
+            Spacer(modifier = Modifier.width(HomeDims.SEARCH_CONTENT_SPACING))
+            Text(
+                text = HomeStrings.SEARCH_START,
+                color = Black,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
@@ -206,7 +168,7 @@ internal fun FeaturedSection(
                 modifier = Modifier
                     .size(HomeDims.SEE_ALL_CIRCLE_SIZE)
                     .clip(CircleShape)
-                    .border(BorderStroke(HomeDims.CATEGORY_BORDER_WIDTH, HomeSearchBarBorder), CircleShape)
+                    .background(HomeCategoryUnselected)
                     .clickable(onClick = onSeeAllClick),
                 contentAlignment = Alignment.Center
             ) {
@@ -220,8 +182,9 @@ internal fun FeaturedSection(
         }
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_SPACING),
-            contentPadding = PaddingValues(horizontal = HomeDims.SCREEN_PADDING)
+            modifier = modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = HomeDims.SCREEN_PADDING),
+            horizontalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_SPACING)
         ) {
             items(properties, key = { it.id }) { property ->
                 var isLiked by remember(property.id) { mutableStateOf(property.isLiked) }
@@ -233,54 +196,6 @@ internal fun FeaturedSection(
                 )
             }
         }
-    }
-}
-
-/**
- * Preview for [FeaturedSection].
- */
-@Preview(showBackground = true)
-@Composable
-private fun FeaturedSectionPreview() {
-    RealeTheme {
-        FeaturedSection(
-            properties = listOf(
-                FeaturedProperty(
-                    id = "1",
-                    imageUrl = "https://picsum.photos/seed/home1/800/600",
-                    price = 14_265.0,
-                    title = "Flat in Candolim",
-                    location = "Candolim, Goa",
-                    beds = 2,
-                    baths = 2,
-                    sqft = 1100,
-                    isRent = true
-                ),
-                FeaturedProperty(
-                    id = "2",
-                    imageUrl = "https://picsum.photos/seed/home2/800/600",
-                    price = 7_300.0,
-                    title = "Flat in Candolim",
-                    location = "Candolim, Goa",
-                    beds = 1,
-                    baths = 1,
-                    sqft = 750,
-                    isRent = true
-                ),
-                FeaturedProperty(
-                    id = "3",
-                    imageUrl = "https://picsum.photos/seed/home3/800/600",
-                    price = 4_500_000.0,
-                    title = "Villa in Assagao",
-                    location = "Assagao, Goa",
-                    beds = 3,
-                    baths = 3,
-                    sqft = 2100
-                )
-            ),
-            city = "North Goa",
-            onSeeAllClick = {}
-        )
     }
 }
 
@@ -337,7 +252,7 @@ private fun FeaturedPropertyCard(
                 Icon(
                     imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = HomeStrings.CD_FAVORITE,
-                    tint = if (isLiked) BrandRed else Black,
+                    tint = if (isLiked) BrandRed else OnMediaContent,
                     modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
                 )
             }
@@ -350,8 +265,8 @@ private fun FeaturedPropertyCard(
             Text(
                 text = property.title,
                 color = Black,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -495,5 +410,159 @@ internal fun PromotionBanner(
                 }
             }
         }
+    }
+}
+
+/**
+ * Two-segment Buy / Rent toggle used on the home screen.
+ *
+ * @param selectedCategory Currently selected [HomeCategory].
+ * @param onCategorySelected Callback invoked when the user selects a category.
+ * @param modifier Modifier to be applied to the toggle.
+ */
+@Composable
+internal fun BuyRentToggle(
+    selectedCategory: HomeCategory,
+    onCategorySelected: (HomeCategory) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isRent = selectedCategory == HomeCategory.RENT
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(HomeDims.TOGGLE_ROW_HEIGHT)
+            .clip(CircleShape)
+            .background(HomeCategoryUnselected)
+            .padding(HomeDims.TOGGLE_INNER_PADDING),
+        horizontalArrangement = Arrangement.spacedBy(HomeDims.TOGGLE_INNER_PADDING)
+    ) {
+        BuyRentToggleSegment(
+            label = HomeStrings.CATEGORY_RENT,
+            isSelected = isRent,
+            onClick = { onCategorySelected(HomeCategory.RENT) },
+            modifier = Modifier.weight(1f)
+        )
+        BuyRentToggleSegment(
+            label = HomeStrings.CATEGORY_BUY,
+            isSelected = !isRent,
+            onClick = { onCategorySelected(HomeCategory.BUY) },
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun BuyRentToggleSegment(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .clip(CircleShape)
+            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = if (isSelected) White else HomeTextSecondary,
+            fontSize = HomeDims.TOGGLE_FONT_SIZE,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+        )
+    }
+}
+
+/**
+ * Preview for [HomeSearchBar].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun HomeSearchBarPreview() {
+    RealeTheme {
+        HomeSearchBar(
+            onSearchClick = {},
+            modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
+        )
+    }
+}
+
+/**
+ * Preview for [FeaturedSection].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun FeaturedSectionPreview() {
+    RealeTheme {
+        FeaturedSection(
+            properties = listOf(
+                FeaturedProperty(
+                    id = "1",
+                    imageUrl = "https://picsum.photos/seed/home1/800/600",
+                    price = 14_265.0,
+                    title = "Flat in Candolim",
+                    location = "Candolim, Goa",
+                    beds = 2,
+                    baths = 2,
+                    sqft = 1100,
+                    isRent = true
+                ),
+                FeaturedProperty(
+                    id = "2",
+                    imageUrl = "https://picsum.photos/seed/home2/800/600",
+                    price = 7_300.0,
+                    title = "Flat in Candolim",
+                    location = "Candolim, Goa",
+                    beds = 1,
+                    baths = 1,
+                    sqft = 750,
+                    isRent = true
+                ),
+                FeaturedProperty(
+                    id = "3",
+                    imageUrl = "https://picsum.photos/seed/home3/800/600",
+                    price = 4_500_000.0,
+                    title = "Villa in Assagao",
+                    location = "Assagao, Goa",
+                    beds = 3,
+                    baths = 3,
+                    sqft = 2100
+                )
+            ),
+            city = "North Goa",
+            onSeeAllClick = {}
+        )
+    }
+}
+
+/**
+ * Preview for [PromotionBanner].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun PromotionBannerPreview() {
+    RealeTheme {
+        PromotionBanner(
+            promotionalProperty = null,
+            onClick = {}
+        )
+    }
+}
+
+/**
+ * Preview for [BuyRentToggle].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun BuyRentTogglePreview() {
+    RealeTheme {
+        BuyRentToggle(
+            selectedCategory = HomeCategory.RENT,
+            onCategorySelected = {},
+            modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
+        )
     }
 }
