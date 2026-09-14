@@ -97,17 +97,19 @@ internal fun HomeSearchBar(
     onSearchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Wraps its content: the pill's size comes from the icon/text plus padding.
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(HomeDims.SEARCH_HEIGHT)
+        modifier = modifier.fillMaxWidth()
             .shadow(HomeDims.SEARCH_ELEVATION, CircleShape)
             .clickable(onClick = onSearchClick),
         shape = CircleShape,
         color = White
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = HomeDims.SEARCH_HORIZONTAL_PADDING),
+            modifier = Modifier.padding(
+                horizontal = HomeDims.SEARCH_HORIZONTAL_PADDING,
+                vertical = HomeDims.SEARCH_VERTICAL_PADDING
+            ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -69,6 +69,7 @@ internal object HomeDims {
     val SEARCH_CORNER_RADIUS = 36.dp
     val SEARCH_ICON_SIZE = 22.dp
     val SEARCH_HORIZONTAL_PADDING = 24.dp
+    val SEARCH_VERTICAL_PADDING = 12.dp
     val SEARCH_CONTENT_SPACING = 12.dp
     val SEARCH_ELEVATION = 6.dp
 
