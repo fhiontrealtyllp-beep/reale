@@ -93,9 +93,10 @@ internal object HomeDims {
     val TOGGLE_INNER_PADDING = 4.dp
     val TOGGLE_FONT_SIZE = 14.sp
 
-    val FEATURED_CARD_WIDTH = 196.dp
+    // Single size for the featured card: used for both the card width and
+    // the image height, so the image stays square.
+    val FEATURED_CARD_SIZE = 170.dp
     val FEATURED_CARD_SPACING = 14.dp
-    val FEATURED_CARD_IMAGE_HEIGHT = 184.dp
     val FEATURED_CARD_CORNER_RADIUS = 20.dp
     val FEATURED_CARD_CONTENT_PADDING = 12.dp
     val FEATURED_CARD_ELEVATION = 4.dp

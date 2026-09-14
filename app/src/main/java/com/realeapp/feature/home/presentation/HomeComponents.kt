@@ -264,7 +264,7 @@ private fun FeaturedPropertyCard(
 ) {
     Column(
         modifier = Modifier
-            .width(HomeDims.FEATURED_CARD_WIDTH)
+            .width(HomeDims.FEATURED_CARD_SIZE)
             // Only the top corners are rounded; a bottom rounding would clip
             // the descenders of the title/location text below the image.
             .clip(
@@ -278,7 +278,7 @@ private fun FeaturedPropertyCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(HomeDims.FEATURED_CARD_IMAGE_HEIGHT)
+                .height(HomeDims.FEATURED_CARD_SIZE)
                 .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
         ) {
             if (LocalInspectionMode.current) {
