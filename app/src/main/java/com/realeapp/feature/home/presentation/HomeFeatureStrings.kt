@@ -57,7 +57,7 @@ internal object HomeStrings {
 internal object HomeDims {
     val SCREEN_PADDING = 20.dp
     val SCREEN_TOP_PADDING = 12.dp
-    val SECTION_SPACING = 28.dp
+    val SECTION_SPACING = 8.dp
     val TITLE_TOP_SPACING = 24.dp
     val TITLE_LINE_SPACING = 4.dp
 
