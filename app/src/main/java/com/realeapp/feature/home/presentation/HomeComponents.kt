@@ -131,6 +131,41 @@ internal fun HomeSearchBar(
 }
 
 /**
+ * Header section grouping the search bar and the buy/rent toggle with their
+ * own tighter internal spacing ([HomeDims.SEARCH_TO_TOGGLE_SPACING]).
+ *
+ * @param onSearchClick Callback invoked when the search bar is tapped.
+ * @param selectedCategory Currently selected [HomeCategory].
+ * @param onCategorySelected Callback invoked when the user selects a category.
+ * @param modifier Modifier to be applied to the section.
+ */
+@Composable
+internal fun HomeHeaderSection(
+    onSearchClick: () -> Unit,
+    selectedCategory: HomeCategory,
+    onCategorySelected: (HomeCategory) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(HomeDims.SEARCH_TO_TOGGLE_SPACING)
+    ) {
+        HomeSearchBar(
+            onSearchClick = onSearchClick,
+            modifier = Modifier.padding(
+                start = HomeDims.SCREEN_PADDING,
+                top = HomeDims.SCREEN_TOP_PADDING,
+                end = HomeDims.SCREEN_PADDING
+            )
+        )
+        BuyRentToggle(
+            selectedCategory = selectedCategory,
+            onCategorySelected = onCategorySelected
+        )
+    }
+}
+
+/**
  * Section that displays the list of featured properties with a circular
  * "see all" arrow action, styled like Airbnb's popular homes row.
  *
@@ -495,6 +530,21 @@ private fun HomeSearchBarPreview() {
         HomeSearchBar(
             onSearchClick = {},
             modifier = Modifier.padding(HomeDims.SCREEN_PADDING)
+        )
+    }
+}
+
+/**
+ * Preview for [HomeHeaderSection].
+ */
+@Preview(showBackground = true)
+@Composable
+private fun HomeHeaderSectionPreview() {
+    RealeTheme {
+        HomeHeaderSection(
+            onSearchClick = {},
+            selectedCategory = HomeCategory.RENT,
+            onCategorySelected = {}
         )
     }
 }

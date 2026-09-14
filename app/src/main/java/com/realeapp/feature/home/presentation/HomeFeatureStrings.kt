@@ -72,6 +72,9 @@ internal object HomeDims {
     val SEARCH_VERTICAL_PADDING = 12.dp
     val SEARCH_CONTENT_SPACING = 12.dp
     val SEARCH_ELEVATION = 6.dp
+    // Gap between the search bar and the buy/rent toggle; tighter than
+    // SECTION_SPACING since the two belong together.
+    val SEARCH_TO_TOGGLE_SPACING = 16.dp
 
     val CATEGORY_CHIP_HEIGHT = 52.dp
     val CATEGORY_CHIP_RADIUS = 26.dp

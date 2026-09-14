@@ -117,15 +117,8 @@ internal fun HomeContent(
                 .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
         ) {
-            HomeSearchBar(
+            HomeHeaderSection(
                 onSearchClick = onSearchClick,
-                modifier = Modifier.padding(
-                    start = HomeDims.SCREEN_PADDING,
-                    top = HomeDims.SCREEN_TOP_PADDING,
-                    end = HomeDims.SCREEN_PADDING
-                )
-            )
-            BuyRentToggle(
                 selectedCategory = selectedCategory,
                 onCategorySelected = onCategorySelected
             )
