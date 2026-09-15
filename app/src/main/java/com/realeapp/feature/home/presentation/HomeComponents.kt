@@ -46,12 +46,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
@@ -78,6 +80,7 @@ import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import java.util.Locale
+import kotlin.math.abs
 
 /**
  * UI model for a featured property displayed in the home screen carousel.
@@ -349,8 +352,40 @@ private fun FeaturedPropertyCard(
 }
 
 /**
- * Promotional banner that auto-slides through the given [Property] ads every
- * few seconds, or a fallback static banner when none are available.
+ * Page indicator dots for the promotional banner carousel.
+ *
+ * @param pageCount Total number of pages.
+ * @param currentPage Index of the currently selected page.
+ * @param modifier Modifier to be applied to the indicator row.
+ */
+@Composable
+private fun PromotionPageIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    modifier: Modifier = Modifier
+) {
+    if (pageCount <= 1) return
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(HomeDims.PROMO_INDICATOR_SPACING)
+    ) {
+        repeat(pageCount) { index ->
+            val isSelected = index == currentPage
+            Box(
+                modifier = Modifier
+                    .width(if (isSelected) HomeDims.PROMO_INDICATOR_ACTIVE_WIDTH else HomeDims.PROMO_INDICATOR_INACTIVE_WIDTH)
+                    .height(HomeDims.PROMO_INDICATOR_HEIGHT)
+                    .clip(CircleShape)
+                    .background(if (isSelected) BrandCoral else HomeTextSecondary.copy(alpha = 0.5f))
+            )
+        }
+    }
+}
+
+/**
+ * Promotional banner that auto-slides through the given [Property] ads in a
+ * peek carousel, or a fallback static banner when none are available.
  *
  * @param promotionalProperties Promotional properties to display.
  * @param onClick Callback invoked with the property whose arrow is tapped.
@@ -369,7 +404,7 @@ internal fun PromotionBanner(
             imageUrl = HomeStrings.BANNER_FALLBACK_IMAGE,
             showBadge = false,
             onClick = {},
-            modifier = modifier
+            modifier = modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
         )
         return
     }
@@ -384,21 +419,48 @@ internal fun PromotionBanner(
         }
     }
 
-    HorizontalPager(
-        state = pagerState,
-        modifier = modifier
-    ) { page ->
-        val property = promotionalProperties[page]
-        PromotionBannerCard(
-            title = formatIndianPrice(property.price, property.rentBuy == RentBuy.RENT),
-            subtitle = listOf(property.locality, property.city)
-                .filter(String::isNotBlank)
-                .joinToString(HomeStrings.LOCATION_SEPARATOR),
-            imageUrl = property.images.firstOrNull().orEmpty(),
-            showBadge = true,
-            onClick = { onClick(property) },
-            modifier = Modifier.fillMaxWidth()
-        )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(HomeDims.PROMO_INDICATOR_TOP_SPACING)
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = HomeDims.PROMO_PEEK_PADDING),
+            pageSpacing = HomeDims.PROMO_PAGE_SPACING,
+            beyondViewportPageCount = 1
+        ) { page ->
+            val pageOffset = page - pagerState.currentPage - pagerState.currentPageOffsetFraction
+            val distance = abs(pageOffset).coerceIn(0f, 1f)
+            val scale = lerp(HomeDims.PROMO_INACTIVE_SCALE, 1f, 1f - distance)
+            val alpha = lerp(HomeDims.PROMO_INACTIVE_ALPHA, 1f, 1f - distance)
+            val property = promotionalProperties[page]
+
+            PromotionBannerCard(
+                title = formatIndianPrice(property.price, property.rentBuy == RentBuy.RENT),
+                subtitle = listOf(property.locality, property.city)
+                    .filter(String::isNotBlank)
+                    .joinToString(HomeStrings.LOCATION_SEPARATOR),
+                imageUrl = property.images.firstOrNull().orEmpty(),
+                showBadge = true,
+                onClick = { onClick(property) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    }
+            )
+        }
+
+        if (promotionalProperties.size > 1) {
+            PromotionPageIndicator(
+                pageCount = promotionalProperties.size,
+                currentPage = pagerState.currentPage
+            )
+        }
     }
 }
 
@@ -635,8 +697,7 @@ internal fun HomePropertyFeed(
                     item {
                         PromotionBanner(
                             promotionalProperties = promotionalProperties,
-                            onClick = onPromotionClick,
-                            modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                            onClick = onPromotionClick
                         )
                     }
                 }

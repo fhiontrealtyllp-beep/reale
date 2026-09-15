@@ -119,13 +119,24 @@ internal object HomeDims {
     val HEART_PADDING = 8.dp
     val HEART_STROKE_WIDTH = 1.dp
 
-    val BANNER_HEIGHT = 120.dp
+    val BANNER_HEIGHT = 150.dp
     val BANNER_CORNER_RADIUS = 16.dp
     val BANNER_PADDING = 16.dp
     val BANNER_ARROW_BUTTON_SIZE = 44.dp
     val BANNER_ARROW_ICON_SIZE = 20.dp
     val BANNER_TEXT_OVERLAY_START = 0.55f
     const val PROMO_AUTO_SCROLL_MS = 4_000L
+
+    // Peek carousel: edge-to-edge pager insets focused page with neighbor pages visible.
+    val PROMO_PEEK_PADDING = 44.dp
+    val PROMO_PAGE_SPACING = 12.dp
+    const val PROMO_INACTIVE_SCALE = 0.92f
+    const val PROMO_INACTIVE_ALPHA = 0.60f
+    val PROMO_INDICATOR_TOP_SPACING = 10.dp
+    val PROMO_INDICATOR_SPACING = 3.dp
+    val PROMO_INDICATOR_HEIGHT = 6.dp
+    val PROMO_INDICATOR_ACTIVE_WIDTH = 18.dp
+    val PROMO_INDICATOR_INACTIVE_WIDTH = 6.dp
 
     val CATEGORY_BORDER_WIDTH = 1.dp
     val SMALL_ICON_SIZE = 14.dp
