@@ -56,6 +56,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -100,6 +102,7 @@ fun PropertiesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val sortBy = uiState.sortBy
 
     LaunchedEffect(Unit) {
@@ -148,7 +151,17 @@ fun PropertiesScreen(
             onRefresh = viewModel::refresh,
             onLoadMore = viewModel::onLoadMore,
             onOpenFilter = onOpenFilter,
-            onLike = { propertyId -> viewModel.onLikeClicked(propertyId) },
+            onLike = { propertyId ->
+                viewModel.onLikeClicked(propertyId)
+                val property = visibleProperties.find { it.documentId == propertyId || it.id == propertyId }
+                val propertyTitle = property?.title.orEmpty()
+                val message = if (property?.isLiked == true) {
+                    String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, propertyTitle)
+                } else {
+                    String.format(SearchStrings.SAVED_TOAST_FORMAT, propertyTitle)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            },
             onPropertyClick = onPropertyClick,
             onChangeCity = onChangeCity,
             modifier = Modifier.padding(innerPadding)

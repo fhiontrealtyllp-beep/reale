@@ -12,7 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
@@ -25,6 +27,7 @@ import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import com.realeapp.feature.search.presentation.SearchStrings
 
 @Composable
 fun HomeScreen(
@@ -42,6 +45,7 @@ fun HomeScreen(
     val promotionalProperties by viewModel.promotionalProperties.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedHomeCategory.collectAsStateWithLifecycle()
     val selectedCity by viewModel.selectedCity.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     HomeContent(
         featuredProperties = featuredProperties,
@@ -53,7 +57,15 @@ fun HomeScreen(
         onAddClick = onAddClick,
         onProfileClick = onProfileClick,
         onCategorySelected = viewModel::onCategorySelected,
-        onLike = { property -> viewModel.onLikeClicked(property.documentId ?: property.id) },
+        onLike = { property ->
+            viewModel.onLikeClicked(property.documentId ?: property.id)
+            val message = if (property.isLiked == true) {
+                String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+            } else {
+                String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        },
         onChangeCity = onChangeCity,
         modifier = modifier
     )

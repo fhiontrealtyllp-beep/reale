@@ -1,5 +1,6 @@
 package com.realeapp.feature.search.presentation
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,6 +85,7 @@ fun SearchScreen(
     val query by viewModel.searchQuery.collectAsStateWithLifecycle()
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val showResults = uiState.showResults
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
     var draftFilter by remember(uiState.currentFilter) {
@@ -203,7 +206,15 @@ fun SearchScreen(
                 PropertyDetailScreen(
                     property = property,
                     onClose = { selectedProperty = null },
-                    onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
+                    onLike = {
+                        viewModel.onLikeClicked(property.documentId ?: property.id)
+                        val message = if (property.isLiked == true) {
+                            String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+                        } else {
+                            String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+                        }
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }

@@ -1,5 +1,6 @@
 package com.realeapp.feature.add.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -69,6 +70,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -118,12 +120,15 @@ fun AddScreen(
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         // Opened from an external entry point (e.g. Profile "List Your Property") straight into the form.
         if (startWithAddForm) {
             viewModel.onShowAddForm()
         }
         viewModel.sideEffect.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             snackbarHostState.showSnackbar(message)
         }
     }

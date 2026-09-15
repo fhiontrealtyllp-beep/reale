@@ -81,6 +81,8 @@ internal object SearchStrings {
     const val RANGE_SEPARATOR = " – "
     const val PLUS_SUFFIX = "+"
     const val SUGGESTIONS_DEBOUNCE_MS = 300L
+    const val SAVED_TOAST_FORMAT = "%s saved"
+    const val REMOVED_FROM_SAVED_TOAST_FORMAT = "%s removed from saved"
 }
 
 internal object SearchDims {

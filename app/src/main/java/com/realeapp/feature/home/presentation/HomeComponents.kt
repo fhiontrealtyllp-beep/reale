@@ -689,10 +689,21 @@ internal fun HomePropertyFeed(
 
                 if (promotionalProperties.isNotEmpty()) {
                     item {
-                        PromotionBanner(
-                            promotionalProperties = promotionalProperties,
-                            onClick = onPromotionClick
-                        )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
+                        ) {
+                            Text(
+                                text = HomeStrings.PROMOTIONAL_TITLE,
+                                color = Black,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
+                            )
+                            PromotionBanner(
+                                promotionalProperties = promotionalProperties,
+                                onClick = onPromotionClick
+                            )
+                        }
                     }
                 }
             }

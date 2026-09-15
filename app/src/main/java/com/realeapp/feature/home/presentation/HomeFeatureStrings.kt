@@ -40,6 +40,7 @@ internal object HomeStrings {
 
     const val BADGE_PROMOTIONAL = "Ad"
     const val CD_PROMOTIONAL_PROPERTY_IMAGE = "Promotional property image"
+    const val PROMOTIONAL_TITLE = "Discover Your Next Home"
 
     const val CD_FAVORITE = "Favorite"
     const val CD_PROPERTY_IMAGE = "Property image"
@@ -138,7 +139,7 @@ internal object HomeDims {
 
     // Peek carousel: edge-to-edge pager insets focused page with neighbor pages visible.
     val PROMO_PEEK_PADDING = 28.dp
-    val PROMO_PAGE_SPACING = 0.5.dp
+    val PROMO_PAGE_SPACING = 0.2.dp
     const val PROMO_INACTIVE_SCALE = 0.92f
     const val PROMO_INACTIVE_ALPHA = 0.60f
     val PROMO_INDICATOR_TOP_SPACING = 10.dp
