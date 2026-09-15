@@ -137,7 +137,7 @@ internal object HomeDims {
     val BANNER_CTA_START_PADDING = 10.dp
 
     // Peek carousel: edge-to-edge pager insets focused page with neighbor pages visible.
-    val PROMO_PEEK_PADDING = 44.dp
+    val PROMO_PEEK_PADDING = 28.dp
     val PROMO_PAGE_SPACING = 0.5.dp
     const val PROMO_INACTIVE_SCALE = 0.92f
     const val PROMO_INACTIVE_ALPHA = 0.60f
