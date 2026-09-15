@@ -202,39 +202,19 @@ internal fun FeaturedSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(HomeDims.FEATURED_CARD_CONTENT_PADDING)) {
-        Row(
+        Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = HomeDims.SCREEN_PADDING),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (city.isNullOrBlank()) {
-                    HomeStrings.SECTION_FEATURED
-                } else {
-                    String.format(Locale.getDefault(), HomeStrings.SECTION_POPULAR_IN_CITY_FORMAT, city)
-                },
-                color = Black,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Box(
-                modifier = Modifier
-                    .size(HomeDims.SEE_ALL_CIRCLE_SIZE)
-                    .clip(CircleShape)
-                    .background(HomeCategoryUnselected)
-                    .clickable(onClick = onSeeAllClick),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = HomeStrings.ACTION_SEE_ALL,
-                    tint = Black,
-                    modifier = Modifier.size(HomeDims.SEE_ALL_ICON_SIZE)
-                )
-            }
-        }
+            text = if (city.isNullOrBlank()) {
+                HomeStrings.SECTION_FEATURED
+            } else {
+                String.format(Locale.getDefault(), HomeStrings.SECTION_POPULAR_IN_CITY_FORMAT, city)
+            },
+            color = Black,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
 
         LazyRow(
             modifier = modifier.fillMaxWidth(),
@@ -689,9 +669,7 @@ internal fun HomePropertyFeed(
 
                 if (promotionalProperties.isNotEmpty()) {
                     item {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(HomeDims.SECTION_SPACING)
-                        ) {
+                        Column {
                             Text(
                                 text = HomeStrings.PROMOTIONAL_TITLE,
                                 color = Black,
@@ -699,6 +677,7 @@ internal fun HomePropertyFeed(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
                             )
+                            Spacer(modifier = Modifier.height(HomeDims.FEATURED_CARD_CONTENT_PADDING))
                             PromotionBanner(
                                 promotionalProperties = promotionalProperties,
                                 onClick = onPromotionClick
