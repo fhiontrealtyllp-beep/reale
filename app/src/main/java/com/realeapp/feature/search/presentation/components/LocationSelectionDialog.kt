@@ -47,13 +47,13 @@ import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.FilterChipUnselectedContainer
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.RealeTheme
-import com.realeapp.ui.theme.TextPrimary
 import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
 import kotlinx.coroutines.CancellationException
@@ -259,7 +259,7 @@ fun ChipSelectionDialog(
                                 selectedContainerColor = Accent,
                                 selectedLabelColor = OnAccentText,
                                 containerColor = FilterChipUnselectedContainer,
-                                labelColor = TextPrimary
+                                labelColor = OnBrandContent
                             )
                         )
                     }

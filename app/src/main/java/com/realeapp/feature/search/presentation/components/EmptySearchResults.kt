@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.realeapp.ui.components.VerticalSpacer16
 import com.realeapp.ui.components.VerticalSpacer8
-import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.Black
 
 @Composable
 fun EmptySearchResults(
@@ -27,7 +27,7 @@ fun EmptySearchResults(
         Icon(
             imageVector = Icons.Outlined.Home,
             contentDescription = null,
-            tint = TextPrimary.copy(alpha = 0.38f),
+            tint = Black.copy(alpha = 0.38f),
             modifier = Modifier.height(80.dp)
         )
     },
@@ -45,7 +45,7 @@ fun EmptySearchResults(
         VerticalSpacer16()
         Text(
             text = title,
-            color = TextPrimary,
+            color = Black,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center
@@ -53,7 +53,7 @@ fun EmptySearchResults(
         VerticalSpacer8()
         Text(
             text = subtitle,
-            color = TextPrimary.copy(alpha = 0.7f),
+            color = Black.copy(alpha = 0.7f),
             fontSize = 14.sp,
             textAlign = TextAlign.Center
         )

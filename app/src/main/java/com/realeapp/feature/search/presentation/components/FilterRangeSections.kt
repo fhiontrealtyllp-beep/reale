@@ -26,7 +26,7 @@ import com.realeapp.ui.theme.DialogSectionBackground
 import com.realeapp.ui.theme.SliderTrackInactive
 import com.realeapp.ui.theme.TextFieldUnfocusedBorder
 import com.realeapp.ui.theme.TextFieldUnfocusedLabel
-import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.Black
 import kotlin.math.roundToInt
 
 @Composable
@@ -113,7 +113,7 @@ private fun RangeFilterSection(
         ) {
             Text(
                 text = title,
-                color = TextPrimary,
+                color = Black,
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
@@ -149,7 +149,7 @@ private fun RangeFilterSection(
                 value = minValue,
                 onValueChange = onMinValueChange,
                 label = { Text("Min") },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Black),
                 singleLine = true,
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),
@@ -169,7 +169,7 @@ private fun RangeFilterSection(
                 value = maxValue,
                 onValueChange = onMaxValueChange,
                 label = { Text("Max") },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = Black),
                 singleLine = true,
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),

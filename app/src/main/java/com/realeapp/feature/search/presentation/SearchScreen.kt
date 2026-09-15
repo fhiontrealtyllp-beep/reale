@@ -136,7 +136,7 @@ fun SearchScreen(
                             .height(SearchDims.BUTTON_HEIGHT),
                         shape = RoundedCornerShape(SearchDims.BUTTON_CORNER_RADIUS),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = BrandCoral,
+                            containerColor = BrandCoral.copy(alpha = 0.85f),
                             contentColor = OnBrandContent
                         )
                     ) {
@@ -302,35 +302,7 @@ private fun SearchLandingContent(
             }
         }
 
-        //searchbar
-       /* item {
-            LocationSearchBar(
-                query = query,
-                suggestions = suggestions,
-                onQueryChange = { value ->
-                    onQueryChange(value)
-                    onFilterChange(filter.copy(city = value.takeIf(String::isNotBlank)))
-                },
-                onSuggestionSelected = { suggestion ->
-                    onSuggestionSelected(suggestion)
-                    onFilterChange(
-                        filter.copy(
-                            city = suggestion.primaryText,
-                            localities = suggestion.secondaryText
-                                .takeIf(String::isNotBlank)
-                                ?.let(::listOf)
-                                ?: emptyList()
-                        )
-                    )
-                },
-                onClearQuery = {
-                    onQueryChange("")
-                    onFilterChange(filter.copy(city = null, localities = emptyList()))
-                },
-                autoFocus = true,
-                modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)
-            )
-        }*/
+
 
         item {
             PropertyFilters(

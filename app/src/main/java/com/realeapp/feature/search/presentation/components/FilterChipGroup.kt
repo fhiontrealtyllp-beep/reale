@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.FilterChipUnselectedContainer
-import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.OnBrandContent
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -41,7 +41,7 @@ fun <T> FilterChipGroup(
                         selectedContainerColor = Accent,
                         selectedLabelColor = OnAccentText,
                         containerColor = FilterChipUnselectedContainer,
-                        labelColor = TextPrimary
+                        labelColor = OnBrandContent
                     )
                 )
             }
@@ -79,7 +79,7 @@ fun <T> MultiFilterChipGroup(
                         selectedContainerColor = Accent,
                         selectedLabelColor = OnAccentText,
                         containerColor = FilterChipUnselectedContainer,
-                        labelColor = TextPrimary
+                        labelColor = OnBrandContent
                     )
                 )
             }
