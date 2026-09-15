@@ -1,5 +1,7 @@
 package com.realeapp.feature.home.presentation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -402,7 +404,6 @@ internal fun PromotionBanner(
             title = HomeStrings.BANNER_TITLE,
             subtitle = HomeStrings.BANNER_SUBTITLE,
             imageUrl = HomeStrings.BANNER_FALLBACK_IMAGE,
-            showBadge = false,
             onClick = {},
             modifier = modifier.padding(horizontal = HomeDims.SCREEN_PADDING)
         )
@@ -415,7 +416,13 @@ internal fun PromotionBanner(
         while (true) {
             delay(HomeDims.PROMO_AUTO_SCROLL_MS)
             val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
-            pagerState.animateScrollToPage(nextPage)
+            pagerState.animateScrollToPage(
+                nextPage,
+                animationSpec = tween(
+                    durationMillis = HomeDims.PROMO_SCROLL_DURATION_MS,
+                    easing = FastOutSlowInEasing
+                )
+            )
         }
     }
 
@@ -443,7 +450,6 @@ internal fun PromotionBanner(
                     .filter(String::isNotBlank)
                     .joinToString(HomeStrings.LOCATION_SEPARATOR),
                 imageUrl = property.images.firstOrNull().orEmpty(),
-                showBadge = true,
                 onClick = { onClick(property) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -469,7 +475,6 @@ private fun PromotionBannerCard(
     title: String,
     subtitle: String,
     imageUrl: String,
-    showBadge: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -490,80 +495,69 @@ private fun PromotionBannerCard(
                 modifier = Modifier.fillMaxSize()
             )
 
-            if (showBadge) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(HomeDims.BANNER_PADDING)
-                        .clip(RoundedCornerShape(HomeDims.FEATURED_BADGE_CORNER_RADIUS))
-                        .background(BrandBlue)
-                        .padding(
-                            horizontal = HomeDims.FEATURED_BADGE_HORIZONTAL_PADDING,
-                            vertical = HomeDims.FEATURED_BADGE_VERTICAL_PADDING
-                        )
-                ) {
-                    Text(
-                        text = HomeStrings.BADGE_PROMOTIONAL,
-                        color = OnMediaContent,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .fillMaxHeight(HomeDims.BANNER_OVERLAY_FRACTION)
+                    .align(Alignment.BottomCenter)
                     .background(
-                        Brush.horizontalGradient(
+                        Brush.verticalGradient(
                             colorStops = arrayOf(
-                                0f to White.copy(alpha = 0.95f),
-                                HomeDims.BANNER_TEXT_OVERLAY_START to White.copy(alpha = 0.75f),
-                                1f to Color.Transparent
+                                HomeDims.BANNER_OVERLAY_TOP_STOP to Black.copy(alpha = 0f),
+                                HomeDims.BANNER_OVERLAY_BOTTOM_STOP to Black.copy(alpha = HomeDims.BANNER_OVERLAY_BOTTOM_ALPHA)
                             )
                         )
                     )
             )
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(HomeDims.BANNER_PADDING),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.Bottom
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        color = Black,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = subtitle,
-                        color = HomeTextSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(HomeDims.BANNER_ARROW_BUTTON_SIZE)
-                        .clip(CircleShape)
-                        .background(BrandCoral)
-                        .clickable(onClick = onClick),
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = HomeStrings.CD_BANNER_ARROW,
-                        tint = OnMediaContent,
-                        modifier = Modifier.size(HomeDims.BANNER_ARROW_ICON_SIZE)
-                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(HomeDims.BANNER_TEXT_LINE_SPACING)
+                    ) {
+                        Text(
+                            text = title,
+                            color = White,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = subtitle,
+                            color = White.copy(alpha = HomeDims.BANNER_SUBTITLE_ALPHA),
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .padding(start = HomeDims.BANNER_CTA_START_PADDING)
+                            .size(HomeDims.BANNER_ARROW_BUTTON_SIZE)
+                            .clip(CircleShape)
+                            .background(BrandCoral)
+                            .clickable(onClick = onClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = HomeStrings.CD_BANNER_ARROW,
+                            tint = OnMediaContent,
+                            modifier = Modifier.size(HomeDims.BANNER_ARROW_ICON_SIZE)
+                        )
+                    }
                 }
             }
         }
