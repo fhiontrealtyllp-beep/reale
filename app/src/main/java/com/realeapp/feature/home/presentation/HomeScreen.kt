@@ -24,6 +24,7 @@ import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import com.realeapp.feature.search.presentation.SearchViewModel
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
+import com.realeapp.ui.components.GenericLoader
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,28 +48,32 @@ fun HomeScreen(
     val selectedCity by viewModel.selectedCity.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    HomeContent(
-        featuredProperties = featuredProperties,
-        promotionalProperties = promotionalProperties,
-        selectedCategory = selectedCategory,
-        selectedCity = selectedCity,
-        onSearchClick = onSearchClick,
-        onSavedClick = onSavedClick,
-        onAddClick = onAddClick,
-        onProfileClick = onProfileClick,
-        onCategorySelected = viewModel::onCategorySelected,
-        onLike = { property ->
-            viewModel.onLikeClicked(property.documentId ?: property.id)
-            val message = if (property.isLiked == true) {
-                String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
-            } else {
-                String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
-            }
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        },
-        onChangeCity = onChangeCity,
-        modifier = modifier
-    )
+    if (uiState.isLoading) {
+        GenericLoader(modifier = modifier)
+    } else {
+        HomeContent(
+            featuredProperties = featuredProperties,
+            promotionalProperties = promotionalProperties,
+            selectedCategory = selectedCategory,
+            selectedCity = selectedCity,
+            onSearchClick = onSearchClick,
+            onSavedClick = onSavedClick,
+            onAddClick = onAddClick,
+            onProfileClick = onProfileClick,
+            onCategorySelected = viewModel::onCategorySelected,
+            onLike = { property ->
+                viewModel.onLikeClicked(property.documentId ?: property.id)
+                val message = if (property.isLiked == true) {
+                    String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+                } else {
+                    String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            },
+            onChangeCity = onChangeCity,
+            modifier = modifier
+        )
+    }
 
     if (uiState.showLoginPrompt) {
         LoginPromptDialog(

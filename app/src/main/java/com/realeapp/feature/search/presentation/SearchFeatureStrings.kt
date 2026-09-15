@@ -85,9 +85,12 @@ internal object SearchStrings {
     const val REMOVED_FROM_SAVED_TOAST_FORMAT = "%s removed from saved"
 }
 
+/**
+ * Centralized dimensions for the Search feature landing and results screens.
+ */
 internal object SearchDims {
     val SCREEN_PADDING = 20.dp
-    val SECTION_SPACING = 12.dp
+    val SECTION_SPACING = 8.dp
     val CONTENT_VERTICAL_PADDING = 16.dp
 
     val HEADER_ICON_SIZE = 26.dp
@@ -112,12 +115,12 @@ internal object SearchDims {
     val SUGGESTION_ITEM_DIVIDER_HEIGHT = 1.dp
 
     val SECTION_HEADER_SPACING = 12.dp
-    val FILTER_SECTION_SPACING = 12.dp
+    val FILTER_SECTION_SPACING = 8.dp
     val FILTER_ITEM_SPACING = 8.dp
     val FILTER_FIELD_HEIGHT = 56.dp
     val FILTER_FIELD_CORNER_RADIUS = 12.dp
     val FILTER_PANEL_CORNER_RADIUS = 20.dp
-    val FILTER_PANEL_PADDING = 12.dp
+    val FILTER_PANEL_PADDING = 8.dp
 
     val FILTER_TOGGLE_ROW_HEIGHT = 48.dp
     val FILTER_TOGGLE_INNER_PADDING = 4.dp

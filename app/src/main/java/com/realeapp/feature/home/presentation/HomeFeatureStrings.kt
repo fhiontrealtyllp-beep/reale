@@ -54,6 +54,9 @@ internal object HomeStrings {
     const val NO_PROPERTIES_SUBTITLE = "Try a different city or check back later"
 }
 
+/**
+ * Centralized dimensions for the Home feature screen and components.
+ */
 internal object HomeDims {
     val SCREEN_PADDING = 20.dp
     val SCREEN_TOP_PADDING = 12.dp
