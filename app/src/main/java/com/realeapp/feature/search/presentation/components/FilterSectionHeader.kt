@@ -10,6 +10,6 @@ fun FilterSectionHeader(title: String) {
     Text(
         text = title,
         color = Black,
-        style = MaterialTheme.typography.titleSmall
+        style = MaterialTheme.typography.titleMedium
     )
 }

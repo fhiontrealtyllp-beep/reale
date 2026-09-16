@@ -58,11 +58,9 @@ import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
-import com.realeapp.feature.search.presentation.components.LocationSearchBar
 import com.realeapp.feature.search.presentation.components.PropertyFilters
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.CardBackground
@@ -267,48 +265,11 @@ private fun SearchLandingContent(
         ),
         verticalArrangement = Arrangement.spacedBy(SearchDims.SECTION_SPACING)
     ) {
-        item { SearchTopBar(modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)) }
-
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SearchDims.SCREEN_PADDING),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = SearchStrings.TITLE,
-                    color = HomeTextSecondary,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                IconButton(
-                    onClick = {
-                        onFilterChange(
-                            PropertyFilter(
-                                city = filter.city,
-                                rentBuy = RentBuy.RENT,
-                                residentialCommercial = ResidentialCommercial.RESIDENTIAL
-                            )
-                        )
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = SearchStrings.FILTER_RESET,
-                        tint = Black
-                    )
-                }
-            }
-        }
-
-
 
         item {
             PropertyFilters(
                 filter = filter,
                 onFilterChange = onFilterChange,
-                locationSuggestionsProvider = locationSuggestionsProvider,
                 citySuggestionsProvider = citySuggestionsProvider,
                 localitySuggestionsProvider = localitySuggestionsProvider,
                 modifier = Modifier.padding(horizontal = SearchDims.SCREEN_PADDING)

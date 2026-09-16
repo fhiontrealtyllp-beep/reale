@@ -41,7 +41,6 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.CarpetAreaRange
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
-import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.PriceRange
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.PropertyType
@@ -93,7 +92,6 @@ private val areaOptions = listOf(
 fun PropertyFilters(
     filter: PropertyFilter,
     onFilterChange: (PropertyFilter) -> Unit,
-    locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
     citySuggestionsProvider: suspend (String) -> List<String> = { _ -> emptyList() },
     localitySuggestionsProvider: suspend (String, String) -> List<String> = { _, _ -> emptyList() },
     modifier: Modifier = Modifier
@@ -472,7 +470,6 @@ private fun PropertyFiltersPreview() {
                 propertyType = PropertyType.APARTMENT
             ),
             onFilterChange = {},
-            locationSuggestionsProvider = { _ -> emptyList() },
             citySuggestionsProvider = { _ -> emptyList() },
             localitySuggestionsProvider = { _, _ -> emptyList() }
         )
