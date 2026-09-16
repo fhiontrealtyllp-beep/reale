@@ -371,12 +371,14 @@ private fun PromotionPageIndicator(
  *
  * @param promotionalProperties Promotional properties to display.
  * @param onClick Callback invoked with the property whose arrow is tapped.
+ * @param onLike Callback invoked when the property's like button is tapped.
  * @param modifier Modifier to be applied to the banner.
  */
 @Composable
 internal fun PromotionBanner(
     promotionalProperties: List<Property>,
     onClick: (Property) -> Unit = {},
+    onLike: (Property) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (promotionalProperties.isEmpty()) {
@@ -431,6 +433,8 @@ internal fun PromotionBanner(
                     .joinToString(HomeStrings.LOCATION_SEPARATOR),
                 imageUrl = property.images.firstOrNull().orEmpty(),
                 onClick = { onClick(property) },
+                isLiked = property.isLiked ?: false,
+                onLikeToggle = { onLike(property) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .graphicsLayer {
@@ -456,6 +460,8 @@ private fun PromotionBannerCard(
     subtitle: String,
     imageUrl: String,
     onClick: () -> Unit,
+    isLiked: Boolean = false,
+    onLikeToggle: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -474,6 +480,21 @@ private fun PromotionBannerCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
+
+            IconButton(
+                onClick = onLikeToggle,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(HomeDims.HEART_PADDING)
+                    .size(HomeDims.HEART_BUTTON_SIZE)
+            ) {
+                Icon(
+                    imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = HomeStrings.CD_FAVORITE,
+                    tint = if (isLiked) BrandRed else OnMediaContent,
+                    modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
+                )
+            }
 
             Box(
                 modifier = Modifier
@@ -619,6 +640,7 @@ private fun BuyRentToggleSegment(
  * @param onPromotionClick Callback invoked with the tapped promotional property.
  * @param onChangeCity Callback invoked from the empty state to change city.
  * @param onLike Callback invoked when a featured property's like button is tapped.
+ * @param onPromotionalLike Callback invoked when a promotional property's like button is tapped.
  * @param modifier Modifier to be applied to the feed container.
  */
 @Composable
@@ -631,6 +653,7 @@ internal fun HomePropertyFeed(
     onPromotionClick: (Property) -> Unit,
     onChangeCity: () -> Unit,
     onLike: (FeaturedProperty) -> Unit = {},
+    onPromotionalLike: (Property) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -680,7 +703,8 @@ internal fun HomePropertyFeed(
                             Spacer(modifier = Modifier.height(HomeDims.FEATURED_CARD_CONTENT_PADDING))
                             PromotionBanner(
                                 promotionalProperties = promotionalProperties,
-                                onClick = onPromotionClick
+                                onClick = onPromotionClick,
+                                onLike = onPromotionalLike
                             )
                         }
                     }

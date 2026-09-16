@@ -143,6 +143,7 @@ internal fun HomeContent(
                 onLike = { featured ->
                     propertyById[featured.id]?.let { onLike(it) }
                 },
+                onPromotionalLike = onLike,
                 modifier = Modifier.weight(1f)
             )
         }
