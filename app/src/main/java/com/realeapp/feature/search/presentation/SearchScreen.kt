@@ -22,10 +22,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -53,7 +51,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
-import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
 import com.realeapp.feature.search.domain.model.RentBuy
@@ -64,7 +61,6 @@ import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
@@ -174,13 +170,8 @@ fun SearchScreen(
             )
         } else {
             SearchLandingContent(
-                query = query,
-                suggestions = suggestions,
                 filter = draftFilter,
                 onFilterChange = { draftFilter = it },
-                onQueryChange = viewModel::onSearchQueryChanged,
-                onSuggestionSelected = viewModel::onSuggestionSelected,
-                locationSuggestionsProvider = viewModel::getSuggestions,
                 citySuggestionsProvider = viewModel::getCitySuggestions,
                 localitySuggestionsProvider = viewModel::getLocalitySuggestions,
                 modifier = Modifier.padding(innerPadding)
@@ -246,13 +237,8 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
 
 @Composable
 private fun SearchLandingContent(
-    query: String,
-    suggestions: List<LocationSuggestion>,
     filter: PropertyFilter,
     onFilterChange: (PropertyFilter) -> Unit,
-    onQueryChange: (String) -> Unit,
-    onSuggestionSelected: (LocationSuggestion) -> Unit,
-    locationSuggestionsProvider: suspend (String) -> List<LocationSuggestion> = { _ -> emptyList() },
     citySuggestionsProvider: suspend (String) -> List<String> = { _ -> emptyList() },
     localitySuggestionsProvider: suspend (String, String) -> List<String> = { _, _ -> emptyList() },
     modifier: Modifier = Modifier
@@ -283,13 +269,8 @@ private fun SearchLandingContent(
 private fun SearchLandingContentPreview() {
     RealeTheme {
         SearchLandingContent(
-            query = "",
-            suggestions = emptyList(),
             filter = PropertyFilter(),
             onFilterChange = {},
-            onQueryChange = {},
-            onSuggestionSelected = {},
-            locationSuggestionsProvider = { _ -> emptyList() },
             citySuggestionsProvider = { _ -> emptyList() },
             localitySuggestionsProvider = { _, _ -> emptyList() }
         )
