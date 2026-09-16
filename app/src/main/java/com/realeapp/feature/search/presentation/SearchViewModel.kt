@@ -347,7 +347,6 @@ class SearchViewModel(
         }
         _uiState.value = _uiState.value.copy(currentFilter = newFilter)
         applyCategoryFilter()
-        refresh(clearList = true)
     }
 
     private fun homeCategoryFor(filter: PropertyFilter?): HomeCategory = when {
