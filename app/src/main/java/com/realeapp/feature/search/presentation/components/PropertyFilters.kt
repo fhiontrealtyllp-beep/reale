@@ -1,6 +1,5 @@
 package com.realeapp.feature.search.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -288,44 +287,35 @@ private fun LocationSelector(
     val displayValue = value ?: placeholder
     val valueColor = if (value != null) Black else HomeTextSecondary
 
-    Surface(
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(SearchDims.FILTER_SELECTOR_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(SearchDims.FILTER_SELECTOR_CORNER_RADIUS),
-        color = AppBackground,
-        border = BorderStroke(SearchDims.BORDER_WIDTH, HomeSearchBarBorder)
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = SearchDims.FILTER_SELECTOR_HORIZONTAL_PADDING,
+                vertical = SearchDims.FILTER_SELECTOR_VERTICAL_PADDING
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = SearchDims.FILTER_SELECTOR_HORIZONTAL_PADDING,
-                    vertical = SearchDims.FILTER_SELECTOR_VERTICAL_PADDING
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
-            ) {
-                Text(
-                    text = label,
-                    color = HomeTextSecondary,
-                )
-                Text(
-                    text = displayValue,
-                    color = valueColor,
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                tint = HomeTextSecondary,
-                modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
+            Text(
+                text = label,
+                color = HomeTextSecondary,
+            )
+            Text(
+                text = displayValue,
+                color = valueColor,
             )
         }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = HomeTextSecondary,
+            modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
+        )
     }
 }
 
