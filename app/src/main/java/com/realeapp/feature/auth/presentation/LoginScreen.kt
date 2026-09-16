@@ -51,12 +51,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.MainBackground
-import com.realeapp.ui.theme.OnAccent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.AppBackground
+import com.realeapp.ui.theme.OnAccentText
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.components.VerticalSpacer8
@@ -122,7 +122,7 @@ internal fun LoginContent(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = TextPrimary
+                            tint = Black
                         )
                     }
                 },
@@ -138,7 +138,7 @@ internal fun LoginContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(MainBackground, CardBackground)
+                        colors = listOf(AppBackground, White)
                     )
                 )
                 .padding(innerPadding)
@@ -154,7 +154,7 @@ internal fun LoginContent(
             ) {
                 Text(
                     text = "Welcome Back!",
-                    color = TextPrimary,
+                    color = Black,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -163,7 +163,7 @@ internal fun LoginContent(
 
                 Text(
                     text = "Login to access your saved properties",
-                    color = TextPrimary.copy(alpha = 0.7f),
+                    color = Black.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
 
@@ -181,12 +181,12 @@ internal fun LoginContent(
                         imeAction = ImeAction.Next
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
+                        focusedTextColor = Black,
+                        unfocusedTextColor = Black,
                         focusedBorderColor = Accent,
-                        unfocusedBorderColor = TextSecondary,
+                        unfocusedBorderColor = HomeTextSecondary,
                         focusedLabelColor = Accent,
-                        unfocusedLabelColor = TextSecondary
+                        unfocusedLabelColor = HomeTextSecondary
                     )
                 )
 
@@ -209,17 +209,17 @@ internal fun LoginContent(
                             Icon(
                                 imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
-                                tint = TextSecondary
+                                tint = HomeTextSecondary
                             )
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
+                        focusedTextColor = Black,
+                        unfocusedTextColor = Black,
                         focusedBorderColor = Accent,
-                        unfocusedBorderColor = TextSecondary,
+                        unfocusedBorderColor = HomeTextSecondary,
                         focusedLabelColor = Accent,
-                        unfocusedLabelColor = TextSecondary
+                        unfocusedLabelColor = HomeTextSecondary
                     )
                 )
 
@@ -245,13 +245,13 @@ internal fun LoginContent(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.textButtonColors(
                         containerColor = Accent,
-                        contentColor = OnAccent,
+                        contentColor = OnAccentText,
                         disabledContainerColor = Accent.copy(alpha = 0.5f)
                     )
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
-                            color = OnAccent,
+                            color = OnAccentText,
                             modifier = Modifier.height(24.dp)
                         )
                     } else {
@@ -269,7 +269,7 @@ internal fun LoginContent(
                     text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(
-                                color = TextPrimary,
+                                color = Black,
                                 fontSize = 16.sp
                             )
                         ) {

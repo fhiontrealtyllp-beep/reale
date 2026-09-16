@@ -19,9 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.Outline
-import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.White
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.Black
 
 @Composable
 fun SearchHeader(
@@ -34,8 +34,8 @@ fun SearchHeader(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         shape = RoundedCornerShape(28.dp),
-        color = CardBackground,
-        border = BorderStroke(1.dp, Outline),
+        color = White,
+        border = BorderStroke(1.dp, HomeSearchBarBorder),
         shadowElevation = 4.dp
     ) {
         Row(
@@ -54,7 +54,7 @@ fun SearchHeader(
 
             Text(
                 text = "Search properties...",
-                color = TextPrimary.copy(alpha = 0.6f),
+                color = Black.copy(alpha = 0.6f),
                 fontSize = 15.sp,
                 modifier = Modifier.weight(1f)
             )

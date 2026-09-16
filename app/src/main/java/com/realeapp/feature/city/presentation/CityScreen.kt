@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.ui.theme.AppBackground
@@ -44,6 +43,7 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.NavyText
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
@@ -138,7 +138,7 @@ fun CityScreen(
                 .height(CityDims.BUTTON_HEIGHT),
             colors = ButtonDefaults.buttonColors(
                 containerColor = BrandBlue,
-                contentColor = Color.White
+                contentColor = OnBrandContent
             ),
             shape = RoundedCornerShape(CityDims.BUTTON_CORNER_RADIUS)
         ) {

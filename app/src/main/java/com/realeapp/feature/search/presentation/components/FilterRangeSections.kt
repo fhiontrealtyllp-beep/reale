@@ -22,10 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.DialogSectionBackground
-import com.realeapp.ui.theme.SliderTrackInactive
-import com.realeapp.ui.theme.TextFieldUnfocusedBorder
-import com.realeapp.ui.theme.TextFieldUnfocusedLabel
+import com.realeapp.ui.theme.HomeCategoryUnselected
+import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.Black
 import kotlin.math.roundToInt
 
@@ -102,7 +101,7 @@ private fun RangeFilterSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(DialogSectionBackground, RoundedCornerShape(16.dp))
+            .background(HomeCategoryUnselected, RoundedCornerShape(16.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -138,7 +137,7 @@ private fun RangeFilterSection(
             colors = SliderDefaults.colors(
                 thumbColor = Accent,
                 activeTrackColor = Accent,
-                inactiveTrackColor = SliderTrackInactive
+                inactiveTrackColor = HomeSearchBarBorder
             )
         )
         Row(
@@ -155,9 +154,9 @@ private fun RangeFilterSection(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Accent,
-                    unfocusedBorderColor = TextFieldUnfocusedBorder,
+                    unfocusedBorderColor = HomeSearchBarBorder,
                     focusedLabelColor = Accent,
-                    unfocusedLabelColor = TextFieldUnfocusedLabel,
+                    unfocusedLabelColor = HomeTextSecondary,
                     cursorColor = Accent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -175,9 +174,9 @@ private fun RangeFilterSection(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Accent,
-                    unfocusedBorderColor = TextFieldUnfocusedBorder,
+                    unfocusedBorderColor = HomeSearchBarBorder,
                     focusedLabelColor = Accent,
-                    unfocusedLabelColor = TextFieldUnfocusedLabel,
+                    unfocusedLabelColor = HomeTextSecondary,
                     cursorColor = Accent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

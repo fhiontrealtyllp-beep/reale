@@ -60,11 +60,9 @@ import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.BrandRed
-import com.realeapp.ui.theme.CardBackground
-import com.realeapp.ui.theme.MainBackground
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
-import com.realeapp.ui.theme.TextPrimary
+import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -153,8 +151,8 @@ fun SearchScreen(
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = CardBackground,
-                    contentColor = TextPrimary
+                    containerColor = White,
+                    contentColor = Black
                 )
             }
         }
@@ -190,7 +188,7 @@ fun SearchScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MainBackground
+                color = AppBackground
             ) {
                 PropertyDetailScreen(
                     property = property,

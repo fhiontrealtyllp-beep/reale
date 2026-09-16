@@ -460,11 +460,11 @@ private fun OnboardingFooter(
             }
 
             val buttonContainerColor = when (currentPage) {
-                0 -> Color.White
+                0 -> OnBrandContent
                 2 -> BrandCoral
                 else -> BrandBlue
             }
-            val buttonContentColor = if (currentPage == 0) BrandBlue else Color.White
+            val buttonContentColor = if (currentPage == 0) BrandBlue else OnBrandContent
 
             Button(
                 onClick = onNext,
@@ -498,14 +498,14 @@ private fun OnboardingFooter(
                     .height(OnboardingDims.BUTTON_HEIGHT),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = BrandBlue,
-                    contentColor = Color.White
+                    contentColor = OnBrandContent
                 ),
                 shape = RoundedCornerShape(OnboardingDims.BUTTON_CORNER_RADIUS)
             ) {
                 if (isResolvingLocation) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(OnboardingDims.BUTTON_ICON_SIZE),
-                        color = Color.White,
+                        color = OnBrandContent,
                         strokeWidth = OnboardingDims.BUTTON_PROGRESS_STROKE
                     )
                 } else {

@@ -48,10 +48,10 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.CardBackground
+import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.IsDarkAppTheme
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.HomeTextSecondary
 
 @Composable
 fun MapViewContent(
@@ -138,16 +138,16 @@ fun MapViewContent(
         ) {
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomIn()) },
-                containerColor = CardBackground,
-                contentColor = TextPrimary,
+                containerColor = White,
+                contentColor = Black,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom in")
             }
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomOut()) },
-                containerColor = CardBackground,
-                contentColor = TextPrimary,
+                containerColor = White,
+                contentColor = Black,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom out")
@@ -171,14 +171,14 @@ private fun PlaceholderMapContent(
             item {
                 Text(
                     text = "Map view",
-                    color = TextPrimary,
+                    color = Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Set MAPS_API_KEY in AndroidManifest to enable Google Maps.",
-                    color = TextSecondary,
+                    color = HomeTextSecondary,
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -200,18 +200,18 @@ private fun PlaceholderMapContent(
                     ) {
                         Text(
                             text = property.title,
-                            color = TextPrimary,
+                            color = Black,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = "${property.locality}, ${property.city}",
-                            color = TextSecondary,
+                            color = HomeTextSecondary,
                             fontSize = 12.sp
                         )
                         Text(
                             text = formatIndianPrice(property.price, property.isRentProperty()),
-                            color = TextSecondary,
+                            color = HomeTextSecondary,
                             fontSize = 13.sp
                         )
                     }

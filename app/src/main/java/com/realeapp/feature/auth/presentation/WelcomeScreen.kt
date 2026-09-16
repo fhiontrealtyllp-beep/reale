@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -43,6 +42,7 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
+import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -81,9 +81,9 @@ fun WelcomeScreen(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.0f to Color.Black.copy(alpha = AuthDims.WELCOME_SCRIM_START_ALPHA),
-                            0.5f to Color.Black.copy(alpha = AuthDims.WELCOME_SCRIM_MID_ALPHA),
-                            1.0f to Color.Black.copy(alpha = AuthDims.WELCOME_SCRIM_END_ALPHA)
+                            0.0f to MediaScrim.copy(alpha = AuthDims.WELCOME_SCRIM_START_ALPHA),
+                            0.5f to MediaScrim.copy(alpha = AuthDims.WELCOME_SCRIM_MID_ALPHA),
+                            1.0f to MediaScrim.copy(alpha = AuthDims.WELCOME_SCRIM_END_ALPHA)
                         )
                     )
                 )

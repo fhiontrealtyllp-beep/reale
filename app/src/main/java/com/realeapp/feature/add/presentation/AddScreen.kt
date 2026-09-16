@@ -72,7 +72,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -84,15 +83,15 @@ import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.CardBackground
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.MainBackground
+import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MediaScrim
-import com.realeapp.ui.theme.OnAccent
+import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnMediaContent
-import com.realeapp.ui.theme.TextPrimary
-import com.realeapp.ui.theme.TextSecondary
+import com.realeapp.ui.theme.SuccessBadge
+import com.realeapp.ui.theme.SurfaceLight
+import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
@@ -180,13 +179,13 @@ fun AddScreen(
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets.navigationBars,
-        containerColor = MainBackground,
+        containerColor = AppBackground,
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = CardBackground,
-                    contentColor = TextPrimary
+                    containerColor = White,
+                    contentColor = Black
                 )
             }
         },
@@ -213,12 +212,12 @@ fun AddScreen(
                             Column {
                                 Text(
                                     text = AddStrings.TITLE_MY_LISTINGS,
-                                    color = TextPrimary,
+                                    color = Black,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     text = AddStrings.SUBTITLE_MANAGE_PROPERTIES,
-                                    color = TextSecondary,
+                                    color = HomeTextSecondary,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
@@ -229,7 +228,7 @@ fun AddScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Accent,
-                                    contentColor = OnAccent
+                                    contentColor = OnAccentText
                                 ),
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                                 modifier = Modifier.padding(end = 12.dp)
@@ -248,7 +247,7 @@ fun AddScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MainBackground
+                            containerColor = AppBackground
                         )
                     )
                 }
@@ -322,7 +321,7 @@ fun AddScreen(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MainBackground
+                color = AppBackground
             ) {
                 PropertyDetailScreen(
                     property = property,
@@ -333,9 +332,6 @@ fun AddScreen(
         }
     }
 }
-
-private val SuccessGreen = Color(0xFF22C55E)
-private val SuccessGreenLight = Color(0xFFDCFCE7)
 
 @Composable
 private fun PropertySuccessScreen(
@@ -357,20 +353,20 @@ private fun PropertySuccessScreen(
         Box(
             modifier = Modifier
                 .size(96.dp)
-                .background(SuccessGreenLight, CircleShape),
+                .background(SuccessBadge, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
-                tint = SuccessGreen,
+                tint = VerifiedGreen,
                 modifier = Modifier.size(56.dp)
             )
         }
 
         Text(
             text = AddStrings.SUCCESS_TITLE,
-            color = TextPrimary,
+            color = Black,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
@@ -378,7 +374,7 @@ private fun PropertySuccessScreen(
 
         Text(
             text = AddStrings.SUCCESS_MESSAGE,
-            color = TextSecondary,
+            color = HomeTextSecondary,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
@@ -388,7 +384,7 @@ private fun PropertySuccessScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(CardBackground)
+                    .background(White)
             ) {
                 if (property.images.isNotEmpty()) {
                     AsyncImage(
@@ -409,7 +405,7 @@ private fun PropertySuccessScreen(
                         Icon(
                             imageVector = Icons.Default.Image,
                             contentDescription = null,
-                            tint = TextSecondary,
+                            tint = HomeTextSecondary,
                             modifier = Modifier.size(48.dp)
                         )
                     }
@@ -420,7 +416,7 @@ private fun PropertySuccessScreen(
                 ) {
                     Text(
                         text = property.title,
-                        color = TextPrimary,
+                        color = Black,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -438,7 +434,7 @@ private fun PropertySuccessScreen(
                             text = listOf(property.locality, property.city)
                                 .filter { it.isNotBlank() }
                                 .joinToString(", "),
-                            color = TextSecondary,
+                            color = HomeTextSecondary,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -463,7 +459,7 @@ private fun PropertySuccessScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Accent,
-                contentColor = OnAccent
+                contentColor = OnAccentText
             )
         ) {
             Text(
@@ -569,7 +565,7 @@ private fun MyPropertiesContent(
                             .clip(RoundedCornerShape(20.dp))
                             .background(
                                 if (selected) Accent
-                                else CardBackground
+                                else SurfaceLight
                             )
                             .clickable {
                                 selectedTab = tab
@@ -581,7 +577,7 @@ private fun MyPropertiesContent(
                     ) {
                         Text(
                             text = "$tab (${counts[tab] ?: 0})",
-                            color = if (selected) OnAccent else TextPrimary,
+                            color = if (selected) OnAccentText else Black,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = if (selected) {
                                 FontWeight.Bold
@@ -617,7 +613,7 @@ private fun MyPropertiesContent(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = TextSecondary
+                            tint = HomeTextSecondary
                         )
                     },
                     modifier = Modifier
@@ -632,7 +628,7 @@ private fun MyPropertiesContent(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(CardBackground)
+                        .background(SurfaceLight)
                         .clickable {
                             onRefresh()
                         },
@@ -641,7 +637,7 @@ private fun MyPropertiesContent(
                     Icon(
                         imageVector = Icons.Default.Tune,
                         contentDescription = AddStrings.CD_REFRESH_FILTERS,
-                        tint = TextPrimary
+                        tint = Black
                     )
                 }
             }
@@ -689,7 +685,7 @@ private fun MyPropertiesContent(
                 ) {
                     Text(
                         text = AddStrings.EMPTY_LISTINGS,
-                        color = TextSecondary
+                        color = HomeTextSecondary
                     )
                 }
             }
@@ -729,16 +725,16 @@ private fun MyListingCard(
         else -> AddStrings.STATUS_INACTIVE
     }
     val statusColor = when (statusLabel) {
-        AddStrings.STATUS_ACTIVE -> SuccessGreen
+        AddStrings.STATUS_ACTIVE -> VerifiedGreen
         AddStrings.STATUS_DRAFT -> Accent
-        else -> TextSecondary
+        else -> HomeTextSecondary
     }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(CardBackground)
+            .background(White)
             .padding(10.dp)
     ) {
         // Photo with status + photo-count badges.
@@ -747,7 +743,7 @@ private fun MyListingCard(
                 .width(120.dp)
                 .height(150.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(MainBackground)
+                .background(SurfaceLight)
         ) {
             if (property.images.isNotEmpty()) {
                 AsyncImage(
@@ -760,7 +756,7 @@ private fun MyListingCard(
                 Icon(
                     imageVector = Icons.Default.Image,
                     contentDescription = null,
-                    tint = TextSecondary,
+                    tint = HomeTextSecondary,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(32.dp)
@@ -814,7 +810,7 @@ private fun MyListingCard(
             ) {
                 Text(
                     text = property.title,
-                    color = TextPrimary,
+                    color = Black,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -829,7 +825,7 @@ private fun MyListingCard(
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = AddStrings.CD_MORE_OPTIONS,
-                            tint = TextSecondary,
+                            tint = HomeTextSecondary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -862,7 +858,7 @@ private fun MyListingCard(
                     text = listOf(property.locality, property.city)
                         .filter { it.isNotBlank() }
                         .joinToString(", "),
-                    color = TextSecondary,
+                    color = HomeTextSecondary,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -886,12 +882,12 @@ private fun MyListingCard(
                         Icon(
                             imageVector = Icons.Default.Bed,
                             contentDescription = null,
-                            tint = TextSecondary,
+                            tint = HomeTextSecondary,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = "$beds${AddStrings.BEDS_SUFFIX}",
-                            color = TextSecondary,
+                            color = HomeTextSecondary,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -904,12 +900,12 @@ private fun MyListingCard(
                         Icon(
                             imageVector = Icons.Default.SquareFoot,
                             contentDescription = null,
-                            tint = TextSecondary,
+                            tint = HomeTextSecondary,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = formatIndianNumber(area) + AddStrings.SQ_FT_SUFFIX,
-                            color = TextSecondary,
+                            color = HomeTextSecondary,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
