@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
@@ -47,6 +49,8 @@ fun <T> FilterChipGroup(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
     }
 }
 
@@ -85,5 +89,7 @@ fun <T> MultiFilterChipGroup(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
     }
 }

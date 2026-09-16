@@ -131,18 +131,21 @@ fun PropertyFilters(
                 },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             ResidentialCommercialToggle(
                 selected = effectiveCategory,
                 onSelected = { onFilterChange(filter.copy(residentialCommercial = it)) }
             )
 
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             LocationSelector(
                 label = SearchStrings.FILTER_CITY,
                 value = filter.city,
                 placeholder = SearchStrings.FILTER_SELECT_CITY,
                 onClick = { showCityDialog = true }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             LocationSelector(
                 label = SearchStrings.FILTER_LOCALITY,
@@ -151,6 +154,7 @@ fun PropertyFilters(
                 onClick = { showLocalityDialog = true }
             )
 
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             FilterChipGroup(
                 title = SearchStrings.FILTER_PROPERTY_TYPE,
                 options = PropertyType.entries,
@@ -158,6 +162,7 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(propertyType = it)) },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             FilterChipGroup(
                 title = SearchStrings.FILTER_BEDROOMS,
                 options = BedroomType.entries,
@@ -165,6 +170,7 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(bedroomType = it)) },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             FilterChipGroup(
                 title = SearchStrings.FILTER_BATHROOMS,
@@ -173,6 +179,7 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(bathrooms = it)) },
                 optionLabel = Int::toString
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             FilterChipGroup(
                 title = SearchStrings.FILTER_FURNISHING,
@@ -181,6 +188,8 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(furnishing = it)) },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
+
             FilterChipGroup(
                 title = SearchStrings.FILTER_FACING,
                 options = Facing.entries,
@@ -188,6 +197,7 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(facing = it)) },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             FilterChipGroup(
                 title = SearchStrings.FILTER_AGE,
                 options = Age.entries,
@@ -195,6 +205,7 @@ fun PropertyFilters(
                 onSelected = { onFilterChange(filter.copy(age = it)) },
                 optionLabel = { it.label }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             MultiFilterChipGroup(
                 title = SearchStrings.FILTER_AMENITIES,
                 options = Amenity.entries,
@@ -203,16 +214,19 @@ fun PropertyFilters(
                 optionLabel = { it.label }
             )
 
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             AreaRangeFilter(
                 title = SearchStrings.FILTER_CARPET_AREA,
                 range = filter.carpetAreaRange,
                 onRangeChange = { onFilterChange(filter.copy(carpetAreaRange = it)) }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             AreaRangeFilter(
                 title = SearchStrings.FILTER_BUILT_UP_AREA,
                 range = filter.builtUpAreaRange,
                 onRangeChange = { onFilterChange(filter.copy(builtUpAreaRange = it)) }
             )
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             AreaRangeFilter(
                 title = SearchStrings.FILTER_SUPER_BUILT_UP_AREA,
                 range = filter.superBuiltUpAreaRange,
