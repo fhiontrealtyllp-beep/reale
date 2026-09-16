@@ -7,33 +7,38 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 
-// Brand palette used across the app.
-val MainBackground = Color(0xFF141C3D)
-val CardBackground = Color(0xFF1C2755)
-val TextPrimary = Color(0xFFFBFBFB)
-val TextSecondary = Color(0xFF8F9FDC)
-val Accent = Color(0xFFFDD60D)
-val OnAccentText = Color.Black
-val Error = Color(0xFFFF6B6B)
-val FilterChipUnselectedContainer = Color(0xFF2B3C83)
-val ChipBackground = Color(0xFF263266)
-val MapMarker = Color(0xFFE91E63)
-val Outline = Color(0xFF2B3C83)
-
 // Brand palette (fixed in both themes).
 val BrandBlue = Color(0xFF2563EB)
 val BrandRed = Color(0xFFEF4444)
 val BrandCoral = Color(0xFFFF6B6B)
+val Accent = Color(0xFFFDD60D)
 val VerifiedGreen = Color(0xFF22C55E)
+val Error = Color(0xFFFF6B6B)
+val MapMarker = Color(0xFFE91E63)
 
 // Fixed content colors: text/icons drawn on brand-colored containers or on
 // photos/media. These must NOT flip with the theme.
 val OnBrandContent = Color.White
+val OnAccentText = Color.Black
 val OnMediaContent = Color.White
 val MediaScrim = Color.Black
 
 // Fixed navy for text/icons drawn on the always-light welcome illustration.
 val OnLightArtwork = Color(0xFF1B2A4A)
+
+// Light theme palette. Private: screens must use the theme-aware getters.
+private val LightTextSecondary = Color(0xFF6B7280)
+private val LightBorder = Color(0xFFE5E7EB)
+private val LightFill = Color(0xFFF3F4F6)
+private val LightSuccessBadge = Color(0xFFDCFCE7)
+
+// Dark theme palette. Private: screens must use the theme-aware getters.
+private val DarkBackground = Color(0xFF141C3D)
+private val DarkSurface = Color(0xFF1C2755)
+private val DarkOnSurface = Color(0xFFFBFBFB)
+private val DarkTextSecondary = Color(0xFF8F9FDC)
+private val DarkBorder = Color(0xFF2B3C83)
+private val DarkFill = Color(0xFF263266)
 
 // Theme-aware palette. Screens read these roles through the shared color
 // getters below so the UI repaints when the theme mode changes.
@@ -58,30 +63,30 @@ val LightAppColors = AppColors(
     background = Color.White,
     surface = Color.White,
     onSurface = Color.Black,
-    textSecondary = Color(0xFF6B7280),
+    textSecondary = LightTextSecondary,
     hint = Color.Black.copy(alpha = 0.38f),
-    border = Color(0xFFE5E7EB),
-    fillUnselected = Color(0xFFF3F4F6),
+    border = LightBorder,
+    fillUnselected = LightFill,
     navyText = OnLightArtwork,
     chipSelectedContainer = BrandBlue,
     chipSelectedLabel = OnBrandContent,
-    chipContainer = Color(0xFFF3F4F6),
+    chipContainer = LightFill,
     chipLabel = Color.Black,
-    successBadge = Color(0xFFDCFCE7)
+    successBadge = LightSuccessBadge
 )
 
 val DarkAppColors = AppColors(
-    background = MainBackground,
-    surface = CardBackground,
-    onSurface = TextPrimary,
-    textSecondary = TextSecondary,
-    hint = TextPrimary.copy(alpha = 0.38f),
-    border = Outline,
-    fillUnselected = ChipBackground,
-    navyText = TextPrimary,
+    background = DarkBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    textSecondary = DarkTextSecondary,
+    hint = DarkOnSurface.copy(alpha = 0.38f),
+    border = DarkBorder,
+    fillUnselected = DarkFill,
+    navyText = DarkOnSurface,
     chipSelectedContainer = Accent,
     chipSelectedLabel = OnAccentText,
-    chipContainer = FilterChipUnselectedContainer,
+    chipContainer = DarkBorder,
     chipLabel = OnBrandContent,
     successBadge = VerifiedGreen.copy(alpha = 0.2f)
 )
