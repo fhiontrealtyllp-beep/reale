@@ -139,3 +139,22 @@ val IsDarkAppTheme: Boolean
 val NavyText: Color
     @Composable @ReadOnlyComposable get() =
         if (IsDarkAppTheme) TextPrimary else OnLightArtwork
+
+// Filter-chip colors. Selected: brand blue in light mode (matches the capsule
+// toggles), yellow accent in dark mode. Unselected: neutral theme fill in
+// light mode, navy chip color in dark mode.
+val FilterChipSelectedContainer: Color
+    @Composable @ReadOnlyComposable get() =
+        if (IsDarkAppTheme) Accent else BrandBlue
+
+val FilterChipSelectedLabel: Color
+    @Composable @ReadOnlyComposable get() =
+        if (IsDarkAppTheme) OnAccentText else OnBrandContent
+
+val FilterChipContainer: Color
+    @Composable @ReadOnlyComposable get() =
+        if (IsDarkAppTheme) FilterChipUnselectedContainer else LocalAppColors.current.fillUnselected
+
+val FilterChipLabel: Color
+    @Composable @ReadOnlyComposable get() =
+        if (IsDarkAppTheme) OnBrandContent else LocalAppColors.current.onSurface

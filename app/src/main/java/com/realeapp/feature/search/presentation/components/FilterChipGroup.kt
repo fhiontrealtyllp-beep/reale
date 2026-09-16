@@ -11,12 +11,11 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.realeapp.feature.search.presentation.SearchDims
-import com.realeapp.ui.theme.Accent
-import com.realeapp.ui.theme.OnAccentText
-import com.realeapp.ui.theme.FilterChipUnselectedContainer
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.FilterChipContainer
+import com.realeapp.ui.theme.FilterChipLabel
+import com.realeapp.ui.theme.FilterChipSelectedContainer
+import com.realeapp.ui.theme.FilterChipSelectedLabel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -41,10 +40,10 @@ fun <T> FilterChipGroup(
                     onClick = { onSelected(if (isSelected) null else option) },
                     label = { Text(optionLabel(option)) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Accent,
-                        selectedLabelColor = OnAccentText,
-                        containerColor = FilterChipUnselectedContainer,
-                        labelColor = OnBrandContent
+                        selectedContainerColor = FilterChipSelectedContainer,
+                        selectedLabelColor = FilterChipSelectedLabel,
+                        containerColor = FilterChipContainer,
+                        labelColor = FilterChipLabel
                     )
                 )
             }
@@ -81,10 +80,10 @@ fun <T> MultiFilterChipGroup(
                     },
                     label = { Text(optionLabel(option)) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Accent,
-                        selectedLabelColor = OnAccentText,
-                        containerColor = FilterChipUnselectedContainer,
-                        labelColor = OnBrandContent
+                        selectedContainerColor = FilterChipSelectedContainer,
+                        selectedLabelColor = FilterChipSelectedLabel,
+                        containerColor = FilterChipContainer,
+                        labelColor = FilterChipLabel
                     )
                 )
             }

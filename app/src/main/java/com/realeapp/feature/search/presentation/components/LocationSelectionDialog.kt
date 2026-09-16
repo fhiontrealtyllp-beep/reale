@@ -47,12 +47,13 @@ import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.BrandBlue
-import com.realeapp.ui.theme.FilterChipUnselectedContainer
+import com.realeapp.ui.theme.FilterChipContainer
+import com.realeapp.ui.theme.FilterChipLabel
+import com.realeapp.ui.theme.FilterChipSelectedContainer
+import com.realeapp.ui.theme.FilterChipSelectedLabel
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
@@ -256,10 +257,10 @@ fun ChipSelectionDialog(
                             },
                             label = { Text(chip) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Accent,
-                                selectedLabelColor = OnAccentText,
-                                containerColor = FilterChipUnselectedContainer,
-                                labelColor = OnBrandContent
+                                selectedContainerColor = FilterChipSelectedContainer,
+                                selectedLabelColor = FilterChipSelectedLabel,
+                                containerColor = FilterChipContainer,
+                                labelColor = FilterChipLabel
                             )
                         )
                     }
