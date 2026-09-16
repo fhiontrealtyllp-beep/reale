@@ -48,32 +48,29 @@ fun HomeScreen(
     val selectedCity by viewModel.selectedCity.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    if (uiState.isLoading) {
-        GenericLoader(modifier = modifier)
-    } else {
-        HomeContent(
-            featuredProperties = featuredProperties,
-            promotionalProperties = promotionalProperties,
-            selectedCategory = selectedCategory,
-            selectedCity = selectedCity,
-            onSearchClick = onSearchClick,
-            onSavedClick = onSavedClick,
-            onAddClick = onAddClick,
-            onProfileClick = onProfileClick,
-            onCategorySelected = viewModel::onCategorySelected,
-            onLike = { property ->
-                viewModel.onLikeClicked(property.documentId ?: property.id)
-                val message = if (property.isLiked == true) {
-                    String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
-                } else {
-                    String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
-                }
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            },
-            onChangeCity = onChangeCity,
-            modifier = modifier
-        )
-    }
+    HomeContent(
+        featuredProperties = featuredProperties,
+        promotionalProperties = promotionalProperties,
+        selectedCategory = selectedCategory,
+        selectedCity = selectedCity,
+        isLoading = uiState.isLoading,
+        onSearchClick = onSearchClick,
+        onSavedClick = onSavedClick,
+        onAddClick = onAddClick,
+        onProfileClick = onProfileClick,
+        onCategorySelected = viewModel::onCategorySelected,
+        onLike = { property ->
+            viewModel.onLikeClicked(property.documentId ?: property.id)
+            val message = if (property.isLiked == true) {
+                String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+            } else {
+                String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+            }
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        },
+        onChangeCity = onChangeCity,
+        modifier = modifier
+    )
 
     if (uiState.showLoginPrompt) {
         LoginPromptDialog(
@@ -92,6 +89,7 @@ internal fun HomeContent(
     promotionalProperties: List<Property>,
     selectedCategory: HomeCategory,
     selectedCity: String? = null,
+    isLoading: Boolean = false,
     onSearchClick: () -> Unit,
     onSavedClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
@@ -128,24 +126,28 @@ internal fun HomeContent(
                 onCategorySelected = onCategorySelected
             )
 
-            HomePropertyFeed(
-                featuredProperties = featuredList,
-                promotionalProperties = promotionalProperties,
-                city = selectedCity,
-                onSeeAllClick = onSearchClick,
-                onPropertyClick = { id ->
-                    selectedProperty = featuredProperties.find {
-                        (it.documentId ?: it.id) == id
-                    }
-                },
-                onPromotionClick = { selectedProperty = it },
-                onChangeCity = onChangeCity,
-                onLike = { featured ->
-                    propertyById[featured.id]?.let { onLike(it) }
-                },
-                onPromotionalLike = onLike,
-                modifier = Modifier.weight(1f)
-            )
+            if (isLoading) {
+                GenericLoader(modifier = Modifier.weight(1f))
+            } else {
+                HomePropertyFeed(
+                    featuredProperties = featuredList,
+                    promotionalProperties = promotionalProperties,
+                    city = selectedCity,
+                    onSeeAllClick = onSearchClick,
+                    onPropertyClick = { id ->
+                        selectedProperty = featuredProperties.find {
+                            (it.documentId ?: it.id) == id
+                        }
+                    },
+                    onPromotionClick = { selectedProperty = it },
+                    onChangeCity = onChangeCity,
+                    onLike = { featured ->
+                        propertyById[featured.id]?.let { onLike(it) }
+                    },
+                    onPromotionalLike = onLike,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 

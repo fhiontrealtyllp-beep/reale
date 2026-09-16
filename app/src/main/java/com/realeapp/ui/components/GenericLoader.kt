@@ -17,6 +17,7 @@ import com.realeapp.ui.theme.RealeTheme
 private object LoaderDimens {
     val SIZE = 48.dp
     val STROKE_WIDTH = 4.dp
+    const val BACKGROUND_ALPHA = 0.7f
 }
 
 @Composable
@@ -24,7 +25,7 @@ fun GenericLoader(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(AppBackground),
+            .background(AppBackground.copy(alpha = LoaderDimens.BACKGROUND_ALPHA)),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
