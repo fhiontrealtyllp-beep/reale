@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.ui.graphics.Color
@@ -54,6 +55,7 @@ import com.realeapp.ui.theme.BrandBlue
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -450,14 +452,14 @@ private fun CapsuleToggleSegment(
             Icon(
                 imageVector = it,
                 contentDescription = null,
-                tint = if (isSelected) White else HomeTextSecondary,
+                tint = if (isSelected) OnBrandContent else HomeTextSecondary,
                 modifier = Modifier.size(SearchDims.FILTER_TOGGLE_ICON_SIZE)
             )
             Spacer(modifier = Modifier.width(SearchDims.FILTER_TOGGLE_ICON_TEXT_SPACING))
         }
         Text(
             text = label,
-            color = if (isSelected) White else HomeTextSecondary,
+            color = if (isSelected) OnBrandContent else HomeTextSecondary,
             fontSize = SearchDims.FILTER_TOGGLE_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )
@@ -468,6 +470,7 @@ private fun RangeOption.matches(minimum: Double?, maximum: Double?): Boolean =
     minimum == min && maximum == max
 
 @Preview(showBackground = true, name = "Property Filters")
+@Preview(showBackground = true, name = "Property Filters Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PropertyFiltersPreview() {
     RealeTheme {
