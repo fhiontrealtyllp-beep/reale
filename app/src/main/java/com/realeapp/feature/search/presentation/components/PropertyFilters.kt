@@ -105,16 +105,21 @@ fun PropertyFilters(
         color = White
     ) {
         Column(
-            modifier = Modifier.padding(SearchDims.FILTER_PANEL_PADDING),
-            verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
+            modifier = Modifier.padding(SearchDims.FILTER_PANEL_PADDING)
         ) {
             val effectiveRentBuy = filter.rentBuy ?: RentBuy.RENT
             val effectiveCategory = filter.residentialCommercial ?: ResidentialCommercial.RESIDENTIAL
+
+            // Adds vertical space above the listing-type toggle title
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             ListingTypeToggle(
                 selected = effectiveRentBuy,
                 onSelected = { onFilterChange(filter.copy(rentBuy = it, priceRange = null)) }
             )
+
+            // Adds vertical space between the toggle title and the filter content
+            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 
             val budgetOptions = if (effectiveRentBuy == RentBuy.RENT) rentOptions else priceOptions
             FilterChipGroup(
@@ -358,7 +363,7 @@ private fun ListingTypeToggle(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(SearchStrings.FILTER_LISTING_INTENT)
         Row(
@@ -393,7 +398,7 @@ private fun ResidentialCommercialToggle(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_SECTION_SPACING)
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(SearchStrings.FILTER_CATEGORY)
         Row(

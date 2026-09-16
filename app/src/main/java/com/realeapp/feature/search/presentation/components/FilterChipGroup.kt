@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.OnAccentText
 import com.realeapp.ui.theme.FilterChipUnselectedContainer
@@ -27,10 +28,10 @@ fun <T> FilterChipGroup(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(title)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)) {
             options.forEach { option ->
                 val isSelected = option == selected
                 FilterChip(
@@ -61,10 +62,10 @@ fun <T> MultiFilterChipGroup(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(title)
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)) {
             options.forEach { option ->
                 val isSelected = option in selected
                 FilterChip(

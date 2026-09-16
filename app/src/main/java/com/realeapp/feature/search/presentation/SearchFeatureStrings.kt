@@ -117,6 +117,7 @@ internal object SearchDims {
     val SECTION_HEADER_SPACING = 12.dp
     val FILTER_SECTION_SPACING = 8.dp
     val FILTER_ITEM_SPACING = 8.dp
+    val FILTER_TITLE_TO_CHIPS_SPACING = 4.dp
     val FILTER_FIELD_HEIGHT = 56.dp
     val FILTER_FIELD_CORNER_RADIUS = 12.dp
     val FILTER_PANEL_CORNER_RADIUS = 20.dp
