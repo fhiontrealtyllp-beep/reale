@@ -302,6 +302,7 @@ private fun LocationSelector(
                 Text(
                     text = label,
                     color = HomeTextSecondary,
+                    fontSize = SearchDims.FILTER_SELECTOR_LABEL_FONT_SIZE
                 )
                 Text(
                     text = displayValue,
