@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
@@ -48,7 +49,8 @@ fun <T> FilterChipGroup(
                     elevation = FilterChipDefaults.filterChipElevation(
                         elevation = SearchDims.FILTER_CHIP_ELEVATION
                     ),
-                    border = null
+                    border = null,
+                    shape = CircleShape
                 )
             }
         }
@@ -92,7 +94,8 @@ fun <T> MultiFilterChipGroup(
                     elevation = FilterChipDefaults.filterChipElevation(
                         elevation = SearchDims.FILTER_CHIP_ELEVATION
                     ),
-                    border = null
+                    border = null,
+                    shape = CircleShape
                 )
             }
         }
