@@ -44,9 +44,10 @@ import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.components.CapsuleToggle
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.Black
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -131,20 +132,26 @@ fun PropertyFilters(
             )
 
             Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
-            LocationSelector(
-                label = SearchStrings.FILTER_CITY,
-                value = filter.city,
-                placeholder = SearchStrings.FILTER_SELECT_CITY,
-                onClick = { showCityDialog = true }
-            )
-            Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
-
-            LocationSelector(
-                label = SearchStrings.FILTER_LOCALITY,
-                value = filter.localities.firstOrNull(),
-                placeholder = SearchStrings.FILTER_SELECT_LOCALITY,
-                onClick = { showLocalityDialog = true }
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
+            ) {
+                FilterSectionHeader(SearchStrings.FILTER_CITY)
+                LocationSelector(
+                    value = filter.city,
+                    placeholder = SearchStrings.FILTER_SELECT_CITY,
+                    onClick = { showCityDialog = true }
+                )
+            }
+            // Locality depends on the chosen city, so it only appears once
+            // a city has been selected.
+            if (filter.city != null) {
+                Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
+                LocationSelector(
+                    value = filter.localities.firstOrNull(),
+                    placeholder = SearchStrings.FILTER_SELECT_LOCALITY,
+                    onClick = { showLocalityDialog = true }
+                )
+            }
 
             Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
             FilterChipGroup(
@@ -271,21 +278,22 @@ fun PropertyFilters(
 
 @Composable
 private fun LocationSelector(
-    label: String,
     value: String?,
     placeholder: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isSet = value != null
     val displayValue = value ?: placeholder
-    val valueColor = if (value != null) Black else HomeTextSecondary
+    // Selected state mirrors a selected chip: accent fill with on-accent
+    // content; unselected stays a white capsule showing the placeholder.
+    val contentColor = if (isSet) OnControlAccent else HomeTextSecondary
 
-    // Floating white capsule, same theme as the filter chips and toggles.
     Surface(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = CircleShape,
-        color = White,
+        color = if (isSet) ControlAccent else White,
         shadowElevation = SearchDims.FILTER_SELECTOR_ELEVATION
     ) {
         Row(
@@ -296,23 +304,14 @@ private fun LocationSelector(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
-            ) {
-                Text(
-                    text = label,
-                    color = HomeTextSecondary,
-                    fontSize = SearchDims.FILTER_SELECTOR_LABEL_FONT_SIZE
-                )
-                Text(
-                    text = displayValue,
-                    color = valueColor,
-                )
-            }
+            Text(
+                text = displayValue,
+                color = contentColor,
+            )
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
-                tint = HomeTextSecondary,
+                tint = contentColor,
                 modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
             )
         }
@@ -416,7 +415,7 @@ private fun PropertyFiltersPreview() {
         PropertyFilters(
             filter = PropertyFilter(
                 city = "Delhi",
-                localities = listOf("Connaught Place"),
+                localities = emptyList(),
                 rentBuy = RentBuy.BUY,
                 propertyType = PropertyType.APARTMENT
             ),
