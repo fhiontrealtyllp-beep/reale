@@ -584,8 +584,10 @@ internal fun BuyRentToggle(
         modifier = modifier
             .fillMaxWidth()
             .height(HomeDims.TOGGLE_ROW_HEIGHT)
-            .clip(CircleShape)
-            .background(HomeCategoryUnselected)
+            .shadow(HomeDims.TOGGLE_ELEVATION, CircleShape)
+            // Shaped background instead of clip() so segment shadows aren't
+            // clipped to the capsule bounds.
+            .background(White, CircleShape)
             .padding(HomeDims.TOGGLE_INNER_PADDING),
         horizontalArrangement = Arrangement.spacedBy(HomeDims.TOGGLE_INNER_PADDING)
     ) {

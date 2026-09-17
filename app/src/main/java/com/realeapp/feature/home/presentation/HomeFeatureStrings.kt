@@ -96,6 +96,7 @@ internal object HomeDims {
     val TOGGLE_ROW_HEIGHT = 48.dp
     val TOGGLE_INNER_PADDING = 4.dp
     val TOGGLE_FONT_SIZE = 14.sp
+    val TOGGLE_ELEVATION = 6.dp
 
     // Single size for the featured card: used for both the card width and
     // the image height, so the image stays square.
