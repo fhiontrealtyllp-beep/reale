@@ -46,11 +46,12 @@ import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.ControlAccent
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
@@ -176,13 +177,13 @@ internal fun AddPropertyStep1Screen(
                     Icon(
                         imageVector = Icons.Outlined.MyLocation,
                         contentDescription = AddStrings.CD_MY_LOCATION_LINK,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(AddDims.LOCATION_LINK_ICON_SIZE)
                     )
                     Spacer(modifier = Modifier.width(AddDims.LOCATION_LINK_ICON_TEXT_SPACING))
                     Text(
                         text = AddStrings.ACTION_USE_MY_LOCATION,
-                        color = BrandBlue,
+                        color = ControlAccent,
                         fontSize = AddDims.LOCATION_LINK_FONT_SIZE,
                         fontWeight = FontWeight.Medium
                     )
@@ -298,7 +299,7 @@ private fun Step1FieldLabel(
         if (isRequired) {
             Text(
                 text = AddStrings.REQUIRED_MARKER,
-                color = BrandRed,
+                color = Error,
                 fontSize = AddDims.FIELD_LABEL_FONT_SIZE
             )
         }
@@ -342,7 +343,7 @@ private fun Step1Field(
             unfocusedContainerColor = HomeCategoryUnselected,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = BrandBlue
+            cursorColor = ControlAccent
         )
     )
 }
@@ -358,10 +359,10 @@ private fun PropertyTypeCard(
         modifier = modifier
             .height(AddDims.TYPE_CARD_HEIGHT)
             .clip(RoundedCornerShape(AddDims.TYPE_CARD_CORNER_RADIUS))
-            .background(if (isSelected) BrandBlue.copy(alpha = 0.08f) else White)
+            .background(if (isSelected) ControlAccent.copy(alpha = 0.08f) else White)
             .border(
                 width = if (isSelected) AddDims.TYPE_CARD_SELECTED_BORDER_WIDTH else AddDims.TYPE_CARD_BORDER_WIDTH,
-                color = if (isSelected) BrandBlue else HomeSearchBarBorder,
+                color = if (isSelected) ControlAccent else HomeSearchBarBorder,
                 shape = RoundedCornerShape(AddDims.TYPE_CARD_CORNER_RADIUS)
             )
             .clickable(onClick = onClick),
@@ -371,13 +372,13 @@ private fun PropertyTypeCard(
         Icon(
             imageVector = propertyTypeIcon(propertyType),
             contentDescription = null,
-            tint = if (isSelected) BrandBlue else HomeTextSecondary,
+            tint = if (isSelected) ControlAccent else HomeTextSecondary,
             modifier = Modifier.size(AddDims.TYPE_CARD_ICON_SIZE)
         )
         Spacer(modifier = Modifier.height(AddDims.TYPE_CARD_ICON_TEXT_SPACING))
         Text(
             text = propertyType.label,
-            color = if (isSelected) BrandBlue else Black,
+            color = if (isSelected) ControlAccent else Black,
             fontSize = AddDims.TYPE_CARD_LABEL_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 2,
@@ -387,7 +388,7 @@ private fun PropertyTypeCard(
 }
 
 // One half of the listing-type toggle; the selected segment is filled
-// with BrandBlue so the active choice reads like a switch position.
+// with ControlAccent so the active choice reads like a switch position.
 @Composable
 private fun ListingTypeSegment(
     rentBuy: RentBuy,
@@ -435,7 +436,7 @@ private fun CapsuleToggleSegment(
         modifier = modifier
             .fillMaxHeight()
             .clip(CircleShape)
-            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .background(if (isSelected) ControlAccent else Color.Transparent)
             .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -444,14 +445,14 @@ private fun CapsuleToggleSegment(
             Icon(
                 imageVector = it,
                 contentDescription = null,
-                tint = if (isSelected) White else HomeTextSecondary,
+                tint = if (isSelected) OnControlAccent else HomeTextSecondary,
                 modifier = Modifier.size(AddDims.LISTING_BUTTON_ICON_SIZE)
             )
             Spacer(modifier = Modifier.width(AddDims.LISTING_BUTTON_ICON_TEXT_SPACING))
         }
         Text(
             text = label,
-            color = if (isSelected) White else HomeTextSecondary,
+            color = if (isSelected) OnControlAccent else HomeTextSecondary,
             fontSize = AddDims.LISTING_BUTTON_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )

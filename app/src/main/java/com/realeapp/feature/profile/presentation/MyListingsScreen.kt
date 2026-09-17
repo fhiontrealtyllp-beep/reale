@@ -77,11 +77,11 @@ import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MediaScrim
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
@@ -190,7 +190,7 @@ internal fun MyListingsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = BrandBlue,
+                            color = ControlAccent,
                             modifier = Modifier.size(MyListingsDims.LOADING_SIZE)
                         )
                     }
@@ -380,8 +380,8 @@ private fun MyListingsTopBar(
             modifier = Modifier.height(MyListingsDims.ADD_BUTTON_HEIGHT),
             shape = RoundedCornerShape(MyListingsDims.ADD_BUTTON_CORNER_RADIUS),
             colors = ButtonDefaults.textButtonColors(
-                containerColor = BrandBlue,
-                contentColor = OnBrandContent
+                containerColor = ControlAccent,
+                contentColor = OnControlAccent
             ),
             contentPadding = PaddingValues(horizontal = MyListingsDims.ADD_BUTTON_HORIZONTAL_PADDING)
         ) {
@@ -424,11 +424,11 @@ private fun StatusFilterChips(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(MyListingsDims.CHIP_CORNER_RADIUS))
-                    .background(if (selected) BrandBlue else White)
+                    .background(if (selected) ControlAccent else White)
                     .border(
                         BorderStroke(
                             MyListingsDims.CHIP_BORDER_WIDTH,
-                            if (selected) BrandBlue else HomeSearchBarBorder
+                            if (selected) ControlAccent else HomeSearchBarBorder
                         ),
                         RoundedCornerShape(MyListingsDims.CHIP_CORNER_RADIUS)
                     )
@@ -440,7 +440,7 @@ private fun StatusFilterChips(
             ) {
                 Text(
                     text = "$label ($count)",
-                    color = if (selected) OnBrandContent else Black,
+                    color = if (selected) OnControlAccent else Black,
                     fontSize = MyListingsDims.CHIP_FONT_SIZE,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
                 )
@@ -595,7 +595,7 @@ private fun ListingCard(
 
                 Text(
                     text = formatIndianPrice(listing.price),
-                    color = BrandBlue,
+                    color = ControlAccent,
                     fontSize = MyListingsDims.PRICE_FONT_SIZE,
                     fontWeight = FontWeight.Bold
                 )
@@ -793,7 +793,7 @@ private fun ListingActions(
                 .height(MyListingsDims.ACTION_BUTTON_HEIGHT)
                 .clip(RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS))
                 .border(
-                    BorderStroke(MyListingsDims.ACTION_BUTTON_BORDER_WIDTH, BrandBlue),
+                    BorderStroke(MyListingsDims.ACTION_BUTTON_BORDER_WIDTH, ControlAccent),
                     RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS)
                 )
                 .clickable(onClick = onEdit)
@@ -801,13 +801,13 @@ private fun ListingActions(
             Icon(
                 imageVector = Icons.Outlined.Edit,
                 contentDescription = MyListingsStrings.CD_EDIT,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
             )
             Spacer(modifier = Modifier.width(MyListingsDims.ACTION_BUTTON_ICON_TEXT_SPACING))
             Text(
                 text = MyListingsStrings.ACTION_EDIT,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = MyListingsDims.ACTION_BUTTON_FONT_SIZE,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -824,21 +824,21 @@ private fun ListingActions(
                 .weight(1f)
                 .height(MyListingsDims.ACTION_BUTTON_HEIGHT)
                 .clip(RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS))
-                .background(BrandBlue.copy(alpha = 0.1f))
+                .background(ControlAccent.copy(alpha = 0.1f))
                 .clickable(onClick = onViewDetails)
         ) {
             if (isInactive) {
                 Icon(
                     imageVector = Icons.Outlined.Autorenew,
                     contentDescription = MyListingsStrings.CD_REACTIVATE,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
                 )
                 Spacer(modifier = Modifier.width(MyListingsDims.ACTION_BUTTON_ICON_TEXT_SPACING))
             }
             Text(
                 text = if (isInactive) MyListingsStrings.ACTION_REACTIVATE else MyListingsStrings.ACTION_VIEW_DETAILS,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = MyListingsDims.ACTION_BUTTON_FONT_SIZE,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -849,7 +849,7 @@ private fun ListingActions(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = MyListingsStrings.CD_VIEW_DETAILS,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
                 )
             }

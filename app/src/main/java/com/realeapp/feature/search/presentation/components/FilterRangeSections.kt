@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.realeapp.ui.theme.Accent
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -117,7 +117,7 @@ private fun RangeFilterSection(
             )
             Text(
                 text = "${valueFormatter(sliderValues.start)} – ${valueFormatter(sliderValues.endInclusive)}",
-                color = Accent,
+                color = ControlAccent,
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -135,8 +135,8 @@ private fun RangeFilterSection(
             valueRange = sliderMin..sliderMax,
             steps = 0,
             colors = SliderDefaults.colors(
-                thumbColor = Accent,
-                activeTrackColor = Accent,
+                thumbColor = ControlAccent,
+                activeTrackColor = ControlAccent,
                 inactiveTrackColor = HomeSearchBarBorder
             )
         )
@@ -153,11 +153,11 @@ private fun RangeFilterSection(
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent,
+                    focusedBorderColor = ControlAccent,
                     unfocusedBorderColor = HomeSearchBarBorder,
-                    focusedLabelColor = Accent,
+                    focusedLabelColor = ControlAccent,
                     unfocusedLabelColor = HomeTextSecondary,
-                    cursorColor = Accent
+                    cursorColor = ControlAccent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier
@@ -173,11 +173,11 @@ private fun RangeFilterSection(
                 isError = hasInput && !isValid,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent,
+                    focusedBorderColor = ControlAccent,
                     unfocusedBorderColor = HomeSearchBarBorder,
-                    focusedLabelColor = Accent,
+                    focusedLabelColor = ControlAccent,
                     unfocusedLabelColor = HomeTextSecondary,
-                    cursorColor = Accent
+                    cursorColor = ControlAccent
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier

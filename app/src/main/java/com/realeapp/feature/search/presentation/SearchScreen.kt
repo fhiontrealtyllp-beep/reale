@@ -59,7 +59,7 @@ import com.realeapp.feature.search.presentation.components.PropertyFilters
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -227,7 +227,7 @@ private fun SearchTopBar(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(SearchDims.NOTIFICATION_BADGE_SIZE)
                     .clip(CircleShape)
-                    .background(BrandRed)
+                    .background(Error)
             )
         }
     }

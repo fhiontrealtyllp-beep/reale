@@ -39,11 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.NavyText
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import com.realeapp.util.Logger
@@ -137,8 +137,8 @@ fun CityScreen(
                 .fillMaxWidth()
                 .height(CityDims.BUTTON_HEIGHT),
             colors = ButtonDefaults.buttonColors(
-                containerColor = BrandBlue,
-                contentColor = OnBrandContent
+                containerColor = ControlAccent,
+                contentColor = OnControlAccent
             ),
             shape = RoundedCornerShape(CityDims.BUTTON_CORNER_RADIUS)
         ) {
@@ -158,9 +158,9 @@ private fun CityRow(
     onClick: () -> Unit
 ) {
     val rowShape = RoundedCornerShape(CityDims.CITY_ROW_CORNER_RADIUS)
-    val borderColor = if (selected) BrandBlue else HomeSearchBarBorder
+    val borderColor = if (selected) ControlAccent else HomeSearchBarBorder
     val backgroundColor = if (selected) {
-        BrandBlue.copy(alpha = SELECTED_CITY_BACKGROUND_ALPHA)
+        ControlAccent.copy(alpha = SELECTED_CITY_BACKGROUND_ALPHA)
     } else {
         White
     }
@@ -179,14 +179,14 @@ private fun CityRow(
             modifier = Modifier
                 .size(CityDims.CITY_ICON_SIZE)
                 .clip(CircleShape)
-                .background(BrandBlue.copy(alpha = CITY_ICON_BACKGROUND_ALPHA)),
+                .background(ControlAccent.copy(alpha = CITY_ICON_BACKGROUND_ALPHA)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.LocationOn,
                 contentDescription = CityStrings.CD_CITY_ICON,
                 modifier = Modifier.size(CityDims.CITY_ICON_INNER_SIZE),
-                tint = BrandBlue
+                tint = ControlAccent
             )
         }
 
@@ -210,7 +210,7 @@ private fun CityRow(
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = CityStrings.CD_CITY_SELECTED,
-                tint = BrandBlue
+                tint = ControlAccent
             )
         }
     }

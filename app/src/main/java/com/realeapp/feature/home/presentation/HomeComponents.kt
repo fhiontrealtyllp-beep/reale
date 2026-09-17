@@ -71,13 +71,13 @@ import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -293,7 +293,7 @@ private fun FeaturedPropertyCard(
                 Icon(
                     imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = HomeStrings.CD_FAVORITE,
-                    tint = if (isLiked) BrandRed else OnMediaContent,
+                    tint = if (isLiked) Error else OnMediaContent,
                     modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
                 )
             }
@@ -491,7 +491,7 @@ private fun PromotionBannerCard(
                 Icon(
                     imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = HomeStrings.CD_FAVORITE,
-                    tint = if (isLiked) BrandRed else OnMediaContent,
+                    tint = if (isLiked) Error else OnMediaContent,
                     modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
                 )
             }
@@ -615,13 +615,13 @@ private fun BuyRentToggleSegment(
         modifier = modifier
             .fillMaxHeight()
             .clip(CircleShape)
-            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .background(if (isSelected) ControlAccent else Color.Transparent)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = if (isSelected) White else HomeTextSecondary,
+            color = if (isSelected) OnControlAccent else HomeTextSecondary,
             fontSize = HomeDims.TOGGLE_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )

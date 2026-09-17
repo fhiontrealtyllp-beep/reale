@@ -51,11 +51,11 @@ import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -443,7 +443,7 @@ private fun CapsuleToggleSegment(
         modifier = modifier
             .fillMaxHeight()
             .clip(CircleShape)
-            .background(if (isSelected) BrandBlue else Color.Transparent)
+            .background(if (isSelected) ControlAccent else Color.Transparent)
             .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -452,14 +452,14 @@ private fun CapsuleToggleSegment(
             Icon(
                 imageVector = it,
                 contentDescription = null,
-                tint = if (isSelected) OnBrandContent else HomeTextSecondary,
+                tint = if (isSelected) OnControlAccent else HomeTextSecondary,
                 modifier = Modifier.size(SearchDims.FILTER_TOGGLE_ICON_SIZE)
             )
             Spacer(modifier = Modifier.width(SearchDims.FILTER_TOGGLE_ICON_TEXT_SPACING))
         }
         Text(
             text = label,
-            color = if (isSelected) OnBrandContent else HomeTextSecondary,
+            color = if (isSelected) OnControlAccent else HomeTextSecondary,
             fontSize = SearchDims.FILTER_TOGGLE_FONT_SIZE,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
         )

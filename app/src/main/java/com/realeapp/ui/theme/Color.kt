@@ -7,26 +7,26 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 
-// Brand palette (fixed in both themes).
-val BrandBlue = Color(0xFF2563EB)
-val BrandRed = Color(0xFFEF4444)
-val BrandCoral = Color(0xFFFF6B6B)
-val Accent = Color(0xFFFDD60D)
-val VerifiedGreen = Color(0xFF22C55E)
-val Error = Color(0xFFFF6B6B)
-val MapMarker = Color(0xFFE91E63)
+// Brand palette (fixed in both themes). Private: screens must use the
+// theme-aware getters below so every color read goes through LocalAppColors.
+private val FixedBrandCoral = Color(0xFFFF6B6B)
+private val FixedAccent = Color(0xFFFDD60D)
+private val FixedVerifiedGreen = Color(0xFF22C55E)
+private val FixedError = Color(0xFFFF6B6B)
+private val FixedMapMarker = Color(0xFFE91E63)
 
 // Fixed content colors: text/icons drawn on brand-colored containers or on
-// photos/media. These must NOT flip with the theme.
-val OnBrandContent = Color.White
-val OnAccentText = Color.Black
-val OnMediaContent = Color.White
-val MediaScrim = Color.Black
+// photos/media. Private: screens must use the theme-aware getters below.
+private val FixedOnBrandContent = Color.White
+private val FixedOnAccentText = Color.Black
+private val FixedOnMediaContent = Color.White
+private val FixedMediaScrim = Color.Black
 
 // Fixed navy for text/icons drawn on the always-light welcome illustration.
-val OnLightArtwork = Color(0xFF1B2A4A)
+private val FixedOnLightArtwork = Color(0xFF1B2A4A)
 
 // Light theme palette. Private: screens must use the theme-aware getters.
+private val LightAccent = Color(0xFF2563EB)
 private val LightTextSecondary = Color(0xFF6B7280)
 private val LightBorder = Color(0xFFE5E7EB)
 private val LightFill = Color(0xFFF3F4F6)
@@ -51,12 +51,24 @@ class AppColors(
     val hint: Color,
     val border: Color,
     val fillUnselected: Color,
+    val controlAccent: Color,
+    val onControlAccent: Color,
     val navyText: Color,
     val chipSelectedContainer: Color,
     val chipSelectedLabel: Color,
     val chipContainer: Color,
     val chipLabel: Color,
-    val successBadge: Color
+    val successBadge: Color,
+    val brandCoral: Color,
+    val accent: Color,
+    val verifiedGreen: Color,
+    val error: Color,
+    val mapMarker: Color,
+    val onBrandContent: Color,
+    val onAccentText: Color,
+    val onMediaContent: Color,
+    val mediaScrim: Color,
+    val onLightArtwork: Color
 )
 
 val LightAppColors = AppColors(
@@ -67,12 +79,24 @@ val LightAppColors = AppColors(
     hint = Color.Black.copy(alpha = 0.38f),
     border = LightBorder,
     fillUnselected = LightFill,
-    navyText = OnLightArtwork,
-    chipSelectedContainer = BrandBlue,
-    chipSelectedLabel = OnBrandContent,
+    controlAccent = LightAccent,
+    onControlAccent = FixedOnBrandContent,
+    navyText = FixedOnLightArtwork,
+    chipSelectedContainer = LightAccent,
+    chipSelectedLabel = FixedOnBrandContent,
     chipContainer = LightFill,
     chipLabel = Color.Black,
-    successBadge = LightSuccessBadge
+    successBadge = LightSuccessBadge,
+    brandCoral = FixedBrandCoral,
+    accent = FixedAccent,
+    verifiedGreen = FixedVerifiedGreen,
+    error = FixedError,
+    mapMarker = FixedMapMarker,
+    onBrandContent = FixedOnBrandContent,
+    onAccentText = FixedOnAccentText,
+    onMediaContent = FixedOnMediaContent,
+    mediaScrim = FixedMediaScrim,
+    onLightArtwork = FixedOnLightArtwork
 )
 
 val DarkAppColors = AppColors(
@@ -83,12 +107,24 @@ val DarkAppColors = AppColors(
     hint = DarkOnSurface.copy(alpha = 0.38f),
     border = DarkBorder,
     fillUnselected = DarkFill,
+    controlAccent = FixedAccent,
+    onControlAccent = FixedOnAccentText,
     navyText = DarkOnSurface,
-    chipSelectedContainer = Accent,
-    chipSelectedLabel = OnAccentText,
+    chipSelectedContainer = FixedAccent,
+    chipSelectedLabel = FixedOnAccentText,
     chipContainer = DarkBorder,
-    chipLabel = OnBrandContent,
-    successBadge = VerifiedGreen.copy(alpha = 0.2f)
+    chipLabel = FixedOnBrandContent,
+    successBadge = FixedVerifiedGreen.copy(alpha = 0.2f),
+    brandCoral = FixedBrandCoral,
+    accent = FixedAccent,
+    verifiedGreen = FixedVerifiedGreen,
+    error = FixedError,
+    mapMarker = FixedMapMarker,
+    onBrandContent = FixedOnBrandContent,
+    onAccentText = FixedOnAccentText,
+    onMediaContent = FixedOnMediaContent,
+    mediaScrim = FixedMediaScrim,
+    onLightArtwork = FixedOnLightArtwork
 )
 
 val LocalAppColors = compositionLocalOf { LightAppColors }
@@ -124,6 +160,16 @@ val HomeCategoryUnselected: Color
 val SurfaceLight: Color
     @Composable @ReadOnlyComposable get() = LocalAppColors.current.fillUnselected
 
+// Accent for interactive controls (slider thumb/track, focused field
+// borders, cursors): brand blue in light mode, yellow accent in dark mode.
+val ControlAccent: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.controlAccent
+
+// Content drawn on ControlAccent containers (white on blue in light mode,
+// black on yellow in dark mode).
+val OnControlAccent: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.onControlAccent
+
 // True when the dark app palette is active (respects the manual theme override).
 val IsDarkAppTheme: Boolean
     @Composable @ReadOnlyComposable get() = LocalAppColors.current == DarkAppColors
@@ -151,3 +197,37 @@ val FilterChipLabel: Color
 // Soft badge background behind success/verified icons.
 val SuccessBadge: Color
     @Composable @ReadOnlyComposable get() = LocalAppColors.current.successBadge
+
+// Brand palette getters. Values are identical in both themes (brand identity
+// stays fixed) but reads go through LocalAppColors like every other color.
+val BrandCoral: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.brandCoral
+
+val Accent: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.accent
+
+val VerifiedGreen: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.verifiedGreen
+
+val Error: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.error
+
+val MapMarker: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.mapMarker
+
+// Content colors drawn on brand-colored containers or on photos/media. Values
+// stay fixed in both themes but reads go through LocalAppColors.
+val OnBrandContent: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.onBrandContent
+
+val OnAccentText: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.onAccentText
+
+val OnMediaContent: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.onMediaContent
+
+val MediaScrim: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.mediaScrim
+
+val OnLightArtwork: Color
+    @Composable @ReadOnlyComposable get() = LocalAppColors.current.onLightArtwork

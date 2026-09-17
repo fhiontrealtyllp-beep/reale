@@ -49,10 +49,11 @@ import com.realeapp.feature.search.domain.model.Enquiry
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
@@ -109,7 +110,7 @@ fun MyEnquiriesScreen(
                 uiState.isLoading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = BrandBlue,
+                        color = ControlAccent,
                         strokeWidth = MyEnquiriesDims.LOADING_STROKE
                     )
                 }
@@ -195,12 +196,12 @@ private fun EnquiryCard(
 
                     Text(
                         text = enquiry.status.replaceFirstChar { it.uppercase() },
-                        color = White,
+                        color = OnControlAccent,
                         fontSize = MyEnquiriesDims.STATUS_FONT_SIZE,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier
                             .clip(RoundedCornerShape(MyEnquiriesDims.STATUS_BADGE_CORNER_RADIUS))
-                            .background(BrandBlue)
+                            .background(ControlAccent)
                             .padding(
                                 horizontal = MyEnquiriesDims.STATUS_BADGE_HORIZONTAL_PADDING,
                                 vertical = MyEnquiriesDims.STATUS_BADGE_VERTICAL_PADDING

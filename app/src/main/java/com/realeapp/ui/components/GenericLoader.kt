@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.RealeTheme
 
 private object LoaderDimens {
@@ -30,7 +30,7 @@ fun GenericLoader(modifier: Modifier = Modifier) {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(LoaderDimens.SIZE),
-            color = BrandBlue,
+            color = ControlAccent,
             strokeWidth = LoaderDimens.STROKE_WIDTH
         )
     }

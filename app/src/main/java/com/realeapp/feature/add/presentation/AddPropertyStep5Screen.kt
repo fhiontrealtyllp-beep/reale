@@ -42,9 +42,9 @@ import coil.compose.AsyncImage
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeCategoryUnselected
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -110,12 +110,12 @@ internal fun AddPropertyStep5Screen(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = null,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
                     text = AddStrings.ACTION_EDIT,
-                    color = BrandBlue,
+                    color = ControlAccent,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -136,7 +136,7 @@ internal fun AddPropertyStep5Screen(
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = null,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(16.dp)
             )
             Text(
@@ -178,7 +178,7 @@ internal fun AddPropertyStep5Screen(
                 )
                 Text(
                     text = if (descriptionExpanded) AddStrings.ACTION_SHOW_LESS else AddStrings.ACTION_SHOW_MORE,
-                    color = BrandBlue,
+                    color = ControlAccent,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
@@ -201,15 +201,15 @@ internal fun AddPropertyStep5Screen(
                 checked = confirmed,
                 onCheckedChange = null,
                 colors = CheckboxDefaults.colors(
-                    checkedColor = BrandBlue,
+                    checkedColor = ControlAccent,
                     uncheckedColor = HomeTextSecondary,
-                    checkmarkColor = OnBrandContent
+                    checkmarkColor = OnControlAccent
                 )
             )
             Text(
                 text = buildAnnotatedString {
                     append(AddStrings.CONFIRM_ACCURACY_PREFIX)
-                    withStyle(SpanStyle(color = BrandBlue, fontWeight = FontWeight.Bold)) {
+                    withStyle(SpanStyle(color = ControlAccent, fontWeight = FontWeight.Bold)) {
                         append(AddStrings.TERMS_AND_CONDITIONS)
                     }
                 },

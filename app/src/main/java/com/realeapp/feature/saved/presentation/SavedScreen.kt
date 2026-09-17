@@ -83,13 +83,13 @@ import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.components.LoginPrompt
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.MediaScrim
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
@@ -132,12 +132,14 @@ private fun Property.statusLabel(): String = when {
     else -> SavedStrings.LISTING_FOR_SALE
 }
 
+@Composable
 private fun Property.statusColor(): Color = when {
-    isProject() -> BrandBlue
+    isProject() -> ControlAccent
     isRentProperty() -> BrandCoral
-    else -> BrandBlue
+    else -> ControlAccent
 }
 
+@Composable
 private fun Property.statusBackground(): Color = statusColor().copy(alpha = 0.08f)
 
 private fun BedroomType.bedCount(): Int = when (this) {
@@ -211,7 +213,7 @@ fun SavedScreen(
                 uiState.isLoading && uiState.properties.isEmpty() -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = BrandBlue
+                        color = ControlAccent
                     )
                 }
 
@@ -421,7 +423,7 @@ private fun SavedTopBar(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(SavedDims.NOTIFICATION_BADGE_SIZE)
                     .clip(CircleShape)
-                    .background(BrandRed)
+                    .background(Error)
             )
         }
     }
@@ -460,8 +462,8 @@ private fun FilterChipRow(
             val isSelected = filter == selected
             val count = counts[filter] ?: 0
             val label = String.format(SavedStrings.FILTER_COUNT_FORMAT, filter.label, count)
-            val background = if (isSelected) BrandBlue else White
-            val contentColor = if (isSelected) OnBrandContent else BrandBlue
+            val background = if (isSelected) ControlAccent else White
+            val contentColor = if (isSelected) OnControlAccent else ControlAccent
             val border = if (isSelected) null else BorderStroke(SavedDims.SEARCH_DIVIDER_WIDTH, HomeSearchBarBorder)
 
             Surface(
@@ -517,7 +519,7 @@ private fun SavedSearchBar(
             Icon(
                 imageVector = Icons.Filled.Tune,
                 contentDescription = SavedStrings.CD_FILTER_ICON,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(SavedDims.SEARCH_ICON_SIZE)
             )
         },
@@ -531,8 +533,8 @@ private fun SavedSearchBar(
             unfocusedTextColor = Black,
             focusedLeadingIconColor = HomeTextSecondary,
             unfocusedLeadingIconColor = HomeTextSecondary,
-            focusedTrailingIconColor = BrandBlue,
-            unfocusedTrailingIconColor = BrandBlue
+            focusedTrailingIconColor = ControlAccent,
+            unfocusedTrailingIconColor = ControlAccent
         )
     )
 }
@@ -559,13 +561,13 @@ private fun CollectionCard(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(SavedDims.COLLECTION_ICON_CIRCLE_SIZE)
                     .clip(CircleShape)
-                    .background(BrandBlue.copy(alpha = 0.12f)),
+                    .background(ControlAccent.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Favorite,
                     contentDescription = SavedStrings.CD_FAVORITE,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(SavedDims.COLLECTION_ICON_SIZE)
                 )
             }
@@ -685,7 +687,7 @@ private fun SavedPropertyCard(
                             Icon(
                                 imageVector = Icons.Filled.Favorite,
                                 contentDescription = SavedStrings.CD_FAVORITE,
-                                tint = BrandRed,
+                                tint = Error,
                                 modifier = Modifier.size(SavedDims.CARD_ACTION_ICON_SIZE)
                             )
                         }
@@ -738,7 +740,7 @@ private fun SavedPropertyCard(
                 }
                 Text(
                     text = priceText,
-                    color = BrandBlue,
+                    color = ControlAccent,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -834,7 +836,7 @@ private fun ErrorContent(
         Spacer(modifier = Modifier.height(SavedDims.SECTION_SPACING))
         TextButton(
             onClick = onRetry,
-            colors = ButtonDefaults.textButtonColors(contentColor = BrandBlue)
+            colors = ButtonDefaults.textButtonColors(contentColor = ControlAccent)
         ) {
             Text(text = SavedStrings.RETRY)
         }

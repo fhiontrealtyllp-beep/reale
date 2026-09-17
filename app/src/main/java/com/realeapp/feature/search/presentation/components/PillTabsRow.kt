@@ -22,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.realeapp.feature.search.presentation.PropertiesStrings
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -57,12 +57,12 @@ fun PillTabsRow(
                     .clip(RoundedCornerShape(PillTabsDimens.TAB_CORNER_RADIUS))
                     .clickable { onSelect(index) },
                 shape = RoundedCornerShape(PillTabsDimens.TAB_CORNER_RADIUS),
-                color = if (selected) BrandBlue else White,
+                color = if (selected) ControlAccent else White,
                 border = if (selected) null else BorderStroke(PillTabsDimens.BORDER_WIDTH, HomeSearchBarBorder)
             ) {
                 Text(
                     text = label,
-                    color = if (selected) OnBrandContent else Black,
+                    color = if (selected) OnControlAccent else Black,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                     textAlign = TextAlign.Center,

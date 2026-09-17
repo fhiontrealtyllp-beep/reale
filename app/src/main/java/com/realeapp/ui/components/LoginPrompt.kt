@@ -23,8 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.ControlAccent
+import com.realeapp.ui.theme.OnControlAccent
 
 private const val TAG = "LoginPrompt"
 
@@ -55,7 +55,7 @@ fun LoginPrompt(
         Icon(
             imageVector = Icons.Default.Person,
             contentDescription = null,
-            tint = BrandBlue,
+            tint = ControlAccent,
             modifier = Modifier.size(LoginPromptDims.ICON_SIZE)
         )
         VerticalSpacer16()
@@ -76,8 +76,8 @@ fun LoginPrompt(
                 .height(LoginPromptDims.BUTTON_HEIGHT),
             shape = RoundedCornerShape(LoginPromptDims.BUTTON_CORNER_RADIUS),
             colors = ButtonDefaults.textButtonColors(
-                containerColor = BrandBlue,
-                contentColor = OnBrandContent
+                containerColor = ControlAccent,
+                contentColor = OnControlAccent
             )
         ) {
             Text(

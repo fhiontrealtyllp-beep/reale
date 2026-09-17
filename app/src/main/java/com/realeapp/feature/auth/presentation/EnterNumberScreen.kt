@@ -62,7 +62,7 @@ import com.realeapp.R
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.components.AppNameLogo
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.Gray
@@ -228,13 +228,13 @@ internal fun EnterNumberContent(
                 singleLine = true,
                 shape = RoundedCornerShape(AuthDims.FIELD_CORNER_RADIUS),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BrandBlue,
+                    focusedBorderColor = ControlAccent,
                     unfocusedBorderColor = HomeSearchBarBorder,
                     focusedContainerColor = White,
                     unfocusedContainerColor = White,
                     focusedTextColor = Black,
                     unfocusedTextColor = Black,
-                    cursorColor = BrandBlue
+                    cursorColor = ControlAccent
                 )
             )
 
@@ -305,7 +305,7 @@ internal fun EnterNumberContent(
 
             Text(
                 text = AuthStrings.OPTION_GOOGLE,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = AuthDims.OPTION_FONT_SIZE,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
@@ -398,7 +398,7 @@ private fun TrustBadge(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(AuthDims.BADGE_ICON_SIZE)
             )
         }

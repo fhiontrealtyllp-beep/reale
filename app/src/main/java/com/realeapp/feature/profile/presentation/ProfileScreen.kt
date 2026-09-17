@@ -106,13 +106,14 @@ import com.realeapp.feature.add.presentation.toJpegBytes
 import com.realeapp.feature.auth.domain.model.User
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
@@ -226,7 +227,7 @@ fun ProfileScreen(
                 uiState.isLoading && uiState.user == null -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = BrandBlue
+                        color = ControlAccent
                     )
                 }
 
@@ -578,7 +579,7 @@ private fun ThemeModeDialog(
                         RadioButton(
                             selected = mode == selectedMode,
                             onClick = { onSelect(mode) },
-                            colors = RadioButtonDefaults.colors(selectedColor = BrandBlue)
+                            colors = RadioButtonDefaults.colors(selectedColor = ControlAccent)
                         )
                         Spacer(modifier = Modifier.width(ProfileDims.THEME_OPTION_RADIO_TEXT_SPACING))
                         Text(
@@ -624,7 +625,7 @@ private fun ProfileTopBar(
                 modifier = Modifier
                     .size(ProfileDims.NOTIFICATION_BADGE_SIZE)
                     .clip(CircleShape)
-                    .background(BrandRed)
+                    .background(Error)
             )
         }
     }
@@ -715,7 +716,7 @@ private fun ProfileCard(
                             icon = Icons.Outlined.MarkEmailRead,
                             label = ProfileStrings.EMAIL_VERIFIED,
                             contentDescription = ProfileStrings.CD_EMAIL_VERIFIED,
-                            color = BrandBlue
+                            color = ControlAccent
                         )
                     }
                 }
@@ -745,7 +746,7 @@ private fun AddressRow(
         Icon(
             imageVector = Icons.Filled.LocationOn,
             contentDescription = ProfileStrings.CD_ADDRESS_ICON,
-            tint = BrandBlue,
+            tint = ControlAccent,
             modifier = Modifier.size(ProfileDims.ADDRESS_ICON_SIZE)
         )
         Spacer(modifier = Modifier.width(ProfileDims.ADDRESS_ICON_TEXT_SPACING))
@@ -759,7 +760,7 @@ private fun AddressRow(
         )
         Text(
             text = if (hasAddress) ProfileStrings.CHANGE_ADDRESS else ProfileStrings.ADD_ADDRESS,
-            color = BrandBlue,
+            color = ControlAccent,
             fontSize = ProfileDims.ADDRESS_ACTION_FONT_SIZE,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clickable(onClick = onActionClick)
@@ -790,13 +791,13 @@ private fun GuestProfileCard(
                 modifier = Modifier
                     .size(ProfileDims.AVATAR_SIZE)
                     .clip(CircleShape)
-                    .background(BrandBlue.copy(alpha = 0.1f)),
+                    .background(ControlAccent.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Person,
                     contentDescription = ProfileStrings.CD_AVATAR,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(ProfileDims.GUEST_AVATAR_ICON_SIZE)
                 )
             }
@@ -833,8 +834,8 @@ private fun GuestProfileCard(
                     .height(ProfileDims.LOGIN_BUTTON_HEIGHT),
                 shape = RoundedCornerShape(ProfileDims.LOGIN_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandBlue,
-                    contentColor = OnBrandContent
+                    containerColor = ControlAccent,
+                    contentColor = OnControlAccent
                 )
             ) {
                 Text(
@@ -864,12 +865,12 @@ private fun ProfileAvatar(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(BrandBlue.copy(alpha = 0.1f)),
+                    .background(ControlAccent.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = user?.name?.take(2)?.uppercase() ?: ProfileStrings.FALLBACK_INITIALS,
-                    color = BrandBlue,
+                    color = ControlAccent,
                     fontSize = ProfileDims.INITIALS_FONT_SIZE,
                     fontWeight = FontWeight.Bold
                 )
@@ -888,7 +889,7 @@ private fun ProfileAvatar(
         if (isImageUploading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(ProfileDims.AVATAR_PROGRESS_SIZE),
-                color = BrandBlue,
+                color = ControlAccent,
                 strokeWidth = ProfileDims.AVATAR_PROGRESS_STROKE
             )
         }
@@ -898,9 +899,9 @@ private fun ProfileAvatar(
                 .align(Alignment.BottomEnd)
                 .size(ProfileDims.AVATAR_EDIT_BADGE_SIZE)
                 .clip(CircleShape)
-                .background(BrandBlue)
+                .background(ControlAccent)
                 .border(
-                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, OnBrandContent),
+                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, OnControlAccent),
                     CircleShape
                 )
                 .clickable(onClick = onPickImage),
@@ -909,7 +910,7 @@ private fun ProfileAvatar(
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = ProfileStrings.CD_EDIT_AVATAR,
-                tint = OnBrandContent,
+                tint = OnControlAccent,
                 modifier = Modifier.size(ProfileDims.AVATAR_EDIT_ICON_SIZE)
             )
         }
@@ -926,10 +927,10 @@ private fun EditProfileButton(
         modifier = modifier.height(ProfileDims.EDIT_PROFILE_BUTTON_HEIGHT),
         shape = RoundedCornerShape(ProfileDims.EDIT_PROFILE_BUTTON_CORNER_RADIUS),
         colors = ButtonDefaults.textButtonColors(
-            containerColor = BrandBlue.copy(alpha = 0.1f),
-            contentColor = BrandBlue
+            containerColor = ControlAccent.copy(alpha = 0.1f),
+            contentColor = ControlAccent
         ),
-        border = BorderStroke(ProfileDims.EDIT_PROFILE_BUTTON_BORDER, BrandBlue.copy(alpha = 0.2f)),
+        border = BorderStroke(ProfileDims.EDIT_PROFILE_BUTTON_BORDER, ControlAccent.copy(alpha = 0.2f)),
         contentPadding = PaddingValues(horizontal = ProfileDims.EDIT_PROFILE_BUTTON_HORIZONTAL_PADDING)
     ) {
         Text(
@@ -986,7 +987,7 @@ private fun ListPropertyBanner(
             .fillMaxWidth()
             .height(ProfileDims.LIST_PROPERTY_BANNER_HEIGHT),
         shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = BrandBlue.copy(alpha = 0.08f)),
+        colors = CardDefaults.cardColors(containerColor = ControlAccent.copy(alpha = 0.08f)),
         elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.LIST_PROPERTY_BANNER_ELEVATION)
     ) {
         Row(
@@ -1000,13 +1001,13 @@ private fun ListPropertyBanner(
                     .width(ProfileDims.LIST_PROPERTY_IMAGE_WIDTH)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_IMAGE_CORNER_RADIUS))
-                    .background(BrandBlue.copy(alpha = 0.12f)),
+                    .background(ControlAccent.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Home,
                     contentDescription = ProfileStrings.CD_LIST_PROPERTY_IMAGE,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(ProfileDims.LIST_PROPERTY_IMAGE_ICON_SIZE)
                 )
             }
@@ -1117,7 +1118,7 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
             Icon(
                 imageVector = item.icon,
                 contentDescription = item.contentDescription,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(ProfileDims.MENU_ITEM_ICON_INNER_SIZE)
             )
         }
@@ -1221,8 +1222,8 @@ private fun EditProfileDialog(
                 modifier = Modifier.height(ProfileDims.DIALOG_BUTTON_HEIGHT),
                 shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = BrandBlue,
-                    contentColor = OnBrandContent
+                    containerColor = ControlAccent,
+                    contentColor = OnControlAccent
                 )
             ) {
                 Text(
@@ -1281,8 +1282,8 @@ private fun AddressDialog(
                 modifier = Modifier.height(ProfileDims.DIALOG_BUTTON_HEIGHT),
                 shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = BrandBlue,
-                    contentColor = OnBrandContent
+                    containerColor = ControlAccent,
+                    contentColor = OnControlAccent
                 )
             ) {
                 Text(
@@ -1330,9 +1331,9 @@ private fun EditProfileField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Black,
             unfocusedTextColor = Black,
-            focusedBorderColor = BrandBlue,
+            focusedBorderColor = ControlAccent,
             unfocusedBorderColor = HomeSearchBarBorder,
-            focusedLabelColor = BrandBlue,
+            focusedLabelColor = ControlAccent,
             unfocusedLabelColor = HomeTextSecondary
         )
     )

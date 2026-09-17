@@ -38,7 +38,7 @@ import com.realeapp.ui.components.AppNameLogo
 import com.realeapp.R
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -235,11 +235,11 @@ private fun WelcomeOption(
 internal fun TermsText() {
     val termsText = buildAnnotatedString {
         append(AuthStrings.TERMS_PREFIX)
-        withStyle(SpanStyle(color = BrandBlue)) {
+        withStyle(SpanStyle(color = ControlAccent)) {
             append(AuthStrings.TERMS_OF_SERVICE)
         }
         append(AuthStrings.TERMS_AND)
-        withStyle(SpanStyle(color = BrandBlue)) {
+        withStyle(SpanStyle(color = ControlAccent)) {
             append(AuthStrings.PRIVACY_POLICY)
         }
         append(AuthStrings.TERMS_SUFFIX)

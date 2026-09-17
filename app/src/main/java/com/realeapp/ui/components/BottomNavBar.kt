@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.realeapp.ui.navigation.AppScreen
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.White
 
@@ -69,9 +69,9 @@ fun BottomNavBar(
                     selected = selectedTab == screen,
                     onClick = { onTabSelected(screen) },
                     colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = BrandBlue.copy(alpha = BOTTOM_NAV_INDICATOR_ALPHA),
-                        selectedIconColor = BrandBlue,
-                        selectedTextColor = BrandBlue,
+                        indicatorColor = ControlAccent.copy(alpha = BOTTOM_NAV_INDICATOR_ALPHA),
+                        selectedIconColor = ControlAccent,
+                        selectedTextColor = ControlAccent,
                         unselectedIconColor = HomeTextSecondary,
                         unselectedTextColor = HomeTextSecondary
                     )

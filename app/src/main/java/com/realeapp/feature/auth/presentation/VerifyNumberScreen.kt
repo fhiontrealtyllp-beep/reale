@@ -70,7 +70,7 @@ import com.realeapp.R
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.components.AppNameLogo
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.Gray
@@ -252,7 +252,7 @@ internal fun VerifyNumberContent(
                         Spacer(modifier = Modifier.width(AuthDims.SPACE_8))
                         Text(
                             text = AuthStrings.EDIT,
-                            color = BrandBlue,
+                            color = ControlAccent,
                             fontSize = AuthDims.VERIFY_PHONE_FONT_SIZE,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(onClick = onEditNumber)
@@ -456,7 +456,7 @@ internal fun VerifyNumberContent(
                 Icon(
                     imageVector = Icons.Outlined.Shield,
                     contentDescription = AuthStrings.CD_SHIELD,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(AuthDims.INFO_ICON_SIZE)
                 )
                 Spacer(modifier = Modifier.width(AuthDims.SPACE_8))
@@ -500,13 +500,13 @@ internal fun VerifyNumberContent(
 
 @Composable
 private fun authFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = BrandBlue,
+    focusedBorderColor = ControlAccent,
     unfocusedBorderColor = HomeSearchBarBorder,
     focusedContainerColor = White,
     unfocusedContainerColor = White,
     focusedTextColor = Black,
     unfocusedTextColor = Black,
-    cursorColor = BrandBlue,
+    cursorColor = ControlAccent,
     disabledTextColor = Black,
     disabledBorderColor = HomeSearchBarBorder,
     disabledContainerColor = White,
@@ -563,7 +563,7 @@ private fun OtpCell(
                 } else {
                     AuthDims.OTP_BOX_BORDER_WIDTH
                 },
-                color = if (isActive) BrandBlue else HomeSearchBarBorder,
+                color = if (isActive) ControlAccent else HomeSearchBarBorder,
                 shape = RoundedCornerShape(AuthDims.OTP_BOX_CORNER_RADIUS)
             ),
         contentAlignment = Alignment.Center
@@ -584,12 +584,12 @@ private fun ResendTimer(
 ) {
     val resendText = buildAnnotatedString {
         append(AuthStrings.RESEND_PREFIX)
-        withStyle(SpanStyle(color = BrandBlue, fontWeight = FontWeight.SemiBold)) {
+        withStyle(SpanStyle(color = ControlAccent, fontWeight = FontWeight.SemiBold)) {
             append(AuthStrings.RESEND_OTP)
         }
         if (secondsLeft > 0) {
             append(AuthStrings.RESEND_IN)
-            withStyle(SpanStyle(color = BrandBlue, fontWeight = FontWeight.SemiBold)) {
+            withStyle(SpanStyle(color = ControlAccent, fontWeight = FontWeight.SemiBold)) {
                 append(formatResendTime(secondsLeft))
             }
         }

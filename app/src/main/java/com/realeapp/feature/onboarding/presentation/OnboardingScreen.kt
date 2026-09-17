@@ -61,11 +61,13 @@ import com.realeapp.feature.onboarding.data.resolveCurrentCityAndLocation
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.util.Logger
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.NavyText
 import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
+import com.realeapp.ui.theme.OnLightArtwork
 import com.realeapp.ui.theme.RealeTheme
 import kotlinx.coroutines.launch
 
@@ -205,7 +207,7 @@ private fun SplashPage(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BrandBlue)
+            .background(ControlAccent)
             .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -386,14 +388,14 @@ private fun LocationPage(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(OnboardingDims.LOCATION_CIRCLE_SIZE)
                 .clip(CircleShape)
-                .background(BrandBlue.copy(alpha = 0.1f)),
+                .background(ControlAccent.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.LocationOn,
                 contentDescription = OnboardingStrings.CD_LOCATION_ICON,
                 modifier = Modifier.size(OnboardingDims.LOCATION_ICON_SIZE),
-                tint = BrandBlue
+                tint = ControlAccent
             )
         }
 
@@ -429,8 +431,8 @@ private fun OnboardingFooter(
     isResolvingLocation: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val background = if (currentPage == 0) BrandBlue else AppBackground
-    val progressColor = if (currentPage == 0) OnBrandContent else BrandBlue
+    val background = if (currentPage == 0) ControlAccent else AppBackground
+    val progressColor = if (currentPage == 0) OnBrandContent else ControlAccent
     val trackColor = if (currentPage == 0) {
         OnBrandContent.copy(alpha = PROGRESS_TRACK_ALPHA_ON_SPLASH)
     } else {
@@ -462,9 +464,9 @@ private fun OnboardingFooter(
             val buttonContainerColor = when (currentPage) {
                 0 -> OnBrandContent
                 2 -> BrandCoral
-                else -> BrandBlue
+                else -> ControlAccent
             }
-            val buttonContentColor = if (currentPage == 0) BrandBlue else OnBrandContent
+            val buttonContentColor = if (currentPage == 0) OnLightArtwork else OnControlAccent
 
             Button(
                 onClick = onNext,
@@ -497,15 +499,15 @@ private fun OnboardingFooter(
                     .fillMaxWidth()
                     .height(OnboardingDims.BUTTON_HEIGHT),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandBlue,
-                    contentColor = OnBrandContent
+                    containerColor = ControlAccent,
+                    contentColor = OnControlAccent
                 ),
                 shape = RoundedCornerShape(OnboardingDims.BUTTON_CORNER_RADIUS)
             ) {
                 if (isResolvingLocation) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(OnboardingDims.BUTTON_ICON_SIZE),
-                        color = OnBrandContent,
+                        color = OnControlAccent,
                         strokeWidth = OnboardingDims.BUTTON_PROGRESS_STROKE
                     )
                 } else {
@@ -524,7 +526,7 @@ private fun OnboardingFooter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(OnboardingDims.BUTTON_HEIGHT),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandBlue),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = ControlAccent),
                 shape = RoundedCornerShape(OnboardingDims.BUTTON_CORNER_RADIUS)
             ) {
                 Text(

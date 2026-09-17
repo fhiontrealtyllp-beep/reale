@@ -60,7 +60,7 @@ import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -267,13 +267,13 @@ private fun EnquirySuccessContent(
         Box(
             modifier = Modifier
                 .size(EnquiryDims.SUCCESS_ICON_BACKGROUND_SIZE)
-                .background(BrandBlue.copy(alpha = 0.1f), shape = CircleShape),
+                .background(ControlAccent.copy(alpha = 0.1f), shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Filled.Email,
                 contentDescription = null,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(EnquiryDims.SUCCESS_ICON_SIZE)
             )
 
@@ -341,7 +341,7 @@ private fun EnquirySuccessContent(
         TextButton(onClick = onViewEnquiries) {
             Text(
                 text = EnquiryStrings.SUCCESS_LINK_ENQUIRIES,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = EnquiryDims.SUCCESS_LINK_FONT_SIZE,
                 fontWeight = FontWeight.SemiBold
             )
@@ -404,7 +404,7 @@ private fun EnquirySuccessPropertyCard(
 
                 Text(
                     text = formatIndianPrice(property.price, property.isRentProperty()),
-                    color = BrandBlue,
+                    color = ControlAccent,
                     fontSize = EnquiryDims.SUBTITLE_FONT_SIZE,
                     fontWeight = FontWeight.Bold
                 )
@@ -453,7 +453,7 @@ private fun EnquiryTextField(
             unfocusedTextColor = Black,
             focusedContainerColor = White,
             unfocusedContainerColor = White,
-            focusedBorderColor = BrandBlue,
+            focusedBorderColor = ControlAccent,
             unfocusedBorderColor = HomeSearchBarBorder,
             focusedLabelColor = Gray,
             unfocusedLabelColor = Gray,

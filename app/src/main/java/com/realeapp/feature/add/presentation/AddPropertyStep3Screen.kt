@@ -40,10 +40,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -172,13 +172,13 @@ private fun PhotoCell(
             if (isCover) {
                 Text(
                     text = AddStrings.BADGE_COVER,
-                    color = OnMediaContent,
+                    color = OnControlAccent,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
-                        .background(BrandBlue, RoundedCornerShape(6.dp))
+                        .background(ControlAccent, RoundedCornerShape(6.dp))
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
@@ -234,13 +234,13 @@ private fun AddMoreTile(
         if (isUploadingImage) {
             CircularProgressIndicator(
                 modifier = Modifier.size(32.dp),
-                color = BrandBlue,
+                color = ControlAccent,
                 strokeWidth = 2.dp
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = AddStrings.UPLOADING_PHOTOS,
-                color = BrandBlue,
+                color = ControlAccent,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium
             )
@@ -248,12 +248,12 @@ private fun AddMoreTile(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(32.dp)
             )
             Text(
                 text = AddStrings.ACTION_ADD_MORE,
-                color = BrandBlue,
+                color = ControlAccent,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -277,7 +277,7 @@ private fun PhotoTipsCard(modifier: Modifier = Modifier) {
             Icon(
                 imageVector = Icons.Default.Lightbulb,
                 contentDescription = null,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(20.dp)
             )
             Text(

@@ -49,7 +49,7 @@ import com.realeapp.feature.search.domain.model.LocationSuggestion
 import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.RealeTheme
@@ -111,7 +111,7 @@ fun LocationSearchBar(
                         .onFocusChanged { isFocused = it.isFocused },
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(color = Black),
-                    cursorBrush = SolidColor(BrandBlue),
+                    cursorBrush = SolidColor(ControlAccent),
                     visualTransformation = VisualTransformation.None,
                     decorationBox = { innerTextField ->
                         if (query.isBlank()) {
@@ -148,7 +148,7 @@ fun LocationSearchBar(
                         Icon(
                             imageVector = Icons.Filled.Tune,
                             contentDescription = SearchStrings.CD_FILTER_ICON,
-                            tint = BrandBlue,
+                            tint = ControlAccent,
                             modifier = Modifier.size(SearchDims.SEARCH_ICON_SIZE)
                         )
                     }
@@ -211,7 +211,7 @@ private fun SuggestionItem(
         Icon(
             imageVector = Icons.Filled.LocationOn,
             contentDescription = SearchStrings.CD_SUGGESTION_LOCATION,
-            tint = BrandBlue,
+            tint = ControlAccent,
             modifier = Modifier.size(SearchDims.SUGGESTION_ITEM_ICON_SIZE)
         )
         Spacer(modifier = Modifier.width(SearchDims.SUGGESTION_ITEM_TEXT_SPACING))

@@ -76,7 +76,7 @@ import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Gray
 import com.realeapp.ui.theme.MediaScrim
@@ -359,12 +359,12 @@ private fun ResultsHeader(
                 Icon(
                     imageVector = Icons.Filled.SwapVert,
                     contentDescription = PropertiesStrings.CD_SORT,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
                 )
                 Text(
                     text = "${PropertiesStrings.SORT_BY} ${sortBy.label}",
-                    color = BrandBlue,
+                    color = ControlAccent,
                     fontSize = PropertiesDims.SORT_FONT_SIZE,
                     fontWeight = FontWeight.Medium
                 )
@@ -380,7 +380,7 @@ private fun ResultsHeader(
                         text = {
                             Text(
                                 text = option.label,
-                                color = if (option == sortBy) BrandBlue else Black
+                                color = if (option == sortBy) ControlAccent else Black
                             )
                         },
                         onClick = {
@@ -543,7 +543,7 @@ private fun PropertyInfo(
 
         Text(
             text = formatIndianPrice(property.price, property.isRentProperty()),
-            color = BrandBlue,
+            color = ControlAccent,
             fontSize = PropertiesDims.PRICE_FONT_SIZE,
             fontWeight = FontWeight.Bold
         )
@@ -563,7 +563,7 @@ private fun ListingBadge(rentBuy: RentBuy?) {
 
     Text(
         text = text,
-        color = BrandBlue,
+        color = ControlAccent,
         fontSize = PropertiesDims.BADGE_FONT_SIZE,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.realeapp.AppStrings
 import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.RealeTheme
 
@@ -25,7 +25,7 @@ import com.realeapp.ui.theme.RealeTheme
  * Reusable two-tone app logo. It is the single UI component that should be used
  * to display the app name anywhere in the app.
  *
- * The first [APP_NAME_SPLIT_INDEX] characters use [firstColor] (defaults to [BrandBlue])
+ * The first [APP_NAME_SPLIT_INDEX] characters use [firstColor] (defaults to [ControlAccent])
  * and the remaining characters use [accentColor] (defaults to [BrandCoral]).
  */
 @Composable
@@ -34,7 +34,7 @@ fun AppNameLogo(
     style: TextStyle = MaterialTheme.typography.headlineMedium,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontWeight: FontWeight = FontWeight.ExtraBold,
-    firstColor: Color = BrandBlue,
+    firstColor: Color = ControlAccent,
     accentColor: Color = BrandCoral
 ) {
     Row(modifier = modifier) {

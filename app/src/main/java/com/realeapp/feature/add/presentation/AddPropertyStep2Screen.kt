@@ -52,7 +52,7 @@ import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Facing
 import com.realeapp.feature.search.domain.model.Furnishing
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -278,12 +278,12 @@ private fun AmenityFeatureGrid(
                                 .fillMaxWidth()
                                 .height(64.dp)
                                 .background(
-                                    if (isSelected) BrandBlue.copy(alpha = 0.15f) else HomeCategoryUnselected,
+                                    if (isSelected) ControlAccent.copy(alpha = 0.15f) else HomeCategoryUnselected,
                                     RoundedCornerShape(12.dp)
                                 )
                                 .border(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) BrandBlue else HomeTextSecondary.copy(alpha = 0.4f),
+                                    color = if (isSelected) ControlAccent else HomeTextSecondary.copy(alpha = 0.4f),
                                     shape = RoundedCornerShape(12.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -291,13 +291,13 @@ private fun AmenityFeatureGrid(
                             Icon(
                                 imageVector = feature.icon,
                                 contentDescription = feature.label,
-                                tint = if (isSelected) BrandBlue else Black,
+                                tint = if (isSelected) ControlAccent else Black,
                                 modifier = Modifier.size(28.dp)
                             )
                         }
                         Text(
                             text = feature.label,
-                            color = if (isSelected) BrandBlue else Black,
+                            color = if (isSelected) ControlAccent else Black,
                             style = MaterialTheme.typography.labelSmall,
                             textAlign = TextAlign.Center,
                             maxLines = 2

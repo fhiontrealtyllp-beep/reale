@@ -73,10 +73,10 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import com.realeapp.core.location.CurrentLocationProvider
 import com.realeapp.util.Logger
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.AppBackground
-import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.MapMarker
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.HomeTextSecondary
@@ -273,14 +273,14 @@ fun LocationPickerDialog(
                             .height(52.dp),
                         enabled = selectedLatLng != null && !isGeocoding && !isLocating,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = BrandBlue,
-                            contentColor = OnBrandContent
+                            containerColor = ControlAccent,
+                            contentColor = OnControlAccent
                         )
                     ) {
                         if (isGeocoding) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = OnBrandContent,
+                                color = OnControlAccent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -377,13 +377,13 @@ fun LocationPickerDialog(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(top = 16.dp, end = 16.dp),
-                        containerColor = BrandBlue,
-                        contentColor = OnBrandContent
+                        containerColor = ControlAccent,
+                        contentColor = OnControlAccent
                     ) {
                         if (isLocating) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = OnBrandContent,
+                                color = OnControlAccent,
                                 strokeWidth = 2.dp
                             )
                         } else {
@@ -400,7 +400,7 @@ fun LocationPickerDialog(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            CircularProgressIndicator(color = BrandBlue)
+                            CircularProgressIndicator(color = ControlAccent)
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = AddStrings.LOCATION_LOADING,
@@ -479,8 +479,8 @@ private fun PlaceholderLocationPicker(
                 .fillMaxWidth()
                 .height(52.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = BrandBlue,
-                contentColor = OnBrandContent
+                containerColor = ControlAccent,
+                contentColor = OnControlAccent
             )
         ) {
             Text(
@@ -496,11 +496,11 @@ private fun PlaceholderLocationPicker(
 private fun dialogFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedTextColor = Black,
     unfocusedTextColor = Black,
-    focusedBorderColor = BrandBlue,
+    focusedBorderColor = ControlAccent,
     unfocusedBorderColor = HomeTextSecondary,
-    focusedLabelColor = BrandBlue,
+    focusedLabelColor = ControlAccent,
     unfocusedLabelColor = HomeTextSecondary,
-    cursorColor = BrandBlue
+    cursorColor = ControlAccent
 )
 
 private fun readMapApiKey(context: Context): String? {

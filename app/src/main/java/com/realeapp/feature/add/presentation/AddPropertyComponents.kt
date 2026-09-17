@@ -73,14 +73,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -117,7 +117,7 @@ internal fun StepIndicator(
                                 .align(Alignment.CenterStart)
                                 .fillMaxWidth(0.5f)
                                 .height(AddDims.STEP_CONNECTOR_HEIGHT)
-                                .background(if (isReached) BrandBlue else HomeSearchBarBorder)
+                                .background(if (isReached) ControlAccent else HomeSearchBarBorder)
                         )
                     }
                     if (index < steps.lastIndex) {
@@ -126,14 +126,14 @@ internal fun StepIndicator(
                                 .align(Alignment.CenterEnd)
                                 .fillMaxWidth(0.5f)
                                 .height(AddDims.STEP_CONNECTOR_HEIGHT)
-                                .background(if (isCompleted) BrandBlue else HomeSearchBarBorder)
+                                .background(if (isCompleted) ControlAccent else HomeSearchBarBorder)
                         )
                     }
                     Box(
                         modifier = Modifier
                             .size(AddDims.STEP_CIRCLE_SIZE)
                             .clip(CircleShape)
-                            .background(if (isReached) BrandBlue else White)
+                            .background(if (isReached) ControlAccent else White)
                             .clickable { onStepClick(step) }
                             .then(
                                 if (isReached) {
@@ -150,7 +150,7 @@ internal fun StepIndicator(
                     ) {
                         Text(
                             text = "${step.index}",
-                            color = if (isReached) OnBrandContent else HomeTextSecondary,
+                            color = if (isReached) OnControlAccent else HomeTextSecondary,
                             fontSize = AddDims.STEP_NUMBER_FONT_SIZE,
                             fontWeight = FontWeight.Bold
                         )
@@ -159,7 +159,7 @@ internal fun StepIndicator(
                 Spacer(modifier = Modifier.height(AddDims.STEP_LABEL_TOP_SPACING))
                 Text(
                     text = step.shortLabel,
-                    color = if (isCurrent) BrandBlue else HomeTextSecondary,
+                    color = if (isCurrent) ControlAccent else HomeTextSecondary,
                     fontSize = AddDims.STEP_LABEL_FONT_SIZE,
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
                     maxLines = 2,
@@ -203,7 +203,7 @@ internal fun FieldLabel(
         if (isRequired) {
             Text(
                 text = AddStrings.REQUIRED_MARKER,
-                color = BrandRed
+                color = Error
             )
         }
     }
@@ -311,8 +311,8 @@ internal fun <T> ToggleRow(
                 onClick = { onSelected(option) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = if (isSelected) BrandBlue else HomeCategoryUnselected,
-                    contentColor = if (isSelected) OnBrandContent else Black
+                    containerColor = if (isSelected) ControlAccent else HomeCategoryUnselected,
+                    contentColor = if (isSelected) OnControlAccent else Black
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -347,8 +347,8 @@ internal fun <T> FilterChipGroup(
                 onClick = { onToggle(option) },
                 label = { Text(optionLabel(option)) },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = BrandBlue,
-                    selectedLabelColor = OnBrandContent,
+                    selectedContainerColor = ControlAccent,
+                    selectedLabelColor = OnControlAccent,
                     containerColor = HomeCategoryUnselected,
                     labelColor = Black
                 )
@@ -475,9 +475,9 @@ internal fun formFieldColors() = TextFieldDefaults.colors(
     unfocusedContainerColor = HomeCategoryUnselected,
     focusedIndicatorColor = Color.Transparent,
     unfocusedIndicatorColor = Color.Transparent,
-    focusedLabelColor = BrandBlue,
+    focusedLabelColor = ControlAccent,
     unfocusedLabelColor = HomeTextSecondary,
-    cursorColor = BrandBlue
+    cursorColor = ControlAccent
 )
 
 @Composable
@@ -527,7 +527,7 @@ internal fun AddImageTile(
             .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 1.dp,
-                color = BrandBlue,
+                color = ControlAccent,
                 shape = RoundedCornerShape(12.dp)
             )
             .background(HomeCategoryUnselected)
@@ -536,7 +536,7 @@ internal fun AddImageTile(
     ) {
         if (isUploading) {
             CircularProgressIndicator(
-                color = BrandBlue,
+                color = ControlAccent,
                 modifier = Modifier.size(32.dp),
                 strokeWidth = 2.dp
             )
@@ -548,12 +548,12 @@ internal fun AddImageTile(
                 Icon(
                     imageVector = Icons.Default.AddAPhoto,
                     contentDescription = AddStrings.CD_ADD_IMAGES,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(40.dp)
                 )
                 Text(
                     text = AddStrings.ACTION_ADD_PHOTOS,
-                    color = BrandBlue,
+                    color = ControlAccent,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -624,7 +624,7 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.PhotoCamera,
                         contentDescription = AddStrings.CD_CAMERA,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -644,7 +644,7 @@ internal fun ImageSourceDialog(
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = AddStrings.CD_GALLERY,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))

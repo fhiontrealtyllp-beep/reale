@@ -130,15 +130,16 @@ import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.BrandRed
+import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.IsDarkAppTheme
 import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnBrandContent
+import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
@@ -346,7 +347,7 @@ private fun HeroSection(
                         HeroCircleButton(
                             icon = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = DetailStrings.CD_LIKE,
-                            tint = if (property.isLiked == true) BrandRed else Black,
+                            tint = if (property.isLiked == true) Error else Black,
                             onClick = onLike
                         )
                     }
@@ -467,8 +468,8 @@ private fun MediaPill(
     selected: Boolean,
     onClick: (() -> Unit)?
 ) {
-    val backgroundColor = if (selected) BrandBlue else White
-    val contentColor = if (selected) OnBrandContent else Black
+    val backgroundColor = if (selected) ControlAccent else White
+    val contentColor = if (selected) OnControlAccent else Black
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(DetailDims.MEDIA_PILL_CORNER_RADIUS))
@@ -524,7 +525,7 @@ private fun ThumbnailStrip(
                             if (index == selectedImage) {
                                 Modifier.border(
                                     width = DetailDims.THUMB_SELECTED_BORDER,
-                                    color = BrandBlue,
+                                    color = ControlAccent,
                                     shape = RoundedCornerShape(DetailDims.THUMB_CORNER_RADIUS)
                                 )
                             } else {
@@ -679,12 +680,12 @@ private fun InfoSection(
         property.rentBuy?.let { rentBuy ->
             Text(
                 text = if (rentBuy == RentBuy.RENT) DetailStrings.BADGE_FOR_RENT else DetailStrings.BADGE_FOR_SALE,
-                color = BrandBlue,
+                color = ControlAccent,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clip(RoundedCornerShape(DetailDims.SALE_BADGE_CORNER_RADIUS))
-                    .background(BrandBlue.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
+                    .background(ControlAccent.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
                     .padding(
                         horizontal = DetailDims.SALE_BADGE_HORIZONTAL_PADDING,
                         vertical = DetailDims.SALE_BADGE_VERTICAL_PADDING
@@ -723,7 +724,7 @@ private fun InfoSection(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = formatIndianPrice(property.price, property.isRentProperty()),
-                    color = BrandBlue,
+                    color = ControlAccent,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -739,7 +740,7 @@ private fun InfoSection(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(DetailDims.LOAN_PILL_CORNER_RADIUS))
-                        .background(BrandBlue.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
+                        .background(ControlAccent.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
                         .padding(
                             horizontal = DetailDims.LOAN_PILL_HORIZONTAL_PADDING,
                             vertical = DetailDims.LOAN_PILL_VERTICAL_PADDING
@@ -750,19 +751,19 @@ private fun InfoSection(
                     Icon(
                         imageVector = Icons.Filled.AccountBalance,
                         contentDescription = null,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(DetailDims.LOAN_ICON_SIZE)
                     )
                     Text(
                         text = DetailStrings.ACTION_GET_HOME_LOAN,
-                        color = BrandBlue,
+                        color = ControlAccent,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Medium
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(DetailDims.LOAN_CHEVRON_SIZE)
                     )
                 }
@@ -841,7 +842,7 @@ private fun StatsCard(property: Property) {
                     Icon(
                         imageVector = stat.icon,
                         contentDescription = null,
-                        tint = BrandBlue,
+                        tint = ControlAccent,
                         modifier = Modifier.size(DetailDims.STAT_ICON_SIZE)
                     )
                     Text(
@@ -896,14 +897,14 @@ private fun OverviewSection(description: String) {
         ) {
             Text(
                 text = if (expanded) DetailStrings.ACTION_READ_LESS else DetailStrings.ACTION_READ_MORE,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
             Icon(
                 imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                 contentDescription = null,
-                tint = BrandBlue,
+                tint = ControlAccent,
                 modifier = Modifier.size(DetailDims.READ_MORE_ICON_SIZE)
             )
         }
@@ -932,7 +933,7 @@ private fun HighlightsSection(amenities: List<Amenity>) {
                             Icon(
                                 imageVector = amenityDisplayIcon(amenity),
                                 contentDescription = null,
-                                tint = BrandBlue,
+                                tint = ControlAccent,
                                 modifier = Modifier.size(DetailDims.HIGHLIGHT_ICON_SIZE)
                             )
                             Text(
@@ -1016,7 +1017,7 @@ private fun LocationSection(property: Property) {
             SectionTitle(text = DetailStrings.SECTION_LOCATION)
             Text(
                 text = DetailStrings.ACTION_VIEW_ON_MAP,
-                color = BrandBlue,
+                color = ControlAccent,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { openInMaps(context, property) }
@@ -1071,7 +1072,7 @@ private fun LocationContent(property: Property) {
                 if (!isMapLoaded) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = BrandBlue
+                        color = ControlAccent
                     )
                 }
             }
@@ -1096,7 +1097,7 @@ private fun LocationContent(property: Property) {
                 Icon(
                     imageVector = Icons.Filled.LocationOn,
                     contentDescription = null,
-                    tint = BrandBlue,
+                    tint = ControlAccent,
                     modifier = Modifier.size(DetailDims.MAP_PLACEHOLDER_ICON_SIZE)
                 )
                 Text(
@@ -1153,7 +1154,7 @@ private fun NearbyPlacesCard(
                         Icon(
                             imageVector = nearbyPlaceIcon(place.type),
                             contentDescription = null,
-                            tint = BrandBlue,
+                            tint = ControlAccent,
                             modifier = Modifier.size(DetailDims.NEARBY_ITEM_ICON_SIZE)
                         )
                         Text(
@@ -1211,8 +1212,8 @@ private fun DetailBottomBar(
                     .weight(1f)
                     .height(DetailDims.BOTTOM_BUTTON_HEIGHT),
                 shape = RoundedCornerShape(DetailDims.BOTTOM_BUTTON_CORNER_RADIUS),
-                border = BorderStroke(DetailDims.BORDER_WIDTH, BrandBlue),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = BrandBlue)
+                border = BorderStroke(DetailDims.BORDER_WIDTH, ControlAccent),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = ControlAccent)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Call,

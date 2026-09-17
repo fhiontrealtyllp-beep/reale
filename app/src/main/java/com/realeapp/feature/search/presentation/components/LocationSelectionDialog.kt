@@ -47,7 +47,7 @@ import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.feature.search.presentation.SearchStrings
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.BrandBlue
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.FilterChipContainer
 import com.realeapp.ui.theme.FilterChipLabel
 import com.realeapp.ui.theme.FilterChipSelectedContainer
@@ -212,7 +212,7 @@ fun ChipSelectionDialog(
                                 .focusRequester(focusRequester),
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodyMedium.copy(color = Black),
-                            cursorBrush = SolidColor(BrandBlue),
+                            cursorBrush = SolidColor(ControlAccent),
                             decorationBox = { innerTextField ->
                                 if (query.isBlank()) {
                                     Text(
