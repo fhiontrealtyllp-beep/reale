@@ -1,6 +1,5 @@
 package com.realeapp.feature.search.presentation.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import android.content.res.Configuration
@@ -280,35 +280,41 @@ private fun LocationSelector(
     val displayValue = value ?: placeholder
     val valueColor = if (value != null) Black else HomeTextSecondary
 
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
+    // Floating white capsule, same theme as the filter chips and toggles.
+    Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = CircleShape,
+        color = White,
+        shadowElevation = SearchDims.FILTER_SELECTOR_ELEVATION
+    ) {
+        Row(
+            modifier = Modifier.padding(
                 horizontal = SearchDims.FILTER_SELECTOR_HORIZONTAL_PADDING,
                 vertical = SearchDims.FILTER_SELECTOR_VERTICAL_PADDING
             ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = label,
-                color = HomeTextSecondary,
-            )
-            Text(
-                text = displayValue,
-                color = valueColor,
+            Column(
+                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_VALUE_SPACING)
+            ) {
+                Text(
+                    text = label,
+                    color = HomeTextSecondary,
+                )
+                Text(
+                    text = displayValue,
+                    color = valueColor,
+                )
+            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = HomeTextSecondary,
+                modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
             )
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = null,
-            tint = HomeTextSecondary,
-            modifier = Modifier.size(SearchDims.FILTER_SELECTOR_ICON_SIZE)
-        )
     }
 }
 

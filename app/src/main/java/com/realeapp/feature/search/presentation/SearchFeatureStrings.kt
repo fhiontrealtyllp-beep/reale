@@ -123,6 +123,7 @@ internal object SearchDims {
     val FILTER_PANEL_CORNER_RADIUS = 20.dp
     val FILTER_PANEL_PADDING = 8.dp
     val FILTER_CHIP_ELEVATION = 4.dp
+    val FILTER_SELECTOR_ELEVATION = 4.dp
 
     val DIALOG_CORNER_RADIUS = 16.dp
     val DIALOG_PADDING = 24.dp
