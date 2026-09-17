@@ -146,11 +146,16 @@ fun PropertyFilters(
             // a city has been selected.
             if (filter.city != null) {
                 Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
-                LocationSelector(
-                    value = filter.localities.firstOrNull(),
-                    placeholder = SearchStrings.FILTER_SELECT_LOCALITY,
-                    onClick = { showLocalityDialog = true }
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
+                ) {
+                    FilterSectionHeader(SearchStrings.FILTER_LOCALITY)
+                    LocationSelector(
+                        value = filter.localities.firstOrNull(),
+                        placeholder = SearchStrings.FILTER_SELECT_LOCALITY,
+                        onClick = { showLocalityDialog = true }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
