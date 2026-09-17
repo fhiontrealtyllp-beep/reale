@@ -23,10 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.realeapp.ui.theme.ControlAccent
+import com.realeapp.ui.theme.FilterChipContainer
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
-import com.realeapp.ui.theme.White
 
 private val CAPSULE_TOGGLE_HEIGHT = 48.dp
 private val CAPSULE_TOGGLE_INNER_PADDING = 4.dp
@@ -57,7 +57,7 @@ fun CapsuleToggle(
             .shadow(CAPSULE_TOGGLE_ELEVATION, CircleShape)
             // Shaped background instead of clip() so segment shadows aren't
             // clipped to the capsule bounds.
-            .background(White, CircleShape)
+            .background(FilterChipContainer, CircleShape)
             .padding(CAPSULE_TOGGLE_INNER_PADDING),
         horizontalArrangement = Arrangement.spacedBy(CAPSULE_TOGGLE_INNER_PADDING)
     ) {

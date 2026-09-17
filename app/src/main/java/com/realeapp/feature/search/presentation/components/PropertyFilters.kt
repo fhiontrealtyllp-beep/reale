@@ -45,6 +45,7 @@ import com.realeapp.ui.components.CapsuleToggle
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.ControlAccent
+import com.realeapp.ui.theme.FilterChipContainer
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnControlAccent
@@ -298,7 +299,7 @@ private fun LocationSelector(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = CircleShape,
-        color = if (isSet) ControlAccent else White,
+        color = if (isSet) ControlAccent else FilterChipContainer,
         shadowElevation = SearchDims.FILTER_SELECTOR_ELEVATION
     ) {
         Row(

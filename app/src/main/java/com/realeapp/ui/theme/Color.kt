@@ -39,6 +39,9 @@ private val DarkOnSurface = Color(0xFFFBFBFB)
 private val DarkTextSecondary = Color(0xFF8F9FDC)
 private val DarkBorder = Color(0xFF2B3C83)
 private val DarkFill = Color(0xFF263266)
+// Elevated pill fill: dark with a faint warm/yellow tint so unselected
+// chips and toggle tracks read against the navy background.
+private val DarkPillFill = Color(0xFF33322C)
 
 // Theme-aware palette. Screens read these roles through the shared color
 // getters below so the UI repaints when the theme mode changes.
@@ -112,7 +115,7 @@ val DarkAppColors = AppColors(
     navyText = DarkOnSurface,
     chipSelectedContainer = FixedAccent,
     chipSelectedLabel = FixedOnAccentText,
-    chipContainer = DarkSurface,
+    chipContainer = DarkPillFill,
     chipLabel = DarkTextSecondary,
     successBadge = FixedVerifiedGreen.copy(alpha = 0.2f),
     brandCoral = FixedBrandCoral,
