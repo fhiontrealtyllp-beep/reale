@@ -44,7 +44,11 @@ fun <T> FilterChipGroup(
                         selectedLabelColor = FilterChipSelectedLabel,
                         containerColor = FilterChipContainer,
                         labelColor = FilterChipLabel
-                    )
+                    ),
+                    elevation = FilterChipDefaults.filterChipElevation(
+                        elevation = SearchDims.FILTER_CHIP_ELEVATION
+                    ),
+                    border = null
                 )
             }
         }
@@ -84,7 +88,11 @@ fun <T> MultiFilterChipGroup(
                         selectedLabelColor = FilterChipSelectedLabel,
                         containerColor = FilterChipContainer,
                         labelColor = FilterChipLabel
-                    )
+                    ),
+                    elevation = FilterChipDefaults.filterChipElevation(
+                        elevation = SearchDims.FILTER_CHIP_ELEVATION
+                    ),
+                    border = null
                 )
             }
         }

@@ -84,8 +84,8 @@ val LightAppColors = AppColors(
     navyText = FixedOnLightArtwork,
     chipSelectedContainer = LightAccent,
     chipSelectedLabel = FixedOnBrandContent,
-    chipContainer = LightFill,
-    chipLabel = Color.Black,
+    chipContainer = Color.White,
+    chipLabel = LightTextSecondary,
     successBadge = LightSuccessBadge,
     brandCoral = FixedBrandCoral,
     accent = FixedAccent,
@@ -112,8 +112,8 @@ val DarkAppColors = AppColors(
     navyText = DarkOnSurface,
     chipSelectedContainer = FixedAccent,
     chipSelectedLabel = FixedOnAccentText,
-    chipContainer = DarkBorder,
-    chipLabel = FixedOnBrandContent,
+    chipContainer = DarkSurface,
+    chipLabel = DarkTextSecondary,
     successBadge = FixedVerifiedGreen.copy(alpha = 0.2f),
     brandCoral = FixedBrandCoral,
     accent = FixedAccent,
@@ -180,8 +180,8 @@ val NavyText: Color
     @Composable @ReadOnlyComposable get() = LocalAppColors.current.navyText
 
 // Filter-chip colors. Selected: brand blue in light mode (matches the capsule
-// toggles), yellow accent in dark mode. Unselected: neutral theme fill in
-// light mode, navy chip color in dark mode.
+// toggles), yellow accent in dark mode. Unselected: theme surface with
+// secondary label, matching the floating white-pill toggle theme.
 val FilterChipSelectedContainer: Color
     @Composable @ReadOnlyComposable get() = LocalAppColors.current.chipSelectedContainer
 
