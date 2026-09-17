@@ -2,10 +2,8 @@ package com.realeapp.feature.home.presentation
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -68,16 +65,13 @@ import com.realeapp.feature.search.presentation.HomeCategory
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
+import com.realeapp.ui.components.CapsuleToggle
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Error
-import com.realeapp.ui.theme.HomeCategoryUnselected
-import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
@@ -578,56 +572,14 @@ internal fun BuyRentToggle(
     onCategorySelected: (HomeCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isRent = selectedCategory == HomeCategory.RENT
-
-    Row(
+    CapsuleToggle(
+        options = listOf(HomeStrings.CATEGORY_RENT, HomeStrings.CATEGORY_BUY),
+        selectedIndex = if (selectedCategory == HomeCategory.RENT) 0 else 1,
+        onSelect = { index ->
+            onCategorySelected(if (index == 0) HomeCategory.RENT else HomeCategory.BUY)
+        },
         modifier = modifier
-            .fillMaxWidth()
-            .height(HomeDims.TOGGLE_ROW_HEIGHT)
-            .shadow(HomeDims.TOGGLE_ELEVATION, CircleShape)
-            // Shaped background instead of clip() so segment shadows aren't
-            // clipped to the capsule bounds.
-            .background(White, CircleShape)
-            .padding(HomeDims.TOGGLE_INNER_PADDING),
-        horizontalArrangement = Arrangement.spacedBy(HomeDims.TOGGLE_INNER_PADDING)
-    ) {
-        BuyRentToggleSegment(
-            label = HomeStrings.CATEGORY_RENT,
-            isSelected = isRent,
-            onClick = { onCategorySelected(HomeCategory.RENT) },
-            modifier = Modifier.weight(1f)
-        )
-        BuyRentToggleSegment(
-            label = HomeStrings.CATEGORY_BUY,
-            isSelected = !isRent,
-            onClick = { onCategorySelected(HomeCategory.BUY) },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun BuyRentToggleSegment(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxHeight()
-            .clip(CircleShape)
-            .background(if (isSelected) ControlAccent else Color.Transparent)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = if (isSelected) OnControlAccent else HomeTextSecondary,
-            fontSize = HomeDims.TOGGLE_FONT_SIZE,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
-        )
-    }
+    )
 }
 
 /**

@@ -1,25 +1,19 @@
 package com.realeapp.feature.search.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import android.content.res.Configuration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -32,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.feature.search.domain.model.Age
@@ -48,14 +41,12 @@ import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.domain.model.ResidentialCommercial
 import com.realeapp.feature.search.presentation.SearchDims
 import com.realeapp.feature.search.presentation.SearchStrings
+import com.realeapp.ui.components.CapsuleToggle
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.ControlAccent
-import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.ui.theme.White
 
@@ -372,27 +363,11 @@ private fun ListingTypeToggle(
         verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(SearchStrings.FILTER_LISTING_INTENT)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(SearchDims.FILTER_TOGGLE_ROW_HEIGHT)
-                .clip(CircleShape)
-                .background(HomeCategoryUnselected)
-                .padding(SearchDims.FILTER_TOGGLE_INNER_PADDING)
-        ) {
-            CapsuleToggleSegment(
-                label = RentBuy.RENT.label,
-                isSelected = selected == RentBuy.RENT,
-                onClick = { onSelected(RentBuy.RENT) },
-                modifier = Modifier.weight(1f)
-            )
-            CapsuleToggleSegment(
-                label = RentBuy.BUY.label,
-                isSelected = selected == RentBuy.BUY,
-                onClick = { onSelected(RentBuy.BUY) },
-                modifier = Modifier.weight(1f)
-            )
-        }
+        CapsuleToggle(
+            options = listOf(RentBuy.RENT.label, RentBuy.BUY.label),
+            selectedIndex = if (selected == RentBuy.RENT) 0 else 1,
+            onSelect = { index -> onSelected(if (index == 0) RentBuy.RENT else RentBuy.BUY) }
+        )
     }
 }
 
@@ -407,61 +382,18 @@ private fun ResidentialCommercialToggle(
         verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_TITLE_TO_CHIPS_SPACING)
     ) {
         FilterSectionHeader(SearchStrings.FILTER_CATEGORY)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(SearchDims.FILTER_TOGGLE_ROW_HEIGHT)
-                .clip(CircleShape)
-                .background(HomeCategoryUnselected)
-                .padding(SearchDims.FILTER_TOGGLE_INNER_PADDING)
-        ) {
-            CapsuleToggleSegment(
-                label = ResidentialCommercial.RESIDENTIAL.label,
-                isSelected = selected == ResidentialCommercial.RESIDENTIAL,
-                onClick = { onSelected(ResidentialCommercial.RESIDENTIAL) },
-                modifier = Modifier.weight(1f)
-            )
-            CapsuleToggleSegment(
-                label = ResidentialCommercial.COMMERCIAL.label,
-                isSelected = selected == ResidentialCommercial.COMMERCIAL,
-                onClick = { onSelected(ResidentialCommercial.COMMERCIAL) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun CapsuleToggleSegment(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
-) {
-    Row(
-        modifier = modifier
-            .fillMaxHeight()
-            .clip(CircleShape)
-            .background(if (isSelected) ControlAccent else Color.Transparent)
-            .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        icon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                tint = if (isSelected) OnControlAccent else HomeTextSecondary,
-                modifier = Modifier.size(SearchDims.FILTER_TOGGLE_ICON_SIZE)
-            )
-            Spacer(modifier = Modifier.width(SearchDims.FILTER_TOGGLE_ICON_TEXT_SPACING))
-        }
-        Text(
-            text = label,
-            color = if (isSelected) OnControlAccent else HomeTextSecondary,
-            fontSize = SearchDims.FILTER_TOGGLE_FONT_SIZE,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+        CapsuleToggle(
+            options = listOf(
+                ResidentialCommercial.RESIDENTIAL.label,
+                ResidentialCommercial.COMMERCIAL.label
+            ),
+            selectedIndex = if (selected == ResidentialCommercial.RESIDENTIAL) 0 else 1,
+            onSelect = { index ->
+                onSelected(
+                    if (index == 0) ResidentialCommercial.RESIDENTIAL
+                    else ResidentialCommercial.COMMERCIAL
+                )
+            }
         )
     }
 }
