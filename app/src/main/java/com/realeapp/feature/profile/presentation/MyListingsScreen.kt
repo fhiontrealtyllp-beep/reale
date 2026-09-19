@@ -27,13 +27,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.Autorenew
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -42,7 +39,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,7 +65,6 @@ import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
 import com.realeapp.ui.theme.OnControlAccent
-import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.RealeTheme
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,7 +93,6 @@ internal data class MyListing(
 internal fun MyListingsScreen(
     onBack: () -> Unit,
     onAddProperty: () -> Unit = {},
-    onEditListing: (MyListing) -> Unit = {},
     onViewDetails: (MyListing) -> Unit = {},
     onMoreOptions: (MyListing) -> Unit = {},
     onViewEnquiries: (String) -> Unit = {},
@@ -206,7 +200,6 @@ internal fun MyListingsScreen(
                         items(filteredListings, key = { it.id }) { listing ->
                             ListingCard(
                                 listing = listing,
-                                onEdit = { onEditListing(listing) },
                                 onViewDetails = {
                                     selectedListing = listing
                                     onViewDetails(listing)
@@ -491,59 +484,21 @@ private fun ListingsSearchBar(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .size(MyListingsDims.FILTER_BUTTON_SIZE)
-                .clip(RoundedCornerShape(MyListingsDims.FILTER_BUTTON_CORNER_RADIUS))
-                .border(
-                    BorderStroke(MyListingsDims.SEARCH_BORDER_WIDTH, HomeSearchBarBorder),
-                    RoundedCornerShape(MyListingsDims.FILTER_BUTTON_CORNER_RADIUS)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = MyListingsStrings.CD_FILTER,
-                tint = Black,
-                modifier = Modifier.size(MyListingsDims.FILTER_ICON_SIZE)
-            )
-        }
+
     }
 }
 
 @Composable
 private fun ListingCard(
     listing: MyListing,
-    onEdit: () -> Unit,
     onViewDetails: () -> Unit,
     onMoreOptions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (statusLabel, statusColor) = when (listing.status) {
-        ListingStatus.ACTIVE -> MyListingsStrings.STATUS_ACTIVE to VerifiedGreen
-        ListingStatus.INACTIVE -> MyListingsStrings.STATUS_INACTIVE to HomeTextSecondary
-        ListingStatus.DRAFT -> MyListingsStrings.STATUS_DRAFT to HomeTextSecondary
-    }
-
     PropertyResultCard(
         property = listing.toProperty(),
         onClick = onViewDetails,
         modifier = modifier,
-        badgeContent = {
-            Text(
-                text = statusLabel,
-                color = statusColor,
-                fontSize = MyListingsDims.STATUS_BADGE_FONT_SIZE,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(MyListingsDims.STATUS_BADGE_CORNER_RADIUS))
-                    .background(statusColor.copy(alpha = 0.1f))
-                    .padding(
-                        horizontal = MyListingsDims.STATUS_BADGE_HORIZONTAL_PADDING,
-                        vertical = MyListingsDims.STATUS_BADGE_VERTICAL_PADDING
-                    )
-            )
-        },
         trailingContent = {
             Icon(
                 imageVector = Icons.Filled.MoreVert,
@@ -553,160 +508,8 @@ private fun ListingCard(
                     .size(MyListingsDims.MORE_ICON_SIZE)
                     .clickable(onClick = onMoreOptions)
             )
-        },
-        footerContent = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = MyListingsDims.CARD_PADDING,
-                        end = MyListingsDims.CARD_PADDING,
-                        bottom = MyListingsDims.CARD_PADDING
-                    )
-            ) {
-                ListingStats(listing = listing)
-
-                Spacer(modifier = Modifier.height(MyListingsDims.ACTION_ROW_TOP_SPACING))
-
-                ListingActions(
-                    listing = listing,
-                    onEdit = onEdit,
-                    onViewDetails = onViewDetails
-                )
-            }
         }
     )
-}
-
-@Composable
-private fun ListingStats(listing: MyListing, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = MyListingsDims.STATS_VERTICAL_PADDING),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        StatItem(value = listing.views, label = MyListingsStrings.STAT_VIEWS, modifier = Modifier.weight(1f))
-        VerticalDivider(
-            modifier = Modifier.height(MyListingsDims.STAT_DIVIDER_HEIGHT),
-            thickness = MyListingsDims.STAT_DIVIDER_WIDTH,
-            color = HomeSearchBarBorder
-        )
-        StatItem(value = listing.enquiries, label = MyListingsStrings.STAT_ENQUIRIES, modifier = Modifier.weight(1f))
-        VerticalDivider(
-            modifier = Modifier.height(MyListingsDims.STAT_DIVIDER_HEIGHT),
-            thickness = MyListingsDims.STAT_DIVIDER_WIDTH,
-            color = HomeSearchBarBorder
-        )
-        StatItem(value = listing.shortlisted, label = MyListingsStrings.STAT_SHORTLISTED, modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun StatItem(value: Int, label: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "$value",
-            color = Black,
-            fontSize = MyListingsDims.STAT_VALUE_FONT_SIZE,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(MyListingsDims.STAT_SPACING))
-        Text(
-            text = label,
-            color = HomeTextSecondary,
-            fontSize = MyListingsDims.STAT_LABEL_FONT_SIZE,
-            maxLines = 1,
-            softWrap = false
-        )
-    }
-}
-
-@Composable
-private fun ListingActions(
-    listing: MyListing,
-    onEdit: () -> Unit,
-    onViewDetails: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MyListingsDims.ACTION_BUTTON_SPACING)
-    ) {
-        // Outlined Edit button.
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .weight(1f)
-                .height(MyListingsDims.ACTION_BUTTON_HEIGHT)
-                .clip(RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS))
-                .border(
-                    BorderStroke(MyListingsDims.ACTION_BUTTON_BORDER_WIDTH, ControlAccent),
-                    RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS)
-                )
-                .clickable(onClick = onEdit)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = MyListingsStrings.CD_EDIT,
-                tint = ControlAccent,
-                modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
-            )
-            Spacer(modifier = Modifier.width(MyListingsDims.ACTION_BUTTON_ICON_TEXT_SPACING))
-            Text(
-                text = MyListingsStrings.ACTION_EDIT,
-                color = ControlAccent,
-                fontSize = MyListingsDims.ACTION_BUTTON_FONT_SIZE,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                softWrap = false
-            )
-        }
-
-        // Filled light-blue primary action: View Details for active, Reactivate for inactive.
-        val isInactive = listing.status == ListingStatus.INACTIVE
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .weight(1f)
-                .height(MyListingsDims.ACTION_BUTTON_HEIGHT)
-                .clip(RoundedCornerShape(MyListingsDims.ACTION_BUTTON_CORNER_RADIUS))
-                .background(ControlAccent.copy(alpha = 0.1f))
-                .clickable(onClick = onViewDetails)
-        ) {
-            if (isInactive) {
-                Icon(
-                    imageVector = Icons.Outlined.Autorenew,
-                    contentDescription = MyListingsStrings.CD_REACTIVATE,
-                    tint = ControlAccent,
-                    modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
-                )
-                Spacer(modifier = Modifier.width(MyListingsDims.ACTION_BUTTON_ICON_TEXT_SPACING))
-            }
-            Text(
-                text = if (isInactive) MyListingsStrings.ACTION_REACTIVATE else MyListingsStrings.ACTION_VIEW_DETAILS,
-                color = ControlAccent,
-                fontSize = MyListingsDims.ACTION_BUTTON_FONT_SIZE,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                softWrap = false
-            )
-            if (!isInactive) {
-                Spacer(modifier = Modifier.width(MyListingsDims.ACTION_BUTTON_ICON_TEXT_SPACING))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = MyListingsStrings.CD_VIEW_DETAILS,
-                    tint = ControlAccent,
-                    modifier = Modifier.size(MyListingsDims.ACTION_BUTTON_ICON_SIZE)
-                )
-            }
-        }
-    }
 }
 
 @Preview(showBackground = true)

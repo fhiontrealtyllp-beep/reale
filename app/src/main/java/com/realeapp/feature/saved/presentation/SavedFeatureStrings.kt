@@ -6,28 +6,15 @@ import androidx.compose.ui.unit.dp
  * Centralized UI strings and dimensions for the Saved feature.
  */
 internal object SavedStrings {
-    const val TITLE = "Saved Properties"
-    const val SUBTITLE = "Your favorite homes, all in one place."
-
-    const val CD_NOTIFICATIONS = "Notifications"
 
     const val FILTER_ALL = "All"
-    const val FILTER_HOMES = "Homes"
-    const val FILTER_PLOTS = "Plots"
-    const val FILTER_PROJECTS = "Projects"
+    const val FILTER_BUY = "Buy"
+    const val FILTER_RENT = "Rent"
     const val FILTER_COUNT_FORMAT = "%s (%d)"
 
     const val SEARCH_HINT = "Search in your saved properties"
     const val CD_SEARCH_ICON = "Search"
-    const val CD_FILTER_ICON = "Filter"
-
-    const val COLLECTION_TITLE = "Create a Collection"
-    const val COLLECTION_SUBTITLE = "Organize your saved properties"
-    const val CD_COLLECTION_ARROW = "Go to collections"
-
-    const val CD_FAVORITE = "Favorite"
-    const val CD_MORE_OPTIONS = "More options"
-    const val CD_PROPERTY_IMAGE = "Property image"
+     const val CD_PROPERTY_IMAGE = "Property image"
     const val CD_PHOTO_LIBRARY = "Photos"
     const val PHOTOS_SUFFIX = " Photos"
 

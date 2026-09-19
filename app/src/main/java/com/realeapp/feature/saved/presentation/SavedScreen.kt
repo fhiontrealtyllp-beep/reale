@@ -62,7 +62,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.feature.search.domain.model.Property
-import com.realeapp.feature.search.domain.model.PropertyType
+import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
 import com.realeapp.feature.search.presentation.PropertyResultCard
 import com.realeapp.ui.components.LoginPrompt
@@ -82,24 +82,15 @@ import androidx.compose.ui.tooling.preview.Preview
 
 private enum class SavedFilter(val label: String) {
     ALL(SavedStrings.FILTER_ALL),
-    HOMES(SavedStrings.FILTER_HOMES),
-    PLOTS(SavedStrings.FILTER_PLOTS),
-    PROJECTS(SavedStrings.FILTER_PROJECTS);
+    BUY(SavedStrings.FILTER_BUY),
+    RENT(SavedStrings.FILTER_RENT);
 
     fun count(properties: List<Property>): Int = properties.count { matches(it) }
 
     fun matches(property: Property): Boolean = when (this) {
         ALL -> true
-        HOMES -> property.rentBuy != null && property.propertyType in setOf(
-            PropertyType.APARTMENT,
-            PropertyType.VILLA,
-            PropertyType.INDEPENDENT_HOUSE
-        )
-        PLOTS -> property.rentBuy != null && property.propertyType in setOf(
-            PropertyType.PLOT,
-            PropertyType.LAND
-        )
-        PROJECTS -> property.rentBuy == null
+        BUY -> property.rentBuy == RentBuy.BUY
+        RENT -> property.rentBuy == RentBuy.RENT
     }
 }
 
@@ -259,8 +250,6 @@ private fun SavedPropertyList(
             ),
             verticalArrangement = Arrangement.spacedBy(SavedDims.ITEM_SPACING)
         ) {
-            item { SavedTopBar() }
-            item { SavedTitle() }
             item {
                 FilterChipRow(
                     counts = counts,
@@ -274,7 +263,6 @@ private fun SavedPropertyList(
                     onQueryChange = onSearchChange
                 )
             }
-            item { CollectionCard() }
             if (filteredProperties.isEmpty()) {
                 item {
                     Box(
@@ -337,47 +325,7 @@ private fun SavedPropertyListEmptyPreview() {
     }
 }
 
-@Composable
-private fun SavedTopBar(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(contentAlignment = Alignment.TopEnd) {
-            Icon(
-                imageVector = Icons.Outlined.Notifications,
-                contentDescription = SavedStrings.CD_NOTIFICATIONS,
-                tint = Black,
-                modifier = Modifier.size(SavedDims.HEADER_ICON_SIZE)
-            )
-            Box(
-                modifier = Modifier
-                    .size(SavedDims.NOTIFICATION_BADGE_SIZE)
-                    .clip(CircleShape)
-                    .background(Error)
-            )
-        }
-    }
-}
 
-@Composable
-private fun SavedTitle(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = SavedStrings.TITLE,
-            color = Black,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(SavedDims.TITLE_LINE_SPACING))
-        Text(
-            text = SavedStrings.SUBTITLE,
-            color = HomeTextSecondary,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
 
 @Composable
 private fun FilterChipRow(
@@ -447,14 +395,6 @@ private fun SavedSearchBar(
                 modifier = Modifier.size(SavedDims.SEARCH_ICON_SIZE)
             )
         },
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = SavedStrings.CD_FILTER_ICON,
-                tint = ControlAccent,
-                modifier = Modifier.size(SavedDims.SEARCH_ICON_SIZE)
-            )
-        },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = White,
@@ -471,60 +411,6 @@ private fun SavedSearchBar(
     )
 }
 
-@Composable
-private fun CollectionCard(modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(SavedDims.COLLECTION_CARD_CORNER_RADIUS)),
-        shape = RoundedCornerShape(SavedDims.COLLECTION_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = SavedDims.COLLECTION_CARD_ELEVATION),
-        border = BorderStroke(SavedDims.SEARCH_DIVIDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SavedDims.CARD_INNER_PADDING),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_INNER_PADDING)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(SavedDims.COLLECTION_ICON_CIRCLE_SIZE)
-                    .clip(CircleShape)
-                    .background(ControlAccent.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = SavedStrings.CD_FAVORITE,
-                    tint = ControlAccent,
-                    modifier = Modifier.size(SavedDims.COLLECTION_ICON_SIZE)
-                )
-            }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = SavedStrings.COLLECTION_TITLE,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = SavedStrings.COLLECTION_SUBTITLE,
-                    color = HomeTextSecondary,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = SavedStrings.CD_COLLECTION_ARROW,
-                tint = HomeTextSecondary,
-                modifier = Modifier.size(SavedDims.SEARCH_ICON_SIZE)
-            )
-        }
-    }
-}
 
 @Composable
 private fun EmptySavedResults(modifier: Modifier = Modifier) {
