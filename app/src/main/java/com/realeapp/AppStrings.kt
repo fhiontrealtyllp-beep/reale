@@ -7,7 +7,7 @@ package com.realeapp
  * so it is not duplicated in individual feature string objects.
  */
 internal object AppStrings {
-    const val APP_NAME = "HomeFinder"
+    const val APP_NAME = "Fhiont"
 
     private const val APP_NAME_SPLIT_INDEX = 4
 

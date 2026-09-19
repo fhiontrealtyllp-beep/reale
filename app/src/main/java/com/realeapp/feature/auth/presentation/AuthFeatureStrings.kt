@@ -106,9 +106,9 @@ internal object AuthDims {
     val WELCOME_SHEET_CORNER_RADIUS = 28.dp
     val WELCOME_SHEET_PADDING = 24.dp
 
-    const val WELCOME_SCRIM_START_ALPHA = 0.15f
-    const val WELCOME_SCRIM_MID_ALPHA = 0.25f
-    const val WELCOME_SCRIM_END_ALPHA = 0.55f
+    const val WELCOME_SCRIM_START_ALPHA = 0.7f
+    const val WELCOME_SCRIM_MID_ALPHA = 0.7f
+    const val WELCOME_SCRIM_END_ALPHA = 0.7f
 
     val SPACE_12 = 12.dp
     val SPACE_40 = 40.dp

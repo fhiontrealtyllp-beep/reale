@@ -15,6 +15,7 @@ internal object ProfileStrings {
     const val CD_PHONE_VERIFIED = "Phone verified"
     const val CD_EMAIL_VERIFIED = "Email verified"
     const val CD_AVATAR = "Profile picture"
+    const val CD_PROFILE_COVER = "Profile cover"
     const val CD_EDIT_AVATAR = "Change profile picture"
 
     const val LIST_PROPERTY_TITLE = "List Your Property"
@@ -115,9 +116,17 @@ internal object ProfileDims {
     val AVATAR_PROGRESS_STROKE = 3.dp
     val AVATAR_TO_DETAILS_SPACING = 14.dp
     val INITIALS_FONT_SIZE = 30.sp
-    val PROFILE_NAME_FONT_SIZE = 18.sp
+    val PROFILE_NAME_FONT_SIZE = 15.sp
     val PROFILE_DETAIL_FONT_SIZE = 13.sp
     val PROFILE_DETAIL_SPACING = 2.dp
+    val PROFILE_COVER_HEIGHT = 128.dp
+    val PROFILE_COVER_WITH_AVATAR_HEIGHT = 180.dp
+    val PROFILE_COVER_BOTTOM_RADIUS = 48.dp
+    val PROFILE_HERO_AVATAR_SIZE = 104.dp
+    val PROFILE_AVATAR_BORDER_WIDTH = 4.dp
+    val PROFILE_HEADER_CONTENT_SPACING = 8.dp
+    val PROFILE_NAME_EDIT_SPACING = 8.dp
+    val PROFILE_HERO_NAME_FONT_SIZE = 18.sp
 
     val ADDRESS_ROW_TOP_SPACING = 12.dp
     val ADDRESS_ICON_SIZE = 18.dp
@@ -129,6 +138,9 @@ internal object ProfileDims {
     val EDIT_PROFILE_BUTTON_BORDER = 1.dp
     val EDIT_PROFILE_BUTTON_HORIZONTAL_PADDING = 16.dp
     val EDIT_PROFILE_BUTTON_FONT_SIZE = 13.sp
+    val EDIT_PROFILE_ICON_SIZE = 20.dp
+    val EDIT_PROFILE_ICON_ELEVATION = 4.dp
+    val EDIT_PROFILE_ICON_SHADOW_RADIUS = 2.dp
 
     val VERIFIED_BADGE_TOP_SPACING = 12.dp
     val VERIFIED_BADGE_SPACING = 8.dp
@@ -183,4 +195,5 @@ internal object ProfileDims {
     val GUEST_AVATAR_ICON_SIZE = 40.dp
 
     val SNACKBAR_CORNER_RADIUS = 8.dp
+
 }

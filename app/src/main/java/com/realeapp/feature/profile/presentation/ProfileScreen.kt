@@ -14,6 +14,7 @@ import com.canhub.cropper.CropImageOptions
 import com.canhub.cropper.CropImageView.Guidelines
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -88,26 +90,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
+import com.realeapp.R
 import com.realeapp.core.theme.ThemeMode
 import com.realeapp.feature.add.presentation.ImageSourceDialog
 import com.realeapp.feature.add.presentation.toJpegBytes
 import com.realeapp.feature.auth.domain.model.User
+import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -121,6 +126,7 @@ import com.realeapp.ui.theme.RealeTheme
 import com.realeapp.util.Logger
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun ProfileScreen(
@@ -427,7 +433,6 @@ private fun ProfileContent(
         ),
         verticalArrangement = Arrangement.spacedBy(ProfileDims.SECTION_SPACING)
     ) {
-        item { ProfileTopBar(onNotificationsClick = onNotificationsClick) }
         item {
                 val displayAddress = profileDisplayAddress(
                     isLoggedIn = isLoggedIn,
@@ -648,57 +653,84 @@ private fun ProfileCard(
         elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.CARD_ELEVATION)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(ProfileDims.CARD_INNER_PADDING)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ProfileDims.PROFILE_COVER_WITH_AVATAR_HEIGHT)
             ) {
+                Image(
+                    painter = painterResource(R.drawable.profile_cover),
+                    contentDescription = ProfileStrings.CD_PROFILE_COVER,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(ProfileDims.PROFILE_COVER_HEIGHT)
+                        .clip(
+                            RoundedCornerShape(
+                                bottomStart = ProfileDims.PROFILE_COVER_BOTTOM_RADIUS,
+                                bottomEnd = ProfileDims.PROFILE_COVER_BOTTOM_RADIUS
+                            )
+                        )
+                )
+
                 ProfileAvatar(
                     user = user,
                     isImageUploading = isImageUploading,
-                    onPickImage = onPickImage
+                    onPickImage = onPickImage,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .size(ProfileDims.PROFILE_HERO_AVATAR_SIZE)
+                        .background(White, CircleShape)
+                        .padding(ProfileDims.PROFILE_AVATAR_BORDER_WIDTH)
                 )
-
-                Spacer(modifier = Modifier.width(ProfileDims.AVATAR_TO_DETAILS_SPACING))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = user?.name.orEmpty(),
-                            color = Black,
-                            fontSize = ProfileDims.PROFILE_NAME_FONT_SIZE,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(ProfileDims.VERIFIED_BADGE_SPACING))
-                        EditProfileButton(onClick = onEditProfileClick)
-                    }
-
-                    Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
-
-                    Text(
-                        text = user?.phone.orEmpty(),
-                        color = HomeTextSecondary,
-                        fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
-                    )
-                    Text(
-                        text = user?.email.orEmpty(),
-                        color = HomeTextSecondary,
-                        fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
-                    )
-                }
             }
 
-            // Verified badges span the full card width so both fit on one line.
+            Spacer(modifier = Modifier.height(ProfileDims.PROFILE_HEADER_CONTENT_SPACING))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ProfileDims.PROFILE_NAME_EDIT_SPACING)
+            ) {
+                Text(
+                    text = user?.name.orEmpty(),
+                    color = Black,
+                    fontSize = ProfileDims.PROFILE_HERO_NAME_FONT_SIZE,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = ProfileStrings.EDIT_PROFILE,
+                    tint = ControlAccent,
+                    modifier = Modifier
+                        .shadow(
+                            elevation = ProfileDims.EDIT_PROFILE_ICON_ELEVATION,
+                            shape = RoundedCornerShape(ProfileDims.EDIT_PROFILE_ICON_SHADOW_RADIUS)
+                        )
+                        .size(ProfileDims.EDIT_PROFILE_ICON_SIZE)
+                        .clickable(onClick = onEditProfileClick)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+
+            Text(
+                text = user?.email.orEmpty(),
+                color = HomeTextSecondary,
+                fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = user?.phone.orEmpty(),
+                color = HomeTextSecondary,
+                fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
+            )
+
             if (!user?.phone.isNullOrBlank() || !user?.email.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
 
@@ -722,11 +754,10 @@ private fun ProfileCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(ProfileDims.ADDRESS_ROW_TOP_SPACING))
-
             AddressRow(
                 address = address,
-                onActionClick = onChangeAddressClick
+                onActionClick = onChangeAddressClick,
+                modifier = Modifier.padding(ProfileDims.CARD_INNER_PADDING)
             )
         }
     }
@@ -856,7 +887,10 @@ private fun ProfileAvatar(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.size(ProfileDims.AVATAR_SIZE),
+        modifier = modifier
+            .size(ProfileDims.AVATAR_SIZE)
+            .clip(CircleShape)
+            .clickable(onClick = onPickImage),
         contentAlignment = Alignment.Center
     ) {
         // Avatar UI falls back to the user's initials when no image is available.
@@ -893,51 +927,6 @@ private fun ProfileAvatar(
                 strokeWidth = ProfileDims.AVATAR_PROGRESS_STROKE
             )
         }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .size(ProfileDims.AVATAR_EDIT_BADGE_SIZE)
-                .clip(CircleShape)
-                .background(ControlAccent)
-                .border(
-                    BorderStroke(ProfileDims.AVATAR_EDIT_BADGE_BORDER_WIDTH, OnControlAccent),
-                    CircleShape
-                )
-                .clickable(onClick = onPickImage),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = ProfileStrings.CD_EDIT_AVATAR,
-                tint = OnControlAccent,
-                modifier = Modifier.size(ProfileDims.AVATAR_EDIT_ICON_SIZE)
-            )
-        }
-    }
-}
-
-@Composable
-private fun EditProfileButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = modifier.height(ProfileDims.EDIT_PROFILE_BUTTON_HEIGHT),
-        shape = RoundedCornerShape(ProfileDims.EDIT_PROFILE_BUTTON_CORNER_RADIUS),
-        colors = ButtonDefaults.textButtonColors(
-            containerColor = ControlAccent.copy(alpha = 0.1f),
-            contentColor = ControlAccent
-        ),
-        border = BorderStroke(ProfileDims.EDIT_PROFILE_BUTTON_BORDER, ControlAccent.copy(alpha = 0.2f)),
-        contentPadding = PaddingValues(horizontal = ProfileDims.EDIT_PROFILE_BUTTON_HORIZONTAL_PADDING)
-    ) {
-        Text(
-            text = ProfileStrings.EDIT_PROFILE,
-            fontSize = ProfileDims.EDIT_PROFILE_BUTTON_FONT_SIZE,
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 
