@@ -1,40 +1,26 @@
 package com.realeapp.feature.search.presentation
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bathtub
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.KingBed
-import androidx.compose.material.icons.outlined.SquareFoot
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,35 +44,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyFilter
-import com.realeapp.feature.search.domain.model.RentBuy
-import com.realeapp.feature.search.presentation.components.formatIndianPrice
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.Accent
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.ControlAccent
-import com.realeapp.ui.theme.BrandCoral
-import com.realeapp.ui.theme.Gray
-import com.realeapp.ui.theme.MediaScrim
-import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.RealeTheme
-import com.realeapp.ui.theme.SurfaceLight
-import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import com.realeapp.ui.theme.White
+import com.realeapp.feature.auth.presentation.LoginPromptDialog
 import org.koin.androidx.compose.koinViewModel
-import java.text.NumberFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -354,7 +328,7 @@ private fun ResultsHeader(
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier
                     .clickable { expanded = true }
-                    .padding(4.dp)
+                    .padding(1.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.SwapVert,
@@ -391,248 +365,6 @@ private fun ResultsHeader(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PropertyResultCard(
-    property: Property,
-    onLike: () -> Unit,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(PropertiesDims.CARD_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(PropertiesDims.CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = PropertiesDims.CARD_ELEVATION)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .padding(PropertiesDims.CARD_PADDING)
-        ) {
-            PropertyImage(
-                property = property,
-                modifier = Modifier.fillMaxHeight()
-            )
-
-            Spacer(modifier = Modifier.width(PropertiesDims.CARD_CONTENT_SPACING))
-
-            PropertyInfo(
-                property = property,
-                onLike = onLike,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun PropertyImage(
-    property: Property,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .width(PropertiesDims.CARD_IMAGE_WIDTH)
-            .clip(RoundedCornerShape(PropertiesDims.CARD_IMAGE_CORNER_RADIUS))
-    ) {
-        AsyncImage(
-            model = property.images.firstOrNull()
-                ?: "https://picsum.photos/seed/${property.id}/300/200",
-            contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        if (property.images.size > 1) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(PropertiesDims.FILTER_CHIP_ICON_TEXT_SPACING),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(PropertiesDims.FILTER_CHIP_ICON_TEXT_SPACING)
-                    .clip(RoundedCornerShape(PropertiesDims.PHOTO_COUNT_CORNER_RADIUS))
-                    .background(MediaScrim.copy(alpha = 0.6f))
-                    .padding(
-                        horizontal = PropertiesDims.PHOTO_COUNT_HORIZONTAL_PADDING,
-                        vertical = PropertiesDims.PHOTO_COUNT_VERTICAL_PADDING
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PhotoLibrary,
-                    contentDescription = PropertiesStrings.CD_PHOTOS,
-                    tint = OnMediaContent,
-                    modifier = Modifier.size(PropertiesDims.PHOTO_COUNT_ICON_SIZE)
-                )
-                Text(
-                    text = "${property.images.size} ${PropertiesStrings.PHOTOS_LABEL}",
-                    color = OnMediaContent,
-                    fontSize = PropertiesDims.PHOTO_COUNT_FONT_SIZE
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PropertyInfo(
-    property: Property,
-    onLike: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ListingBadge(rentBuy = property.rentBuy)
-
-            Icon(
-                imageVector = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                contentDescription = PropertiesStrings.CD_LIKE,
-                tint = if (property.isLiked == true) BrandCoral else Gray,
-                modifier = Modifier
-                    .size(PropertiesDims.LIKE_ICON_SIZE)
-                    .clickable(onClick = onLike)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Text(
-            text = property.title,
-            color = Black,
-            fontSize = PropertiesDims.TITLE_FONT_SIZE,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(PropertiesDims.SPEC_ICON_TEXT_SPACING)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.LocationOn,
-                contentDescription = null,
-                tint = Gray,
-                modifier = Modifier.size(PropertiesDims.SPEC_ICON_SIZE)
-            )
-            Text(
-                text = "${property.locality}, ${property.city}",
-                color = Gray,
-                fontSize = PropertiesDims.LOCATION_FONT_SIZE,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Text(
-            text = formatIndianPrice(property.price, property.isRentProperty()),
-            color = ControlAccent,
-            fontSize = PropertiesDims.PRICE_FONT_SIZE,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        PropertySpecs(property = property)
-    }
-}
-
-@Composable
-private fun ListingBadge(rentBuy: RentBuy?) {
-    val text = when (rentBuy) {
-        RentBuy.RENT -> PropertiesStrings.BADGE_FOR_RENT
-        else -> PropertiesStrings.BADGE_FOR_SALE
-    }
-
-    Text(
-        text = text,
-        color = ControlAccent,
-        fontSize = PropertiesDims.BADGE_FONT_SIZE,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier
-            .clip(RoundedCornerShape(PropertiesDims.BADGE_CORNER_RADIUS))
-            .background(SurfaceLight)
-            .padding(
-                horizontal = PropertiesDims.BADGE_HORIZONTAL_PADDING,
-                vertical = PropertiesDims.BADGE_VERTICAL_PADDING
-            )
-    )
-}
-
-@Composable
-private fun PropertySpecs(
-    property: Property,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(PropertiesDims.SPEC_ITEM_SPACING)
-    ) {
-        property.bedroomType?.let {
-            val bedCount = it.label.takeWhile { char -> char.isDigit() }
-            val label = if (bedCount.isNotEmpty()) "$bedCount ${PropertiesStrings.BEDS_LABEL}" else it.label
-            SpecItem(
-                icon = Icons.Outlined.KingBed,
-                text = label
-            )
-        }
-
-        property.bathrooms?.takeIf { it > 0 }?.let { count ->
-            SpecItem(
-                icon = Icons.Filled.Bathtub,
-                text = "$count ${PropertiesStrings.BATHS_LABEL}"
-            )
-        }
-
-        property.carpetArea?.toInt()?.let { area ->
-            SpecItem(
-                icon = Icons.Outlined.SquareFoot,
-                text = "${NumberFormat.getNumberInstance(Locale.getDefault()).format(area)} ${PropertiesStrings.SQFT_LABEL}"
-            )
-        }
-    }
-}
-
-@Composable
-private fun SpecItem(
-    icon: ImageVector,
-    text: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(PropertiesDims.SPEC_ICON_TEXT_SPACING)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Gray,
-            modifier = Modifier.size(PropertiesDims.SPEC_ICON_SIZE)
-        )
-        Text(
-            text = text,
-            color = Gray,
-            fontSize = PropertiesDims.SPEC_FONT_SIZE,
-            maxLines = 1,
-            softWrap = false
-        )
     }
 }
 

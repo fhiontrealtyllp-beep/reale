@@ -61,7 +61,7 @@ internal object PropertiesDims {
     val SEARCH_BAR_CORNER_RADIUS = 26.dp
     val SEARCH_BAR_HORIZONTAL_PADDING = 16.dp
     val SEARCH_BAR_INNER_VERTICAL_PADDING = 14.dp
-    val SEARCH_BAR_ICON_SIZE = 20.dp
+    val SEARCH_BAR_ICON_SIZE = 15.dp
     val SEARCH_BAR_CONTENT_SPACING = 12.dp
     val SEARCH_BAR_DIVIDER_HEIGHT = 24.dp
     val SEARCH_BAR_FONT_SIZE = 15.sp
@@ -79,17 +79,17 @@ internal object PropertiesDims {
 
     val RESULTS_HEADER_VERTICAL_PADDING = 2.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp
-    val SORT_FONT_SIZE = 14.sp
+    val SORT_FONT_SIZE = 10.sp
     val HEADER_TITLE_FONT_SIZE = 12.sp
     val RESULTS_LIST_SPACING = 4.dp
     val RESULTS_LIST_VERTICAL_PADDING = 4.dp
 
-    val CARD_CORNER_RADIUS = 12.dp
-    val CARD_ELEVATION = 2.dp
+    val CARD_CORNER_RADIUS = 1.dp
+    val CARD_ELEVATION = 6.dp
     val CARD_PADDING = 12.dp
     val CARD_IMAGE_WIDTH = 130.dp
     val CARD_IMAGE_HEIGHT = 110.dp
-    val CARD_IMAGE_CORNER_RADIUS = 10.dp
+    val CARD_IMAGE_CORNER_RADIUS = 1.dp
     val CARD_CONTENT_SPACING = 10.dp
 
     val BADGE_CORNER_RADIUS = 6.dp
@@ -105,9 +105,9 @@ internal object PropertiesDims {
 
     val LIKE_ICON_SIZE = 20.dp
 
-    val TITLE_FONT_SIZE = 15.sp
+    val TITLE_FONT_SIZE = 12.sp
     val LOCATION_FONT_SIZE = 13.sp
-    val PRICE_FONT_SIZE = 17.sp
+    val PRICE_FONT_SIZE = 14.sp
     val SPEC_FONT_SIZE = 12.sp
     val SPEC_ICON_SIZE = 14.dp
     val SPEC_ICON_TEXT_SPACING = 2.dp

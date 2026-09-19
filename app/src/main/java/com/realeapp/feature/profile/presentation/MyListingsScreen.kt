@@ -7,12 +7,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,19 +29,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.KingBed
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.PhotoLibrary
-import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,33 +54,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
-import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.feature.search.presentation.PropertyResultCard
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
 import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnControlAccent
-import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.VerifiedGreen
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.theme.RealeTheme
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.androidx.compose.koinViewModel
-import java.text.NumberFormat
-import java.util.Locale
 
 internal enum class ListingStatus { ACTIVE, INACTIVE, DRAFT }
 
@@ -323,6 +307,7 @@ private fun MyListing.toProperty(): Property {
         bedroomType = beds?.toBedroomType(),
         propertyType = PropertyType.entries.find { it.label.equals(type, ignoreCase = true) },
         builtUpArea = sqft.toDouble(),
+        carpetArea = sqft.toDouble(),
         status = status.name
     )
 }
@@ -534,76 +519,51 @@ private fun ListingCard(
     onMoreOptions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(MyListingsDims.CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = MyListingsDims.CARD_ELEVATION)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .padding(MyListingsDims.CARD_PADDING)
-        ) {
-            ListingImage(listing = listing)
+    val (statusLabel, statusColor) = when (listing.status) {
+        ListingStatus.ACTIVE -> MyListingsStrings.STATUS_ACTIVE to VerifiedGreen
+        ListingStatus.INACTIVE -> MyListingsStrings.STATUS_INACTIVE to HomeTextSecondary
+        ListingStatus.DRAFT -> MyListingsStrings.STATUS_DRAFT to HomeTextSecondary
+    }
 
-            Spacer(modifier = Modifier.width(MyListingsDims.CARD_CONTENT_SPACING))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = listing.title,
-                        color = Black,
-                        fontSize = MyListingsDims.TITLE_FONT_SIZE,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+    PropertyResultCard(
+        property = listing.toProperty(),
+        onClick = onViewDetails,
+        modifier = modifier,
+        badgeContent = {
+            Text(
+                text = statusLabel,
+                color = statusColor,
+                fontSize = MyListingsDims.STATUS_BADGE_FONT_SIZE,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(MyListingsDims.STATUS_BADGE_CORNER_RADIUS))
+                    .background(statusColor.copy(alpha = 0.1f))
+                    .padding(
+                        horizontal = MyListingsDims.STATUS_BADGE_HORIZONTAL_PADDING,
+                        vertical = MyListingsDims.STATUS_BADGE_VERTICAL_PADDING
                     )
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = MyListingsStrings.CD_MORE,
-                        tint = HomeTextSecondary,
-                        modifier = Modifier
-                            .size(MyListingsDims.MORE_ICON_SIZE)
-                            .clickable(onClick = onMoreOptions)
+            )
+        },
+        trailingContent = {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = MyListingsStrings.CD_MORE,
+                tint = HomeTextSecondary,
+                modifier = Modifier
+                    .size(MyListingsDims.MORE_ICON_SIZE)
+                    .clickable(onClick = onMoreOptions)
+            )
+        },
+        footerContent = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = MyListingsDims.CARD_PADDING,
+                        end = MyListingsDims.CARD_PADDING,
+                        bottom = MyListingsDims.CARD_PADDING
                     )
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint = HomeTextSecondary,
-                        modifier = Modifier.size(MyListingsDims.LOCATION_ICON_SIZE)
-                    )
-                    Spacer(modifier = Modifier.width(MyListingsDims.LOCATION_ICON_TEXT_SPACING))
-                    Text(
-                        text = listing.location,
-                        color = HomeTextSecondary,
-                        fontSize = MyListingsDims.LOCATION_FONT_SIZE,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(MyListingsDims.DETAIL_LINE_SPACING))
-
-                Text(
-                    text = formatIndianPrice(listing.price),
-                    color = ControlAccent,
-                    fontSize = MyListingsDims.PRICE_FONT_SIZE,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(MyListingsDims.DETAIL_LINE_SPACING))
-
-                ListingSpecs(listing = listing)
-
+            ) {
                 ListingStats(listing = listing)
 
                 Spacer(modifier = Modifier.height(MyListingsDims.ACTION_ROW_TOP_SPACING))
@@ -615,115 +575,7 @@ private fun ListingCard(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ListingImage(listing: MyListing, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .width(MyListingsDims.IMAGE_WIDTH)
-            .fillMaxHeight()
-            .clip(RoundedCornerShape(MyListingsDims.IMAGE_CORNER_RADIUS))
-    ) {
-        AsyncImage(
-            model = listing.imageUrl,
-            contentDescription = MyListingsStrings.CD_PROPERTY_IMAGE,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Status badge overlaid at the top-left of the image.
-        val (statusLabel, statusColor) = when (listing.status) {
-            ListingStatus.ACTIVE -> MyListingsStrings.STATUS_ACTIVE to VerifiedGreen
-            ListingStatus.INACTIVE -> MyListingsStrings.STATUS_INACTIVE to HomeTextSecondary
-            ListingStatus.DRAFT -> MyListingsStrings.STATUS_DRAFT to HomeTextSecondary
-        }
-        Text(
-            text = statusLabel,
-            color = statusColor,
-            fontSize = MyListingsDims.STATUS_BADGE_FONT_SIZE,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(MyListingsDims.STATUS_BADGE_PADDING)
-                .clip(RoundedCornerShape(MyListingsDims.STATUS_BADGE_CORNER_RADIUS))
-                .background(White)
-                .padding(
-                    horizontal = MyListingsDims.STATUS_BADGE_HORIZONTAL_PADDING,
-                    vertical = MyListingsDims.STATUS_BADGE_VERTICAL_PADDING
-                )
-        )
-
-        // Photo-count badge overlaid at the bottom-left of the image.
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MyListingsDims.PHOTOS_BADGE_ICON_TEXT_SPACING),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(MyListingsDims.PHOTOS_BADGE_PADDING)
-                .clip(RoundedCornerShape(MyListingsDims.PHOTOS_BADGE_CORNER_RADIUS))
-                .background(MediaScrim.copy(alpha = 0.6f))
-                .padding(
-                    horizontal = MyListingsDims.PHOTOS_BADGE_HORIZONTAL_PADDING,
-                    vertical = MyListingsDims.PHOTOS_BADGE_VERTICAL_PADDING
-                )
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.PhotoLibrary,
-                contentDescription = MyListingsStrings.CD_PHOTOS,
-                tint = OnMediaContent,
-                modifier = Modifier.size(MyListingsDims.PHOTOS_BADGE_ICON_SIZE)
-            )
-            Text(
-                text = "${listing.photoCount} ${MyListingsStrings.PHOTOS_LABEL}",
-                color = OnMediaContent,
-                fontSize = MyListingsDims.PHOTOS_BADGE_FONT_SIZE
-            )
-        }
-    }
-}
-
-@Composable
-private fun ListingSpecs(listing: MyListing, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MyListingsDims.SPEC_ITEM_SPACING)
-    ) {
-        listing.beds?.let {
-            SpecItem(icon = Icons.Outlined.KingBed, text = "$it ${MyListingsStrings.BEDS_LABEL}")
-        }
-        listing.baths?.let {
-            SpecItem(icon = Icons.Filled.Bathtub, text = "$it ${MyListingsStrings.BATHS_LABEL}")
-        }
-        SpecItem(
-            icon = Icons.Outlined.SquareFoot,
-            text = "${NumberFormat.getNumberInstance(Locale.getDefault()).format(listing.sqft)} ${MyListingsStrings.SQFT_LABEL}"
-        )
-    }
-}
-
-@Composable
-private fun SpecItem(icon: ImageVector, text: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MyListingsDims.SPEC_ICON_TEXT_SPACING)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = HomeTextSecondary,
-            modifier = Modifier.size(MyListingsDims.SPEC_ICON_SIZE)
-        )
-        Text(
-            text = text,
-            color = HomeTextSecondary,
-            fontSize = MyListingsDims.SPEC_FONT_SIZE,
-            maxLines = 1,
-            softWrap = false
-        )
-    }
+    )
 }
 
 @Composable

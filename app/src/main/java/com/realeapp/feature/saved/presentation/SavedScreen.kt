@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -27,22 +25,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.outlined.Chair
-import androidx.compose.material.icons.outlined.KingBed
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PhotoLibrary
-import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -63,23 +54,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import com.realeapp.ui.components.BOTTOM_NAV_CLEARANCE
-import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.PropertyType
 import com.realeapp.feature.search.presentation.PropertyDetailScreen
-import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.feature.search.presentation.PropertyResultCard
 import com.realeapp.ui.components.LoginPrompt
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
@@ -88,18 +73,12 @@ import com.realeapp.ui.theme.BrandCoral
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeSearchBarBorder
 import com.realeapp.ui.theme.HomeTextSecondary
-import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnControlAccent
-import com.realeapp.ui.theme.OnMediaContent
 import com.realeapp.ui.theme.White
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import java.text.NumberFormat
-import java.util.Locale
-
-private val indianNumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN"))
 
 private enum class SavedFilter(val label: String) {
     ALL(SavedStrings.FILTER_ALL),
@@ -123,52 +102,6 @@ private enum class SavedFilter(val label: String) {
         PROJECTS -> property.rentBuy == null
     }
 }
-
-private fun Property.isProject(): Boolean = rentBuy == null
-
-private fun Property.statusLabel(): String = when {
-    isProject() -> SavedStrings.PROJECT_LABEL
-    isRentProperty() -> SavedStrings.LISTING_FOR_RENT
-    else -> SavedStrings.LISTING_FOR_SALE
-}
-
-@Composable
-private fun Property.statusColor(): Color = when {
-    isProject() -> ControlAccent
-    isRentProperty() -> BrandCoral
-    else -> ControlAccent
-}
-
-@Composable
-private fun Property.statusBackground(): Color = statusColor().copy(alpha = 0.08f)
-
-private fun BedroomType.bedCount(): Int = when (this) {
-    BedroomType.ONE_RK -> 1
-    BedroomType.ONE_BHK -> 1
-    BedroomType.TWO_BHK -> 2
-    BedroomType.THREE_BHK -> 3
-    BedroomType.FOUR_BHK -> 4
-    BedroomType.FIVE_BHK -> 5
-    BedroomType.SIX_BHK -> 6
-    BedroomType.SIX_PLUS_BHK -> 7
-    BedroomType.STUDIO_APARTMENT -> 1
-}
-
-private fun Property.bedCount(): Int = bedroomType?.bedCount() ?: 0
-
-private fun Property.specs(): List<Pair<ImageVector, String>> = buildList {
-    val beds = bedCount()
-    if (beds > 0) add(Icons.Outlined.KingBed to "$beds ${SavedStrings.SPEC_BEDS_LABEL}")
-    carpetArea?.let {
-        add(
-            Icons.Outlined.SquareFoot to "${indianNumberFormat.format(it.toInt())} ${SavedStrings.SPEC_SQFT_LABEL}"
-        )
-    }
-    furnishing?.let { add(Icons.Outlined.Chair to it.label) }
-}
-
-private fun Property.photoCountLabel(): String =
-    "${images.size}${SavedStrings.PHOTOS_SUFFIX}"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -356,11 +289,10 @@ private fun SavedPropertyList(
                     items = filteredProperties,
                     key = { it.id }
                 ) { property ->
-                    SavedPropertyCard(
+                    PropertyResultCard(
                         property = property,
                         onLike = { onLike(property.documentId ?: property.id) },
                         onClick = { onPropertyClick(property) },
-                        onMore = { },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -591,196 +523,6 @@ private fun CollectionCard(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(SavedDims.SEARCH_ICON_SIZE)
             )
         }
-    }
-}
-
-@Composable
-private fun SavedPropertyCard(
-    property: Property,
-    onLike: () -> Unit,
-    onClick: () -> Unit,
-    onMore: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(SavedDims.CARD_CORNER_RADIUS))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(SavedDims.CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = SavedDims.CARD_ELEVATION)
-    ) {
-        Row(
-            modifier = Modifier.padding(SavedDims.CARD_INNER_PADDING),
-            horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_INNER_PADDING),
-            verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(SavedDims.CARD_IMAGE_WIDTH)
-                    .height(SavedDims.CARD_IMAGE_HEIGHT)
-                    .clip(RoundedCornerShape(SavedDims.CARD_IMAGE_CORNER_RADIUS))
-            ) {
-                AsyncImage(
-                    model = property.images.firstOrNull()
-                        ?: "https://picsum.photos/seed/${property.id}/300/200",
-                    contentDescription = SavedStrings.CD_PROPERTY_IMAGE,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                if (property.images.size > 1) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_IMAGE_PHOTO_ICON_SPACING),
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(SavedDims.CARD_PHOTO_COUNT_PADDING)
-                            .clip(RoundedCornerShape(SavedDims.CARD_IMAGE_CORNER_RADIUS))
-                            .background(MediaScrim.copy(alpha = 0.55f))
-                            .padding(SavedDims.CARD_PHOTO_COUNT_PADDING)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.PhotoLibrary,
-                            contentDescription = SavedStrings.CD_PHOTO_LIBRARY,
-                            tint = OnMediaContent,
-                            modifier = Modifier.size(SavedDims.CARD_IMAGE_PHOTO_ICON_SIZE)
-                        )
-                        Text(
-                            text = property.photoCountLabel(),
-                            color = OnMediaContent,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(SavedDims.CARD_DETAILS_SPACING)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = property.statusLabel(),
-                        color = property.statusColor(),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(SavedDims.CARD_STATUS_CORNER_RADIUS))
-                            .background(property.statusBackground())
-                            .padding(
-                                horizontal = SavedDims.CARD_STATUS_HORIZONTAL_PADDING,
-                                vertical = SavedDims.CARD_STATUS_VERTICAL_PADDING
-                            )
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_ICON_SPACING)) {
-                        IconButton(
-                            onClick = onLike,
-                            modifier = Modifier.size(SavedDims.CARD_ACTION_ICON_SIZE)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = SavedStrings.CD_FAVORITE,
-                                tint = Error,
-                                modifier = Modifier.size(SavedDims.CARD_ACTION_ICON_SIZE)
-                            )
-                        }
-                        IconButton(
-                            onClick = onMore,
-                            modifier = Modifier.size(SavedDims.CARD_ACTION_ICON_SIZE)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = SavedStrings.CD_MORE_OPTIONS,
-                                tint = HomeTextSecondary,
-                                modifier = Modifier.size(SavedDims.CARD_ACTION_ICON_SIZE)
-                            )
-                        }
-                    }
-                }
-
-                Text(
-                    text = property.title,
-                    color = Black,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_ICON_SPACING)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = null,
-                        tint = HomeTextSecondary,
-                        modifier = Modifier.size(SavedDims.CARD_SMALL_ICON_SIZE)
-                    )
-                    Text(
-                        text = "${property.locality}, ${property.city}",
-                        color = HomeTextSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                val priceText = if (property.isProject()) {
-                    "${formatIndianPrice(property.price)} ${SavedStrings.PRICE_PROJECT_SUFFIX}"
-                } else {
-                    formatIndianPrice(property.price, property.isRentProperty())
-                }
-                Text(
-                    text = priceText,
-                    color = ControlAccent,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                val specs = property.specs()
-                if (specs.isNotEmpty()) {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_SPEC_SPACING),
-                        verticalArrangement = Arrangement.spacedBy(SavedDims.CARD_SPEC_SPACING)
-                    ) {
-                        specs.forEach { (icon, label) ->
-                            SavedSpecChip(icon = icon, label = label)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SavedSpecChip(icon: ImageVector, label: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SavedDims.CARD_ICON_SPACING)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = HomeTextSecondary,
-            modifier = Modifier.size(SavedDims.CARD_SMALL_ICON_SIZE)
-        )
-        Text(
-            text = label,
-            color = HomeTextSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 
