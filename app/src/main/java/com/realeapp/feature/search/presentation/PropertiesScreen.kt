@@ -26,7 +26,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -216,7 +215,6 @@ private fun PropertiesScreenContent(
                     .navigationBarsPadding(),
                 // Extra bottom space so the last card clears the floating glass nav capsule.
                 contentPadding = PaddingValues(
-                    top = PropertiesDims.RESULTS_LIST_VERTICAL_PADDING,
                     bottom = PropertiesDims.RESULTS_LIST_VERTICAL_PADDING + BOTTOM_NAV_CLEARANCE
                 ),
                 verticalArrangement = Arrangement.spacedBy(PropertiesDims.RESULTS_LIST_SPACING)
@@ -294,14 +292,14 @@ private fun PropertiesHeaderTitle(
             modifier = Modifier.weight(1f)
         )
 
-        IconButton(onClick = onOpenFilter) {
-            Icon(
-                imageVector = Icons.Filled.Tune,
-                contentDescription = PropertiesStrings.CD_FILTER,
-                tint = Black,
-                modifier = Modifier.size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
-            )
-        }
+        Icon(
+            imageVector = Icons.Filled.Tune,
+            contentDescription = PropertiesStrings.CD_FILTER,
+            tint = Black,
+            modifier = Modifier
+                .size(PropertiesDims.SEARCH_BAR_ICON_SIZE)
+                .clickable(onClick = onOpenFilter)
+        )
     }
 }
 

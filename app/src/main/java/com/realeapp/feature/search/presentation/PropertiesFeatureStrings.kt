@@ -79,8 +79,8 @@ internal object PropertiesDims {
 
     val RESULTS_HEADER_VERTICAL_PADDING = 2.dp
     val RESULTS_COUNT_FONT_SIZE = 14.sp
-    val SORT_FONT_SIZE = 10.sp
-    val HEADER_TITLE_FONT_SIZE = 12.sp
+    val SORT_FONT_SIZE = 12.sp
+    val HEADER_TITLE_FONT_SIZE = 13.sp
     val RESULTS_LIST_SPACING = 4.dp
     val RESULTS_LIST_VERTICAL_PADDING = 4.dp
 
