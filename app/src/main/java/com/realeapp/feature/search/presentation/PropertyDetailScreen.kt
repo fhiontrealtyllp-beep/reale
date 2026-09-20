@@ -462,8 +462,10 @@ private fun ThumbnailStrip(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         LazyRow(
-            modifier = Modifier.padding(DetailDims.THUMB_CARD_PADDING),
-            horizontalArrangement = Arrangement.spacedBy(DetailDims.THUMB_SPACING)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(DetailDims.THUMB_CARD_PADDING),
+            horizontalArrangement = Arrangement.spacedBy(DetailDims.THUMB_SPACING, Alignment.CenterHorizontally)
         ) {
             itemsIndexed(images.take(MAX_VISIBLE_THUMBS)) { index, url ->
                 val isOverflowTile = index == MAX_VISIBLE_THUMBS - 1 && images.size > MAX_VISIBLE_THUMBS
