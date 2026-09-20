@@ -685,7 +685,7 @@ private fun InfoSection(
                 Text(
                     text = formatIndianPrice(property.price, property.isRentProperty()),
                     color = ControlAccent,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 formatPricePerSqFt(property)?.let { perSqFt ->
