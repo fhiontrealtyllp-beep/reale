@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -71,6 +72,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -122,6 +125,8 @@ import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.ListingCategory
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.theme.FilterChipSelectedContainer
+import com.realeapp.ui.theme.FilterChipSelectedLabel
 import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
@@ -684,6 +689,40 @@ private fun InfoSection(
                         text = perSqFt,
                         color = HomeTextSecondary,
                         style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+
+        // Key highlights below price, e.g. "🏊 Private Pool", "🅿 Parking", "🏋 Gymnasium"
+        if (property.amenities.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING),
+                verticalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING)
+            ) {
+                property.amenities.forEach { amenity ->
+                    FilterChip(
+                        selected = true,
+                        onClick = {},
+                        label = { Text(amenityDisplayLabel(amenity)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = amenityDisplayIcon(amenity),
+                                contentDescription = null,
+                                modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = FilterChipSelectedContainer,
+                            selectedLabelColor = FilterChipSelectedLabel,
+                            selectedLeadingIconColor = FilterChipSelectedLabel
+                        ),
+                        elevation = FilterChipDefaults.filterChipElevation(
+                            elevation = SearchDims.FILTER_CHIP_ELEVATION
+                        ),
+                        border = null,
+                        shape = CircleShape
                     )
                 }
             }
