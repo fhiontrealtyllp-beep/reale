@@ -20,7 +20,7 @@ internal object ProfileStrings {
 
     const val LIST_PROPERTY_TITLE = "List Your Property"
     const val LIST_PROPERTY_SUBTITLE = "Sell or rent your property in just a few steps."
-    const val LIST_PROPERTY_BUTTON = "List Property"
+    const val LIST_PROPERTY_BUTTON = "List My Property"
     const val CD_LIST_PROPERTY_IMAGE = "List property"
     const val CD_LIST_PROPERTY_ARROW = "List property"
 
@@ -162,9 +162,9 @@ internal object ProfileDims {
     val BANNER_SUBTITLE_FONT_SIZE = 12.sp
     val BANNER_TITLE_SUBTITLE_SPACING = 4.dp
     val BANNER_CONTENT_SPACING = 10.dp
-    val BANNER_BUTTON_FONT_SIZE = 12.sp
+    val BANNER_BUTTON_FONT_SIZE = 16.sp
     val BANNER_BUTTON_ICON_SPACING = 4.dp
-    val BANNER_ARROW_ICON_SIZE = 18.dp
+    val BANNER_ARROW_ICON_SIZE = 19.dp
 
     val MENU_ITEM_VERTICAL_PADDING = 16.dp
     val MENU_ITEM_ICON_SIZE = 44.dp

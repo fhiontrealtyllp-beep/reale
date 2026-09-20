@@ -962,65 +962,18 @@ private fun ListPropertyBanner(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(ProfileDims.LIST_PROPERTY_BANNER_HEIGHT),
-        shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = ControlAccent.copy(alpha = 0.08f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = ProfileDims.LIST_PROPERTY_BANNER_ELEVATION)
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BUTTON_CORNER_RADIUS),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = BrandCoral,
+            contentColor = OnBrandContent
+        ),
+        contentPadding = PaddingValues(vertical = ProfileDims.BANNER_CONTENT_SPACING)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ProfileDims.CARD_INNER_PADDING),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(ProfileDims.LIST_PROPERTY_IMAGE_WIDTH)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(ProfileDims.LIST_PROPERTY_BANNER_IMAGE_CORNER_RADIUS))
-                    .background(ControlAccent.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Home,
-                    contentDescription = ProfileStrings.CD_LIST_PROPERTY_IMAGE,
-                    tint = ControlAccent,
-                    modifier = Modifier.size(ProfileDims.LIST_PROPERTY_IMAGE_ICON_SIZE)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(ProfileDims.BANNER_CONTENT_SPACING))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = ProfileStrings.LIST_PROPERTY_TITLE,
-                    color = Black,
-                    fontSize = ProfileDims.BANNER_TITLE_FONT_SIZE,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(ProfileDims.BANNER_TITLE_SUBTITLE_SPACING))
-                Text(
-                    text = ProfileStrings.LIST_PROPERTY_SUBTITLE,
-                    color = HomeTextSecondary,
-                    fontSize = ProfileDims.BANNER_SUBTITLE_FONT_SIZE
-                )
-            }
-
-            Spacer(modifier = Modifier.width(ProfileDims.BANNER_CONTENT_SPACING))
-
-            Button(
-                onClick = onClick,
-                modifier = Modifier.height(ProfileDims.LIST_PROPERTY_BUTTON_HEIGHT),
-                shape = RoundedCornerShape(ProfileDims.LIST_PROPERTY_BUTTON_CORNER_RADIUS),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandCoral,
-                    contentColor = OnBrandContent
-                ),
-                contentPadding = PaddingValues(horizontal = ProfileDims.LIST_PROPERTY_BUTTON_HORIZONTAL_PADDING)
-            ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = ProfileStrings.LIST_PROPERTY_BUTTON,
                     fontSize = ProfileDims.BANNER_BUTTON_FONT_SIZE,
@@ -1030,10 +983,14 @@ private fun ListPropertyBanner(
                 Spacer(modifier = Modifier.width(ProfileDims.BANNER_BUTTON_ICON_SPACING))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = ProfileStrings.CD_LIST_PROPERTY_ARROW,
+                    contentDescription = null,
                     modifier = Modifier.size(ProfileDims.BANNER_ARROW_ICON_SIZE)
                 )
             }
+            Text(
+                text = ProfileStrings.LIST_PROPERTY_SUBTITLE,
+                fontSize = ProfileDims.BANNER_SUBTITLE_FONT_SIZE
+            )
         }
     }
 }
