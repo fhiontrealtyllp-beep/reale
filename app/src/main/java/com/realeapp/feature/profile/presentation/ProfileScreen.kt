@@ -334,15 +334,6 @@ private fun ProfileContent(
                     }
                 )
             )
-            add(
-                ProfileMenuItem(
-                    icon = Icons.Outlined.Description,
-                    title = ProfileStrings.MY_ENQUIRIES,
-                    subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
-                    contentDescription = ProfileStrings.MY_ENQUIRIES,
-                    onClick = onMyEnquiriesClick
-                )
-            )
             if (hasDraft) {
                 add(
                     ProfileMenuItem(
