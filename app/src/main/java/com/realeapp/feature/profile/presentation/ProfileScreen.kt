@@ -648,6 +648,7 @@ private fun ProfileCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Cover image with overlapping avatar at bottom center
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -682,6 +683,7 @@ private fun ProfileCard(
 
             Spacer(modifier = Modifier.height(ProfileDims.PROFILE_HEADER_CONTENT_SPACING))
 
+            // Name row with edit icon, e.g. "John Doe ✏️"
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(ProfileDims.PROFILE_NAME_EDIT_SPACING)
@@ -708,21 +710,29 @@ private fun ProfileCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+            // Email shown only when available, e.g. "john@example.com"
+            if (!user?.email.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+                Text(
+                    text = user.email,
+                    color = HomeTextSecondary,
+                    fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            // Phone shown only when available, e.g. "9876543210"
+            if (!user?.phone.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+                Text(
+                    text = user.phone,
+                    color = HomeTextSecondary,
+                    fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
+                )
+            }
 
-            Text(
-                text = user?.email.orEmpty(),
-                color = HomeTextSecondary,
-                fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = user?.phone.orEmpty(),
-                color = HomeTextSecondary,
-                fontSize = ProfileDims.PROFILE_DETAIL_FONT_SIZE
-            )
-
+            // Verified badges shown only when phone or email exists,
+            // e.g. "✅ Phone Verified" | "📧 Email Verified"
             if (!user?.phone.isNullOrBlank() || !user?.email.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
 
@@ -746,6 +756,7 @@ private fun ProfileCard(
                 }
             }
 
+            // Address row, e.g. "📍 Porvorim, Goa  Change"
             AddressRow(
                 address = address,
                 onActionClick = onChangeAddressClick,
@@ -755,6 +766,8 @@ private fun ProfileCard(
     }
 }
 
+// Address row: shows location icon + address text + "Change" or "Add address" action.
+// e.g. "📍 Porvorim, Goa  [Change]" or "📍 No address added  [Add address]"
 @Composable
 private fun AddressRow(
     address: String,
@@ -791,6 +804,8 @@ private fun AddressRow(
     }
 }
 
+// Guest profile card shown when user is not logged in.
+// Displays placeholder avatar, "Guest" name, subtitle, address row, and login button.
 @Composable
 private fun GuestProfileCard(
     address: String,
@@ -810,6 +825,7 @@ private fun GuestProfileCard(
                 .padding(ProfileDims.CARD_INNER_PADDING),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Placeholder avatar with person icon
             Box(
                 modifier = Modifier
                     .size(ProfileDims.AVATAR_SIZE)
@@ -827,6 +843,7 @@ private fun GuestProfileCard(
 
             Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
 
+            // Guest name, e.g. "Guest"
             Text(
                 text = ProfileStrings.GUEST_NAME,
                 color = Black,
@@ -834,6 +851,7 @@ private fun GuestProfileCard(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(ProfileDims.PROFILE_DETAIL_SPACING))
+            // Subtitle, e.g. "Login to view your profile"
             Text(
                 text = ProfileStrings.GUEST_SUBTITLE,
                 color = HomeTextSecondary,
@@ -850,6 +868,7 @@ private fun GuestProfileCard(
 
             Spacer(modifier = Modifier.height(ProfileDims.VERIFIED_BADGE_TOP_SPACING))
 
+            // Full-width login button, e.g. "Login"
             Button(
                 onClick = onLoginClick,
                 modifier = Modifier
@@ -912,6 +931,7 @@ private fun ProfileAvatar(
             )
         }
 
+        // Upload spinner shown while image is being uploaded
         if (isImageUploading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(ProfileDims.AVATAR_PROGRESS_SIZE),
@@ -922,6 +942,7 @@ private fun ProfileAvatar(
     }
 }
 
+// Small pill badge, e.g. "✅ Phone Verified" or "📧 Email Verified"
 @Composable
 private fun VerifiedBadge(
     icon: ImageVector,
@@ -958,6 +979,7 @@ private fun VerifiedBadge(
     }
 }
 
+// Full-width CTA button, e.g. "List My Property →" with subtitle below.
 @Composable
 private fun ListPropertyBanner(
     onClick: () -> Unit,
@@ -996,6 +1018,7 @@ private fun ListPropertyBanner(
     }
 }
 
+// Menu section with title and card containing rows, e.g. "My Activity" or "Account".
 @Composable
 private fun ProfileMenuSection(
     title: String,
@@ -1003,6 +1026,7 @@ private fun ProfileMenuSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+        // Section title, e.g. "My Activity"
         Text(
             text = title,
             color = Black,
@@ -1034,6 +1058,8 @@ private fun ProfileMenuSection(
     }
 }
 
+// Single menu row: icon box + title/subtitle + chevron arrow.
+// e.g. "[🏠] My Listings — Manage your properties  >"
 @Composable
 private fun ProfileMenuRow(item: ProfileMenuItem) {
     Row(
@@ -1046,6 +1072,7 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Rounded icon box with tinted background
         Box(
             modifier = Modifier
                 .size(ProfileDims.MENU_ITEM_ICON_SIZE)
@@ -1063,6 +1090,7 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
 
         Spacer(modifier = Modifier.width(ProfileDims.MENU_ITEM_ICON_TEXT_SPACING))
 
+        // Title and optional subtitle, e.g. "My Listings" / "Manage your properties"
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,
@@ -1080,6 +1108,7 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
             }
         }
 
+        // Trailing chevron arrow
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = ProfileStrings.CD_ARROW,
@@ -1089,6 +1118,7 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
     }
 }
 
+// Edit profile dialog with name, phone (max 10 digits), email, and address fields.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileDialog(
