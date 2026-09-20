@@ -127,8 +127,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.ListingCategory
-import com.realeapp.feature.search.domain.model.NearbyPlace
-import com.realeapp.feature.search.domain.model.NearbyPlaceType
+
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
@@ -640,23 +639,26 @@ private fun InfoSection(
             .padding(horizontal = DetailDims.SCREEN_PADDING),
         verticalArrangement = Arrangement.spacedBy(DetailDims.CONTENT_SPACING)
     ) {
-        property.rentBuy?.let { rentBuy ->
-            // For Rent/ For Sale
+        // Property summary tag, e.g. "Residential Apartment for Buy"
+        val propertySummary = buildPropertySummary(property)
+        if (propertySummary.isNotBlank()) {
             Text(
-                text = if (rentBuy == RentBuy.RENT) DetailStrings.BADGE_FOR_RENT else DetailStrings.BADGE_FOR_SALE,
+                text = propertySummary,
                 color = ControlAccent,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
         }
 
+        // Property title, e.g. "Luxury 3 BHK Apartment"
         Text(
             text = property.title,
             color = Black,
-           style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
 
+        // Location row with pin icon, e.g. "📍 Panjim, Goa"
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DetailDims.CONTENT_SPACING_SMALL)
@@ -674,6 +676,7 @@ private fun InfoSection(
             )
         }
 
+        // Price row, e.g. "₹1.25 Cr" with optional "₹6,944 per sq ft" below
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -693,40 +696,9 @@ private fun InfoSection(
                     )
                 }
             }
-            if (property.rentBuy == RentBuy.BUY) {
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(DetailDims.LOAN_PILL_CORNER_RADIUS))
-                        .background(ControlAccent.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
-                        .padding(
-                            horizontal = DetailDims.LOAN_PILL_HORIZONTAL_PADDING,
-                            vertical = DetailDims.LOAN_PILL_VERTICAL_PADDING
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DetailDims.LOAN_PILL_CONTENT_SPACING)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AccountBalance,
-                        contentDescription = null,
-                        tint = ControlAccent,
-                        modifier = Modifier.size(DetailDims.LOAN_ICON_SIZE)
-                    )
-                    Text(
-                        text = DetailStrings.ACTION_GET_HOME_LOAN,
-                        color = ControlAccent,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = ControlAccent,
-                        modifier = Modifier.size(DetailDims.LOAN_CHEVRON_SIZE)
-                    )
-                }
-            }
         }
 
+        // Enquiry count pill, e.g. "💬 3 Enquiries" (owner-only)
         if (enquiryCount != null) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -990,159 +962,77 @@ private fun LocationContent(property: Property) {
     val apiKey = remember { readMapApiKey(context) }
     val lat = property.latitude
     val lng = property.longitude
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(DetailDims.LOCATION_CONTENT_SPACING)
-    ) {
-        if (lat != null && lng != null && !apiKey.isNullOrBlank() && apiKey != DetailStrings.MAPS_KEY_PLACEHOLDER) {
-            val propertyLatLng = LatLng(lat, lng)
-            val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(propertyLatLng, MAP_ZOOM_LEVEL)
-            }
-            var isMapLoaded by remember { mutableStateOf(false) }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(DetailDims.MAP_HEIGHT)
-                    .clip(RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS))
-            ) {
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState,
-                    properties = MapProperties(),
-                    uiSettings = MapUiSettings(
-                        zoomControlsEnabled = false,
-                        myLocationButtonEnabled = false
-                    ),
-                    mapColorScheme = if (IsDarkAppTheme) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
-                    onMapLoaded = { isMapLoaded = true }
-                ) {
-                    Marker(
-                        state = MarkerState(position = propertyLatLng),
-                        title = property.title,
-                        snippet = buildShortLocation(property)
-                    )
-                }
-
-                // Map loading UI remains visible until Google Maps reports readiness.
-                if (!isMapLoaded) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = ControlAccent
-                    )
-                }
-            }
-        } else {
-            // Address-only location UI used when an interactive map cannot be displayed.
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(DetailDims.MAP_HEIGHT)
-                    .clip(RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS))
-                    .border(
-                        width = DetailDims.BORDER_WIDTH,
-                        color = HomeSearchBarBorder,
-                        shape = RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS)
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(
-                    DetailDims.MAP_PLACEHOLDER_SPACING,
-                    Alignment.CenterHorizontally
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.LocationOn,
-                    contentDescription = null,
-                    tint = ControlAccent,
-                    modifier = Modifier.size(DetailDims.MAP_PLACEHOLDER_ICON_SIZE)
-                )
-                Text(
-                    text = buildShortLocation(property),
-                    color = HomeTextSecondary,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
-            }
+    if (lat != null && lng != null && !apiKey.isNullOrBlank() && apiKey != DetailStrings.MAPS_KEY_PLACEHOLDER) {
+        val propertyLatLng = LatLng(lat, lng)
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(propertyLatLng, MAP_ZOOM_LEVEL)
         }
+        var isMapLoaded by remember { mutableStateOf(false) }
 
-        NearbyPlacesCard(
-            nearbyPlaces = property.nearbyPlaces,
-            modifier = Modifier.width(DetailDims.NEARBY_CARD_WIDTH)
-        )
-    }
-}
-
-@Composable
-private fun NearbyPlacesCard(
-    nearbyPlaces: List<NearbyPlace>,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.height(DetailDims.MAP_HEIGHT),
-        shape = RoundedCornerShape(DetailDims.LOCATION_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        border = BorderStroke(DetailDims.BORDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Column(
-            modifier = Modifier.padding(DetailDims.NEARBY_CARD_PADDING),
-            verticalArrangement = Arrangement.spacedBy(DetailDims.NEARBY_ITEM_SPACING)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(DetailDims.MAP_HEIGHT)
+                .clip(RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS))
         ) {
-            Text(
-                text = DetailStrings.SECTION_NEARBY_PLACES,
-                color = Black,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            if (nearbyPlaces.isEmpty()) {
-                Text(
-                    text = DetailStrings.NO_NEARBY_PLACES,
-                    color = HomeTextSecondary,
-                    fontSize = 13.sp
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(),
+                uiSettings = MapUiSettings(
+                    zoomControlsEnabled = false,
+                    myLocationButtonEnabled = false
+                ),
+                mapColorScheme = if (IsDarkAppTheme) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
+                onMapLoaded = { isMapLoaded = true }
+            ) {
+                Marker(
+                    state = MarkerState(position = propertyLatLng),
+                    title = property.title,
+                    snippet = buildShortLocation(property)
                 )
-            } else {
-                nearbyPlaces.forEach { place ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DetailDims.NEARBY_ITEM_SPACING)
-                    ) {
-                        Icon(
-                            imageVector = nearbyPlaceIcon(place.type),
-                            contentDescription = null,
-                            tint = ControlAccent,
-                            modifier = Modifier.size(DetailDims.NEARBY_ITEM_ICON_SIZE)
-                        )
-                        Text(
-                            text = place.name,
-                            color = Black,
-                            fontSize = DetailDims.NEARBY_ITEM_NAME_FONT_SIZE,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = String.format(
-                                Locale.ROOT,
-                                DetailStrings.NEARBY_DISTANCE_FORMAT,
-                                place.distanceKm
-                            ),
-                            color = HomeTextSecondary,
-                            fontSize = DetailDims.NEARBY_ITEM_DISTANCE_FONT_SIZE
-                        )
-                    }
-                }
+            }
+
+            // Map loading UI remains visible until Google Maps reports readiness.
+            if (!isMapLoaded) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = ControlAccent
+                )
             }
         }
+    } else {
+        // Address-only location UI used when an interactive map cannot be displayed.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(DetailDims.MAP_HEIGHT)
+                .clip(RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS))
+                .border(
+                    width = DetailDims.BORDER_WIDTH,
+                    color = HomeSearchBarBorder,
+                    shape = RoundedCornerShape(DetailDims.MAP_CORNER_RADIUS)
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(
+                DetailDims.MAP_PLACEHOLDER_SPACING,
+                Alignment.CenterHorizontally
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Filled.LocationOn,
+                contentDescription = null,
+                tint = ControlAccent,
+                modifier = Modifier.size(DetailDims.MAP_PLACEHOLDER_ICON_SIZE)
+            )
+            Text(
+                text = buildShortLocation(property),
+                color = HomeTextSecondary,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
+        }
     }
-}
-
-private fun nearbyPlaceIcon(type: NearbyPlaceType): ImageVector = when (type) {
-    NearbyPlaceType.SCHOOL -> Icons.Filled.School
-    NearbyPlaceType.SHOPPING -> Icons.Filled.ShoppingCart
-    NearbyPlaceType.HOSPITAL -> Icons.Filled.LocalHospital
-    NearbyPlaceType.OTHER -> Icons.Filled.LocationOn
 }
 
 @Composable
@@ -1211,10 +1101,7 @@ private fun DetailBottomBar(
 }
 
 private fun propertyHasDetails(property: Property): Boolean {
-    return property.rentBuy != null ||
-        property.residentialCommercial != null ||
-        property.propertyType != null ||
-        property.bedroomType != null ||
+    return property.bedroomType != null ||
         property.bathrooms?.takeIf { it > 0 } != null ||
         property.furnishing != null ||
         property.facing != null ||
@@ -1231,9 +1118,6 @@ private fun propertyHasDetails(property: Property): Boolean {
 }
 
 private fun detailRows(property: Property): List<Pair<String, String>> = buildList {
-    add(DetailStrings.LABEL_TRANSACTION_TYPE to (property.rentBuy?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_PROPERTY_CATEGORY to (property.residentialCommercial?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_PROPERTY_TYPE to (property.propertyType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_CONFIGURATION to (property.bedroomType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_BEDROOMS to (bedroomCount(property.bedroomType).takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_BATHROOMS to (property.bathrooms?.takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
@@ -1334,6 +1218,15 @@ private fun DetailsSectionPreview() {
     RealeTheme {
         DetailsSection(property = PreviewData.sampleProperty)
     }
+}
+
+private fun buildPropertySummary(property: Property): String {
+    val parts = listOfNotNull(
+        property.residentialCommercial?.label,
+        property.propertyType?.label,
+        property.rentBuy?.let { DetailStrings.SUMMARY_FOR_PREFIX + it.label }
+    )
+    return parts.joinToString(DetailStrings.SUMMARY_SEPARATOR)
 }
 
 private fun buildShortLocation(property: Property): String {

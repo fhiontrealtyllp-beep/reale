@@ -242,6 +242,9 @@ internal object DetailStrings {
 
     const val SQ_FT_SUFFIX = " sq ft"
 
+    const val SUMMARY_FOR_PREFIX = "for "
+    const val SUMMARY_SEPARATOR = " "
+
     const val CD_BACK = "Back"
     const val CD_LIKE = "Like"
     const val CD_SHARE = "Share"
