@@ -37,8 +37,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Chair
@@ -53,17 +51,12 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.HolidayVillage
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.Kitchen
-import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.LocalParking
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Power
@@ -71,7 +64,6 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.SquareFoot
-import androidx.compose.material.icons.filled._360
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
@@ -106,10 +98,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
-import com.realeapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -124,17 +116,17 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.realeapp.R
 import com.realeapp.feature.search.domain.model.Amenity
 import com.realeapp.feature.search.domain.model.BedroomType
 import com.realeapp.feature.search.domain.model.ListingCategory
-
 import com.realeapp.feature.search.domain.model.Property
-import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
+import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.AppBackground
 import com.realeapp.ui.theme.Black
-import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.BrandCoral
+import com.realeapp.ui.theme.ControlAccent
 import com.realeapp.ui.theme.Error
 import com.realeapp.ui.theme.HomeCategoryUnselected
 import com.realeapp.ui.theme.HomeSearchBarBorder
@@ -144,15 +136,14 @@ import com.realeapp.ui.theme.MediaScrim
 import com.realeapp.ui.theme.OnBrandContent
 import com.realeapp.ui.theme.OnControlAccent
 import com.realeapp.ui.theme.OnMediaContent
-import com.realeapp.ui.theme.White
-import com.realeapp.ui.preview.PreviewData
 import com.realeapp.ui.theme.RealeTheme
-import androidx.compose.ui.tooling.preview.Preview
+import com.realeapp.ui.theme.White
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.roundToLong
 
 
 private const val MIN_ZOOM = 1f
@@ -748,47 +739,7 @@ private fun StatsCard(property: Property) {
 
     if (stats.isEmpty()) return
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = DetailDims.SCREEN_PADDING)
-            .padding(top = DetailDims.SECTION_SPACING),
-        shape = RoundedCornerShape(DetailDims.STATS_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        border = BorderStroke(DetailDims.BORDER_WIDTH, HomeSearchBarBorder)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = DetailDims.STATS_CARD_VERTICAL_PADDING),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            stats.forEach { stat ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(DetailDims.STAT_ITEM_SPACING)
-                ) {
-                    Icon(
-                        imageVector = stat.icon,
-                        contentDescription = null,
-                        tint = ControlAccent,
-                        modifier = Modifier.size(DetailDims.STAT_ICON_SIZE)
-                    )
-                    Text(
-                        text = stat.value,
-                        color = Black,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = stat.label,
-                        color = HomeTextSecondary,
-                        fontSize = 11.sp
-                    )
-                }
-            }
-        }
-    }
+
 }
 
 @Composable
@@ -801,6 +752,7 @@ private fun SectionTitle(text: String) {
     )
 }
 
+// Overview section with expandable description text and "Read More" / "Read Less" toggle.
 @Composable
 private fun OverviewSection(description: String) {
     var expanded by remember { mutableStateOf(false) }
@@ -812,6 +764,7 @@ private fun OverviewSection(description: String) {
         verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
     ) {
         SectionTitle(text = DetailStrings.SECTION_OVERVIEW)
+        // Description text, e.g. "Spacious and well ventilated apartment with modern fittings..."
         Text(
             text = description,
             color = HomeTextSecondary,
@@ -820,6 +773,7 @@ private fun OverviewSection(description: String) {
             maxLines = if (expanded) Int.MAX_VALUE else DESCRIPTION_COLLAPSED_LINES,
             overflow = TextOverflow.Ellipsis
         )
+        // Toggle link, e.g. "Read More ▼" or "Read Less ▲"
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.clickable { expanded = !expanded }
@@ -840,6 +794,7 @@ private fun OverviewSection(description: String) {
     }
 }
 
+// Key highlights grid, e.g. "🏊 Private Pool  |  🍳 Modular Kitchen  |  🅿 Covered Parking"
 @Composable
 private fun HighlightsSection(amenities: List<Amenity>) {
     Column(
@@ -850,6 +805,7 @@ private fun HighlightsSection(amenities: List<Amenity>) {
         verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
     ) {
         SectionTitle(text = DetailStrings.SECTION_HIGHLIGHTS)
+        // Amenities laid out in rows of HIGHLIGHTS_PER_ROW, e.g. "🏋 Gymnasium  |  📹 CCTV"
         Column(verticalArrangement = Arrangement.spacedBy(DetailDims.HIGHLIGHT_ROW_SPACING)) {
             amenities.chunked(HIGHLIGHTS_PER_ROW).forEach { rowItems ->
                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -928,6 +884,7 @@ private fun buildLocationString(property: Property): String {
     }
 }
 
+// Location section with "Location" title, "View on Map" link, and map/address content.
 @Composable
 private fun LocationSection(property: Property) {
     val context = LocalContext.current
@@ -938,6 +895,7 @@ private fun LocationSection(property: Property) {
             .padding(top = DetailDims.SECTION_SPACING),
         verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
     ) {
+        // Header row, e.g. "Location" on left, "View on Map" link on right
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -956,12 +914,14 @@ private fun LocationSection(property: Property) {
     }
 }
 
+// Interactive Google Map with marker, or address-only fallback when map is unavailable.
 @Composable
 private fun LocationContent(property: Property) {
     val context = LocalContext.current
     val apiKey = remember { readMapApiKey(context) }
     val lat = property.latitude
     val lng = property.longitude
+    // Google Map with pin, e.g. marker at "Luxury 3 BHK Apartment – Panjim, Goa"
     if (lat != null && lng != null && !apiKey.isNullOrBlank() && apiKey != DetailStrings.MAPS_KEY_PLACEHOLDER) {
         val propertyLatLng = LatLng(lat, lng)
         val cameraPositionState = rememberCameraPositionState {
@@ -1035,6 +995,7 @@ private fun LocationContent(property: Property) {
     }
 }
 
+// Sticky bottom bar with "Call" and "Enquire Now" buttons.
 @Composable
 private fun DetailBottomBar(
     phone: String,
@@ -1052,6 +1013,7 @@ private fun DetailBottomBar(
                 .padding(DetailDims.BOTTOM_BAR_PADDING),
             horizontalArrangement = Arrangement.spacedBy(DetailDims.BOTTOM_BUTTON_SPACING)
         ) {
+            // Outlined "Call" button, e.g. "📞 Call"
             OutlinedButton(
                 onClick = onCall,
                 enabled = phone.isNotBlank(),
@@ -1073,6 +1035,7 @@ private fun DetailBottomBar(
                     fontWeight = FontWeight.Bold
                 )
             }
+            // Filled "Enquire Now" button, e.g. "💬 Enquire Now"
             Button(
                 onClick = onEnquire,
                 enabled = true,
@@ -1150,6 +1113,7 @@ private fun formatPostedOn(createdAt: String): String {
     }
 }
 
+// Property details table, e.g. "Configuration → 3 BHK", "Furnishing → Fully Furnished", etc.
 @Composable
 private fun DetailsSection(property: Property) {
     Column(
@@ -1159,7 +1123,7 @@ private fun DetailsSection(property: Property) {
             .padding(top = DetailDims.SECTION_SPACING),
         verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
     ) {
-        SectionTitle(text = DetailStrings.SECTION_DETAILS)
+        // Bordered card with label–value rows separated by dividers
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(DetailDims.STATS_CARD_CORNER_RADIUS),
@@ -1188,6 +1152,7 @@ private fun DetailsSection(property: Property) {
     }
 }
 
+// Single label–value row inside the details card, e.g. "Carpet Area" → "1,200 sq ft"
 @Composable
 private fun DetailRow(label: String, value: String) {
     Row(
@@ -1258,8 +1223,10 @@ private fun formatAreaValue(area: Double): String {
 private fun formatPricePerSqFt(property: Property): String? {
     val area = primaryArea(property) ?: return null
     if (area <= 0.0 || property.price <= 0.0) return null
+    val raw = property.price / area
+    if (raw < 1.0) return null
     val perSqFt = NumberFormat.getNumberInstance(Locale.forLanguageTag(DetailStrings.INDIA_LOCALE_TAG))
-        .format((property.price / area).toLong())
+        .format(raw.roundToLong())
     return SearchStrings.RUPEE + " " + perSqFt + DetailStrings.PER_SQ_FT_SUFFIX
 }
 
