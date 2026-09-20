@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -103,6 +104,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import com.realeapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -319,14 +323,25 @@ private fun HeroSection(
                 .fillMaxWidth()
                 .height(DetailDims.HERO_HEIGHT)
         ) {
-            AsyncImage(
-                model = images[selectedImage.coerceIn(0, images.lastIndex)],
-                contentDescription = property.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onImageClick)
-            )
+            if (LocalInspectionMode.current) {
+                Image(
+                    painter = painterResource(R.drawable.ic_welcome_home),
+                    contentDescription = property.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = onImageClick)
+                )
+            } else {
+                AsyncImage(
+                    model = images[selectedImage.coerceIn(0, images.lastIndex)],
+                    contentDescription = property.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = onImageClick)
+                )
+            }
 
             // Top overlay UI: back, favorite, and share actions over the image.
             Row(
@@ -359,70 +374,6 @@ private fun HeroSection(
                 }
             }
 
-            // Photo-count badge UI opening the full-screen gallery.
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(
-                        start = DetailDims.HERO_OVERLAY_PADDING,
-                        bottom = DetailDims.HERO_BOTTOM_CONTENT_PADDING
-                    )
-                    .clip(RoundedCornerShape(DetailDims.BADGE_CORNER_RADIUS))
-                    .background(MediaScrim.copy(alpha = DetailDims.OVERLAY_SCRIM_ALPHA))
-                    .clickable(onClick = onShowPhotos)
-                    .padding(
-                        horizontal = DetailDims.BADGE_HORIZONTAL_PADDING,
-                        vertical = DetailDims.BADGE_VERTICAL_PADDING
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(DetailDims.BADGE_CONTENT_SPACING)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Image,
-                    contentDescription = null,
-                    tint = OnMediaContent,
-                    modifier = Modifier.size(DetailDims.BADGE_ICON_SIZE)
-                )
-                Text(
-                    text = "${images.size}${DetailStrings.PHOTOS_COUNT_SUFFIX}",
-                    color = OnMediaContent,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            // Media switcher UI: photos, map scroll, and a 360 placeholder.
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(
-                        end = DetailDims.HERO_OVERLAY_PADDING,
-                        bottom = DetailDims.HERO_BOTTOM_CONTENT_PADDING
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(DetailDims.MEDIA_PILL_SPACING)
-            ) {
-                MediaPill(
-                    icon = Icons.Filled.Image,
-                    label = DetailStrings.MEDIA_PHOTOS,
-                    contentDescription = DetailStrings.CD_PHOTOS,
-                    selected = true,
-                    onClick = onShowPhotos
-                )
-                MediaPill(
-                    icon = Icons.Filled.Map,
-                    label = DetailStrings.MEDIA_MAP,
-                    contentDescription = DetailStrings.CD_VIEW_MAP,
-                    selected = false,
-                    onClick = onShowMap
-                )
-                MediaPill(
-                    icon = Icons.Filled._360,
-                    label = DetailStrings.MEDIA_360,
-                    contentDescription = DetailStrings.CD_VIRTUAL_TOUR,
-                    selected = false,
-                    onClick = null
-                )
-            }
         }
 
         ThumbnailStrip(
@@ -507,8 +458,8 @@ private fun ThumbnailStrip(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(DetailDims.THUMB_CARD_CORNER_RADIUS),
-        colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(defaultElevation = DetailDims.THUMB_CARD_ELEVATION)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         LazyRow(
             modifier = Modifier.padding(DetailDims.THUMB_CARD_PADDING),
@@ -534,12 +485,21 @@ private fun ThumbnailStrip(
                         )
                         .clickable { onSelect(index) }
                 ) {
-                    AsyncImage(
-                        model = url,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (LocalInspectionMode.current) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_welcome_home),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                     if (isOverflowTile) {
                         Box(
                             modifier = Modifier
