@@ -81,7 +81,7 @@ object PreviewData {
         address = "123 Main Road, Near Miramar Beach",
         latitude = 15.4909,
         longitude = 73.8278,
-        images = randomPropertyImages(5),
+        images = randomPropertyImages(2),
         isLiked = true,
         rating = 4.5,
         agentPhone = "+91 98765 43210",
