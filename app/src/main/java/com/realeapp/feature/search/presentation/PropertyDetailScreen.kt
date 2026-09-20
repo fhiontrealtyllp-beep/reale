@@ -161,7 +161,6 @@ private const val MAX_VISIBLE_THUMBS = 5
 private const val MAX_STATS = 5
 private const val DESCRIPTION_COLLAPSED_LINES = 3
 private const val ITEMS_BEFORE_SECTIONS = 3
-private const val HIGHLIGHTS_PER_ROW = 2
 
 
 @Composable
@@ -189,13 +188,11 @@ fun PropertyDetailScreen(
 
     val hasDetails = propertyHasDetails(property)
     val hasOverview = property.description.isNotBlank()
-    val hasHighlights = property.amenities.isNotEmpty()
     val hasLocation = (property.latitude != null && property.longitude != null) ||
         !property.address.isNullOrBlank() || property.city.isNotBlank()
     val locationItemIndex = ITEMS_BEFORE_SECTIONS +
         (if (hasDetails) 1 else 0) +
-        (if (hasOverview) 1 else 0) +
-        (if (hasHighlights) 1 else 0)
+        (if (hasOverview) 1 else 0)
 
     Scaffold(
         modifier = modifier,
@@ -260,12 +257,6 @@ fun PropertyDetailScreen(
             if (hasOverview) {
                 item {
                     OverviewSection(description = property.description)
-                }
-            }
-
-            if (hasHighlights) {
-                item {
-                    HighlightsSection(amenities = property.amenities)
                 }
             }
 
@@ -781,15 +772,6 @@ private fun StatsCard(property: Property) {
 
 }
 
-@Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text = text,
-        color = Black,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Bold
-    )
-}
 
 // Overview section with expandable description text and "Read More" / "Read Less" toggle.
 @Composable
@@ -802,7 +784,6 @@ private fun OverviewSection(description: String) {
             .padding(top = DetailDims.SECTION_SPACING),
         verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
     ) {
-        SectionTitle(text = DetailStrings.SECTION_OVERVIEW)
         // Description text, e.g. "Spacious and well ventilated apartment with modern fittings..."
         Text(
             text = description,
@@ -829,49 +810,6 @@ private fun OverviewSection(description: String) {
                 tint = ControlAccent,
                 modifier = Modifier.size(DetailDims.READ_MORE_ICON_SIZE)
             )
-        }
-    }
-}
-
-// Key highlights grid, e.g. "🏊 Private Pool  |  🍳 Modular Kitchen  |  🅿 Covered Parking"
-@Composable
-private fun HighlightsSection(amenities: List<Amenity>) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = DetailDims.SCREEN_PADDING)
-            .padding(top = DetailDims.SECTION_SPACING),
-        verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
-    ) {
-        SectionTitle(text = DetailStrings.SECTION_HIGHLIGHTS)
-        // Amenities laid out in rows of HIGHLIGHTS_PER_ROW, e.g. "🏋 Gymnasium  |  📹 CCTV"
-        Column(verticalArrangement = Arrangement.spacedBy(DetailDims.HIGHLIGHT_ROW_SPACING)) {
-            amenities.chunked(HIGHLIGHTS_PER_ROW).forEach { rowItems ->
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    rowItems.forEach { amenity ->
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(DetailDims.HIGHLIGHT_ITEM_SPACING)
-                        ) {
-                            Icon(
-                                imageVector = amenityDisplayIcon(amenity),
-                                contentDescription = null,
-                                tint = ControlAccent,
-                                modifier = Modifier.size(DetailDims.HIGHLIGHT_ICON_SIZE)
-                            )
-                            Text(
-                                text = amenityDisplayLabel(amenity),
-                                color = Black,
-                                fontSize = DetailDims.HIGHLIGHT_LABEL_FONT_SIZE
-                            )
-                        }
-                    }
-                    repeat(HIGHLIGHTS_PER_ROW - rowItems.size) {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
-                }
-            }
         }
     }
 }
@@ -940,7 +878,6 @@ private fun LocationSection(property: Property) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SectionTitle(text = DetailStrings.SECTION_LOCATION)
             Text(
                 text = DetailStrings.ACTION_VIEW_ON_MAP,
                 color = ControlAccent,
