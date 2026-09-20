@@ -183,22 +183,26 @@ fun SavedScreen(
     selectedProperty?.let { selected ->
         val property = uiState.properties.find {
             it.documentId == selected.documentId || it.id == selected.id
-        } ?: selected.copy(isLiked = true)
-        Dialog(
-            onDismissRequest = { selectedProperty = null },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = AppBackground
+        }
+        if (property != null) {
+            Dialog(
+                onDismissRequest = { selectedProperty = null },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
             ) {
-                PropertyDetailScreen(
-                    property = property,
-                    onClose = { selectedProperty = null },
-                    onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
-                    modifier = Modifier.fillMaxSize()
-                )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = AppBackground
+                ) {
+                    PropertyDetailScreen(
+                        property = property,
+                        onClose = { selectedProperty = null },
+                        onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
+        } else {
+            LaunchedEffect(Unit) { selectedProperty = null }
         }
     }
 }

@@ -76,14 +76,15 @@ class SavedViewModel(
         }
 
         val remoteIds = current.properties.map { it.documentId ?: it.id }.toSet()
-        val merged = current.properties.toMutableList()
+        val newlyLiked = mutableListOf<Property>()
         likeStateManager.likedPropertyCache.value.values.forEach { prop ->
             val id = prop.documentId ?: prop.id
             if (id !in remoteIds && likeStateManager.isLiked(id)) {
                 Logger.d(TAG, "rebuildSavedList: adding search-liked property id=$id")
-                merged.add(prop.copy(isLiked = true))
+                newlyLiked.add(prop.copy(isLiked = true))
             }
         }
+        val merged = newlyLiked + current.properties
         val filtered = merged.filter { likeStateManager.isLiked(it.documentId ?: it.id) }
         Logger.d(TAG, "rebuildSavedList: merged=${merged.size}, filtered=${filtered.size}")
         return filtered
@@ -107,7 +108,7 @@ class SavedViewModel(
             when (val result = getLikedPropertiesUseCase(userId)) {
                 is Result.Success -> {
                     Logger.d(TAG, "load: got ${result.data.size} liked properties")
-                    val properties = result.data.map { it.copy(isLiked = true) }
+                    val properties = result.data.map { it.copy(isLiked = true) }.reversed()
                     val likedIds = properties.map { it.documentId ?: it.id }.toSet()
                     likeStateManager.syncLikedIds(likedIds)
                     likeStateManager.syncLikedProperties(properties)
@@ -145,6 +146,16 @@ class SavedViewModel(
         Logger.d(TAG, "onLikeClicked: toggling id=$propertyId from isLiked=$oldIsLiked to isLiked=$newIsLiked")
 
         likeStateManager.setLiked(property, newIsLiked)
+        val updatedList = _uiState.value.properties.toMutableList()
+        val index = updatedList.indexOf(property)
+        if (index != -1) {
+            if (newIsLiked) {
+                updatedList[index] = property.copy(isLiked = true)
+            } else {
+                updatedList.removeAt(index)
+            }
+            _uiState.value = _uiState.value.copy(properties = updatedList)
+        }
 
         viewModelScope.launch {
             val targetId = property.documentId ?: propertyId
@@ -157,6 +168,14 @@ class SavedViewModel(
                 is Result.Error -> {
                     Logger.e(TAG, "onLikeClicked: updatePropertyLikeUseCase failed id=$targetId, reverting")
                     likeStateManager.setLiked(property, oldIsLiked)
+                    val revertedList = _uiState.value.properties.toMutableList()
+                    val revertIndex = revertedList.indexOfFirst {
+                        it.documentId == propertyId || it.id == propertyId
+                    }
+                    if (revertIndex != -1) {
+                        revertedList[revertIndex] = property.copy(isLiked = oldIsLiked)
+                        _uiState.value = _uiState.value.copy(properties = revertedList)
+                    }
                     _sideEffect.emit("Failed to update like: ${result.message}")
                 }
             }

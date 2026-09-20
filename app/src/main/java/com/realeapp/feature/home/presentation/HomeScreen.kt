@@ -151,7 +151,12 @@ internal fun HomeContent(
         }
     }
 
-    selectedProperty?.let { property ->
+    selectedProperty?.let { selected ->
+        val property = featuredProperties.find {
+            it.documentId == selected.documentId || it.id == selected.id
+        } ?: promotionalProperties.find {
+            it.documentId == selected.documentId || it.id == selected.id
+        } ?: selected
         PropertyDetailDialog(
             property = property,
             onClose = { selectedProperty = null },
