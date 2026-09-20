@@ -292,6 +292,7 @@ internal object DetailDims {
     val THUMB_CARD_PADDING = 10.dp
     val THUMB_CARD_ELEVATION = 4.dp
     val THUMB_SIZE = 50.dp
+    val THUMB_UNSELECTED_SIZE = 40.dp
     val THUMB_CORNER_RADIUS = 10.dp
     val THUMB_SPACING = 8.dp
     val THUMB_SELECTED_BORDER = 2.dp

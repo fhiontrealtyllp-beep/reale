@@ -469,13 +469,15 @@ private fun ThumbnailStrip(
         ) {
             itemsIndexed(images.take(MAX_VISIBLE_THUMBS)) { index, url ->
                 val isOverflowTile = index == MAX_VISIBLE_THUMBS - 1 && images.size > MAX_VISIBLE_THUMBS
+                val isSelected = index == selectedImage
+                val thumbSize = if (isSelected) DetailDims.THUMB_SIZE else DetailDims.THUMB_UNSELECTED_SIZE
                 Box(
                     modifier = Modifier
-                        .size(DetailDims.THUMB_SIZE)
+                        .size(thumbSize)
                         .clip(RoundedCornerShape(DetailDims.THUMB_CORNER_RADIUS))
                         .background(HomeCategoryUnselected)
                         .then(
-                            if (index == selectedImage) {
+                            if (isSelected) {
                                 Modifier.border(
                                     width = DetailDims.THUMB_SELECTED_BORDER,
                                     color = ControlAccent,
