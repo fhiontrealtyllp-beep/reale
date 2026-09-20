@@ -268,7 +268,7 @@ internal object DetailStrings {
  * Centralized dimensions for the property detail screen.
  */
 internal object DetailDims {
-    val HERO_HEIGHT = 320.dp
+    val HERO_HEIGHT = 340.dp
     val HERO_OVERLAY_PADDING = 16.dp
     val HERO_BUTTON_SIZE = 40.dp
     val HERO_BUTTON_ICON_SIZE = 20.dp

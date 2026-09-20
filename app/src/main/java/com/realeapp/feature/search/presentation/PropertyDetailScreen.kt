@@ -637,30 +637,23 @@ private fun InfoSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = DetailDims.SCREEN_PADDING)
-            .padding(top = DetailDims.SCREEN_PADDING),
+            .padding(horizontal = DetailDims.SCREEN_PADDING),
         verticalArrangement = Arrangement.spacedBy(DetailDims.CONTENT_SPACING)
     ) {
         property.rentBuy?.let { rentBuy ->
+            // For Rent/ For Sale
             Text(
                 text = if (rentBuy == RentBuy.RENT) DetailStrings.BADGE_FOR_RENT else DetailStrings.BADGE_FOR_SALE,
                 color = ControlAccent,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(DetailDims.SALE_BADGE_CORNER_RADIUS))
-                    .background(ControlAccent.copy(alpha = DetailDims.ACCENT_BACKGROUND_ALPHA))
-                    .padding(
-                        horizontal = DetailDims.SALE_BADGE_HORIZONTAL_PADDING,
-                        vertical = DetailDims.SALE_BADGE_VERTICAL_PADDING
-                    )
             )
         }
 
         Text(
             text = property.title,
             color = Black,
-            fontSize = 22.sp,
+           style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
 
@@ -677,7 +670,7 @@ private fun InfoSection(
             Text(
                 text = buildShortLocation(property),
                 color = HomeTextSecondary,
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
@@ -689,14 +682,14 @@ private fun InfoSection(
                 Text(
                     text = formatIndianPrice(property.price, property.isRentProperty()),
                     color = ControlAccent,
-                    fontSize = 22.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 formatPricePerSqFt(property)?.let { perSqFt ->
                     Text(
                         text = perSqFt,
                         color = HomeTextSecondary,
-                        fontSize = 12.sp
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
