@@ -777,6 +777,7 @@ private fun StatsCard(property: Property) {
 @Composable
 private fun OverviewSection(description: String) {
     var expanded by remember { mutableStateOf(false) }
+    var hasOverflow by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -791,25 +792,32 @@ private fun OverviewSection(description: String) {
             fontSize = 14.sp,
             lineHeight = 20.sp,
             maxLines = if (expanded) Int.MAX_VALUE else DESCRIPTION_COLLAPSED_LINES,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            // Detect if text exceeds maxLines (DESCRIPTION_COLLAPSED_LINES = 3); sets hasOverflow = true
+            // so "Read More" appears only when the description is long enough to be truncated.
+            onTextLayout = { result ->
+                if (!expanded) hasOverflow = result.hasVisualOverflow
+            }
         )
-        // Toggle link, e.g. "Read More ▼" or "Read Less ▲"
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { expanded = !expanded }
-        ) {
-            Text(
-                text = if (expanded) DetailStrings.ACTION_READ_LESS else DetailStrings.ACTION_READ_MORE,
-                color = ControlAccent,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = ControlAccent,
-                modifier = Modifier.size(DetailDims.READ_MORE_ICON_SIZE)
-            )
+        // Toggle link shown only when text overflows collapsed lines, e.g. "Read More ▼" / "Read Less ▲"
+        if (hasOverflow || expanded) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { expanded = !expanded }
+            ) {
+                Text(
+                    text = if (expanded) DetailStrings.ACTION_READ_LESS else DetailStrings.ACTION_READ_MORE,
+                    color = ControlAccent,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = ControlAccent,
+                    modifier = Modifier.size(DetailDims.READ_MORE_ICON_SIZE)
+                )
+            }
         }
     }
 }
