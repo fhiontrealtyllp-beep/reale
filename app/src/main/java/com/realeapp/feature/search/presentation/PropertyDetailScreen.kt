@@ -861,32 +861,50 @@ private fun buildLocationString(property: Property): String {
     }
 }
 
-// Location section with "Location" title, "View on Map" link, and map/address content.
+// Location section with map/address content and a floating "View on Map" button.
 @Composable
 private fun LocationSection(property: Property) {
     val context = LocalContext.current
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = DetailDims.SCREEN_PADDING)
-            .padding(top = DetailDims.SECTION_SPACING),
-        verticalArrangement = Arrangement.spacedBy(DetailDims.SECTION_TITLE_SPACING)
+            .padding(top = DetailDims.SECTION_SPACING)
     ) {
-        // Header row, e.g. "Location" on left, "View on Map" link on right
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = DetailStrings.ACTION_VIEW_ON_MAP,
-                color = ControlAccent,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { openInMaps(context, property) }
-            )
-        }
         LocationContent(property = property)
+
+        // Floating "View on Map" pill overlaid on bottom-end of the map
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(DetailDims.MAP_FAB_PADDING)
+                .clickable { openInMaps(context, property) },
+            shape = RoundedCornerShape(DetailDims.MAP_FAB_CORNER_RADIUS),
+            color = White,
+            shadowElevation = DetailDims.MAP_FAB_ELEVATION
+        ) {
+            Row(
+                modifier = Modifier.padding(
+                    horizontal = DetailDims.MAP_FAB_HORIZONTAL_PADDING,
+                    vertical = DetailDims.MAP_FAB_VERTICAL_PADDING
+                ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DetailDims.CONTENT_SPACING_SMALL)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = null,
+                    tint = ControlAccent,
+                    modifier = Modifier.size(DetailDims.MAP_FAB_ICON_SIZE)
+                )
+                Text(
+                    text = DetailStrings.ACTION_VIEW_ON_MAP,
+                    color = ControlAccent,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
     }
 }
 

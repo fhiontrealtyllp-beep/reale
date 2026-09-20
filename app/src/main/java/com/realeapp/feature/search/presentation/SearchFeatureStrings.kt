@@ -346,6 +346,12 @@ internal object DetailDims {
     val MAP_CORNER_RADIUS = 12.dp
     val MAP_PLACEHOLDER_ICON_SIZE = 28.dp
     val MAP_PLACEHOLDER_SPACING = 12.dp
+    val MAP_FAB_PADDING = 10.dp
+    val MAP_FAB_CORNER_RADIUS = 20.dp
+    val MAP_FAB_ELEVATION = 4.dp
+    val MAP_FAB_HORIZONTAL_PADDING = 12.dp
+    val MAP_FAB_VERTICAL_PADDING = 6.dp
+    val MAP_FAB_ICON_SIZE = 16.dp
 
     val LOCATION_CARD_CORNER_RADIUS = 16.dp
     val LOCATION_CONTENT_SPACING = 12.dp
