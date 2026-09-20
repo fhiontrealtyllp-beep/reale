@@ -16,4 +16,6 @@ internal object AppStrings {
 
     /** Second (accent) part of the logo, derived from [APP_NAME]. */
     val APP_NAME_ACCENT = APP_NAME.drop(APP_NAME_SPLIT_INDEX)
+
+    const val PHONE_MAX_LENGTH = 10
 }

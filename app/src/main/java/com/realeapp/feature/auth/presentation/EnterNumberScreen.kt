@@ -1,5 +1,6 @@
 package com.realeapp.feature.auth.presentation
 
+import com.realeapp.AppStrings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -76,7 +77,6 @@ import com.realeapp.ui.theme.TextHint
 import com.realeapp.ui.theme.White
 import com.realeapp.util.findActivity
 
-private const val PHONE_MAX_LENGTH = 10
 
 /**
  * Phone-number entry screen reached from the welcome screen's mobile option.
@@ -211,7 +211,7 @@ internal fun EnterNumberContent(
             OutlinedTextField(
                 value = phoneNumber,
                 onValueChange = { input ->
-                    phoneNumber = input.filter(Char::isDigit).take(PHONE_MAX_LENGTH)
+                    phoneNumber = input.filter(Char::isDigit).take(AppStrings.PHONE_MAX_LENGTH)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {

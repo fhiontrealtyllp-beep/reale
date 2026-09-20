@@ -1,5 +1,6 @@
 package com.realeapp.feature.profile.presentation
 
+import com.realeapp.AppStrings
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -1126,7 +1127,7 @@ private fun EditProfileDialog(
                 )
                 EditProfileField(
                     value = phone,
-                    onValueChange = { phone = it },
+                    onValueChange = { phone = it.filter(Char::isDigit).take(AppStrings.PHONE_MAX_LENGTH) },
                     label = ProfileStrings.LABEL_PHONE,
                     icon = Icons.Filled.Phone,
                     keyboardType = KeyboardType.Phone

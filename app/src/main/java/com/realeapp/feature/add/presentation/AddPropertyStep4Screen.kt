@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.realeapp.feature.add.domain.model.PropertyForm
 import com.realeapp.feature.search.domain.model.ListingCategory
 import com.realeapp.ui.preview.PreviewData
+import com.realeapp.AppStrings
 import com.realeapp.ui.theme.RealeTheme
 
 @Composable
@@ -42,7 +43,7 @@ internal fun AddPropertyStep4Screen(
         SectionHeader(AddStrings.SECTION_CONTACT_DETAILS)
         FormTextField(
             value = form.agentPhone,
-            onValueChange = onAgentPhoneChanged,
+            onValueChange = { onAgentPhoneChanged(it.filter(Char::isDigit).take(AppStrings.PHONE_MAX_LENGTH)) },
             label = AddStrings.LABEL_AGENT_PHONE,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Phone,
