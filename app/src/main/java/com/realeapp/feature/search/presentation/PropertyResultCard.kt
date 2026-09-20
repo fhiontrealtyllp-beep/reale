@@ -3,6 +3,7 @@ package com.realeapp.feature.search.presentation
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.realeapp.R
 import com.realeapp.feature.search.domain.model.Property
 import com.realeapp.feature.search.domain.model.RentBuy
 import com.realeapp.feature.search.presentation.components.formatIndianPrice
@@ -94,7 +98,7 @@ internal fun PropertyResultCard(
                     onLike = onLike,
                     badgeContent = badgeContent,
                     trailingContent = trailingContent,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -113,13 +117,22 @@ private fun PropertyImage(
             .width(PropertiesDims.CARD_IMAGE_WIDTH)
             .clip(RoundedCornerShape(PropertiesDims.CARD_IMAGE_CORNER_RADIUS))
     ) {
-        AsyncImage(
-            model = property.images.firstOrNull()
-                ?: "https://picsum.photos/seed/${property.id}/300/200",
-            contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (LocalInspectionMode.current) {
+            Image(
+                painter = painterResource(R.drawable.ic_welcome_home),
+                contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            AsyncImage(
+                model = property.images.firstOrNull()
+                    ?: "https://picsum.photos/seed/${property.id}/300/200",
+                contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
         if (property.images.size > 1) {
             Row(
@@ -160,8 +173,7 @@ private fun PropertyInfo(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxHeight(),
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
