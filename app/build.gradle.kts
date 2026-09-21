@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.fhiont"
     compileSdk {
-        version = release(1)
+        version = release(37)
     }
 
     defaultConfig {
