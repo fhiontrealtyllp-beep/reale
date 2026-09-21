@@ -701,10 +701,6 @@ private fun ProfileCard(
                     contentDescription = ProfileStrings.EDIT_PROFILE,
                     tint = ControlAccent,
                     modifier = Modifier
-                        .shadow(
-                            elevation = ProfileDims.EDIT_PROFILE_ICON_ELEVATION,
-                            shape = RoundedCornerShape(ProfileDims.EDIT_PROFILE_ICON_SHADOW_RADIUS)
-                        )
                         .size(ProfileDims.EDIT_PROFILE_ICON_SIZE)
                         .clickable(onClick = onEditProfileClick)
                 )
@@ -1169,13 +1165,6 @@ private fun EditProfileDialog(
                     icon = Icons.Filled.Email,
                     keyboardType = KeyboardType.Email
                 )
-                EditProfileField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = ProfileStrings.LABEL_ADDRESS,
-                    icon = Icons.Filled.LocationOn,
-                    keyboardType = KeyboardType.Text
-                )
             }
         },
         confirmButton = {
@@ -1270,7 +1259,19 @@ private fun AddressDialog(
         }
     )
 }
-
+@Preview(
+    name = "Address Dialog - Light",
+    showBackground = true,
+    backgroundColor = 0xFFF5F5F5
+)
+@Composable
+private fun AddressDialogPreview() {
+    AddressDialog(
+        initialAddress = "Manish Nagar, Nagpur, Maharashtra",
+        onSave = {},
+        onDismiss = {}
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileField(
