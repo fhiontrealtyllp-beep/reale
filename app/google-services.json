@@ -8,6 +8,35 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:105670539110:android:2e0e299681fa6cb7777aa7",
+        "android_client_info": {
+          "package_name": "com.fhiont"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0tpuiiBjZRVmOATgYVaAdNYZQGRnc-kk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:105670539110:android:f6177474cef2da46777aa7",
         "android_client_info": {
           "package_name": "com.realeapp"

@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "com.realeapp"
+    namespace = "com.fhiont"
     compileSdk {
-        version = release(37)
+        version = release(1)
     }
 
     defaultConfig {
-        applicationId = "com.realeapp"
+        applicationId = "com.fhiont"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

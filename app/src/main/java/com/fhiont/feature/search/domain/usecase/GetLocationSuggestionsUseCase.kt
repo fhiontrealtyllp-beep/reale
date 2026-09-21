@@ -1,0 +1,17 @@
+package com.fhiont.feature.search.domain.usecase
+
+import com.fhiont.feature.search.domain.model.LocationSuggestion
+import com.fhiont.feature.search.domain.repository.LocationSuggestionRepository
+import com.fhiont.feature.search.domain.utils.Result
+
+interface GetLocationSuggestionsUseCase {
+    suspend operator fun invoke(query: String): Result<List<LocationSuggestion>>
+}
+
+class GetLocationSuggestionsUseCaseImpl(
+    private val repository: LocationSuggestionRepository
+) : GetLocationSuggestionsUseCase {
+    override suspend fun invoke(query: String): Result<List<LocationSuggestion>> {
+        return repository.getSuggestions(query)
+    }
+}

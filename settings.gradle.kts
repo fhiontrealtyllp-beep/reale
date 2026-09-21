@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "reale"
+rootProject.name = "fhiont"
 include(":app")
  

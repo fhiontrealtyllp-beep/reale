@@ -16,7 +16,7 @@
     </queries>
 
     <application
-        android:name=".RealeApplication"
+        android:name=".FhiontApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -24,7 +24,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Reale">
+        android:theme="@style/Theme.Fhiont">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -37,7 +37,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.realeapp.fileprovider"
+            android:authorities="com.fhiont.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -54,7 +54,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Reale"
+            android:theme="@style/Theme.Fhiont"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

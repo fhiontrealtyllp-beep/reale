@@ -1,0 +1,349 @@
+package com.fhiont.feature.auth.presentation
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import org.koin.androidx.compose.koinViewModel
+import com.fhiont.ui.theme.Accent
+import com.fhiont.ui.theme.White
+import com.fhiont.ui.theme.Error
+import com.fhiont.ui.theme.AppBackground
+import com.fhiont.ui.theme.OnAccentText
+import com.fhiont.ui.theme.Black
+import com.fhiont.ui.theme.HomeTextSecondary
+import com.fhiont.ui.theme.FhiontTheme
+import com.fhiont.ui.components.VerticalSpacer8
+import com.fhiont.ui.components.VerticalSpacer16
+import com.fhiont.ui.components.VerticalSpacer24
+import com.fhiont.ui.components.VerticalSpacer32
+import androidx.compose.ui.tooling.preview.Preview
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegisterScreen(
+    onRegisterSuccess: () -> Unit,
+    onBack: () -> Unit,
+    onLoginClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel: RegisterViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect {
+            onRegisterSuccess()
+        }
+    }
+
+    RegisterContent(
+        uiState = uiState,
+        onNameChanged = viewModel::onNameChanged,
+        onEmailChanged = viewModel::onEmailChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onConfirmPasswordChanged = viewModel::onConfirmPasswordChanged,
+        onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
+        onRegisterClick = viewModel::register,
+        onLoginClick = onLoginClick,
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun RegisterContent(
+    uiState: RegisterUiState,
+    onNameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onConfirmPasswordChanged: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = { Text("") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Black
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(AppBackground, White)
+                    )
+                )
+                .padding(innerPadding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Create Account",
+                    color = Black,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                VerticalSpacer8()
+
+                Text(
+                    text = "Sign up to get started",
+                    color = Black.copy(alpha = 0.7f),
+                    fontSize = 14.sp
+                )
+
+                VerticalSpacer32()
+
+                // User name UI.
+                OutlinedTextField(
+                    value = uiState.name,
+                    onValueChange = onNameChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Name") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    colors = fieldColors()
+                )
+
+                VerticalSpacer16()
+
+                // Account credentials UI: email, password, and password confirmation.
+                OutlinedTextField(
+                    value = uiState.email,
+                    onValueChange = onEmailChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Email") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    colors = fieldColors()
+                )
+
+                VerticalSpacer16()
+
+                OutlinedTextField(
+                    value = uiState.password,
+                    onValueChange = onPasswordChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Password") },
+                    singleLine = true,
+                    visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = onTogglePasswordVisibility) {
+                            Icon(
+                                imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
+                                tint = HomeTextSecondary
+                            )
+                        }
+                    },
+                    colors = fieldColors()
+                )
+
+                VerticalSpacer16()
+
+                OutlinedTextField(
+                    value = uiState.confirmPassword,
+                    onValueChange = onConfirmPasswordChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Confirm Password") },
+                    singleLine = true,
+                    visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    trailingIcon = {
+                        IconButton(onClick = onTogglePasswordVisibility) {
+                            Icon(
+                                imageVector = if (uiState.isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (uiState.isPasswordVisible) "Hide password" else "Show password",
+                                tint = HomeTextSecondary
+                            )
+                        }
+                    },
+                    colors = fieldColors()
+                )
+
+                // Validation or registration error UI.
+                if (uiState.errorMessage != null) {
+                    VerticalSpacer8()
+                    Text(
+                        text = uiState.errorMessage.orEmpty(),
+                        color = Error,
+                        fontSize = 14.sp
+                    )
+                }
+
+                VerticalSpacer24()
+
+                // Primary registration action; progress replaces its label while submitting.
+                TextButton(
+                    onClick = onRegisterClick,
+                    enabled = !uiState.isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Accent,
+                        contentColor = OnAccentText,
+                        disabledContainerColor = Accent.copy(alpha = 0.5f)
+                    )
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            color = OnAccentText,
+                            modifier = Modifier.height(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Register",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                VerticalSpacer24()
+
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = Black,
+                                fontSize = 16.sp
+                            )
+                        ) {
+                            append("Already have an account? ")
+                        }
+                        withStyle(
+                            style = SpanStyle(
+                                color = Accent,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        ) {
+                            append("Login")
+                        }
+                    },
+                    modifier = Modifier.clickable { onLoginClick() }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun fieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = Black,
+    unfocusedTextColor = Black,
+    focusedBorderColor = Accent,
+    unfocusedBorderColor = HomeTextSecondary,
+    focusedLabelColor = Accent,
+    unfocusedLabelColor = HomeTextSecondary
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun RegisterContentPreview() {
+    FhiontTheme {
+        RegisterContent(
+            uiState = RegisterUiState(
+                name = "John Doe",
+                email = "john.doe@example.com",
+                password = "password123",
+                confirmPassword = "password123"
+            ),
+            onNameChanged = {},
+            onEmailChanged = {},
+            onPasswordChanged = {},
+            onConfirmPasswordChanged = {},
+            onTogglePasswordVisibility = {},
+            onRegisterClick = {},
+            onLoginClick = {},
+            onBack = {}
+        )
+    }
+}
