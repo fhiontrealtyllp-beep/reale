@@ -1,6 +1,9 @@
 Windows PowerShell
 Copyright (C) Microsoft Corporation. All rights reserved.
 
+
+DEBUG:
+
 PS D:\apps\Apps2026\MyTestApp> .\gradlew signingReport
 Calculating task graph as no cached configuration is available for tasks: signingReport
 
@@ -30,3 +33,41 @@ Valid until: Monday, 17 July 2056
 BUILD SUCCESSFUL in 2s
 1 actionable task: 1 executed
 Configuration cache entry stored.
+
+
+
+RELEASE:
+
+S D:\apps\Apps2026\MyTestApp> keytool -list -v -keystore "D:\fhiont\fhiont" -alias fhiont    
+Enter keystore password:
+
+Alias name: fhiont
+Creation date: 21-Sep-2026
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: O=fhiont, OU=fhiont, CN=fhiont
+Issuer: O=fhiont, OU=fhiont, CN=fhiont
+Serial number: 1
+Valid from: Mon Sep 21 08:58:40 IST 2026 until: Fri Sep 15 08:58:40 IST 2051
+Certificate fingerprints:
+SHA1: FF:31:05:EB:13:10:47:88:58:92:64:C9:5B:96:87:9E:A1:F8:83:6A
+SHA256: 6F:25:86:8A:E2:61:FA:8E:72:AC:25:92:1A:66:C1:5C:ED:8E:A8:FE:AA:5A:B3:85:19:EC:EC:21:A6:8B:77:15
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 2048-bit RSA key
+Version: 1
+PS D:\apps\Apps2026\MyTestApp> 
+
+
+Privacy Policy
+https://sites.google.com/view/fhiont-privacy-policy/home
+
+sample account
+test@fhiont.com
+
+
+App icon 
+512 x 512
+
+Feature graphic
+PNG or JPEG 1024 px by 500 px.
