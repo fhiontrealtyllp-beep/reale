@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "105670539110-hue2ijj5etgk98cggj48d3ifsk8s8au0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fhiont",
+            "certificate_hash": "2fc1f280ceac015c1cf9fd9d89f64065642db076"
+          }
+        },
+        {
           "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
           "client_type": 3
         }
