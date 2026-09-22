@@ -384,7 +384,7 @@ private fun HeroCircleButton(
         modifier = Modifier
             .size(DetailDims.HERO_BUTTON_SIZE)
             .clip(CircleShape)
-            .background(White)
+            .background(Color.Transparent)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
