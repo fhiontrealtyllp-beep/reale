@@ -192,12 +192,12 @@ class SearchViewModel(
         _uiState.value = _uiState.value.copy(isMapView = !_uiState.value.isMapView)
     }
 
-    fun onLikeClicked(propertyId: String) {
+    fun onLikeClicked(propertyId: String): Boolean {
         Logger.d(TAG, "onLikeClicked: propertyId=$propertyId")
         if (userSession.getUserId().isNullOrEmpty()) {
             Logger.d(TAG, "onLikeClicked: user not logged in, showing login prompt")
             _uiState.value = _uiState.value.copy(showLoginPrompt = true)
-            return
+            return false
         }
 
         val allIndex = _uiState.value.properties.indexOfFirst {
@@ -211,7 +211,7 @@ class SearchViewModel(
         }
         if (allIndex == -1 && featuredIndex == -1 && promoIndex == -1) {
             Logger.w(TAG, "onLikeClicked: property not found in list id=$propertyId")
-            return
+            return false
         }
 
         val oldProperty = when {
@@ -257,6 +257,7 @@ class SearchViewModel(
                 }
             }
         }
+        return true
     }
 
     suspend fun getSuggestions(query: String): List<LocationSuggestion> = withContext(Dispatchers.IO) {

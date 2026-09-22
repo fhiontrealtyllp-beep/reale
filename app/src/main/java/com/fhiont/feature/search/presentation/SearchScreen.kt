@@ -194,13 +194,15 @@ fun SearchScreen(
                     property = property,
                     onClose = { selectedProperty = null },
                     onLike = {
-                        viewModel.onLikeClicked(property.documentId ?: property.id)
-                        val message = if (property.isLiked == true) {
-                            String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
-                        } else {
-                            String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+                        val didLike = viewModel.onLikeClicked(property.documentId ?: property.id)
+                        if (didLike) {
+                            val message = if (property.isLiked == true) {
+                                String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+                            } else {
+                                String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+                            }
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         }
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxSize()
                 )

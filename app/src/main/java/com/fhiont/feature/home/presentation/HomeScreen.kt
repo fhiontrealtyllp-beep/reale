@@ -60,13 +60,15 @@ fun HomeScreen(
         onProfileClick = onProfileClick,
         onCategorySelected = viewModel::onCategorySelected,
         onLike = { property ->
-            viewModel.onLikeClicked(property.documentId ?: property.id)
-            val message = if (property.isLiked == true) {
-                String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
-            } else {
-                String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+            val didLike = viewModel.onLikeClicked(property.documentId ?: property.id)
+            if (didLike) {
+                val message = if (property.isLiked == true) {
+                    String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, property.title)
+                } else {
+                    String.format(SearchStrings.SAVED_TOAST_FORMAT, property.title)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         },
         onChangeCity = onChangeCity,
         modifier = modifier

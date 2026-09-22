@@ -284,12 +284,20 @@ private fun FeaturedPropertyCard(
                     .padding(HomeDims.FEATURED_CARD_CONTENT_PADDING)
                     .size(HomeDims.HEART_BUTTON_SIZE)
             ) {
-                Icon(
-                    imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = HomeStrings.CD_FAVORITE,
-                    tint = if (isLiked) Error else OnMediaContent,
-                    modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(Black.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = HomeStrings.CD_FAVORITE,
+                        tint = if (isLiked) Error else White,
+                        modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
+                    )
+                }
             }
         }
 
@@ -482,12 +490,20 @@ private fun PromotionBannerCard(
                     .padding(HomeDims.HEART_PADDING)
                     .size(HomeDims.HEART_BUTTON_SIZE)
             ) {
-                Icon(
-                    imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = HomeStrings.CD_FAVORITE,
-                    tint = if (isLiked) Error else OnMediaContent,
-                    modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(Black.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = HomeStrings.CD_FAVORITE,
+                        tint = if (isLiked) Error else White,
+                        modifier = Modifier.size(HomeDims.HEART_ICON_SIZE)
+                    )
+                }
             }
 
             Box(

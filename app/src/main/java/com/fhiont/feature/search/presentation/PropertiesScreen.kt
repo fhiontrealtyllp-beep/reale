@@ -125,15 +125,17 @@ fun PropertiesScreen(
             onLoadMore = viewModel::onLoadMore,
             onOpenFilter = onOpenFilter,
             onLike = { propertyId ->
-                viewModel.onLikeClicked(propertyId)
-                val property = visibleProperties.find { it.documentId == propertyId || it.id == propertyId }
-                val propertyTitle = property?.title.orEmpty()
-                val message = if (property?.isLiked == true) {
-                    String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, propertyTitle)
-                } else {
-                    String.format(SearchStrings.SAVED_TOAST_FORMAT, propertyTitle)
+                val didLike = viewModel.onLikeClicked(propertyId)
+                if (didLike) {
+                    val property = visibleProperties.find { it.documentId == propertyId || it.id == propertyId }
+                    val propertyTitle = property?.title.orEmpty()
+                    val message = if (property?.isLiked == true) {
+                        String.format(SearchStrings.REMOVED_FROM_SAVED_TOAST_FORMAT, propertyTitle)
+                    } else {
+                        String.format(SearchStrings.SAVED_TOAST_FORMAT, propertyTitle)
+                    }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             },
             onPropertyClick = onPropertyClick,
             onChangeCity = onChangeCity,

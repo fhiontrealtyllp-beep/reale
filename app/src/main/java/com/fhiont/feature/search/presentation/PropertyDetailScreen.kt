@@ -345,12 +345,20 @@ private fun HeroSection(
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(DetailDims.HERO_BUTTON_SPACING)) {
                     if (onLike != null) {
-                        HeroCircleButton(
-                            icon = if (property.isLiked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = DetailStrings.CD_LIKE,
-                            tint = if (property.isLiked == true) Error else Black,
-                            onClick = onLike
-                        )
+                        if (property.isLiked == true) {
+                            HeroCircleButton(
+                                icon = Icons.Filled.Favorite,
+                                contentDescription = DetailStrings.CD_LIKE,
+                                tint = Error,
+                                onClick = onLike
+                            )
+                        } else {
+                            HeroCircleButton(
+                                icon = Icons.Filled.FavoriteBorder,
+                                contentDescription = DetailStrings.CD_LIKE,
+                                onClick = onLike
+                            )
+                        }
                     }
                     HeroCircleButton(
                         icon = Icons.Filled.Share,
@@ -378,13 +386,19 @@ private fun HeroCircleButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
-    tint: Color = Black
+    tint: Color = White,
+    backgroundColor: Color = Color.Unspecified
 ) {
+    val resolvedBackground = if (backgroundColor == Color.Unspecified) {
+        Black.copy(alpha = 0.45f)
+    } else {
+        backgroundColor
+    }
     Box(
         modifier = Modifier
             .size(DetailDims.HERO_BUTTON_SIZE)
             .clip(CircleShape)
-            .background(Color.Transparent)
+            .background(resolvedBackground)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
