@@ -1,6 +1,7 @@
 package com.fhiont.feature.profile.presentation
 
 import com.fhiont.AppStrings
+import com.fhiont.BuildConfig
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import java.io.File
+import java.util.Locale
 import androidx.core.content.FileProvider
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
@@ -65,6 +67,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
@@ -458,6 +461,7 @@ private fun ProfileContent(
             item { ProfileMenuSection(title = ProfileStrings.SECTION_MY_ACTIVITY, items = activityItems) }
         }
         item { ProfileMenuSection(title = ProfileStrings.SECTION_ACCOUNT, items = accountItems) }
+        item { AppVersionFooter(modifier = Modifier.fillMaxWidth()) }
     }
 
     if (showEditDialog) {
@@ -490,6 +494,30 @@ private fun ProfileContent(
                 showThemeDialog = false
             },
             onDismiss = { showThemeDialog = false }
+        )
+    }
+}
+
+/**
+ * Footer that displays the current app version name and version code.
+ */
+@Composable
+private fun AppVersionFooter(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = ProfileDims.SECTION_SPACING),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = String.format(
+                Locale.getDefault(),
+                ProfileStrings.APP_VERSION_FORMAT,
+                BuildConfig.VERSION_NAME,
+                BuildConfig.VERSION_CODE
+            ),
+            color = HomeTextSecondary,
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }
@@ -1437,5 +1465,13 @@ private fun ProfileContentGuestPreview() {
             themeMode = ThemeMode.SYSTEM,
             onThemeModeSelected = {}
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AppVersionFooterPreview() {
+    FhiontTheme {
+        AppVersionFooter()
     }
 }

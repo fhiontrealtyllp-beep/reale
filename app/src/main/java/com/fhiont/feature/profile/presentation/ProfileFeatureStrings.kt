@@ -80,6 +80,8 @@ internal object ProfileStrings {
     const val EMAIL_CHOOSER_TITLE = "Write to us"
     const val ERROR_NO_EMAIL_APP = "No email app found"
 
+    const val APP_VERSION_FORMAT = "Version %s (%d)"
+
     const val MSG_IMAGE_UPDATED = "Profile image updated"
     const val MSG_LOGGED_OUT = "Logged out successfully"
     const val MSG_ADDRESS_SAVED = "Address saved"
