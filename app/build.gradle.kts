@@ -14,8 +14,8 @@ android {
         applicationId = "com.fhiont"
         minSdk = 24
         targetSdk = 37
-        versionCode = 5//update app
-        versionName = "5.0"// update app
+        versionCode = 6//update app
+        versionName = "6.0"// update app
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

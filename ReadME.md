@@ -66,6 +66,10 @@ Play console keys:
 256
 15:FE:FF:87:5B:08:9A:38:74:90:CC:E4:5D:BF:AF:F9:C3:3A:1A:F7:34:0F:56:E3:73:7E:33:8B:F3:50:8A:F8
 
+
+SHA1 AAB internal app sharing
+17:32:16:DE:A1:65:C8:47:5A:59:8A:74:74:3F:8E:63:1C:CF:E2:01
+
 Privacy Policy
 https://sites.google.com/view/fhiont-privacy-policy/home
 
