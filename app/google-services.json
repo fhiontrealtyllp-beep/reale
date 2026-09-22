@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "105670539110-t3r5ornceiit9i8op2u7s8op0clreini.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fhiont",
+            "certificate_hash": "49373f22b7d059a2424367872919209f312240bf"
+          }
+        },
+        {
           "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
           "client_type": 3
         }

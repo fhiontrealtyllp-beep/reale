@@ -58,6 +58,13 @@ Subject Public Key Algorithm: 2048-bit RSA key
 Version: 1
 PS D:\apps\Apps2026\MyTestApp> 
 
+Play console keys:
+
+1
+78:3A:A0:F4:D5:48:77:54:A9:A5:A6:10:25:D4:EF:78:68:1B:AF:5F
+
+256
+15:FE:FF:87:5B:08:9A:38:74:90:CC:E4:5D:BF:AF:F9:C3:3A:1A:F7:34:0F:56:E3:73:7E:33:8B:F3:50:8A:F8
 
 Privacy Policy
 https://sites.google.com/view/fhiont-privacy-policy/home
