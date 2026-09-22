@@ -1,6 +1,8 @@
 package com.fhiont.feature.auth.data.remote
 
 import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
@@ -26,6 +28,7 @@ import com.fhiont.feature.auth.domain.model.User
 import com.fhiont.feature.auth.presentation.AuthStrings
 import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.util.Logger
+import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -200,6 +203,9 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun signInWithGoogle(activity: Activity): Result<User> {
         Logger.d(TAG, "$ARROW signInWithGoogle() called")
+        Logger.d(TAG, "packageName=${activity.packageName}, serverClientId=${activity.getString(R.string.default_web_client_id)}")
+        logAppSignature(activity)
+
         return try {
             val credentialManager = CredentialManager.create(activity)
             val googleIdOption = GetGoogleIdOption.Builder()
@@ -210,34 +216,70 @@ class AuthRemoteDataSourceImpl(
             val request = GetCredentialRequest.Builder()
                 .addCredentialOption(googleIdOption)
                 .build()
+            Logger.d(TAG, "Requesting Google credential...")
             val result = credentialManager.getCredential(activity, request)
+            Logger.d(TAG, "Credential received: type=${result.credential.type}")
+
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
             val idToken = googleIdTokenCredential.idToken
+            Logger.d(TAG, "Google ID token length=${idToken.length}, email=${googleIdTokenCredential.id}")
+
             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+            Logger.d(TAG, "Signing in with Firebase credential...")
             val authResult = auth.signInWithCredential(firebaseCredential).await()
             val firebaseUser = authResult?.user
-                ?: return Result.Error(AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
+                ?: run {
+                    Logger.e(TAG, "$CROSS signInWithGoogle() firebase user is null after signInWithCredential")
+                    return Result.Error(AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
+                }
 
+            Logger.d(TAG, "Firebase sign-in succeeded: uid=${firebaseUser.uid}, email=${firebaseUser.email}")
             ensureUserDocument(firebaseUser)
 
             val user = fetchUser(firebaseUser)
             Logger.d(TAG, "$TICK signInWithGoogle() succeeded: userId=${user.id}")
             Result.Success(user)
         } catch (e: NoCredentialException) {
-            Logger.e(TAG, "$CROSS signInWithGoogle() no credential: ${e.message}")
+            Logger.e(TAG, "$CROSS signInWithGoogle() no credential: ${e.message}", e)
             Result.Error(AuthStrings.ERROR_GOOGLE_NO_ACCOUNT)
         } catch (e: GoogleIdTokenParsingException) {
-            Logger.e(TAG, "$CROSS signInWithGoogle() token parsing error: ${e.message}")
+            Logger.e(TAG, "$CROSS signInWithGoogle() token parsing error: ${e.message}", e)
             Result.Error(AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
         } catch (e: FirebaseAuthException) {
-            Logger.e(TAG, "$CROSS signInWithGoogle() firebase error: ${e.message}")
+            Logger.e(TAG, "$CROSS signInWithGoogle() firebase error: ${e.message}, errorCode=${e.errorCode}", e)
             Result.Error(e.message ?: AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
         } catch (e: GetCredentialException) {
-            Logger.e(TAG, "$CROSS signInWithGoogle() credential error: ${e.message}")
+            Logger.e(TAG, "$CROSS signInWithGoogle() credential error: ${e.message}", e)
             Result.Error(e.message ?: AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
         } catch (e: Exception) {
-            Logger.e(TAG, "$CROSS signInWithGoogle() unexpected error: ${e.message}")
+            Logger.e(TAG, "$CROSS signInWithGoogle() unexpected error: ${e.message}", e)
             Result.Error(AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED)
+        }
+    }
+
+    private fun logAppSignature(activity: Activity) {
+        try {
+            val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                activity.packageManager
+                    .getPackageInfo(activity.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                    .signingInfo
+                    ?.apkContentsSigners
+            } else {
+                @Suppress("DEPRECATION")
+                activity.packageManager
+                    .getPackageInfo(activity.packageName, PackageManager.GET_SIGNATURES)
+                    .signatures
+            }
+
+            signatures?.forEachIndexed { index, signature ->
+                val sha1 = MessageDigest.getInstance("SHA-1")
+                    .apply { update(signature.toByteArray()) }
+                    .digest()
+                    .joinToString(":") { "%02X".format(it) }
+                Logger.d(TAG, "App signing certificate #$index SHA-1: $sha1")
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to log app signature", e)
         }
     }
 

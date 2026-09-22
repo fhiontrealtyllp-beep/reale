@@ -15,64 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "105670539110-hue2ijj5etgk98cggj48d3ifsk8s8au0.apps.googleusercontent.com",
+          "client_id": "105670539110-hklcoa3ule7vda6sipeavr3c7vhhnddd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.fhiont",
-            "certificate_hash": "2fc1f280ceac015c1cf9fd9d89f64065642db076"
-          }
-        },
-        {
-          "client_id": "105670539110-k0iqqmp0kdnitdc8klhm706ffb2vvod5.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.fhiont",
-            "certificate_hash": "ff3105eb13104788589264c95b96879ea1f8836a"
-          }
-        },
-        {
-          "client_id": "105670539110-t3r5ornceiit9i8op2u7s8op0clreini.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.fhiont",
-            "certificate_hash": "49373f22b7d059a2424367872919209f312240bf"
-          }
-        },
-        {
-          "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyC0tpuiiBjZRVmOATgYVaAdNYZQGRnc-kk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "105670539110-kvp16h5kf3e00mqpkk7847ai28pa2qjp.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:105670539110:android:f6177474cef2da46777aa7",
-        "android_client_info": {
-          "package_name": "com.realeapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "105670539110-8qfd1korea56quaohqqg09r2ksm0hgh4.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.realeapp",
-            "certificate_hash": "2fc1f280ceac015c1cf9fd9d89f64065642db076"
+            "certificate_hash": "783aa0f4d5487754a9a5a61025d4ef78681baf5f"
           }
         },
         {

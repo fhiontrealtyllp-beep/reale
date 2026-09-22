@@ -112,6 +112,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     BackHandler { authScreen = AuthScreen.Main }
                     WelcomeScreen(
                         onGoogleClick = {
+                            Logger.d(TAG, "Google sign-in clicked from WelcomeScreen")
                             phoneAuthViewModel.signInWithGoogle(activity)
                         },
                         onMobileClick = { authScreen = AuthScreen.EnterNumber },
@@ -131,6 +132,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         onBack = { authScreen = AuthScreen.Welcome },
                         onSendOtpSuccess = { authScreen = AuthScreen.VerifyNumber },
                         onGoogleClick = {
+                            Logger.d(TAG, "Google sign-in clicked from EnterNumberScreen")
                             phoneAuthViewModel.signInWithGoogle(activity)
                         }
                     )

@@ -131,11 +131,12 @@ class PhoneAuthViewModel(
 
     fun signInWithGoogle(activity: Activity?) {
         val currentActivity = activity ?: run {
+            Logger.e(TAG, "signInWithGoogle() failed: activity is null")
             _uiState.update { it.copy(errorMessage = AuthStrings.ERROR_GOOGLE_SIGN_IN_FAILED) }
             return
         }
 
-        Logger.d(TAG, "signInWithGoogle() called")
+        Logger.d(TAG, "signInWithGoogle() called, activity=${currentActivity::class.java.simpleName}")
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
         viewModelScope.launch {
