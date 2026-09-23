@@ -47,6 +47,11 @@ internal object ProfileStrings {
     const val HELP_SUPPORT_SUBTITLE = "FAQs, support and contact us"
     const val LOGOUT = "Logout"
 
+    const val LOGOUT_DIALOG_TITLE = "Logout"
+    const val LOGOUT_DIALOG_MESSAGE = "Are you sure you want to logout?"
+    const val LOGOUT_CONFIRM = "Logout"
+    const val LOGOUT_CANCEL = "Cancel"
+
     const val CD_PERSONAL_INFO = "Personal information"
     const val CD_NOTIFICATIONS_ITEM = "Notifications"
     const val CD_SETTINGS = "Settings"

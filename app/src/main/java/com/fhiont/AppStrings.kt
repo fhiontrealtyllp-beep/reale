@@ -18,4 +18,9 @@ internal object AppStrings {
     val APP_NAME_ACCENT = APP_NAME.drop(APP_NAME_SPLIT_INDEX)
 
     const val PHONE_MAX_LENGTH = 10
+
+    const val EXIT_DIALOG_TITLE = "Exit"
+    const val EXIT_DIALOG_MESSAGE = "Do you want to exit the app?"
+    const val EXIT_CONFIRM = "Exit"
+    const val DIALOG_CANCEL = "Cancel"
 }

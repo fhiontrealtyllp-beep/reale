@@ -105,6 +105,7 @@ import com.fhiont.feature.add.presentation.ImageSourceDialog
 import com.fhiont.feature.add.presentation.toJpegBytes
 import com.fhiont.feature.auth.domain.model.User
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
+import com.fhiont.ui.components.ConfirmationDialog
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.BrandCoral
@@ -155,6 +156,7 @@ fun ProfileScreen(
     }
 
     var showImageSourceDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var cameraOutputUri by remember { mutableStateOf<Uri?>(null) }
 
     val cropLauncher = rememberLauncherForActivityResult(
@@ -253,7 +255,7 @@ fun ProfileScreen(
                     onNotificationsClick = onNotificationsClick,
                     onSettingsClick = onSettingsClick,
                     onHelpSupportClick = { launchEmail(context) },
-                    onLogoutClick = viewModel::logout,
+                    onLogoutClick = { showLogoutDialog = true },
                     onUpdateField = { field, value -> viewModel.updateProfileField(field, value) },
                     themeMode = themeMode,
                     onThemeModeSelected = viewModel::setThemeMode,
@@ -273,6 +275,21 @@ fun ProfileScreen(
                         imagePicker.launch(IMAGE_MIME_TYPE)
                     },
                     onDismiss = { showImageSourceDialog = false }
+                )
+            }
+
+            if (showLogoutDialog) {
+                ConfirmationDialog(
+                    title = ProfileStrings.LOGOUT_DIALOG_TITLE,
+                    message = ProfileStrings.LOGOUT_DIALOG_MESSAGE,
+                    confirmText = ProfileStrings.LOGOUT_CONFIRM,
+                    dismissText = ProfileStrings.LOGOUT_CANCEL,
+                    confirmColor = Error,
+                    onConfirm = {
+                        showLogoutDialog = false
+                        viewModel.logout()
+                    },
+                    onDismiss = { showLogoutDialog = false }
                 )
             }
         }

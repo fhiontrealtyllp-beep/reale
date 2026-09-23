@@ -9,12 +9,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.fhiont.AppStrings
+import com.fhiont.ui.components.ConfirmationDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -305,27 +304,16 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     }
 
                     if (showExitDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showExitDialog = false },
-                            title = { Text("Exit") },
-                            text = { Text("Do you want to exit the app?") },
-                            confirmButton = {
-                                TextButton(
-                                    onClick = {
-                                        showExitDialog = false
-                                        activity?.finishAffinity()
-                                    }
-                                ) {
-                                    Text("Exit")
-                                }
+                        ConfirmationDialog(
+                            title = AppStrings.EXIT_DIALOG_TITLE,
+                            message = AppStrings.EXIT_DIALOG_MESSAGE,
+                            confirmText = AppStrings.EXIT_CONFIRM,
+                            dismissText = AppStrings.DIALOG_CANCEL,
+                            onConfirm = {
+                                showExitDialog = false
+                                activity?.finishAffinity()
                             },
-                            dismissButton = {
-                                TextButton(
-                                    onClick = { showExitDialog = false }
-                                ) {
-                                    Text("Cancel")
-                                }
-                            }
+                            onDismiss = { showExitDialog = false }
                         )
                     }
 
