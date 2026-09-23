@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.core.like.LikeStateManager
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
+import com.fhiont.feature.saved.domain.usecase.GetLikedPropertiesUseCase
+import com.fhiont.feature.search.data.session.SessionObserver
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.PropertyFilter
@@ -46,6 +48,7 @@ class SearchViewModel(
     private val getLocationSuggestionsUseCase: GetLocationSuggestionsUseCase,
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
     private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
+    private val getLikedPropertiesUseCase: GetLikedPropertiesUseCase,
     private val userSession: UserSession,
     private val likeStateManager: LikeStateManager = LikeStateManager,
     private val locationSuggestionRepository: LocationSuggestionRepository
@@ -109,6 +112,8 @@ class SearchViewModel(
         applyCategoryFilter()
         observeLikeState()
         observeSavedCity()
+        observeLogin()
+        loadLikedProperties()
     }
 
     private fun observeSavedCity() {
@@ -149,6 +154,48 @@ class SearchViewModel(
                 }
 
                 applyCategoryFilter()
+            }
+        }
+    }
+
+    private fun observeLogin() {
+        SessionObserver(
+            userSession = userSession,
+            scope = viewModelScope,
+            onLogin = {
+                Logger.d(TAG, "SessionObserver.onLogin: reloading liked properties")
+                loadLikedProperties()
+                refresh(clearList = true)
+                loadFeaturedProperties()
+                loadPromotionalProperty()
+            },
+            onLogout = {
+                Logger.d(TAG, "SessionObserver.onLogout: clearing liked IDs")
+                likeStateManager.syncLikedIds(emptySet())
+                likeStateManager.syncLikedProperties(emptyList())
+            }
+        )
+    }
+
+    private fun loadLikedProperties() {
+        val userId = userSession.getUserId()
+        if (userId.isNullOrEmpty()) {
+            Logger.d(TAG, "loadLikedProperties: user not logged in")
+            return
+        }
+        viewModelScope.launch {
+            Logger.d(TAG, "loadLikedProperties: loading for userId=$userId")
+            when (val result = getLikedPropertiesUseCase(userId)) {
+                is Result.Success -> {
+                    val properties = result.data.map { it.copy(isLiked = true) }.reversed()
+                    val likedIds = properties.map { it.documentId ?: it.id }.toSet()
+                    Logger.d(TAG, "loadLikedProperties: loaded ${likedIds.size} liked IDs")
+                    likeStateManager.syncLikedIds(likedIds)
+                    likeStateManager.syncLikedProperties(properties)
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "loadLikedProperties: failed ${result.message}")
+                }
             }
         }
     }
