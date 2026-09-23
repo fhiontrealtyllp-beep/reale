@@ -105,7 +105,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
         } else {
             Crossfade(targetState = authScreen, label = "auth-crossfade") { screen ->
                 when (screen) {
-                // Auth landing UI offering Google, mobile-number, or guest entry.
+                // Auth landing UI offering Google, mobile-number, login, sign-up, or guest entry.
                 AuthScreen.Welcome -> {
                     val activity = LocalActivity.current
                     BackHandler { authScreen = AuthScreen.Main }
@@ -115,6 +115,8 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                             phoneAuthViewModel.signInWithGoogle(activity)
                         },
                         onMobileClick = { authScreen = AuthScreen.EnterNumber },
+                        onLoginClick = { authScreen = AuthScreen.Login },
+                        onSignUpClick = { authScreen = AuthScreen.Register },
                         onGuestClick = {
                             mainViewModel.selectTab(AppScreen.Home)
                             authScreen = AuthScreen.Main

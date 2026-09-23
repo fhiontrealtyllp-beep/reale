@@ -2,20 +2,21 @@ package com.fhiont.feature.profile.data.remote
 
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
+import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.feature.auth.data.mapper.UserMapper
 import com.fhiont.feature.auth.domain.model.User
+import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.util.Logger
 import java.util.UUID
 import kotlinx.coroutines.tasks.await
 
 private const val TAG = "ProfileRemoteDataSource"
-private const val ARROW = "\u279C"
-private const val TICK = "\u2705"
-private const val CROSS = "\u274C"
 
 class ProfileRemoteDataSourceImpl(
-    private val firebaseProvider: FirebaseProvider
+    private val firebaseProvider: FirebaseProvider,
+    private val phpAuthApi: PhpAuthApi,
+    private val userSession: UserSession
 ) : ProfileRemoteDataSource {
 
     private val auth = firebaseProvider.auth
@@ -23,6 +24,23 @@ class ProfileRemoteDataSourceImpl(
     private val storage = firebaseProvider.storage
 
     override suspend fun getUserDetails(): Result<User> {
+        val sessionUser = userSession.getUser()
+        val token = sessionUser?.sessionId
+        return if (!token.isNullOrBlank()) {
+            Logger.d(TAG, "getUserDetails: loading from PHP session")
+            when (val result = phpAuthApi.me(token)) {
+                is Result.Success -> result
+                is Result.Error -> {
+                    Logger.w(TAG, "getUserDetails: PHP me failed, falling back to session user: ${result.message}")
+                    sessionUser?.let { Result.Success(it) } ?: result
+                }
+            }
+        } else {
+            getUserDetailsFromFirebase()
+        }
+    }
+
+    private suspend fun getUserDetailsFromFirebase(): Result<User> {
         return try {
             val firebaseUser = auth.currentUser
                 ?: return Result.Error("User not logged in")
@@ -77,13 +95,17 @@ class ProfileRemoteDataSourceImpl(
     }
 
     override suspend fun logout(sessionId: String): Result<Unit> {
-        Logger.d(TAG, "$ARROW logout() called")
+        Logger.d(TAG, "logout() called")
         return try {
+            val result = if (sessionId.isNotBlank()) {
+                phpAuthApi.logout(sessionId)
+            } else {
+                Result.Success(Unit)
+            }
             auth.signOut()
-            Logger.d(TAG, "$TICK logout() succeeded")
-            Result.Success(Unit)
+            result
         } catch (e: Exception) {
-            Logger.e(TAG, "$CROSS logout() failed: ${e.message}")
+            Logger.e(TAG, "logout() failed: ${e.message}")
             Result.Error("Logout failed: ${e.message}")
         }
     }

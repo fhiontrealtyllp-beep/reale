@@ -177,7 +177,7 @@ val addModule = module {
 }
 
 val profileModule = module {
-    single<ProfileRemoteDataSource> { ProfileRemoteDataSourceImpl(get()) }
+    single<ProfileRemoteDataSource> { ProfileRemoteDataSourceImpl(get(), get(), get()) }
     single<ProfileRepository> { ProfileRepositoryImpl(get()) }
     single<GetUserDetailsUseCase> { GetUserDetailsUseCaseImpl(get()) }
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }

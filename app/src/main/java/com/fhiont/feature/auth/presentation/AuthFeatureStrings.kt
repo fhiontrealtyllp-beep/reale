@@ -11,6 +11,8 @@ internal object AuthStrings {
 
     const val OPTION_GOOGLE = "Continue with Google"
     const val OPTION_MOBILE = "Continue with Mobile Number"
+    const val OPTION_LOGIN = "Login"
+    const val OPTION_SIGN_UP = "Sign Up"
     const val OPTION_GUEST = "Continue as Guest"
 
     const val TERMS_PREFIX = "By continuing, you agree to our "

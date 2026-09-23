@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,10 +51,12 @@ import com.fhiont.ui.theme.White
 
 /**
  * Auth landing screen shown before the credential login form: Google, mobile
- * number, or guest entry points.
+ * number, login, sign-up, or guest entry points.
  *
  * @param onGoogleClick Called when the user picks Google sign-in.
  * @param onMobileClick Called when the user picks mobile-number sign-in.
+ * @param onLoginClick Called when the user picks email/password login.
+ * @param onSignUpClick Called when the user picks sign-up.
  * @param onGuestClick Called when the user continues as a guest.
  * @param modifier Optional modifier for the root container.
  */
@@ -60,6 +64,8 @@ import com.fhiont.ui.theme.White
 fun WelcomeScreen(
     onGoogleClick: () -> Unit,
     onMobileClick: () -> Unit,
+    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit,
     onGuestClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -170,6 +176,36 @@ fun WelcomeScreen(
                 Spacer(modifier = Modifier.height(AuthDims.SPACE_16))
 
                 WelcomeOption(
+                    label = AuthStrings.OPTION_LOGIN,
+                    onClick = onLoginClick,
+                    leading = {
+                        Icon(
+                            imageVector = Icons.Outlined.Email,
+                            contentDescription = null,
+                            tint = Black,
+                            modifier = Modifier.size(AuthDims.OPTION_ICON_SIZE)
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(AuthDims.SPACE_16))
+
+                WelcomeOption(
+                    label = AuthStrings.OPTION_SIGN_UP,
+                    onClick = onSignUpClick,
+                    leading = {
+                        Icon(
+                            imageVector = Icons.Outlined.PersonAdd,
+                            contentDescription = null,
+                            tint = Black,
+                            modifier = Modifier.size(AuthDims.OPTION_ICON_SIZE)
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(AuthDims.SPACE_16))
+
+                WelcomeOption(
                     label = AuthStrings.OPTION_GUEST,
                     onClick = onGuestClick,
                     leading = {
@@ -260,6 +296,8 @@ private fun WelcomeScreenLightPreview() {
         WelcomeScreen(
             onGoogleClick = {},
             onMobileClick = {},
+            onLoginClick = {},
+            onSignUpClick = {},
             onGuestClick = {}
         )
     }
@@ -272,6 +310,8 @@ private fun WelcomeScreenDarkPreview() {
         WelcomeScreen(
             onGoogleClick = {},
             onMobileClick = {},
+            onLoginClick = {},
+            onSignUpClick = {},
             onGuestClick = {}
         )
     }

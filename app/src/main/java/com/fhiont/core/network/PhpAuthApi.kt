@@ -14,6 +14,7 @@ import org.json.JSONObject
 private const val CONNECT_TIMEOUT_MS = 15_000
 private const val READ_TIMEOUT_MS = 20_000
 private const val CONTENT_TYPE_JSON = "application/json; charset=utf-8"
+private const val HTTP_METHOD_GET = "GET"
 private const val HTTP_METHOD_POST = "POST"
 private const val TAG = "PhpAuthApi"
 
@@ -22,45 +23,75 @@ class PhpAuthApi {
     val isConfigured: Boolean
         get() = BuildConfig.API_BASE_URL.isNotBlank()
 
-    suspend fun login(email: String, password: String): Result<User> {
-        return post(
-            endpoint = "login.php",
-            body = JSONObject()
-                .put("email", email)
-                .put("password", password)
-        )
-    }
+    suspend fun login(email: String, password: String): Result<User> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "login.php",
+        body = JSONObject()
+            .put("email", email)
+            .put("password", password),
+        parse = { it.userJson().toUser() }
+    )
 
-    suspend fun register(name: String, email: String, password: String): Result<User> {
-        return post(
-            endpoint = "register.php",
-            body = JSONObject()
-                .put("name", name)
-                .put("email", email)
-                .put("password", password)
-        )
-    }
+    suspend fun register(name: String, email: String, password: String): Result<User> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "register.php",
+        body = JSONObject()
+            .put("name", name)
+            .put("email", email)
+            .put("password", password),
+        parse = { it.userJson().toUser() }
+    )
 
-    private suspend fun post(endpoint: String, body: JSONObject): Result<User> = withContext(Dispatchers.IO) {
+    suspend fun me(token: String): Result<User> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "me.php",
+        token = token,
+        parse = { it.userJson().toUser() }
+    )
+
+    suspend fun logout(token: String): Result<Unit> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "logout.php",
+        token = token,
+        body = JSONObject(),
+        parse = { }
+    )
+
+    private fun JSONObject.userJson(): JSONObject = getJSONObject("data").getJSONObject("user")
+
+    private suspend fun <T> apiCall(
+        method: String,
+        endpoint: String,
+        token: String? = null,
+        body: JSONObject? = null,
+        parse: (JSONObject) -> T
+    ): Result<T> = withContext(Dispatchers.IO) {
         var connection: HttpURLConnection? = null
         try {
             val baseUrl = BuildConfig.API_BASE_URL.trimEnd('/') + "/"
             val requestUrl = baseUrl + endpoint
-            Logger.d(TAG, "POST $requestUrl")
+            Logger.d(TAG, "$method $requestUrl")
             connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
-                requestMethod = HTTP_METHOD_POST
+                requestMethod = method
                 connectTimeout = CONNECT_TIMEOUT_MS
                 readTimeout = READ_TIMEOUT_MS
-                doOutput = true
                 setRequestProperty("Content-Type", CONTENT_TYPE_JSON)
                 setRequestProperty("Accept", "application/json")
+                if (!token.isNullOrBlank()) {
+                    setRequestProperty("Authorization", "Bearer $token")
+                }
+                if (body != null) {
+                    doOutput = true
+                }
             }
-            connection.outputStream.use { output ->
-                output.write(body.toString().toByteArray(Charsets.UTF_8))
+            body?.let {
+                connection.outputStream.use { output ->
+                    output.write(it.toString().toByteArray(Charsets.UTF_8))
+                }
             }
 
             val status = connection.responseCode
-            Logger.d(TAG, "POST $requestUrl -> HTTP $status")
+            Logger.d(TAG, "$method $requestUrl -> HTTP $status")
             val stream = if (status in 200..299) connection.inputStream else connection.errorStream
             val responseText = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             val response = if (responseText.isBlank()) JSONObject() else JSONObject(responseText)
@@ -69,12 +100,11 @@ class PhpAuthApi {
                 return@withContext Result.Error(message)
             }
 
-            val userJson = response.getJSONObject("data").getJSONObject("user")
-            Result.Success(userJson.toUser())
+            Result.Success(parse(response))
         } catch (exception: Exception) {
             Logger.e(
                 TAG,
-                "POST ${BuildConfig.API_BASE_URL.trimEnd('/')}/$endpoint failed: ${exception.javaClass.simpleName}: ${exception.message}",
+                "$method ${BuildConfig.API_BASE_URL.trimEnd('/')}/$endpoint failed: ${exception.javaClass.simpleName}: ${exception.message}",
                 exception
             )
             val message = when (exception) {
