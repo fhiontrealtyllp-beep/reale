@@ -72,6 +72,8 @@ import com.fhiont.feature.saved.domain.usecase.GetLikedPropertiesUseCaseImpl
 import com.fhiont.feature.saved.presentation.SavedViewModel
 import com.fhiont.core.firebase.FirebaseProvider
 import com.fhiont.core.network.PhpAuthApi
+import com.fhiont.core.network.PhpEnquiryApi
+import com.fhiont.core.network.PhpPropertyApi
 import com.fhiont.feature.search.data.local.PropertyLocationSuggestionRepository
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSourceImpl
@@ -112,6 +114,8 @@ import org.koin.dsl.module
 val appModule = module {
     single { FirebaseProvider() }
     single { PhpAuthApi() }
+    single { PhpEnquiryApi() }
+    single { PhpPropertyApi() }
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }
@@ -141,8 +145,8 @@ val authModule = module {
 }
 
 val searchModule = module {
-    single<PropertyRemoteDataSource> { PropertyRemoteDataSourceImpl(get(), get()) }
-    single<EnquiryRemoteDataSource> { EnquiryRemoteDataSourceImpl(get()) }
+    single<PropertyRemoteDataSource> { PropertyRemoteDataSourceImpl(get(), get(), get()) }
+    single<EnquiryRemoteDataSource> { EnquiryRemoteDataSourceImpl(get(), get()) }
     single<PropertyRepository> { PropertyRepositoryImpl(get()) }
     single<EnquiryRepository> { EnquiryRepositoryImpl(get()) }
     single<GetAllPropertiesUseCase> { GetAllPropertiesUseCaseImpl(get()) }
@@ -160,14 +164,14 @@ val searchModule = module {
 }
 
 val savedModule = module {
-    single<SavedRemoteDataSource> { SavedRemoteDataSourceImpl(get()) }
+    single<SavedRemoteDataSource> { SavedRemoteDataSourceImpl(get(), get()) }
     single<SavedRepository> { SavedRepositoryImpl(get()) }
     single<GetLikedPropertiesUseCase> { GetLikedPropertiesUseCaseImpl(get()) }
     viewModel { SavedViewModel(get(), get(), get(), get()) }
 }
 
 val addModule = module {
-    single<AddPropertyRemoteDataSource> { AddPropertyRemoteDataSourceImpl(get()) }
+    single<AddPropertyRemoteDataSource> { AddPropertyRemoteDataSourceImpl(get(), get()) }
     single<AddPropertyRepository> { AddPropertyRepositoryImpl(get()) }
     single<AddPropertyUseCase> { AddPropertyUseCaseImpl(get()) }
     single<AddUploadImageUseCase> { AddUploadImageUseCaseImpl(get()) }

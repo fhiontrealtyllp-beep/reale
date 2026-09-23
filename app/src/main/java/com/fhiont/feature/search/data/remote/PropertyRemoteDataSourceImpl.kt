@@ -2,6 +2,7 @@ package com.fhiont.feature.search.data.remote
 
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
+import com.fhiont.core.network.PhpPropertyApi
 import com.fhiont.feature.search.data.mapper.PropertyMapper
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.ListingCategory
@@ -16,7 +17,8 @@ private const val BATCH_LIMIT = 1000L
 
 class PropertyRemoteDataSourceImpl(
     private val userSession: UserSession,
-    private val firebaseProvider: FirebaseProvider
+    private val firebaseProvider: FirebaseProvider,
+    private val phpPropertyApi: PhpPropertyApi
 ) : PropertyRemoteDataSource {
 
     private val firestore = firebaseProvider.firestore
@@ -74,15 +76,27 @@ class PropertyRemoteDataSourceImpl(
     }
 
     override suspend fun getFeaturedProperties(limit: Int): Result<List<Property>> {
-        return getByCategory(ListingCategory.FEATURED, limit)
+        Logger.d(TAG, "getFeaturedProperties: limit=$limit")
+        val token = userSession.getUser()?.sessionId
+        return if (!token.isNullOrBlank()) {
+            phpPropertyApi.getFeaturedProperties(token, limit)
+        } else {
+            getByCategoryFromFirebase(ListingCategory.FEATURED, limit)
+        }
     }
 
     override suspend fun getPromotionalProperties(limit: Int): Result<List<Property>> {
-        return getByCategory(ListingCategory.PROMOTIONAL, limit)
+        Logger.d(TAG, "getPromotionalProperties: limit=$limit")
+        val token = userSession.getUser()?.sessionId
+        return if (!token.isNullOrBlank()) {
+            phpPropertyApi.getPromotionalProperties(token, limit)
+        } else {
+            getByCategoryFromFirebase(ListingCategory.PROMOTIONAL, limit)
+        }
     }
 
-    private suspend fun getByCategory(category: ListingCategory, limit: Int): Result<List<Property>> {
-        Logger.d(TAG, "getByCategory: start category=$category, limit=$limit")
+    private suspend fun getByCategoryFromFirebase(category: ListingCategory, limit: Int): Result<List<Property>> {
+        Logger.d(TAG, "getByCategoryFromFirebase: start category=$category, limit=$limit")
         return try {
             val snapshot = properties
                 .whereEqualTo("status", "live")
@@ -98,11 +112,11 @@ class PropertyRemoteDataSourceImpl(
 
             val filtered = all.take(limit)
 
-            Logger.d(TAG, "getByCategory: category=$category received=${all.size}, filtered=${filtered.size}")
+            Logger.d(TAG, "getByCategoryFromFirebase: category=$category received=${all.size}, filtered=${filtered.size}")
             val userId = userSession.getUserId()
             Result.Success(if (userId.isNullOrEmpty()) filtered else mergeLikes(filtered, userId))
         } catch (e: Exception) {
-            Logger.e(TAG, "getByCategory: category=$category error=${e.message}", e)
+            Logger.e(TAG, "getByCategoryFromFirebase: category=$category error=${e.message}", e)
             Result.Error("Unexpected error: ${e.message}")
         }
     }
@@ -112,12 +126,37 @@ class PropertyRemoteDataSourceImpl(
         isLiked: Boolean
     ): Result<Unit> {
         Logger.d("PropertyRemoteDataSource", "updateLikeStatus: propertyId=$propertyId, isLiked=$isLiked")
+        val token = userSession.getUser()?.sessionId
+        if (!token.isNullOrBlank()) {
+            return phpPropertyApi.updateLike(token, propertyId, isLiked)
+        }
+
         val userId = userSession.getUserId()
         if (userId.isNullOrEmpty()) {
             Logger.w("PropertyRemoteDataSource", "updateLikeStatus: user not logged in")
             return Result.Error("User not logged in")
         }
 
+        return updateLikeStatusInFirebase(userId, propertyId, isLiked)
+    }
+
+    private suspend fun mergeLikes(
+        properties: List<Property>,
+        userId: String
+    ): List<Property> {
+        val token = userSession.getUser()?.sessionId
+        return if (!token.isNullOrBlank()) {
+            mergeLikesFromPhp(properties, token)
+        } else {
+            mergeLikesFromFirebase(properties, userId)
+        }
+    }
+
+    private suspend fun updateLikeStatusInFirebase(
+        userId: String,
+        propertyId: String,
+        isLiked: Boolean
+    ): Result<Unit> {
         return try {
             if (isLiked) {
                 firestore.collection(FirebaseConstants.LIKES_COLLECTION)
@@ -147,7 +186,23 @@ class PropertyRemoteDataSourceImpl(
         }
     }
 
-    private suspend fun mergeLikes(
+    private suspend fun mergeLikesFromPhp(
+        properties: List<Property>,
+        token: String
+    ): List<Property> {
+        return when (val result = phpPropertyApi.getLikedProperties(token)) {
+            is Result.Success -> {
+                val likedIds = result.data.map { it.documentId ?: it.id }.toSet()
+                properties.map { it.copy(isLiked = likedIds.contains(it.documentId ?: it.id)) }
+            }
+            is Result.Error -> {
+                Logger.w("PropertyRemoteDataSource", "mergeLikesFromPhp failed: ${result.message}")
+                properties
+            }
+        }
+    }
+
+    private suspend fun mergeLikesFromFirebase(
         properties: List<Property>,
         userId: String
     ): List<Property> {

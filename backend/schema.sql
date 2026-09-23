@@ -1,6 +1,6 @@
 USE `fhionf96_app`;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(120) NOT NULL,
     email VARCHAR(190) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE users (
     UNIQUE KEY users_email_unique (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE auth_tokens (
+CREATE TABLE IF NOT EXISTS auth_tokens (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
     token_hash CHAR(64) NOT NULL,
@@ -28,4 +28,72 @@ CREATE TABLE auth_tokens (
     KEY auth_tokens_user_id_index (user_id),
     KEY auth_tokens_expires_at_index (expires_at),
     CONSTRAINT auth_tokens_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS properties (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    price DECIMAL(15, 2) NULL,
+    city VARCHAR(120) NOT NULL DEFAULT '',
+    locality VARCHAR(120) NOT NULL DEFAULT '',
+    pincode VARCHAR(20) NOT NULL DEFAULT '',
+    address TEXT NOT NULL DEFAULT '',
+    latitude DECIMAL(10, 8) NULL,
+    longitude DECIMAL(11, 8) NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'live',
+    listing_category VARCHAR(30) NOT NULL DEFAULT 'NORMAL',
+    rent_buy VARCHAR(30) NULL,
+    residential_commercial VARCHAR(30) NULL,
+    property_type VARCHAR(30) NULL,
+    bedroom_type VARCHAR(30) NULL,
+    bathrooms INT UNSIGNED NULL,
+    furnishing VARCHAR(30) NULL,
+    facing VARCHAR(30) NULL,
+    age VARCHAR(30) NULL,
+    amenities JSON NULL,
+    nearby_places JSON NULL,
+    images JSON NULL,
+    carpet_area DECIMAL(10, 2) NULL,
+    built_up_area DECIMAL(10, 2) NULL,
+    super_built_up_area DECIMAL(10, 2) NULL,
+    agent_phone VARCHAR(30) NOT NULL DEFAULT '',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY properties_user_id_index (user_id),
+    KEY properties_city_index (city),
+    KEY properties_locality_index (locality),
+    KEY properties_listing_category_index (listing_category),
+    CONSTRAINT properties_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS likes (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    property_id VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY likes_user_property_unique (user_id, property_id),
+    KEY likes_property_id_index (property_id),
+    CONSTRAINT likes_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS enquiries (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    property_id VARCHAR(255) NOT NULL,
+    property_title VARCHAR(255) NOT NULL DEFAULT '',
+    property_location VARCHAR(255) NOT NULL DEFAULT '',
+    property_image VARCHAR(500) NOT NULL DEFAULT '',
+    agent_phone VARCHAR(30) NOT NULL DEFAULT '',
+    message TEXT NOT NULL DEFAULT '',
+    user_id BIGINT UNSIGNED NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'new',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY enquiries_user_id_index (user_id),
+    KEY enquiries_property_id_index (property_id),
+    CONSTRAINT enquiries_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
