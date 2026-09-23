@@ -2,9 +2,11 @@ package com.fhiont.core.seed
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.fhiont.BuildConfig
 import com.google.firebase.firestore.FirebaseFirestore
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
+import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.feature.search.data.mapper.jsonName
 import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
@@ -34,6 +36,9 @@ private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seede
 private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
 private const val KEY_BENGALURU_FEATURED_PROMO_SEEDED = "bengaluru_featured_promo_seeded"
 private const val KEY_BENGALURU_PROMO_BUY_SEEDED = "bengaluru_promo_buy_seeded"
+private const val KEY_PHP_TEST_USER_SEEDED = "php_test_user_seeded"
+private const val KEY_PHP_TEST_USER_EMAIL = "php_test_user_email"
+private const val KEY_PHP_TEST_USER_PASSWORD = "php_test_user_password"
 
 private const val PROPERTIES_PER_CITY = 10
 private const val IMAGES_PER_CITY = 5
@@ -49,6 +54,11 @@ private const val AGENT_PHONE = "9876543210"
 private const val TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 private const val TIMEZONE_UTC = "UTC"
 private const val IMAGE_URL_TEMPLATE = "https://picsum.photos/seed/%s-%d/800/600"
+private const val TEST_USER_NAME = "seededName"
+private const val TEST_USER_EMAIL = "seeded@user.com"
+private const val TEST_USER_PASSWORD = "seeded@101"
+private const val TEST_EMAIL_DOMAIN = "example.com"
+private const val TEST_PASSWORD_PREFIX = "Test@"
 
 private val CITIES = listOf("Bengaluru", "Pune", "Panaji", "Nagpur")
 
@@ -101,7 +111,8 @@ private val DELHI_PINCODES = listOf("110001", "110005", "110048", "110075", "110
 
 class OneTimeUtils(
     context: Context,
-    private val firebaseProvider: FirebaseProvider = FirebaseProvider()
+    private val firebaseProvider: FirebaseProvider = FirebaseProvider(),
+    private val phpAuthApi: PhpAuthApi = PhpAuthApi()
 ) {
 
     private val firestore: FirebaseFirestore = firebaseProvider.firestore
@@ -559,6 +570,22 @@ class OneTimeUtils(
             Logger.d(TAG, "Bengaluru promotional buy seeding complete. Total: $successCount")
         } else {
             Logger.w(TAG, "Bengaluru promotional buy seeding incomplete. Success: $successCount / $BENGALURU_PROMO_BUY_COUNT")
+        }
+    }
+
+    suspend fun seedPhpTestUserIfNeeded() = withContext(Dispatchers.IO) {
+        when (val result = phpAuthApi.register(TEST_USER_NAME, TEST_USER_EMAIL, TEST_USER_PASSWORD)) {
+            is com.fhiont.feature.search.domain.utils.Result.Success -> {
+                prefs.edit()
+                    .putBoolean(KEY_PHP_TEST_USER_SEEDED, true)
+                    .putString(KEY_PHP_TEST_USER_EMAIL, TEST_USER_EMAIL)
+                    .putString(KEY_PHP_TEST_USER_PASSWORD, TEST_USER_PASSWORD)
+                    .apply()
+                Logger.d(TAG, "PHP test user seeded: email=$TEST_USER_EMAIL password=$TEST_USER_PASSWORD")
+            }
+            is com.fhiont.feature.search.domain.utils.Result.Error -> {
+                Logger.e(TAG, "Failed to seed PHP test user: ${result.message}")
+            }
         }
     }
 

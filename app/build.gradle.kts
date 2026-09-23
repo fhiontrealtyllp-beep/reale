@@ -16,6 +16,10 @@ android {
         targetSdk = 37
         versionCode = 6//update app
         versionName = "6.0"// update app
+        val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
+            .orElse(providers.environmentVariable("API_BASE_URL"))
+            .getOrElse("")
+        buildConfigField("String", "API_BASE_URL", "\"${apiBaseUrl.trimEnd('/')}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

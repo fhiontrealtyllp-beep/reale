@@ -71,6 +71,7 @@ import com.fhiont.feature.saved.domain.usecase.GetLikedPropertiesUseCase
 import com.fhiont.feature.saved.domain.usecase.GetLikedPropertiesUseCaseImpl
 import com.fhiont.feature.saved.presentation.SavedViewModel
 import com.fhiont.core.firebase.FirebaseProvider
+import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.feature.search.data.local.PropertyLocationSuggestionRepository
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSourceImpl
@@ -110,6 +111,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { FirebaseProvider() }
+    single { PhpAuthApi() }
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }
@@ -126,7 +128,7 @@ val appModule = module {
 }
 
 val authModule = module {
-    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get()) }
+    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<LoginUseCase> { LoginUseCaseImpl(get()) }
     single<RegisterUseCase> { RegisterUseCaseImpl(get()) }

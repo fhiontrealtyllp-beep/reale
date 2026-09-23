@@ -23,6 +23,7 @@ import com.google.firebase.auth.UserProfileChangeRequest
 import com.fhiont.R
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
+import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.feature.auth.data.mapper.UserMapper
 import com.fhiont.feature.auth.domain.model.User
 import com.fhiont.feature.auth.presentation.AuthStrings
@@ -42,7 +43,8 @@ private const val CROSS = "\u274C"
 private const val VERIFICATION_TIMEOUT_SECONDS = 60L
 
 class AuthRemoteDataSourceImpl(
-    private val firebaseProvider: FirebaseProvider
+    private val firebaseProvider: FirebaseProvider,
+    private val phpAuthApi: PhpAuthApi
 ) : AuthRemoteDataSource {
 
     private val auth = firebaseProvider.auth
@@ -50,6 +52,14 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun login(email: String, password: String): Result<User> {
         Logger.d(TAG, "$ARROW login() called for email: $email")
+        if (phpAuthApi.isConfigured) {
+            return phpAuthApi.login(email, password).also { result ->
+                when (result) {
+                    is Result.Success -> Logger.d(TAG, "$TICK PHP login succeeded: userId=${result.data.id}")
+                    is Result.Error -> Logger.e(TAG, "$CROSS PHP login failed: ${result.message}")
+                }
+            }
+        }
         return try {
             val authResult = auth.signInWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult?.user
@@ -71,6 +81,14 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun register(name: String, email: String, password: String): Result<User> {
         Logger.d(TAG, "$ARROW register() called for name: $name, email: $email")
+        if (phpAuthApi.isConfigured) {
+            return phpAuthApi.register(name, email, password).also { result ->
+                when (result) {
+                    is Result.Success -> Logger.d(TAG, "$TICK PHP registration succeeded: userId=${result.data.id}")
+                    is Result.Error -> Logger.e(TAG, "$CROSS PHP registration failed: ${result.message}")
+                }
+            }
+        }
         return try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = authResult?.user
