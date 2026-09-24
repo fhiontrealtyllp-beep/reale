@@ -1,5 +1,6 @@
 package com.fhiont.feature.search.data.mapper
 
+import com.fhiont.BuildConfig
 import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
@@ -89,7 +90,19 @@ object PropertyMapper {
     }
 
     private fun parseImages(value: Any?): List<String> {
-        return getStringList(value).filter { it.isNotBlank() }
+        return getStringList(value)
+            .filter { it.isNotBlank() }
+            .map(::normalizeImageUrl)
+    }
+
+    private fun normalizeImageUrl(url: String): String {
+        val uploadsPath = "/uploads/"
+        val uri = runCatching { java.net.URI(url) }.getOrNull() ?: return url
+        if (uri.path?.startsWith(uploadsPath) != true) return url
+
+        val apiBase = BuildConfig.API_BASE_URL.trimEnd('/')
+        val deploymentBase = apiBase.substringBeforeLast("/api", apiBase)
+        return deploymentBase + uri.path
     }
 
     private fun parseAmenities(value: Any?): List<Amenity> {

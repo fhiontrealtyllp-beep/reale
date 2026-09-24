@@ -46,7 +46,7 @@ class PhpAuthApi {
         method = HTTP_METHOD_GET,
         endpoint = "me.php",
         token = token,
-        parse = { it.userJson().toUser() }
+        parse = { it.userJson().toUser(sessionId = token) }
     )
 
     suspend fun logout(token: String): Result<Unit> = apiCall(
@@ -117,7 +117,7 @@ class PhpAuthApi {
         }
     }
 
-    private fun JSONObject.toUser(): User = User(
+    private fun JSONObject.toUser(sessionId: String? = null): User = User(
         id = getString("id"),
         name = optString("name"),
         email = optString("email"),
@@ -127,7 +127,7 @@ class PhpAuthApi {
         location = optString("location"),
         address = optString("address"),
         password = "",
-        sessionId = optString("sessionId"),
+        sessionId = sessionId ?: optString("sessionId"),
         image = optString("image").takeIf { it.isNotBlank() && it != "null" }
     )
 }

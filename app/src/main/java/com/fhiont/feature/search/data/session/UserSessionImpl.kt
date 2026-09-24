@@ -85,7 +85,9 @@ class UserSessionImpl(private val context: Context) : UserSession {
         }
     }
 
-    override fun getUserId(): String? = getUser()?.id
+    override fun getUserId(): String? = getUser()
+        ?.takeIf { it.sessionId.isNotBlank() }
+        ?.id
 
     override fun getUser(): User? {
         if (currentUser == null) {
@@ -132,6 +134,13 @@ class UserSessionImpl(private val context: Context) : UserSession {
     private fun restore() {
         val prefs = preferences ?: return
         val id = prefs.getString(KEY_ID, null) ?: return
+        val sessionId = prefs.getString(KEY_SESSION_ID, "").orEmpty()
+        if (sessionId.isBlank()) {
+            clearPrefs()
+            currentUser = null
+            _user.value = null
+            return
+        }
 
         currentUser = User(
             id = id,
@@ -143,7 +152,7 @@ class UserSessionImpl(private val context: Context) : UserSession {
             location = prefs.getString(KEY_LOCATION, "").orEmpty(),
             address = prefs.getString(KEY_ADDRESS, "").orEmpty(),
             password = prefs.getString(KEY_PASSWORD, "").orEmpty(),
-            sessionId = prefs.getString(KEY_SESSION_ID, "").orEmpty(),
+            sessionId = sessionId,
             image = prefs.getString(KEY_IMAGE, null)
         )
         _user.value = currentUser

@@ -57,8 +57,13 @@ if (file_put_contents($targetPath, $decoded) === false) {
     respond(500, false, 'Failed to save image');
 }
 
-$scheme = $_SERVER['REQUEST_SCHEME'] ?? 'https';
+$forwardedProto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+$scheme = $forwardedProto !== ''
+    ? trim(explode(',', $forwardedProto)[0])
+    : ($_SERVER['REQUEST_SCHEME'] ?? 'https');
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$url = $scheme . '://' . $host . '/uploads/properties/' . $user['id'] . '/' . $safeName;
+$scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/api/upload-image.php');
+$basePath = rtrim(dirname(dirname($scriptName)), '/');
+$url = $scheme . '://' . $host . $basePath . '/uploads/properties/' . $user['id'] . '/' . $safeName;
 
 respond(201, true, 'Image uploaded successfully', ['url' => $url]);
