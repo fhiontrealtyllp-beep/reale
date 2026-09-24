@@ -7,7 +7,7 @@ requireMethod('POST');
 const MAX_PROPERTY_PHOTOS = 5;
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 40_000_000;
-const RESIZE_LONG_EDGE = 6000;
+const RESIZE_LONG_EDGE = 2560;
 const JPEG_QUALITY = 94;
 const WEBP_QUALITY = 92;
 

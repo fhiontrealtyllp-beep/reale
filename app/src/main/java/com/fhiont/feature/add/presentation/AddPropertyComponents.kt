@@ -2,8 +2,11 @@ package com.fhiont.feature.add.presentation
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
-import android.webkit.MimeTypeMap
+import java.io.ByteArrayInputStream
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -695,9 +698,10 @@ internal fun rememberImageLaunchers(
                 onValidationError(AddStrings.ERR_IMAGE_TOO_LARGE)
                 return@rememberLauncherForActivityResult
             }
+            val optimized = optimizeImageBytes(bytes)
             val filename = AddStrings.CAMERA_FILE_PREFIX + System.currentTimeMillis() + AddStrings.IMAGE_FILENAME_EXT
             photoFile?.delete()
-            onUpload(listOf(bytes to filename))
+            onUpload(listOf(optimized to filename))
         }
     }
 
@@ -719,16 +723,10 @@ internal fun rememberImageLaunchers(
                     Logger.w(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_IMAGE_TOO_LARGE_URI + uri)
                     return@mapIndexedNotNull null
                 }
-                val mime = try {
-                    context.contentResolver.getType(uri)
-                } catch (e: Exception) {
-                    null
-                } ?: AddStrings.IMAGE_MIME_DEFAULT
-                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
-                    ?.takeIf { it.lowercase() in AddStrings.SUPPORTED_IMAGE_EXTENSIONS }
-                    ?: AddStrings.IMAGE_EXT_DEFAULT
-                val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index + "." + ext
-                bytes to filename
+                val optimized = optimizeImageBytes(bytes)
+                val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index +
+                    "." + AddStrings.IMAGE_EXT_DEFAULT
+                optimized to filename
             }
             if (imagesToUpload.isNotEmpty()) {
                 onUpload(imagesToUpload)
@@ -782,6 +780,77 @@ internal fun readBytesFromUri(context: Context, uri: Uri): ByteArray? {
         context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
     } catch (e: Exception) {
         null
+    }
+}
+
+internal fun optimizeImageBytes(bytes: ByteArray): ByteArray {
+    return try {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return bytes
+
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, AddStrings.IMAGE_MAX_LONG_EDGE)
+        }
+        var source = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, decodeOptions) ?: return bytes
+
+        val rotationDegrees = readExifRotation(bytes)
+        if (rotationDegrees != 0) {
+            val matrix = Matrix().apply { postRotate(rotationDegrees.toFloat()) }
+            val rotated = Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+            source.recycle()
+            source = rotated
+        }
+
+        val resized = source.resize(AddStrings.IMAGE_MAX_LONG_EDGE)
+        val output = ByteArrayOutputStream().use { stream ->
+            resized.compress(Bitmap.CompressFormat.JPEG, AddStrings.IMAGE_OPTIMIZE_QUALITY, stream)
+            stream.toByteArray()
+        }
+        if (resized != source) resized.recycle()
+        source.recycle()
+        output
+    } catch (e: Exception) {
+        Logger.e(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_IMAGE_OPTIMIZE_FAILED, e)
+        bytes
+    }
+}
+
+private fun calculateInSampleSize(width: Int, height: Int, maxDim: Int): Int {
+    var inSampleSize = 1
+    if (height > maxDim || width > maxDim) {
+        val halfHeight = height / 2
+        val halfWidth = width / 2
+        while ((halfHeight / inSampleSize) >= maxDim && (halfWidth / inSampleSize) >= maxDim) {
+            inSampleSize *= 2
+        }
+    }
+    return inSampleSize
+}
+
+private fun Bitmap.resize(maxDim: Int): Bitmap {
+    if (width <= maxDim && height <= maxDim) return this
+    val scale = maxDim.toFloat() / maxOf(width, height)
+    val newWidth = (width * scale).toInt()
+    val newHeight = (height * scale).toInt()
+    return Bitmap.createScaledBitmap(this, newWidth, newHeight, true)
+}
+
+private fun readExifRotation(bytes: ByteArray): Int {
+    return try {
+        ByteArrayInputStream(bytes).use { stream ->
+            when (ExifInterface(stream).getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+        }
+    } catch (e: Exception) {
+        0
     }
 }
 

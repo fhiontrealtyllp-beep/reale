@@ -239,6 +239,11 @@ internal object AddStrings {
     const val ERR_IMAGE_FORMAT_NOT_SUPPORTED = "Only JPG, PNG and WebP images are supported"
     const val ERR_IMAGE_TOO_LARGE = "Image must be 12 MB or smaller"
 
+    // Image optimization: keep visual quality high while reducing upload size.
+    const val IMAGE_MAX_LONG_EDGE = 2048
+    const val IMAGE_OPTIMIZE_QUALITY = 92
+    const val LOG_IMAGE_OPTIMIZE_FAILED = "Failed to optimize image, using original"
+
     // My Listings screen
     const val TITLE_ADD_PROPERTY = "Add Property"
     const val TITLE_MY_LISTINGS = "My Listings"
