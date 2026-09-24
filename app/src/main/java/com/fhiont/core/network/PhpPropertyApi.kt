@@ -34,6 +34,18 @@ class PhpPropertyApi {
         parse = { it.getJSONObject("data").getString("propertyId") }
     )
 
+    suspend fun getAllProperties(token: String, page: Int, limit: Int): Result<List<Property>> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "properties-all.php?page=$page&limit=$limit",
+        token = token,
+        parse = { response ->
+            val array = response.getJSONObject("data").getJSONArray("properties")
+            List(array.length()) { index ->
+                PropertyMapper.fromMap(array.getJSONObject(index).toMap())
+            }
+        }
+    )
+
     suspend fun getMyProperties(token: String): Result<List<Property>> = apiCall(
         method = HTTP_METHOD_GET,
         endpoint = "properties.php",

@@ -13,7 +13,6 @@ import com.fhiont.util.Logger
 import kotlinx.coroutines.tasks.await
 
 private const val TAG = "PropertyRemoteDataSource"
-private const val BATCH_LIMIT = 1000L
 
 class PropertyRemoteDataSourceImpl(
     private val userSession: UserSession,
@@ -30,49 +29,43 @@ class PropertyRemoteDataSourceImpl(
         limit: Int
     ): Result<List<Property>> {
         Logger.d(TAG, "getAllProperties: start page=$page, limit=$limit, filter=$filter")
-        return try {
-            val city = filter?.normalizedCity?.takeIf { it.isNotBlank() }
-            var query: com.google.firebase.firestore.Query = properties
-                .whereEqualTo("status", "live")
-            if (city != null) {
-                query = query.whereEqualTo("city", city)
-            }
-            val snapshot = query
-                .limit(BATCH_LIMIT)
-                .get()
-                .await()
-
-            val all = snapshot.documents.map { doc ->
-                val data = doc.data ?: emptyMap()
-                PropertyMapper.fromMap(data, doc.id)
-            }.sortedByDescending { it.createdAt }
-
-            val filtered = all.filter { PropertyQueryBuilder.isClientSideMatch(it, filter) }
-            Logger.d(TAG, "getAllProperties: received=${all.size}, matched=${filtered.size}")
-
-            if (filter != null && filtered.size < all.size) {
-                val rejections = all.asSequence()
-                    .mapNotNull { PropertyQueryBuilder.rejectionReason(it, filter) }
-                    .groupingBy { it }
-                    .eachCount()
-                Logger.d(TAG, "getAllProperties: rejection reasons=$rejections")
-            }
-
-            val start = page * limit
-            if (start >= filtered.size) {
-                return Result.Success(emptyList())
-            }
-            val end = (start + limit).coerceAtMost(filtered.size)
-            val properties = filtered.subList(start, end)
-
-            Logger.d(TAG, "getAllProperties: page=$page pageSize=${properties.size}")
-
-            val userId = userSession.getUserId()
-            Result.Success(if (userId.isNullOrEmpty()) properties else mergeLikes(properties, userId))
-        } catch (e: Exception) {
-            Logger.e(TAG, "getAllProperties: error=${e.message}", e)
-            Result.Error("Unexpected error: ${e.message}")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            return Result.Error("User not logged in")
         }
+
+        val requiredMatchCount = (page + 1) * limit
+        val matchingProperties = mutableListOf<Property>()
+        var apiPage = 0
+        var reachedServerEnd = false
+
+        while (matchingProperties.size < requiredMatchCount && !reachedServerEnd) {
+            when (val result = phpPropertyApi.getAllProperties(token, apiPage, limit)) {
+                is Result.Success -> {
+                    val received = result.data
+                    val matching = received.filter { PropertyQueryBuilder.isClientSideMatch(it, filter) }
+                    matchingProperties += matching
+                    reachedServerEnd = received.size < limit
+                    Logger.d(
+                        TAG,
+                        "getAllProperties: apiPage=$apiPage received=${received.size}, matched=${matching.size}"
+                    )
+                    apiPage += 1
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "getAllProperties: apiPage=$apiPage error=${result.message}")
+                    return result
+                }
+            }
+        }
+
+        val start = page * limit
+        val pageProperties = matchingProperties
+            .drop(start)
+            .take(limit)
+            .sortedByDescending { it.createdAt }
+        Logger.d(TAG, "getAllProperties: page=$page pageSize=${pageProperties.size}")
+        return Result.Success(mergeLikesFromPhp(pageProperties, token))
     }
 
     override suspend fun getFeaturedProperties(limit: Int): Result<List<Property>> {
