@@ -58,14 +58,20 @@ class PhpPropertyApi {
         }
     )
 
-    suspend fun uploadImage(token: String, bytes: ByteArray, filename: String): Result<String> = apiCall(
+    suspend fun uploadImage(
+        token: String,
+        bytes: ByteArray,
+        filename: String,
+        uploadGroupId: String
+    ): Result<String> = apiCall(
         method = HTTP_METHOD_POST,
         endpoint = "upload-image.php",
         token = token,
         body = JSONObject()
             .put("filename", filename)
             .put("mimeType", imageMimeType(filename))
-            .put("data", Base64.encodeToString(bytes, Base64.DEFAULT)),
+            .put("uploadGroupId", uploadGroupId)
+            .put("data", Base64.encodeToString(bytes, Base64.NO_WRAP)),
         parse = { it.getJSONObject("data").getString("url") }
     )
 

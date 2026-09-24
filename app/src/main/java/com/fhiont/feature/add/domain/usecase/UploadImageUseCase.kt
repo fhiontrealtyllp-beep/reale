@@ -4,14 +4,14 @@ import com.fhiont.feature.add.domain.repository.AddPropertyRepository
 import com.fhiont.feature.search.domain.utils.Result
 
 interface UploadImageUseCase {
-    suspend operator fun invoke(bytes: ByteArray, filename: String): Result<String>
+    suspend operator fun invoke(bytes: ByteArray, filename: String, uploadGroupId: String): Result<String>
 }
 
 class UploadImageUseCaseImpl(
     private val repository: AddPropertyRepository
 ) : UploadImageUseCase {
 
-    override suspend fun invoke(bytes: ByteArray, filename: String): Result<String> {
-        return repository.uploadImage(bytes, filename)
+    override suspend fun invoke(bytes: ByteArray, filename: String, uploadGroupId: String): Result<String> {
+        return repository.uploadImage(bytes, filename, uploadGroupId)
     }
 }

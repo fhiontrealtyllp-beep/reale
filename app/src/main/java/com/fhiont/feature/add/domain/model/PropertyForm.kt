@@ -62,6 +62,12 @@ data class PropertyForm(
         if (longitude.isNotBlank() && longitude.toDoubleOrNull() == null) {
             errors.add(AddStrings.ERR_LONGITUDE_INVALID)
         }
+        if (images.size < 2) {
+            errors.add(AddStrings.ERR_MIN_PHOTOS)
+        }
+        if (images.size > AddStrings.MAX_PROPERTY_PHOTOS) {
+            errors.add(AddStrings.ERR_MAX_PHOTOS)
+        }
         return errors
     }
 }

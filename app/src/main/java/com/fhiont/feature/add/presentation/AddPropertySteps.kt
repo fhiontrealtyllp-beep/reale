@@ -37,7 +37,10 @@ fun AddPropertySteps(
     val form = uiState.form
     var showLocationPicker by remember { mutableStateOf(false) }
     var showImageSourceDialog by remember { mutableStateOf(false) }
-    val imageLaunchers = rememberImageLaunchers(viewModel::uploadImages)
+    val imageLaunchers = rememberImageLaunchers(
+        onUpload = viewModel::uploadImages,
+        onValidationError = viewModel::onImageUploadValidationError
+    )
     val scrollState = rememberScrollState()
 
     // Reset scroll to top whenever the step changes so the first field is visible.

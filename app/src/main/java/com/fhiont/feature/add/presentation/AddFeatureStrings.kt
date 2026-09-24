@@ -127,10 +127,10 @@ internal object AddStrings {
     // Step 3 — Photos & media
     const val UPLOAD_PHOTOS_TITLE = "Upload Photos"
     const val UPLOAD_PHOTOS_DRAG_HINT = "Drag & drop or tap to upload"
-    const val UPLOAD_PHOTOS_FORMAT_HINT = "JPG, PNG (Max 10 MB each)"
+    const val UPLOAD_PHOTOS_FORMAT_HINT = "JPG, PNG, WebP (Max 12 MB each)"
     const val ACTION_SELECT_PHOTOS = "Select Photos"
     const val UPLOADING_PHOTOS = "Uploading photos..."
-    const val PHOTOS_VISIBILITY_HINT = "Add at least 5 photos for better visibility"
+    const val PHOTOS_VISIBILITY_HINT = "Add 2 to 5 photos for better visibility"
     const val ACTION_ADD_MORE = "Add More"
     const val CD_ADD_MORE_PHOTOS = "Add more photos"
     const val BADGE_COVER = "Cover"
@@ -220,6 +220,24 @@ internal object AddStrings {
     const val IMAGE_EXT_DEFAULT = "jpg"
     const val IMAGE_FILENAME_PREFIX = "property_image_"
     const val IMAGE_FILENAME_EXT = ".jpg"
+    const val CAMERA_FILE_PREFIX = "property_camera_"
+    const val FILE_PROVIDER_AUTHORITY = "com.fhiont.fileprovider"
+    const val ERR_MAX_PHOTOS = "A property can have a maximum of 5 photos"
+    const val ERR_MIN_PHOTOS = "At least 2 photos are required"
+    const val MAX_PROPERTY_PHOTOS = 5
+
+    // Image validation
+    const val MAX_IMAGE_BYTES = 12 * 1024 * 1024
+    val SUPPORTED_IMAGE_EXTENSIONS = setOf("jpg", "jpeg", "png", "webp")
+    const val TAG_IMAGE_LAUNCHERS = "ImageLaunchers"
+    const val ERR_CAMERA_FILE_CREATION_FAILED = "Could not create camera photo file"
+    const val LOG_CANNOT_READ_URI = "Cannot read bytes from URI: "
+    const val LOG_UNSUPPORTED_FORMAT_URI = "Unsupported image format for URI: "
+    const val LOG_IMAGE_TOO_LARGE_URI = "Image too large for URI: "
+    const val LOG_CAMERA_TEMP_FILE_FAILED = "Failed to create camera temp file"
+    const val ERR_CAMERA_READ_FAILED = "Could not read camera photo"
+    const val ERR_IMAGE_FORMAT_NOT_SUPPORTED = "Only JPG, PNG and WebP images are supported"
+    const val ERR_IMAGE_TOO_LARGE = "Image must be 12 MB or smaller"
 
     // My Listings screen
     const val TITLE_ADD_PROPERTY = "Add Property"

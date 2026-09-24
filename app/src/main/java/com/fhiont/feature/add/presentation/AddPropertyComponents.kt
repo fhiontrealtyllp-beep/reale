@@ -80,7 +80,11 @@ import com.fhiont.ui.theme.OnControlAccent
 import com.fhiont.ui.theme.OnMediaContent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
+import androidx.core.content.FileProvider
+import com.fhiont.util.Logger
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
 
 @Composable
 internal fun StepIndicator(
@@ -657,16 +661,42 @@ internal fun ImageSourceDialog(
 
 @Composable
 internal fun rememberImageLaunchers(
-    onUpload: (List<Pair<ByteArray, String>>) -> Unit
+    onUpload: (List<Pair<ByteArray, String>>) -> Unit,
+    onValidationError: (String) -> Unit = {}
 ): ImageLaunchers {
     val context = LocalContext.current
+    val pendingPhotoUri = remember { mutableStateOf<Uri?>(null) }
+    val pendingPhotoFile = remember { mutableStateOf<File?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        bitmap?.let {
-            val bytes = it.toJpegBytes()
-            val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + AddStrings.IMAGE_FILENAME_EXT
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        pendingPhotoUri.value?.let { uri ->
+            pendingPhotoUri.value = null
+            val photoFile = pendingPhotoFile.value
+            pendingPhotoFile.value = null
+            if (!success) {
+                photoFile?.delete()
+                return@rememberLauncherForActivityResult
+            }
+            val bytes = readBytesFromUri(context, uri)
+            if (bytes == null) {
+                photoFile?.delete()
+                onValidationError(AddStrings.ERR_CAMERA_READ_FAILED)
+                return@rememberLauncherForActivityResult
+            }
+            if (!bytes.isSupportedImageType()) {
+                photoFile?.delete()
+                onValidationError(AddStrings.ERR_IMAGE_FORMAT_NOT_SUPPORTED)
+                return@rememberLauncherForActivityResult
+            }
+            if (bytes.size > AddStrings.MAX_IMAGE_BYTES) {
+                photoFile?.delete()
+                onValidationError(AddStrings.ERR_IMAGE_TOO_LARGE)
+                return@rememberLauncherForActivityResult
+            }
+            val filename = AddStrings.CAMERA_FILE_PREFIX + System.currentTimeMillis() + AddStrings.IMAGE_FILENAME_EXT
+            photoFile?.delete()
             onUpload(listOf(bytes to filename))
         }
     }
@@ -674,28 +704,63 @@ internal fun rememberImageLaunchers(
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = { uris ->
-            if (uris.isNotEmpty()) {
-                val imagesToUpload = uris.mapIndexedNotNull { index, uri ->
-                    val bytes = readBytesFromUri(context, uri)
-                    if (bytes == null) return@mapIndexedNotNull null
-                    val mime = try {
-                        context.contentResolver.getType(uri)
-                    } catch (e: Exception) {
-                        null
-                    } ?: AddStrings.IMAGE_MIME_DEFAULT
-                    val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: AddStrings.IMAGE_EXT_DEFAULT
-                    val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index + "." + ext
-                    bytes to filename
+            if (uris.isEmpty()) return@rememberLauncherForActivityResult
+            val imagesToUpload = uris.mapIndexedNotNull { index, uri ->
+                val bytes = readBytesFromUri(context, uri)
+                if (bytes == null) {
+                    Logger.w(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_CANNOT_READ_URI + uri)
+                    return@mapIndexedNotNull null
                 }
-                if (imagesToUpload.isNotEmpty()) {
-                    onUpload(imagesToUpload)
+                if (!bytes.isSupportedImageType()) {
+                    Logger.w(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_UNSUPPORTED_FORMAT_URI + uri)
+                    return@mapIndexedNotNull null
                 }
+                if (bytes.size > AddStrings.MAX_IMAGE_BYTES) {
+                    Logger.w(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_IMAGE_TOO_LARGE_URI + uri)
+                    return@mapIndexedNotNull null
+                }
+                val mime = try {
+                    context.contentResolver.getType(uri)
+                } catch (e: Exception) {
+                    null
+                } ?: AddStrings.IMAGE_MIME_DEFAULT
+                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
+                    ?.takeIf { it.lowercase() in AddStrings.SUPPORTED_IMAGE_EXTENSIONS }
+                    ?: AddStrings.IMAGE_EXT_DEFAULT
+                val filename = AddStrings.IMAGE_FILENAME_PREFIX + System.currentTimeMillis() + "_" + index + "." + ext
+                bytes to filename
+            }
+            if (imagesToUpload.isNotEmpty()) {
+                onUpload(imagesToUpload)
+            } else if (uris.isNotEmpty()) {
+                onValidationError(AddStrings.ERR_IMAGE_FORMAT_NOT_SUPPORTED)
             }
         }
     )
 
     return ImageLaunchers(
-        camera = { cameraLauncher.launch(null) },
+        camera = {
+            val file = createTempImageFile(context)
+            if (file == null) {
+                onValidationError(AddStrings.ERR_CAMERA_FILE_CREATION_FAILED)
+                return@ImageLaunchers
+            }
+            val uri = try {
+                FileProvider.getUriForFile(
+                    context,
+                    AddStrings.FILE_PROVIDER_AUTHORITY,
+                    file
+                )
+            } catch (e: Exception) {
+                Logger.e(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_CAMERA_TEMP_FILE_FAILED, e)
+                file.delete()
+                onValidationError(AddStrings.ERR_CAMERA_FILE_CREATION_FAILED)
+                return@ImageLaunchers
+            }
+            pendingPhotoUri.value = uri
+            pendingPhotoFile.value = file
+            cameraLauncher.launch(uri)
+        },
         gallery = { galleryLauncher.launch(AddStrings.IMAGE_MIME_FILTER) }
     )
 }
@@ -707,7 +772,7 @@ internal data class ImageLaunchers(
 
 internal fun Bitmap.toJpegBytes(): ByteArray {
     return ByteArrayOutputStream().use { stream ->
-        compress(Bitmap.CompressFormat.JPEG, 90, stream)
+        compress(Bitmap.CompressFormat.JPEG, 94, stream)
         stream.toByteArray()
     }
 }
@@ -718,6 +783,48 @@ internal fun readBytesFromUri(context: Context, uri: Uri): ByteArray? {
     } catch (e: Exception) {
         null
     }
+}
+
+private fun createTempImageFile(context: Context): File? {
+    return try {
+        File.createTempFile(
+            AddStrings.CAMERA_FILE_PREFIX + System.currentTimeMillis() + "_",
+            AddStrings.IMAGE_FILENAME_EXT,
+            context.cacheDir
+        )
+    } catch (e: IOException) {
+        Logger.e(AddStrings.TAG_IMAGE_LAUNCHERS, AddStrings.LOG_CAMERA_TEMP_FILE_FAILED, e)
+        null
+    }
+}
+
+private fun ByteArray.isSupportedImageType(): Boolean {
+    if (size < 12) return false
+    // JPEG: FF D8 FF
+    if (this[0] == 0xFF.toByte() && this[1] == 0xD8.toByte() && this[2] == 0xFF.toByte()) return true
+    // PNG: 89 50 4E 47 0D 0A 1A 0A
+    if (size >= 8 &&
+        this[0] == 0x89.toByte() &&
+        this[1] == 0x50.toByte() &&
+        this[2] == 0x4E.toByte() &&
+        this[3] == 0x47.toByte() &&
+        this[4] == 0x0D.toByte() &&
+        this[5] == 0x0A.toByte() &&
+        this[6] == 0x1A.toByte() &&
+        this[7] == 0x0A.toByte()
+    ) return true
+    // WebP: RIFF....WEBP
+    if (size >= 12 &&
+        this[0] == 'R'.toByte() &&
+        this[1] == 'I'.toByte() &&
+        this[2] == 'F'.toByte() &&
+        this[3] == 'F'.toByte() &&
+        this[8] == 'W'.toByte() &&
+        this[9] == 'E'.toByte() &&
+        this[10] == 'B'.toByte() &&
+        this[11] == 'P'.toByte()
+    ) return true
+    return false
 }
 
 @Preview(showBackground = true, name = "Step Indicator — Step 3 of 5")

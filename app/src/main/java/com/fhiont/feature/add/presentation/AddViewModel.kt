@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddViewModel(
     private val addPropertyUseCase: AddPropertyUseCase,
@@ -36,6 +37,8 @@ class AddViewModel(
     private val userSession: UserSession,
     private val draftStore: PropertyDraftStore
 ) : ViewModel() {
+
+    private val uploadGroupId = UUID.randomUUID().toString()
 
     private val _uiState = MutableStateFlow(AddUiState())
     val uiState: StateFlow<AddUiState> = _uiState.asStateFlow()
@@ -204,7 +207,10 @@ class AddViewModel(
                 }
             }
             AddPropertyStep.PROPERTY_DETAILS -> emptyList()
-            AddPropertyStep.PHOTOS_MEDIA -> emptyList()
+            AddPropertyStep.PHOTOS_MEDIA -> buildList {
+                if (form.images.size < 2) add(AddStrings.ERR_MIN_PHOTOS)
+                if (form.images.size > AddStrings.MAX_PROPERTY_PHOTOS) add(AddStrings.ERR_MAX_PHOTOS)
+            }
             AddPropertyStep.PRICING -> {
                 buildList {
                     if (form.price.isBlank()) add(AddStrings.ERR_PRICE_REQUIRED)
@@ -332,19 +338,33 @@ class AddViewModel(
         updateForm { copy(images = images) }
     }
 
+    fun onImageUploadValidationError(message: String) {
+        _uiState.value = _uiState.value.copy(imageUploadError = message)
+    }
+
     fun uploadImage(bytes: ByteArray, filename: String) {
         uploadImages(listOf(bytes to filename))
     }
 
     fun uploadImages(imagesToUpload: List<Pair<ByteArray, String>>) {
+        val remainingSlots = AddStrings.MAX_PROPERTY_PHOTOS - _uiState.value.form.images.size
+        if (remainingSlots <= 0) {
+            _uiState.value = _uiState.value.copy(imageUploadError = AddStrings.ERR_MAX_PHOTOS)
+            return
+        }
+        val acceptedImages = imagesToUpload.take(remainingSlots)
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isUploadingImage = true,
-                imageUploadError = null
+                imageUploadError = if (imagesToUpload.size > remainingSlots) AddStrings.ERR_MAX_PHOTOS else null
             )
 
-            for ((bytes, filename) in imagesToUpload) {
-                when (val result = uploadImageUseCase(bytes, filename)) {
+            for ((bytes, filename) in acceptedImages) {
+                if (_uiState.value.form.images.size >= AddStrings.MAX_PROPERTY_PHOTOS) {
+                    _uiState.value = _uiState.value.copy(imageUploadError = AddStrings.ERR_MAX_PHOTOS)
+                    break
+                }
+                when (val result = uploadImageUseCase(bytes, filename, uploadGroupId)) {
                     is Result.Success -> addImageUrl(result.data)
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(imageUploadError = result.message)
@@ -362,7 +382,9 @@ class AddViewModel(
         if (trimmed.isNotBlank()) {
             updateForm {
                 val current = images.toMutableSet()
-                if (current.add(trimmed)) {
+                if (current.size >= AddStrings.MAX_PROPERTY_PHOTOS) {
+                    this
+                } else if (current.add(trimmed)) {
                     copy(images = current.toList())
                 } else this
             }

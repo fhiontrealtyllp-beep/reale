@@ -104,7 +104,11 @@ private fun PhotoGrid(
     modifier: Modifier = Modifier
 ) {
     // A null cell renders the "Add More" tile at the end of the grid.
-    val cells: List<String?> = images + listOf(null)
+    val cells: List<String?> = if (images.size >= AddStrings.MAX_PROPERTY_PHOTOS) {
+        images
+    } else {
+        images + listOf(null)
+    }
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
