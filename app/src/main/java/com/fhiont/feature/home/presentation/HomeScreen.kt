@@ -4,7 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,10 +28,14 @@ import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.presentation.HomeCategory
 import com.fhiont.feature.auth.presentation.LoginPromptDialog
 import com.fhiont.feature.search.presentation.SearchViewModel
+import com.fhiont.feature.search.presentation.components.MapViewContent
+import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.ui.preview.PreviewData
+import com.fhiont.ui.theme.Accent
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.components.GenericLoader
 import com.fhiont.ui.theme.FhiontTheme
+import com.fhiont.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
 import com.fhiont.feature.search.presentation.SearchStrings
@@ -51,6 +61,7 @@ fun HomeScreen(
     HomeContent(
         featuredProperties = featuredProperties,
         promotionalProperties = promotionalProperties,
+        mapProperties = uiState.properties,
         selectedCategory = selectedCategory,
         selectedCity = selectedCity,
         isLoading = uiState.isLoading,
@@ -89,6 +100,7 @@ fun HomeScreen(
 internal fun HomeContent(
     featuredProperties: List<Property>,
     promotionalProperties: List<Property>,
+    mapProperties: List<Property> = emptyList(),
     selectedCategory: HomeCategory,
     selectedCity: String? = null,
     isLoading: Boolean = false,
@@ -109,12 +121,42 @@ internal fun HomeContent(
     }
 
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
+    var showMap by remember { mutableStateOf(false) }
+
+    // Union of every property Home knows about, deduped for stable marker state.
+    val mapProperties = remember(featuredProperties, promotionalProperties, mapProperties) {
+        (featuredProperties + promotionalProperties + mapProperties)
+            .distinctBy { it.documentId ?: it.id }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = { },
         containerColor = AppBackground,
-        contentWindowInsets = WindowInsets(0.dp)
+        contentWindowInsets = WindowInsets(0.dp),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showMap = !showMap },
+                containerColor = Accent,
+                contentColor = White,
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(bottom = BOTTOM_NAV_CLEARANCE)
+            ) {
+                Icon(
+                    imageVector = if (showMap) {
+                        Icons.AutoMirrored.Filled.List
+                    } else {
+                        Icons.Filled.Map
+                    },
+                    contentDescription = if (showMap) {
+                        HomeStrings.CD_LIST_VIEW
+                    } else {
+                        HomeStrings.CD_MAP_VIEW
+                    }
+                )
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -130,6 +172,12 @@ internal fun HomeContent(
 
             if (isLoading) {
                 GenericLoader(modifier = Modifier.weight(1f))
+            } else if (showMap) {
+                MapViewContent(
+                    properties = mapProperties,
+                    onPropertyTap = { selectedProperty = it },
+                    modifier = Modifier.weight(1f)
+                )
             } else {
                 HomePropertyFeed(
                     featuredProperties = featuredList,
