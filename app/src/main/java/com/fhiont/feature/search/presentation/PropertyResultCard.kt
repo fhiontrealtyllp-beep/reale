@@ -52,6 +52,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -150,8 +153,11 @@ private fun PropertyImage(
 
             // Cycle photos while the card is composed; a per-property stagger
             // keeps every card on screen from flipping at the same instant.
-            LaunchedEffect(images.size, currentImage) {
-                if (images.size > 1) {
+            // Pauses while the app is backgrounded (lifecycle below RESUMED
+            // cancels the pending delay and restarts fresh on resume).
+            val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+            LaunchedEffect(images.size, currentImage, lifecycleState) {
+                if (images.size > 1 && lifecycleState == Lifecycle.State.RESUMED) {
                     delay(CARD_IMAGE_ROTATE_MS + abs(property.id.hashCode()) % CARD_IMAGE_STAGGER_MS)
                     currentImage = (currentImage + 1) % images.size
                 }

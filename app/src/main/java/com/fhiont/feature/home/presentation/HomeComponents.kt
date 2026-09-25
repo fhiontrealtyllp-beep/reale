@@ -42,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +58,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import com.fhiont.R
@@ -398,7 +402,11 @@ internal fun PromotionBanner(
 
     val pagerState = rememberPagerState(pageCount = { promotionalProperties.size })
 
-    LaunchedEffect(pagerState.pageCount) {
+    // Auto-scrolls the banner; pauses while the app is backgrounded (lifecycle
+    // below RESUMED cancels the loop and restarts fresh on resume).
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    LaunchedEffect(pagerState.pageCount, lifecycleState) {
+        if (lifecycleState != Lifecycle.State.RESUMED) return@LaunchedEffect
         while (true) {
             delay(HomeDims.PROMO_AUTO_SCROLL_MS)
             val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount

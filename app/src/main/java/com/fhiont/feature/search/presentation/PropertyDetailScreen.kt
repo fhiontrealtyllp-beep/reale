@@ -106,6 +106,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -196,9 +199,11 @@ fun PropertyDetailScreen(
 
     // Auto-rotate the hero every few seconds, looping back to the first image.
     // Keyed on selectedImage so a manual thumbnail tap restarts the timer;
-    // pauses while the fullscreen viewer is open or there's only one image.
-    LaunchedEffect(images.size, selectedImage, fullScreenPage) {
-        if (images.size > 1 && fullScreenPage == null) {
+    // pauses while the fullscreen viewer is open, there's only one image,
+    // or the app is backgrounded (lifecycle below RESUMED cancels the delay).
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
+    LaunchedEffect(images.size, selectedImage, fullScreenPage, lifecycleState) {
+        if (images.size > 1 && fullScreenPage == null && lifecycleState == Lifecycle.State.RESUMED) {
             delay(HERO_AUTO_ADVANCE_MS)
             selectedImage = (selectedImage + 1) % images.size
         }
@@ -463,7 +468,7 @@ private fun HeroCircleButton(
     backgroundColor: Color = Color.Unspecified
 ) {
     val resolvedBackground = if (backgroundColor == Color.Unspecified) {
-        Black.copy(alpha = 0.45f)
+        Black.copy(alpha = 0.2f)
     } else {
         backgroundColor
     }
