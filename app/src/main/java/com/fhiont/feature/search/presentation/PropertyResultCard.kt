@@ -1,6 +1,12 @@
 package com.fhiont.feature.search.presentation
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
@@ -18,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
@@ -32,9 +39,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -58,8 +71,13 @@ import com.fhiont.ui.theme.OnMediaContent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.SurfaceLight
 import com.fhiont.ui.theme.White
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
+
+private const val CARD_IMAGE_ROTATE_MS = 3000L
+private const val CARD_IMAGE_STAGGER_MS = 1000
 
 @Composable
 internal fun PropertyResultCard(
@@ -125,41 +143,84 @@ private fun PropertyImage(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            AsyncImage(
-                model = property.images.firstOrNull()
-                    ?: "https://picsum.photos/seed/${property.id}/300/200",
-                contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+            val images = remember(property.id, property.images) {
+                property.images.filter { it.isNotBlank() }
+            }
+            var currentImage by remember(property.id) { mutableIntStateOf(0) }
 
-        if (property.images.size > 1) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(PropertiesDims.FILTER_CHIP_ICON_TEXT_SPACING),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(PropertiesDims.FILTER_CHIP_ICON_TEXT_SPACING)
-                    .clip(RoundedCornerShape(PropertiesDims.PHOTO_COUNT_CORNER_RADIUS))
-                    .background(MediaScrim.copy(alpha = 0.6f))
-                    .padding(
-                        horizontal = PropertiesDims.PHOTO_COUNT_HORIZONTAL_PADDING,
-                        vertical = PropertiesDims.PHOTO_COUNT_VERTICAL_PADDING
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PhotoLibrary,
-                    contentDescription = PropertiesStrings.CD_PHOTOS,
-                    tint = OnMediaContent,
-                    modifier = Modifier.size(PropertiesDims.PHOTO_COUNT_ICON_SIZE)
-                )
-                Text(
-                    text = "${property.images.size} ${PropertiesStrings.PHOTOS_LABEL}",
-                    color = OnMediaContent,
-                    fontSize = PropertiesDims.PHOTO_COUNT_FONT_SIZE
+            // Cycle photos while the card is composed; a per-property stagger
+            // keeps every card on screen from flipping at the same instant.
+            LaunchedEffect(images.size, currentImage) {
+                if (images.size > 1) {
+                    delay(CARD_IMAGE_ROTATE_MS + abs(property.id.hashCode()) % CARD_IMAGE_STAGGER_MS)
+                    currentImage = (currentImage + 1) % images.size
+                }
+            }
+
+            AnimatedContent(
+                targetState = currentImage.coerceIn(0, images.lastIndex),
+                transitionSpec = {
+                    slideInHorizontally { it } + fadeIn() togetherWith
+                        slideOutHorizontally { -it } + fadeOut()
+                },
+                label = "cardImage",
+                modifier = Modifier.fillMaxSize()
+            ) { imageIndex ->
+                AsyncImage(
+                    model = images.getOrNull(imageIndex)
+                        ?: "https://picsum.photos/seed/${property.id}/300/200",
+                    contentDescription = PropertiesStrings.CD_PROPERTY_IMAGE,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
+
+            if (images.size > 1) {
+                ImageDotsIndicator(
+                    count = images.size,
+                    activeIndex = currentImage,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = PropertiesDims.CARD_IMAGE_DOTS_BOTTOM_PADDING)
+                        .clip(RoundedCornerShape(PropertiesDims.CARD_IMAGE_DOTS_CORNER_RADIUS))
+                        .background(MediaScrim.copy(alpha = 0.6f))
+                        .padding(
+                            horizontal = PropertiesDims.CARD_IMAGE_DOTS_HORIZONTAL_PADDING,
+                            vertical = PropertiesDims.CARD_IMAGE_DOTS_VERTICAL_PADDING
+                        )
+                )
+            }
+        }
+
+
+    }
+}
+
+@Composable
+private fun ImageDotsIndicator(
+    count: Int,
+    activeIndex: Int,
+    modifier: Modifier = Modifier,
+    activeColor: Color = OnMediaContent,
+    inactiveColor: Color = OnMediaContent.copy(alpha = PropertiesDims.CARD_IMAGE_DOT_INACTIVE_ALPHA)
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(PropertiesDims.CARD_IMAGE_DOT_SPACING),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(count) { index ->
+            val color = if (index == activeIndex) {
+                activeColor.copy(alpha = PropertiesDims.CARD_IMAGE_DOT_ACTIVE_ALPHA)
+            } else {
+                inactiveColor
+            }
+            Box(
+                modifier = Modifier
+                    .size(PropertiesDims.CARD_IMAGE_DOT_SIZE)
+                    .clip(CircleShape)
+                    .background(color)
+            )
         }
     }
 }

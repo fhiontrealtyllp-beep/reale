@@ -347,6 +347,15 @@ internal object DetailDims {
     val THUMB_SPACING = 8.dp
     val THUMB_SELECTED_BORDER = 2.dp
 
+    val HERO_DOT_SIZE = 5.dp
+    val HERO_DOT_SPACING = 4.dp
+    val HERO_DOTS_HORIZONTAL_PADDING = 6.dp
+    val HERO_DOTS_VERTICAL_PADDING = 3.dp
+    val HERO_DOTS_CORNER_RADIUS = 6.dp
+    val HERO_DOTS_BOTTOM_PADDING = 6.dp
+    const val HERO_DOT_ACTIVE_ALPHA = 1f
+    const val HERO_DOT_INACTIVE_ALPHA = 0.4f
+
     // Bottom hero content (photo badge, media pills) must clear the part of the
     // thumbnail card that overlaps the hero: card height minus the overlap below it.
     val HERO_BOTTOM_CONTENT_GAP = 12.dp

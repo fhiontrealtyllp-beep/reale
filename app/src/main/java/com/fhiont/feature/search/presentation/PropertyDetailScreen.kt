@@ -4,6 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -331,13 +337,39 @@ private fun HeroSection(
                         .clickable(onClick = onImageClick)
                 )
             } else {
-                AsyncImage(
-                    model = images[selectedImage.coerceIn(0, images.lastIndex)],
-                    contentDescription = property.title,
-                    contentScale = ContentScale.Crop,
+                AnimatedContent(
+                    targetState = selectedImage.coerceIn(0, images.lastIndex),
+                    transitionSpec = {
+                        slideInHorizontally { it } + fadeIn() togetherWith
+                            slideOutHorizontally { -it } + fadeOut()
+                    },
+                    label = "heroImage",
+                    modifier = Modifier.fillMaxSize()
+                ) { imageIndex ->
+                    AsyncImage(
+                        model = images[imageIndex],
+                        contentDescription = property.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable(onClick = onImageClick)
+                    )
+                }
+            }
+
+            if (images.size > 1) {
+                ImageDotsIndicator(
+                    count = images.size,
+                    activeIndex = selectedImage,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(onClick = onImageClick)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = DetailDims.HERO_DOTS_BOTTOM_PADDING)
+                        .clip(RoundedCornerShape(DetailDims.HERO_DOTS_CORNER_RADIUS))
+                        .background(MediaScrim.copy(alpha = 0.6f))
+                        .padding(
+                            horizontal = DetailDims.HERO_DOTS_HORIZONTAL_PADDING,
+                            vertical = DetailDims.HERO_DOTS_VERTICAL_PADDING
+                        )
                 )
             }
 
@@ -390,6 +422,35 @@ private fun HeroSection(
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = DetailDims.SCREEN_PADDING)
         )
+    }
+}
+
+@Composable
+private fun ImageDotsIndicator(
+    count: Int,
+    activeIndex: Int,
+    modifier: Modifier = Modifier,
+    activeColor: Color = OnMediaContent,
+    inactiveColor: Color = OnMediaContent.copy(alpha = DetailDims.HERO_DOT_INACTIVE_ALPHA)
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(DetailDims.HERO_DOT_SPACING),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(count) { index ->
+            val color = if (index == activeIndex) {
+                activeColor.copy(alpha = DetailDims.HERO_DOT_ACTIVE_ALPHA)
+            } else {
+                inactiveColor
+            }
+            Box(
+                modifier = Modifier
+                    .size(DetailDims.HERO_DOT_SIZE)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
     }
 }
 
