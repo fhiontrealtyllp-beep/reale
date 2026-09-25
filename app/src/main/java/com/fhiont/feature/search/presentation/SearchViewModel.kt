@@ -482,7 +482,19 @@ class SearchViewModel(
             val result = getAllPropertiesUseCase(effectiveFilter, page, limit)
             when (result) {
                 is Result.Success -> {
-                    val newProperties = result.data.distinctBy { it.documentId ?: it.id }
+                    // Overlay local optimistic likes: a page fetched before the
+                    // like POST commits must not reset items the user just liked.
+                    val localLikedIds = likeStateManager.likedIds.value
+                    val newProperties = result.data
+                        .distinctBy { it.documentId ?: it.id }
+                        .map { property ->
+                            val id = property.documentId ?: property.id
+                            if (property.isLiked != true && localLikedIds.contains(id)) {
+                                property.copy(isLiked = true)
+                            } else {
+                                property
+                            }
+                        }
                     Logger.d(TAG, "loadPage: received ${newProperties.size} properties for page=$page")
                     val updatedList = (if (page == 0) {
                         newProperties
@@ -500,18 +512,21 @@ class SearchViewModel(
                         hasReachedEnd = reachedEnd,
                         errorMessage = null
                     )
-                    val pageIds = newProperties.map { it.documentId ?: it.id }.toSet()
                     val pageLikedIds = newProperties.mapNotNull {
                         if (it.isLiked == true) it.documentId ?: it.id else null
                     }.toSet()
-                    val otherLikedIds = likeStateManager.likedIds.value - pageIds
-                    val mergedIds = pageLikedIds + otherLikedIds
+                    // Union with local likes: never let a stale page silently
+                    // remove an optimistic like.
+                    val mergedIds = pageLikedIds + likeStateManager.likedIds.value
                     Logger.d(TAG, "loadPage: syncing ${mergedIds.size} liked IDs to LikeStateManager (page=$page, pageLiked=${pageLikedIds.size})")
                     likeStateManager.syncLikedIds(mergedIds)
 
                     val pageLikedCache = newProperties.filter { it.isLiked == true }.associateBy { it.documentId ?: it.id }
-                    val otherCache = likeStateManager.likedPropertyCache.value.filterKeys { it !in pageIds }
-                    likeStateManager.syncLikedProperties((otherCache + pageLikedCache).values.toList())
+                    // Keep cached objects for every still-liked id so the Saved
+                    // list can render items not present in this page.
+                    val retainedCache = likeStateManager.likedPropertyCache.value
+                        .filterKeys { it in mergedIds }
+                    likeStateManager.syncLikedProperties((retainedCache + pageLikedCache).values.toList())
                 }
                 is Result.Error -> {
                     Logger.e(TAG, "loadPage: failed page=$page, ${result.message}")
@@ -554,16 +569,22 @@ class SearchViewModel(
         val normalizedCity = _uiState.value.currentFilter?.normalizedCity
         Logger.d(TAG, "applyCategoryFilter: category=$category, city=$normalizedCity")
 
+        val likedIds = likeStateManager.likedIds.value
         val filtered = _rawFeaturedProperties.value.filter { property ->
             category.matches(property) && cityMatches(property.city, normalizedCity)
-        }
+        }.map { it.withLocalLike(likedIds) }
         _featuredProperties.value = filtered
 
         _promotionalProperties.value = _rawPromotionalProperties.value.filter { property ->
             category.matches(property) && cityMatches(property.city, normalizedCity)
-        }.take(PROMOTIONAL_BANNER_MAX)
+        }.map { it.withLocalLike(likedIds) }.take(PROMOTIONAL_BANNER_MAX)
 
         Logger.d(TAG, "applyCategoryFilter: featured=${filtered.size}, promos=${_promotionalProperties.value.size}")
+    }
+
+    private fun Property.withLocalLike(likedIds: Set<String>): Property {
+        val id = documentId ?: id
+        return if (isLiked != true && likedIds.contains(id)) copy(isLiked = true) else this
     }
 
     private fun cityMatches(propertyCity: String, normalizedCity: String?): Boolean {
