@@ -380,9 +380,10 @@ private fun createPriceMarkerBitmap(
 
     val contentLeft = (bubbleWidth - contentWidth) / 2f
     if (isFavorite) {
-        val heartTop = (bubbleHeight - heartSize) / 2f
+        val heartHeight = heartSize * MapMarkerDims.HEART_HEIGHT_RATIO
+        val heartTop = (bubbleHeight - heartHeight) / 2f
         canvas.drawPath(
-            heartPath(contentLeft, heartTop, heartSize),
+            heartPath(contentLeft, heartTop, heartSize, heartHeight),
             Paint(Paint.ANTI_ALIAS_FLAG).apply { color = contentArgb }
         )
     }
@@ -396,16 +397,25 @@ private fun createPriceMarkerBitmap(
     return bitmap
 }
 
-/** Heart silhouette inside a square box, used as the favorite marker prefix. */
-private fun heartPath(left: Float, top: Float, size: Float): Path {
-    val w = size
-    val h = size
+/**
+ * Material "favorite" heart scaled to fill a width × height box. Source
+ * viewport: x 2–22, y 3–21.35 — the anchors span the full box so the drawn
+ * heart keeps its natural wide proportions instead of shrinking inward.
+ */
+private fun heartPath(left: Float, top: Float, width: Float, height: Float): Path {
+    val sx = width / 20f
+    val sy = height / 18.35f
+    fun px(v: Float) = left + (v - 2f) * sx
+    fun py(v: Float) = top + (v - 3f) * sy
     return Path().apply {
-        moveTo(left + w / 2f, top + h)
-        cubicTo(left, top + h * 0.6f, left + w * 0.05f, top, left + w * 0.3f, top)
-        cubicTo(left + w * 0.42f, top, left + w / 2f, top + h * 0.08f, left + w / 2f, top + h * 0.3f)
-        cubicTo(left + w / 2f, top + h * 0.08f, left + w * 0.58f, top, left + w * 0.7f, top)
-        cubicTo(left + w * 0.95f, top, left + w, top + h * 0.6f, left + w / 2f, top + h)
+        moveTo(px(12f), py(21.35f))
+        lineTo(px(10.55f), py(20.03f))
+        cubicTo(px(5.4f), py(15.36f), px(2f), py(12.28f), px(2f), py(8.5f))
+        cubicTo(px(2f), py(5.42f), px(4.42f), py(3f), px(7.5f), py(3f))
+        cubicTo(px(9.24f), py(3f), px(10.91f), py(3.81f), px(12f), py(5.09f))
+        cubicTo(px(13.09f), py(3.81f), px(14.76f), py(3f), px(16.5f), py(3f))
+        cubicTo(px(19.58f), py(3f), px(22f), py(5.42f), px(22f), py(8.5f))
+        cubicTo(px(22f), py(12.28f), px(18.6f), py(15.36f), px(13.45f), py(20.04f))
         close()
     }
 }

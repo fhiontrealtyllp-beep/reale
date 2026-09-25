@@ -215,6 +215,7 @@ internal object MapMarkerDims {
     const val STROKE_WIDTH = 1.5f
     const val TAIL_OVERLAP = 1f
     const val HEART_SIZE = 12f
+    const val HEART_HEIGHT_RATIO = 0.85f
     const val HEART_TEXT_GAP = 5f
     const val FAVORITE_Z_INDEX = 1f
     const val DEFAULT_Z_INDEX = 0f
