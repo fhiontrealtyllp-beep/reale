@@ -106,7 +106,7 @@ class PropertyLocationSuggestionRepository(
                         val cityDisplay = cities.firstOrNull { it.lowercase() == cityKey } ?: cityKey
                         suggestions.add(
                             LocationSuggestion(
-                                placeId = locality.lowercase(),
+                                placeId = "$cityKey|${locality.lowercase()}",
                                 primaryText = cityDisplay,
                                 secondaryText = locality,
                                 fullText = "$locality, $cityDisplay"
