@@ -466,6 +466,7 @@ class SearchViewModel(
                 is Result.Success -> {
                     Logger.d(TAG, "loadPromotionalProperty: received=${result.data.size}")
                     _rawPromotionalProperties.value = result.data
+                        .distinctBy { it.documentId ?: it.id }
                     applyCategoryFilter()
                 }
                 is Result.Error -> {
@@ -481,9 +482,13 @@ class SearchViewModel(
             val result = getAllPropertiesUseCase(effectiveFilter, page, limit)
             when (result) {
                 is Result.Success -> {
-                    val newProperties = result.data
+                    val newProperties = result.data.distinctBy { it.documentId ?: it.id }
                     Logger.d(TAG, "loadPage: received ${newProperties.size} properties for page=$page")
-                    val updatedList = if (page == 0) newProperties else _uiState.value.properties + newProperties
+                    val updatedList = (if (page == 0) {
+                        newProperties
+                    } else {
+                        _uiState.value.properties + newProperties
+                    }).distinctBy { it.documentId ?: it.id }
                     val reachedEnd = newProperties.size < limit
                     if (newProperties.isNotEmpty()) {
                         currentPage = page + 1
@@ -534,6 +539,7 @@ class SearchViewModel(
                 is Result.Success -> {
                     Logger.d(TAG, "loadFeaturedProperties: received=${result.data.size}")
                     _rawFeaturedProperties.value = result.data
+                        .distinctBy { it.documentId ?: it.id }
                     applyCategoryFilter()
                 }
                 is Result.Error -> {
