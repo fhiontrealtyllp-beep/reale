@@ -99,6 +99,22 @@ if ($method === 'POST') {
     ]);
 
     $propertyId = (int) $pdo->lastInsertId();
+
+    // Register the property's city/locality in the suggestion catalogs so the
+    // city picker and location chips pick it up. Case-insensitive unique keys
+    // keep entries distinct; failures here must not fail the add.
+    try {
+        $upsertCity = $pdo->prepare('INSERT IGNORE INTO cities (name) VALUES (:name)');
+        $upsertCity->execute(['name' => $city]);
+
+        $upsertLocality = $pdo->prepare(
+            'INSERT IGNORE INTO localities (city, locality) VALUES (:city, :locality)'
+        );
+        $upsertLocality->execute(['city' => $city, 'locality' => $locality]);
+    } catch (Throwable $ignored) {
+        error_log('Location catalog upsert failed: ' . $ignored->getMessage());
+    }
+
     respond(201, true, 'Property added successfully', ['propertyId' => (string) $propertyId]);
 }
 

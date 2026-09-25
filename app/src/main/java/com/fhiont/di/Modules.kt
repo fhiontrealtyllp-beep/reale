@@ -50,6 +50,7 @@ import com.fhiont.feature.auth.domain.usecase.VerifyPhoneOtpUseCaseImpl
 import com.fhiont.feature.auth.presentation.LoginViewModel
 import com.fhiont.feature.auth.presentation.PhoneAuthViewModel
 import com.fhiont.feature.auth.presentation.RegisterViewModel
+import com.fhiont.feature.city.presentation.CityViewModel
 import com.fhiont.feature.profile.data.remote.ProfileRemoteDataSource
 import com.fhiont.feature.profile.data.remote.ProfileRemoteDataSourceImpl
 import com.fhiont.feature.profile.data.repository.ProfileRepositoryImpl
@@ -131,6 +132,7 @@ val appModule = module {
     single<SetOnboardingAddressUseCase> { SetOnboardingAddressUseCaseImpl(get()) }
     single<SetOnboardingCompletedUseCase> { SetOnboardingCompletedUseCaseImpl(get()) }
     viewModel { MainViewModel(get(), get(), get(), get()) }
+    viewModel { CityViewModel(get()) }
 }
 
 val authModule = module {
@@ -180,7 +182,7 @@ val addModule = module {
     single<GetMyPropertiesUseCase> { GetMyPropertiesUseCaseImpl(get()) }
     single<DeletePropertyUseCase> { DeletePropertyUseCaseImpl(get()) }
     single { PropertyDraftStore(androidContext()) }
-    viewModel { AddViewModel(get(), get(), get(), get(), get()) }
+    viewModel { AddViewModel(get(), get(), get(), get(), get(), get()) }
 }
 
 val profileModule = module {

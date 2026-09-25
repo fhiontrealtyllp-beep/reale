@@ -69,6 +69,24 @@ CREATE TABLE IF NOT EXISTS properties (
     CONSTRAINT properties_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS cities (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(120) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY cities_name_unique (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS localities (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    city VARCHAR(120) NOT NULL,
+    locality VARCHAR(120) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY localities_city_locality_unique (city, locality),
+    KEY localities_city_index (city)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS likes (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,

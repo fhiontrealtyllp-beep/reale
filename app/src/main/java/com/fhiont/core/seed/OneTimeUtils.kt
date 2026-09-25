@@ -7,6 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
 import com.fhiont.core.network.PhpAuthApi
+import com.fhiont.core.network.PhpPropertyApi
+import com.fhiont.feature.add.domain.model.PropertyForm
 import com.fhiont.feature.search.data.mapper.jsonName
 import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
@@ -18,6 +20,7 @@ import com.fhiont.feature.search.domain.model.LocationNormalizer
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
+import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.util.Logger
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,6 +39,7 @@ private const val KEY_ESSENTIAL_FILTER_SEEDED = "essential_filter_coverage_seede
 private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
 private const val KEY_BENGALURU_FEATURED_PROMO_SEEDED = "bengaluru_featured_promo_seeded"
 private const val KEY_BENGALURU_PROMO_BUY_SEEDED = "bengaluru_promo_buy_seeded"
+private const val KEY_GOA_SEEDED = "goa_all_types_seeded"
 private const val KEY_PHP_TEST_USER_SEEDED = "php_test_user_seeded"
 private const val KEY_PHP_TEST_USER_EMAIL = "php_test_user_email"
 private const val KEY_PHP_TEST_USER_PASSWORD = "php_test_user_password"
@@ -59,6 +63,9 @@ private const val TEST_USER_EMAIL = "seeded@user.com"
 private const val TEST_USER_PASSWORD = "seeded@101"
 private const val TEST_EMAIL_DOMAIN = "example.com"
 private const val TEST_PASSWORD_PREFIX = "Test@"
+private const val GOA_CITY = "Goa"
+private const val GOA_AREA_BASE_SQFT = 900.0
+private const val GOA_AREA_STEP_SQFT = 75.0
 
 private val CITIES = listOf("Bengaluru", "Pune", "Panaji", "Nagpur")
 
@@ -109,10 +116,59 @@ private val BENGALURU_LOCALITIES = listOf(
 
 private val DELHI_PINCODES = listOf("110001", "110005", "110048", "110075", "110085")
 
+/**
+ * Explicit Goa seed table. Each row has a unique property name, a unique view,
+ * a real Goa locality, and its own latitude/longitude. Rows cover every active
+ * [PropertyType] and [ListingCategory], split across RENT and BUY.
+ */
+private data class GoaSeedSpec(
+    val name: String,
+    val view: String,
+    val locality: String,
+    val latitude: Double,
+    val longitude: Double,
+    val rentBuy: RentBuy,
+    val listingCategory: ListingCategory,
+    val propertyType: PropertyType,
+    val bedroomType: BedroomType,
+    val bathrooms: Int,
+    val price: Double
+)
+
+private val GOA_SEED_PROPERTIES = listOf(
+    GoaSeedSpec("Azure Waves", "Sea View", "Baga", 15.5527, 73.7517,
+        RentBuy.BUY, ListingCategory.FEATURED, PropertyType.VILLA, BedroomType.FOUR_BHK, 4, 32_000_000.0),
+    GoaSeedSpec("Casa Sol", "Beach View", "Calangute", 15.5440, 73.7519,
+        RentBuy.BUY, ListingCategory.FEATURED, PropertyType.APARTMENT, BedroomType.THREE_BHK, 3, 14_500_000.0),
+    GoaSeedSpec("Palm Crest", "Palm Grove View", "Candolim", 15.5178, 73.7626,
+        RentBuy.RENT, ListingCategory.FEATURED, PropertyType.VILLA, BedroomType.THREE_BHK, 3, 85_000.0),
+    GoaSeedSpec("Cliffside Haven", "Cliff View", "Anjuna", 15.5736, 73.7400,
+        RentBuy.RENT, ListingCategory.FEATURED, PropertyType.INDEPENDENT_HOUSE, BedroomType.TWO_BHK, 2, 55_000.0),
+    GoaSeedSpec("Sunset Terra", "Sunset View", "Vagator", 15.5979, 73.7450,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.VILLA, BedroomType.FIVE_BHK, 5, 48_000_000.0),
+    GoaSeedSpec("Rivermist Retreat", "River View", "Panaji", 15.4909, 73.8278,
+        RentBuy.RENT, ListingCategory.PROMOTIONAL, PropertyType.APARTMENT, BedroomType.TWO_BHK, 2, 38_000.0),
+    GoaSeedSpec("Green Acres Enclave", "Garden View", "Mapusa", 15.5915, 73.8089,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.PLOT, BedroomType.STUDIO_APARTMENT, 1, 9_500_000.0),
+    GoaSeedSpec("South Shore Manor", "Ocean View", "Margao", 15.2832, 73.9862,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.INDEPENDENT_HOUSE, BedroomType.FOUR_BHK, 3, 21_000_000.0),
+    GoaSeedSpec("Silver Sands", "Beachfront View", "Colva", 15.2798, 73.9227,
+        RentBuy.RENT, ListingCategory.NORMAL, PropertyType.APARTMENT, BedroomType.ONE_BHK, 1, 22_000.0),
+    GoaSeedSpec("Bay Point Nest", "Bay View", "Dona Paula", 15.4610, 73.8070,
+        RentBuy.BUY, ListingCategory.NORMAL, PropertyType.APARTMENT, BedroomType.THREE_BHK, 2, 11_800_000.0),
+    GoaSeedSpec("Lagoon Whisper", "Lagoon View", "Morjim", 15.6300, 73.7390,
+        RentBuy.RENT, ListingCategory.NORMAL, PropertyType.INDEPENDENT_HOUSE, BedroomType.TWO_BHK, 2, 42_000.0),
+    GoaSeedSpec("Golden Fields", "Paddy Field View", "Siolim", 15.6186, 73.7654,
+        RentBuy.BUY, ListingCategory.NORMAL, PropertyType.LAND, BedroomType.STUDIO_APARTMENT, 1, 7_200_000.0)
+)
+
+private val GOA_PINCODES = listOf("403001", "403002", "403507", "403511", "403516", "403519")
+
 class OneTimeUtils(
     context: Context,
     private val firebaseProvider: FirebaseProvider = FirebaseProvider(),
-    private val phpAuthApi: PhpAuthApi = PhpAuthApi()
+    private val phpAuthApi: PhpAuthApi = PhpAuthApi(),
+    private val phpPropertyApi: PhpPropertyApi = PhpPropertyApi()
 ) {
 
     private val firestore: FirebaseFirestore = firebaseProvider.firestore
@@ -571,6 +627,106 @@ class OneTimeUtils(
         } else {
             Logger.w(TAG, "Bengaluru promotional buy seeding incomplete. Success: $successCount / $BENGALURU_PROMO_BUY_COUNT")
         }
+    }
+
+    /**
+     * Seeds [GOA_SEED_PROPERTIES] into the PHP backend for Goa via
+     * properties.php. Covers every active property type and listing category
+     * (featured, promotional, normal) across both rent and buy, each with a
+     * unique name, view, locality, and latitude/longitude. The backend also
+     * registers each city/locality in the location catalog.
+     */
+    suspend fun seedGoaPropertiesIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_GOA_SEEDED, false)) {
+            Logger.d(TAG, "Goa properties already seeded, skipping.")
+            return@withContext
+        }
+
+        val token = ensureSeedSessionToken()
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "Goa seeding aborted: no session token for seed user")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Goa property seeding via PHP API...")
+        val images = buildImageUrls(GOA_CITY)
+        var successCount = 0
+
+        for ((index, spec) in GOA_SEED_PROPERTIES.withIndex()) {
+            val form = spec.toPropertyForm(index, images)
+            when (val result = phpPropertyApi.addProperty(token, form)) {
+                is Result.Success -> {
+                    successCount++
+                    Logger.d(TAG, "Seeded Goa property '${spec.name}' (${spec.listingCategory}, ${spec.rentBuy}) -> ${result.data}")
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "Failed to seed Goa property '${spec.name}': ${result.message}")
+                }
+            }
+        }
+
+        if (successCount == GOA_SEED_PROPERTIES.size) {
+            prefs.edit().putBoolean(KEY_GOA_SEEDED, true).apply()
+            Logger.d(TAG, "Goa property seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Goa property seeding incomplete. Success: $successCount / ${GOA_SEED_PROPERTIES.size}")
+        }
+    }
+
+    /**
+     * Logs in as the shared seed user and returns its session token. If the
+     * account doesn't exist yet it is registered first, then logged in again.
+     */
+    private suspend fun ensureSeedSessionToken(): String? {
+        var login = phpAuthApi.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        if (login is Result.Error) {
+            Logger.d(TAG, "Seed user login failed (${login.message}); registering first")
+            when (val register = phpAuthApi.register(TEST_USER_NAME, TEST_USER_EMAIL, TEST_USER_PASSWORD)) {
+                is Result.Success -> {
+                    prefs.edit().putBoolean(KEY_PHP_TEST_USER_SEEDED, true).apply()
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "Seed user registration failed: ${register.message}")
+                    return null
+                }
+            }
+            login = phpAuthApi.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+        }
+        return when (login) {
+            is Result.Success -> login.data.sessionId.takeIf { it.isNotBlank() }
+            is Result.Error -> {
+                Logger.e(TAG, "Seed user login failed: ${login.message}")
+                null
+            }
+        }
+    }
+
+    private fun GoaSeedSpec.toPropertyForm(index: Int, images: List<String>): PropertyForm {
+        val area = GOA_AREA_BASE_SQFT + index * GOA_AREA_STEP_SQFT
+        return PropertyForm(
+            rentBuy = rentBuy,
+            residentialCommercial = propertyType.category,
+            propertyType = propertyType,
+            bedroomType = bedroomType,
+            title = "$name - $view ${propertyType.label}, $locality",
+            description = "$name is a ${bedroomType.label} " +
+                "${propertyType.label.lowercase()} with a ${view.lowercase()} in " +
+                "$locality, $GOA_CITY. Available for ${rentBuy.label.lowercase()}.",
+            price = String.format(Locale.US, "%.2f", price),
+            city = GOA_CITY,
+            locality = locality,
+            pincode = GOA_PINCODES[index % GOA_PINCODES.size],
+            address = "$locality, $GOA_CITY",
+            latitude = latitude.toString(),
+            longitude = longitude.toString(),
+            bathrooms = bathrooms,
+            carpetArea = String.format(Locale.US, "%.0f", area),
+            builtUpArea = String.format(Locale.US, "%.0f", area * 1.1),
+            superBuiltUpArea = String.format(Locale.US, "%.0f", area * 1.2),
+            agentPhone = AGENT_PHONE,
+            listingCategory = listingCategory,
+            images = images
+        )
     }
 
     suspend fun seedPhpTestUserIfNeeded() = withContext(Dispatchers.IO) {

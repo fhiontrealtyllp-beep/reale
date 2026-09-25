@@ -198,10 +198,33 @@ class PhpPropertyApi {
         }
     }
 
+    /** Cities + localities catalog. Public endpoint; token optional. */
+    suspend fun getLocations(token: String? = null): Result<LocationCatalog> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "locations.php",
+        token = token,
+        parse = { response ->
+            val data = response.getJSONObject("data")
+            val cityArray = data.getJSONArray("cities")
+            val localityArray = data.getJSONArray("localities")
+            LocationCatalog(
+                cities = List(cityArray.length()) { cityArray.getString(it) },
+                localitiesByCity = buildMap<String, MutableList<String>> {
+                    for (i in 0 until localityArray.length()) {
+                        val entry = localityArray.getJSONObject(i)
+                        val cityKey = entry.getString("city").lowercase()
+                        getOrPut(cityKey) { mutableListOf<String>() }
+                            .add(entry.getString("locality"))
+                    }
+                }
+            )
+        }
+    )
+
     private suspend fun <T> apiCall(
         method: String,
         endpoint: String,
-        token: String,
+        token: String?,
         body: JSONObject? = null,
         parse: (JSONObject) -> T
     ): Result<T> = withContext(Dispatchers.IO) {
@@ -216,7 +239,9 @@ class PhpPropertyApi {
                 readTimeout = READ_TIMEOUT_MS
                 setRequestProperty("Content-Type", CONTENT_TYPE_JSON)
                 setRequestProperty("Accept", "application/json")
-                setRequestProperty("Authorization", "Bearer $token")
+                if (!token.isNullOrBlank()) {
+                    setRequestProperty("Authorization", "Bearer $token")
+                }
                 if (body != null) {
                     doOutput = true
                 }

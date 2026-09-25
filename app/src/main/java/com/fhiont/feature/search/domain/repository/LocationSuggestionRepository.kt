@@ -10,4 +10,7 @@ interface LocationSuggestionRepository {
     suspend fun getSuggestions(query: String): Result<List<LocationSuggestion>>
     suspend fun getCities(query: String): Result<List<String>>
     suspend fun getLocalities(city: String, query: String): Result<List<String>>
+
+    /** Clears any cached catalog so the next read refetches from the server. */
+    fun invalidateCache()
 }

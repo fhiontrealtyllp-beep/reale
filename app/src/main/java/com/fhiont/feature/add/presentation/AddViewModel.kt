@@ -20,6 +20,7 @@ import com.fhiont.feature.search.domain.model.Furnishing
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
+import com.fhiont.feature.search.domain.repository.LocationSuggestionRepository
 import com.fhiont.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,8 @@ class AddViewModel(
     private val uploadImageUseCase: UploadImageUseCase,
     private val getMyPropertiesUseCase: GetMyPropertiesUseCase,
     private val userSession: UserSession,
-    private val draftStore: PropertyDraftStore
+    private val draftStore: PropertyDraftStore,
+    private val locationSuggestionRepository: LocationSuggestionRepository
 ) : ViewModel() {
 
     private val uploadGroupId = UUID.randomUUID().toString()
@@ -461,6 +463,10 @@ class AddViewModel(
                         myProperties = listOf(newProperty) + _uiState.value.myProperties
                     )
                     draftStore.clearDraft()
+                    // The backend registered the form's city/locality in the
+                    // location catalog; drop the cached copy so the city picker
+                    // and suggestion chips see the new values immediately.
+                    locationSuggestionRepository.invalidateCache()
                     _sideEffect.emit(AddStrings.MSG_PROPERTY_ADDED)
                 }
                 is Result.Error -> {

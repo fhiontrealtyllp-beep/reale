@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
+import com.fhiont.ui.components.GenericLoader
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.ControlAccent
@@ -56,24 +60,6 @@ private const val CITY_ICON_BACKGROUND_ALPHA = 0.1f
  */
 data class City(val name: String, val region: String)
 
-// TODO: Fetch the city list from the backend API once the cities endpoint is
-// available, and move this into a repository/view model.
-private val famousCities = listOf(
-    City("Mumbai", "India"),
-    City("Delhi", "India"),
-    City("Bengaluru", "India"),
-    City("Hyderabad", "India"),
-    City("Chennai", "India"),
-    City("Pune", "India"),
-    City("Kolkata", "India"),
-    City("Dubai", "UAE"),
-    City("Singapore", "Singapore"),
-    City("Nagpur", "Nagpur"),
-    City("London", "United Kingdom"),
-    City("New York", "United States"),
-    City("Paris", "France")
-)
-
 /**
  * City selection screen shown after onboarding when the user skips location access.
  *
@@ -83,9 +69,11 @@ private val famousCities = listOf(
 @Composable
 fun CityScreen(
     onCitySelected: (City) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CityViewModel = koinViewModel()
 ) {
     var selectedCity by remember { mutableStateOf<City?>(null) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier
@@ -112,16 +100,59 @@ fun CityScreen(
 
         Spacer(modifier = Modifier.height(CityDims.SPACE_24))
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(CityDims.SPACE_12)
-        ) {
-            items(famousCities) { city ->
-                CityRow(
-                    city = city,
-                    selected = city == selectedCity,
-                    onClick = { selectedCity = city }
-                )
+        when {
+            uiState.isLoading -> {
+                GenericLoader(modifier = Modifier.weight(1f))
+            }
+            uiState.errorMessage != null -> {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = uiState.errorMessage ?: CityStrings.EMPTY_CITIES,
+                        color = Gray,
+                        fontSize = CityDims.SUBTITLE_FONT_SIZE
+                    )
+                    TextButton(onClick = viewModel::load) {
+                        Text(
+                            text = CityStrings.BUTTON_RETRY,
+                            color = ControlAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            uiState.cities.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = CityStrings.EMPTY_CITIES,
+                        color = Gray,
+                        fontSize = CityDims.SUBTITLE_FONT_SIZE
+                    )
+                }
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(CityDims.SPACE_12)
+                ) {
+                    items(uiState.cities) { city ->
+                        CityRow(
+                            city = city,
+                            selected = city == selectedCity,
+                            onClick = { selectedCity = city }
+                        )
+                    }
+                }
             }
         }
 
@@ -199,11 +230,13 @@ private fun CityRow(
                 fontSize = CityDims.CITY_NAME_FONT_SIZE,
                 fontWeight = FontWeight.SemiBold
             )
-            Text(
-                text = city.region,
-                color = Gray,
-                fontSize = CityDims.CITY_REGION_FONT_SIZE
-            )
+            if (city.region.isNotBlank()) {
+                Text(
+                    text = city.region,
+                    color = Gray,
+                    fontSize = CityDims.CITY_REGION_FONT_SIZE
+                )
+            }
         }
 
         if (selected) {
@@ -219,7 +252,26 @@ private fun CityRow(
 @Preview(showBackground = true)
 @Composable
 private fun CityScreenPreview() {
+    val previewRepository = object : com.fhiont.feature.search.domain.repository.LocationSuggestionRepository {
+        override suspend fun getSuggestions(query: String) =
+            com.fhiont.feature.search.domain.utils.Result.Success(
+                emptyList<com.fhiont.feature.search.domain.model.LocationSuggestion>()
+            )
+
+        override suspend fun getCities(query: String) =
+            com.fhiont.feature.search.domain.utils.Result.Success(
+                listOf("Goa", "Mumbai", "Delhi", "Bengaluru")
+            )
+
+        override suspend fun getLocalities(city: String, query: String) =
+            com.fhiont.feature.search.domain.utils.Result.Success(emptyList<String>())
+
+        override fun invalidateCache() {}
+    }
     FhiontTheme {
-        CityScreen(onCitySelected = {})
+        CityScreen(
+            onCitySelected = {},
+            viewModel = CityViewModel(previewRepository)
+        )
     }
 }

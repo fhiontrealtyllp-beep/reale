@@ -11,6 +11,9 @@ internal object CityStrings {
     const val CITY_SUBTITLE = "Select a city to explore properties in your area."
 
     const val BUTTON_CONTINUE = "Continue"
+    const val BUTTON_RETRY = "Retry"
+
+    const val EMPTY_CITIES = "No cities available yet."
 
     const val CD_CITY_ICON = "City"
     const val CD_CITY_SELECTED = "Selected"

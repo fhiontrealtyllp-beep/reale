@@ -57,6 +57,7 @@ class FhiontApplication : Application() {
         GlobalScope.launch(Dispatchers.IO) {
             val oneTimeUtils = OneTimeUtils(this@FhiontApplication)
             //oneTimeUtils.seedPhpTestUserIfNeeded()
+            oneTimeUtils.seedGoaPropertiesIfNeeded()
 
         }
     }
