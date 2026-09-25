@@ -1,6 +1,9 @@
 package com.fhiont.feature.home.presentation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
@@ -124,6 +128,12 @@ internal fun HomeContent(
 
     var selectedProperty by remember { mutableStateOf<Property?>(null) }
     var showMap by remember { mutableStateOf(false) }
+    // Lazily starts the map on first toggle; stays composed afterwards so the
+    // camera, loaded tiles and markers don't reset when switching views.
+    var mapStarted by remember { mutableStateOf(false) }
+    // Feed scroll survives map/list toggles even though the feed leaves
+    // composition while the map is on top.
+    val feedListState = rememberLazyListState()
 
     // Union of every property Home knows about, deduped for stable marker state.
     // Category-filtered here too: uiState.properties is only refetched on
@@ -141,7 +151,10 @@ internal fun HomeContent(
         contentWindowInsets = WindowInsets(0.dp),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showMap = !showMap },
+                onClick = {
+                    showMap = !showMap
+                    if (showMap) mapStarted = true
+                },
                 containerColor = Accent,
                 contentColor = White,
                 modifier = Modifier
@@ -175,15 +188,11 @@ internal fun HomeContent(
                 onCategorySelected = onCategorySelected
             )
 
-            if (isLoading) {
-                GenericLoader(modifier = Modifier.weight(1f))
-            } else if (showMap) {
-                MapViewContent(
-                    properties = mapProperties,
-                    onPropertyTap = { selectedProperty = it },
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
+            // Both views stay composed once created: the feed is the permanent
+            // base layer (so scroll, pager and row state survive map mode) and
+            // the map just slides offscreen in list mode instead of being
+            // disposed — no reload either direction. The loader covers both.
+            Box(modifier = Modifier.weight(1f)) {
                 HomePropertyFeed(
                     featuredProperties = featuredList,
                     promotionalProperties = promotionalProperties,
@@ -200,8 +209,27 @@ internal fun HomeContent(
                         propertyById[featured.id]?.let { onLike(it) }
                     },
                     onPromotionalLike = onLike,
-                    modifier = Modifier.weight(1f)
+                    listState = feedListState,
+                    modifier = Modifier.fillMaxSize()
                 )
+                if (mapStarted) {
+                    MapViewContent(
+                        properties = mapProperties,
+                        onPropertyTap = { selectedProperty = it },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                translationY = if (showMap) 0f else size.height
+                            }
+                    )
+                }
+                if (isLoading) {
+                    GenericLoader(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(AppBackground)
+                    )
+                }
             }
         }
     }

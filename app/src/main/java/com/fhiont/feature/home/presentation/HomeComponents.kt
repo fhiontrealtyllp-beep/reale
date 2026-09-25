@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -611,6 +613,7 @@ internal fun BuyRentToggle(
  * @param onChangeCity Callback invoked from the empty state to change city.
  * @param onLike Callback invoked when a featured property's like button is tapped.
  * @param onPromotionalLike Callback invoked when a promotional property's like button is tapped.
+ * @param listState Scroll state, hoistable so it survives the feed leaving composition.
  * @param modifier Modifier to be applied to the feed container.
  */
 @Composable
@@ -624,6 +627,7 @@ internal fun HomePropertyFeed(
     onChangeCity: () -> Unit,
     onLike: (FeaturedProperty) -> Unit = {},
     onPromotionalLike: (Property) -> Unit = {},
+    listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -637,6 +641,7 @@ internal fun HomePropertyFeed(
             )
         } else {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .navigationBarsPadding(),
