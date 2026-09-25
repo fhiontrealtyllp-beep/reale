@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Fhiont Admin — Properties</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN GATE ═══════════════ -->
+<div id="loginView" class="login-view hidden">
+    <div class="login-card">
+        <div class="login-logo"><span>Fhiont</span><em>Admin</em></div>
+        <p class="login-sub">Sign in to manage all properties across the platform.</p>
+        <form id="loginForm" autocomplete="off">
+            <label class="field">
+                <span>Email</span>
+                <input type="email" id="loginEmail" required placeholder="admin@fhiont.com">
+            </label>
+            <label class="field">
+                <span>Password</span>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </label>
+            <div id="loginError" class="login-error hidden"></div>
+            <button type="submit" id="loginBtn" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+        <p class="login-hint">Uses the same account as the app. Any active user can sign in.</p>
+    </div>
+</div>
+
+<!-- ═══════════════ ADMIN SHELL ═══════════════ -->
+<div id="adminView" class="admin-view hidden">
+
+    <header class="topbar">
+        <div class="topbar-brand"><span>Fhiont</span><em>Admin</em></div>
+        <nav class="topbar-tabs" id="sectionTabs">
+            <button class="tab active" data-section="all">All</button>
+            <button class="tab" data-section="featured">Featured</button>
+            <button class="tab" data-section="promotional">Promotional</button>
+            <button class="tab" data-section="mine">My listings</button>
+            <button class="tab" data-section="enquiries">Enquiries</button>
+        </nav>
+        <div class="topbar-user">
+            <span id="userName" class="user-name"></span>
+            <button id="logoutBtn" class="btn btn-ghost" title="Sign out">Sign out</button>
+        </div>
+    </header>
+
+    <main class="main">
+
+        <!-- Stats -->
+        <section class="stats-row" id="statsRow">
+            <div class="stat-card"><span class="stat-value" id="statTotal">–</span><span class="stat-label">Total live</span></div>
+            <div class="stat-card"><span class="stat-value" id="statFeatured">–</span><span class="stat-label">Featured</span></div>
+            <div class="stat-card"><span class="stat-value" id="statPromo">–</span><span class="stat-label">Promotional</span></div>
+            <div class="stat-card"><span class="stat-value" id="statBuy">–</span><span class="stat-label">Buy</span></div>
+            <div class="stat-card"><span class="stat-value" id="statRent">–</span><span class="stat-label">Rent</span></div>
+            <div class="stat-card"><span class="stat-value" id="statCities">–</span><span class="stat-label">Cities</span></div>
+        </section>
+
+        <!-- Filters -->
+        <section class="filters" id="filtersBar">
+            <input type="search" id="fSearch" class="f-input f-search" placeholder="Search title, locality, address…">
+            <select id="fCity" class="f-input"><option value="">All cities</option></select>
+            <select id="fLocality" class="f-input"><option value="">All localities</option></select>
+            <select id="fRentBuy" class="f-input">
+                <option value="">Buy + Rent</option>
+                <option value="buy">Buy</option>
+                <option value="rent">Rent</option>
+            </select>
+            <select id="fCategory" class="f-input">
+                <option value="">All categories</option>
+                <option value="FEATURED">Featured</option>
+                <option value="PROMOTIONAL">Promotional</option>
+                <option value="NORMAL">Normal</option>
+            </select>
+            <select id="fType" class="f-input"><option value="">All types</option></select>
+            <select id="fBedrooms" class="f-input"><option value="">Any beds</option></select>
+            <select id="fSort" class="f-input">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="price_low">Price: low → high</option>
+                <option value="price_high">Price: high → low</option>
+                <option value="title">Title A–Z</option>
+            </select>
+            <button id="resetFilters" class="btn btn-ghost">Reset</button>
+        </section>
+
+        <!-- Result meta -->
+        <div class="result-meta" id="resultMeta"></div>
+
+        <!-- Content -->
+        <section id="contentArea" class="content-area">
+            <div id="propertyGrid" class="property-grid"></div>
+            <div id="enquiryList" class="enquiry-list hidden"></div>
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">⌂</div>
+                <p>No properties match the current filters.</p>
+            </div>
+            <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading properties…</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- ═══════════════ DETAIL MODAL ═══════════════ -->
+<div id="detailModal" class="modal-backdrop hidden">
+    <div class="modal" role="dialog" aria-modal="true">
+        <button id="modalClose" class="modal-close" title="Close">✕</button>
+        <div class="modal-gallery">
+            <div class="modal-hero"><img id="dHero" alt="Property photo"></div>
+            <div id="dThumbs" class="modal-thumbs"></div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-head">
+                <div>
+                    <h2 id="dTitle"></h2>
+                    <p id="dLocation" class="d-location"></p>
+                </div>
+                <span id="dPrice" class="d-price"></span>
+            </div>
+            <div id="dBadges" class="d-badges"></div>
+            <p id="dDescription" class="d-description"></p>
+            <dl id="dFields" class="d-fields"></dl>
+            <div id="dAmenities" class="d-amenities"></div>
+
+            <div class="modal-actions">
+                <button id="dDeleteBtn" class="btn btn-danger hidden">Delete property</button>
+            </div>
+
+            <h3 class="d-section-title">Enquiries <span id="dEnquiryCount" class="d-count"></span></h3>
+            <div id="dEnquiries" class="d-enquiries"></div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
