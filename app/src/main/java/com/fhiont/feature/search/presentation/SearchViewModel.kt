@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.core.like.LikeStateManager
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
+import com.fhiont.feature.onboarding.domain.usecase.SetOnboardingCityUseCase
 import com.fhiont.feature.saved.domain.usecase.GetLikedPropertiesUseCase
 import com.fhiont.feature.search.data.session.SessionObserver
 import com.fhiont.feature.search.data.session.UserSession
@@ -48,6 +49,7 @@ class SearchViewModel(
     private val getLocationSuggestionsUseCase: GetLocationSuggestionsUseCase,
     private val updatePropertyLikeUseCase: UpdatePropertyLikeUseCase,
     private val getOnboardingCityUseCase: GetOnboardingCityUseCase,
+    private val setOnboardingCityUseCase: SetOnboardingCityUseCase,
     private val getLikedPropertiesUseCase: GetLikedPropertiesUseCase,
     private val userSession: UserSession,
     private val likeStateManager: LikeStateManager = LikeStateManager,
@@ -223,6 +225,10 @@ class SearchViewModel(
         _uiState.value = _uiState.value.copy(currentFilter = filter)
         _searchQuery.value = filter?.city.orEmpty()
         _selectedHomeCategory.value = homeCategoryFor(filter)
+        val city = filter?.city
+        if (!city.isNullOrBlank()) {
+            setOnboardingCityUseCase(city, filter?.localities?.firstOrNull().orEmpty())
+        }
         applyCategoryFilter()
         refresh(clearList = true)
     }

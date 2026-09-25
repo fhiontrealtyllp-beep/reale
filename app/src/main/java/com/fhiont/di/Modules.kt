@@ -132,7 +132,7 @@ val appModule = module {
     single<SetOnboardingAddressUseCase> { SetOnboardingAddressUseCaseImpl(get()) }
     single<SetOnboardingCompletedUseCase> { SetOnboardingCompletedUseCaseImpl(get()) }
     viewModel { MainViewModel(get(), get(), get(), get()) }
-    viewModel { CityViewModel(get()) }
+    viewModel { CityViewModel(get(), get()) }
 }
 
 val authModule = module {
@@ -163,7 +163,7 @@ val searchModule = module {
     single<GetMyEnquiriesUseCase> { GetMyEnquiriesUseCaseImpl(get()) }
     single<GetEnquiriesByPropertyUseCase> { GetEnquiriesByPropertyUseCaseImpl(get()) }
     single<GetEnquiryCountsForPropertiesUseCase> { GetEnquiryCountsForPropertiesUseCaseImpl(get()) }
-    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
 }
 

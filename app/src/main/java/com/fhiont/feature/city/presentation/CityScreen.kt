@@ -29,10 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +52,7 @@ import com.fhiont.util.Logger
 
 private const val SELECTED_CITY_BACKGROUND_ALPHA = 0.08f
 private const val CITY_ICON_BACKGROUND_ALPHA = 0.1f
+private const val PREVIEW_SAVED_CITY = "Mumbai"
 
 /**
  * A selectable city shown in the city picker.
@@ -72,8 +71,12 @@ fun CityScreen(
     modifier: Modifier = Modifier,
     viewModel: CityViewModel = koinViewModel()
 ) {
-    var selectedCity by remember { mutableStateOf<City?>(null) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val selectedCity = uiState.selectedCity
+
+    LaunchedEffect(Unit) {
+        viewModel.syncSelection()
+    }
 
     Column(
         modifier = modifier
@@ -149,7 +152,7 @@ fun CityScreen(
                         CityRow(
                             city = city,
                             selected = city == selectedCity,
-                            onClick = { selectedCity = city }
+                            onClick = { viewModel.selectCity(city) }
                         )
                     }
                 }
@@ -268,10 +271,13 @@ private fun CityScreenPreview() {
 
         override fun invalidateCache() {}
     }
+    val previewCityUseCase = object : com.fhiont.feature.onboarding.domain.usecase.GetOnboardingCityUseCase {
+        override fun invoke() = kotlinx.coroutines.flow.MutableStateFlow(PREVIEW_SAVED_CITY)
+    }
     FhiontTheme {
         CityScreen(
             onCitySelected = {},
-            viewModel = CityViewModel(previewRepository)
+            viewModel = CityViewModel(previewRepository, previewCityUseCase)
         )
     }
 }
