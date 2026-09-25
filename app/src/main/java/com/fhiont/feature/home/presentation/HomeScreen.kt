@@ -204,10 +204,11 @@ internal fun HomeContent(
     }
 
     selectedProperty?.let { selected ->
-        val property = featuredProperties.find {
-            it.documentId == selected.documentId || it.id == selected.id
-        } ?: promotionalProperties.find {
-            it.documentId == selected.documentId || it.id == selected.id
+        // Resolve against the live union (featured + promotional + results) so
+        // isLiked stays in sync; unified key avoids cross-id false matches.
+        val selectedKey = selected.documentId ?: selected.id
+        val property = mapProperties.find {
+            (it.documentId ?: it.id) == selectedKey
         } ?: selected
         PropertyDetailDialog(
             property = property,

@@ -173,7 +173,7 @@ fun SavedScreen(
     // Full-screen property details UI shown after selecting a saved property.
     selectedProperty?.let { selected ->
         val property = uiState.properties.find {
-            it.documentId == selected.documentId || it.id == selected.id
+            (it.documentId ?: it.id) == (selected.documentId ?: selected.id)
         }
         if (property != null) {
             Dialog(
