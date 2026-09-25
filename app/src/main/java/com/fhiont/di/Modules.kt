@@ -26,6 +26,8 @@ import com.fhiont.feature.add.data.repository.AddPropertyRepositoryImpl
 import com.fhiont.feature.add.domain.repository.AddPropertyRepository
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCase
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCaseImpl
+import com.fhiont.feature.add.domain.usecase.DeletePropertyUseCase
+import com.fhiont.feature.add.domain.usecase.DeletePropertyUseCaseImpl
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCaseImpl
 import com.fhiont.feature.add.domain.usecase.UploadImageUseCase as AddUploadImageUseCase
@@ -176,6 +178,7 @@ val addModule = module {
     single<AddPropertyUseCase> { AddPropertyUseCaseImpl(get()) }
     single<AddUploadImageUseCase> { AddUploadImageUseCaseImpl(get()) }
     single<GetMyPropertiesUseCase> { GetMyPropertiesUseCaseImpl(get()) }
+    single<DeletePropertyUseCase> { DeletePropertyUseCaseImpl(get()) }
     single { PropertyDraftStore(androidContext()) }
     viewModel { AddViewModel(get(), get(), get(), get(), get()) }
 }
@@ -189,5 +192,5 @@ val profileModule = module {
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), filterPropertyId) }
-    viewModel { MyListingsViewModel(get(), get(), get()) }
+    viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }

@@ -2,6 +2,7 @@ package com.fhiont.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fhiont.feature.add.domain.usecase.DeletePropertyUseCase
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.BedroomType
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 internal class MyListingsViewModel(
     private val getMyPropertiesUseCase: GetMyPropertiesUseCase,
     private val getEnquiryCountsForPropertiesUseCase: GetEnquiryCountsForPropertiesUseCase,
+    private val deletePropertyUseCase: DeletePropertyUseCase,
     private val userSession: UserSession
 ) : ViewModel() {
 
@@ -58,6 +60,32 @@ internal class MyListingsViewModel(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = propertiesResult.message ?: MyListingsStrings.ERROR_LOADING
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteProperty(propertyId: String) {
+        val userId = userSession.getUserId()
+        if (userId.isNullOrBlank()) {
+            _uiState.value = _uiState.value.copy(errorMessage = MyListingsStrings.ERROR_NOT_LOGGED_IN)
+            return
+        }
+        _uiState.value = _uiState.value.copy(deletingPropertyId = propertyId, errorMessage = null)
+        viewModelScope.launch {
+            when (val result = deletePropertyUseCase(userId, propertyId)) {
+                is Result.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        listings = _uiState.value.listings.filterNot { it.id == propertyId },
+                        properties = _uiState.value.properties.filterNot { it.id == propertyId },
+                        deletingPropertyId = null
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        deletingPropertyId = null,
+                        errorMessage = result.message ?: MyListingsStrings.ERROR_DELETE
                     )
                 }
             }

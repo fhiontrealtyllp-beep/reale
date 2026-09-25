@@ -58,6 +58,14 @@ class PhpPropertyApi {
         }
     )
 
+    suspend fun deleteProperty(token: String, propertyId: String): Result<Unit> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "delete-property.php",
+        token = token,
+        body = JSONObject().put("propertyId", propertyId),
+        parse = { }
+    )
+
     suspend fun uploadImage(
         token: String,
         bytes: ByteArray,

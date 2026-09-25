@@ -47,4 +47,14 @@ class AddPropertyRemoteDataSourceImpl(
         }
         return phpPropertyApi.getMyProperties(token)
     }
+
+    override suspend fun deleteProperty(userId: String, propertyId: String): Result<Unit> {
+        Logger.d(TAG, "deleteProperty() called for user: $userId, property: $propertyId")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "deleteProperty() failed: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpPropertyApi.deleteProperty(token, propertyId)
+    }
 }

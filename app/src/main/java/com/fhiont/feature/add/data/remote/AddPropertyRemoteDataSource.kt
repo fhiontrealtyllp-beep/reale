@@ -8,4 +8,5 @@ interface AddPropertyRemoteDataSource {
     suspend fun addProperty(userId: String, form: PropertyForm): Result<String>
     suspend fun uploadImage(bytes: ByteArray, filename: String, uploadGroupId: String): Result<String>
     suspend fun getMyProperties(userId: String): Result<List<Property>>
+    suspend fun deleteProperty(userId: String, propertyId: String): Result<Unit>
 }

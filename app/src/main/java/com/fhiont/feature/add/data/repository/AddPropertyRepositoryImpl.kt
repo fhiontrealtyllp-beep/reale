@@ -43,4 +43,16 @@ class AddPropertyRepositoryImpl(
             is Result.Error -> result
         }
     }
+
+    override suspend fun deleteProperty(userId: String, propertyId: String): Result<Unit> {
+        return when (val result = remoteDataSource.deleteProperty(userId, propertyId)) {
+            is Result.Success -> {
+                myPropertiesCache[userId] = myPropertiesCache[userId]
+                    ?.filterNot { it.id == propertyId }
+                    .orEmpty()
+                result
+            }
+            is Result.Error -> result
+        }
+    }
 }

@@ -28,9 +28,13 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -93,7 +97,6 @@ internal fun MyListingsScreen(
     onBack: () -> Unit,
     onAddProperty: () -> Unit = {},
     onViewDetails: (MyListing) -> Unit = {},
-    onMoreOptions: (MyListing) -> Unit = {},
     onViewEnquiries: (String) -> Unit = {},
     viewModel: MyListingsViewModel = koinViewModel(),
     modifier: Modifier = Modifier
@@ -107,6 +110,7 @@ internal fun MyListingsScreen(
     var selectedFilter by rememberSaveable { mutableStateOf(0) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedListing by remember { mutableStateOf<MyListing?>(null) }
+    var listingPendingDelete by remember { mutableStateOf<MyListing?>(null) }
 
     val allListings = uiState.listings
     val filteredListings = remember(allListings, selectedFilter, searchQuery) {
@@ -203,13 +207,57 @@ internal fun MyListingsScreen(
                                     selectedListing = listing
                                     onViewDetails(listing)
                                 },
-                                onMoreOptions = { onMoreOptions(listing) }
+                                onDelete = { listingPendingDelete = listing }
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    // Confirmation shown before permanently deleting a listing and its photos.
+    listingPendingDelete?.let { listing ->
+        AlertDialog(
+            onDismissRequest = { listingPendingDelete = null },
+            title = {
+                Text(
+                    text = MyListingsStrings.DELETE_DIALOG_TITLE,
+                    color = Black,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = MyListingsStrings.DELETE_DIALOG_MESSAGE,
+                    color = HomeTextSecondary
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (selectedListing?.id == listing.id) selectedListing = null
+                        viewModel.deleteProperty(listing.id)
+                        listingPendingDelete = null
+                    }
+                ) {
+                    Text(
+                        text = MyListingsStrings.DELETE_DIALOG_CONFIRM,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { listingPendingDelete = null }) {
+                    Text(
+                        text = MyListingsStrings.DELETE_DIALOG_CANCEL,
+                        color = Black
+                    )
+                }
+            },
+            containerColor = White
+        )
     }
 
     // Full-screen property details UI shown after selecting a listing.
@@ -491,7 +539,7 @@ private fun ListingsSearchBar(
 private fun ListingCard(
     listing: MyListing,
     onViewDetails: () -> Unit,
-    onMoreOptions: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     PropertyResultCard(
@@ -499,14 +547,42 @@ private fun ListingCard(
         onClick = onViewDetails,
         modifier = modifier,
         trailingContent = {
-            Icon(
-                imageVector = Icons.Filled.MoreVert,
-                contentDescription = MyListingsStrings.CD_MORE,
-                tint = HomeTextSecondary,
-                modifier = Modifier
-                    .size(MyListingsDims.MORE_ICON_SIZE)
-                    .clickable(onClick = onMoreOptions)
-            )
+            var menuExpanded by remember { mutableStateOf(false) }
+            Box {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = MyListingsStrings.CD_MORE,
+                    tint = HomeTextSecondary,
+                    modifier = Modifier
+                        .size(MyListingsDims.MORE_ICON_SIZE)
+                        .clickable { menuExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+                    containerColor = White
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = MyListingsStrings.ACTION_DELETE,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = MyListingsStrings.CD_DELETE,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onDelete()
+                        }
+                    )
+                }
+            }
         }
     )
 }
@@ -526,6 +602,11 @@ private fun MyListingsScreenPreview() {
                 getEnquiryCountsForPropertiesUseCase = object : com.fhiont.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUseCase {
                     override suspend fun invoke(propertyIds: List<String>): com.fhiont.feature.search.domain.utils.Result<Map<String, Int>> {
                         return com.fhiont.feature.search.domain.utils.Result.Success(emptyMap())
+                    }
+                },
+                deletePropertyUseCase = object : com.fhiont.feature.add.domain.usecase.DeletePropertyUseCase {
+                    override suspend fun invoke(userId: String, propertyId: String): com.fhiont.feature.search.domain.utils.Result<Unit> {
+                        return com.fhiont.feature.search.domain.utils.Result.Success(Unit)
                     }
                 },
                 userSession = object : com.fhiont.feature.search.data.session.UserSession {

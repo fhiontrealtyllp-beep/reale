@@ -47,6 +47,14 @@ internal object MyListingsStrings {
     const val CD_REACTIVATE = "Reactivate listing"
     const val CD_MORE = "More options"
 
+    const val ACTION_DELETE = "Delete"
+    const val CD_DELETE = "Delete listing"
+    const val DELETE_DIALOG_TITLE = "Delete property?"
+    const val DELETE_DIALOG_MESSAGE = "This will permanently remove the listing and all its photos. This action cannot be undone."
+    const val DELETE_DIALOG_CONFIRM = "Delete"
+    const val DELETE_DIALOG_CANCEL = "Cancel"
+    const val ERROR_DELETE = "Unable to delete the property."
+
     const val EMPTY_TITLE = "No properties found"
     const val EMPTY_SUBTITLE = "Your listed properties will appear here."
     const val ERROR_NOT_LOGGED_IN = "Please log in to view your listings."
