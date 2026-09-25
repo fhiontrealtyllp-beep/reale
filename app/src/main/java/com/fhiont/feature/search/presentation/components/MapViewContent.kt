@@ -158,7 +158,7 @@ fun MapViewContent(
                 ) {
                     BitmapDescriptorFactory.fromBitmap(
                         createPriceMarkerBitmap(
-                            label = formatIndianPrice(property.price, false),
+                            label = formatIndianPrice(property.price, property.isRentProperty()),
                             isFavorite = isFavorite,
                             markerScale = markerScale,
                             pillArgb = pillArgb,

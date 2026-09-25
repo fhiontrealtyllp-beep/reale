@@ -126,9 +126,12 @@ internal fun HomeContent(
     var showMap by remember { mutableStateOf(false) }
 
     // Union of every property Home knows about, deduped for stable marker state.
-    val mapProperties = remember(featuredProperties, promotionalProperties, mapProperties) {
+    // Category-filtered here too: uiState.properties is only refetched on
+    // refresh(), so switching Buy/Rent chips would otherwise leak stale markers.
+    val mapProperties = remember(featuredProperties, promotionalProperties, mapProperties, selectedCategory) {
         (featuredProperties + promotionalProperties + mapProperties)
             .distinctBy { it.documentId ?: it.id }
+            .filter { selectedCategory.matches(it) }
     }
 
     Scaffold(
