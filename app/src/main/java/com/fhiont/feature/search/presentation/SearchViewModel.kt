@@ -254,13 +254,13 @@ class SearchViewModel(
         }
 
         val allIndex = _uiState.value.properties.indexOfFirst {
-            it.documentId == propertyId || it.id == propertyId
+            (it.documentId ?: it.id) == propertyId
         }
         val featuredIndex = _featuredProperties.value.indexOfFirst {
-            it.documentId == propertyId || it.id == propertyId
+            (it.documentId ?: it.id) == propertyId
         }
         val promoIndex = _rawPromotionalProperties.value.indexOfFirst {
-            it.documentId == propertyId || it.id == propertyId
+            (it.documentId ?: it.id) == propertyId
         }
         if (allIndex == -1 && featuredIndex == -1 && promoIndex == -1) {
             Logger.w(TAG, "onLikeClicked: property not found in list id=$propertyId")
@@ -450,8 +450,9 @@ class SearchViewModel(
 
     private fun updateFeaturedPropertyInList(index: Int, property: Property) {
         val updated = _rawFeaturedProperties.value.toMutableList()
+        val propertyKey = property.documentId ?: property.id
         val rawIndex = updated.indexOfFirst {
-            it.documentId == property.documentId || it.id == property.id
+            (it.documentId ?: it.id) == propertyKey
         }
         if (rawIndex != -1) {
             updated[rawIndex] = property
