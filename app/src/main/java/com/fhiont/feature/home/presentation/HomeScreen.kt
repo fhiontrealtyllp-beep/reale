@@ -35,14 +35,14 @@ import com.fhiont.feature.search.presentation.SearchViewModel
 import com.fhiont.feature.search.presentation.components.MapViewContent
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.ui.preview.PreviewData
-import com.fhiont.ui.theme.Accent
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.components.GenericLoader
 import com.fhiont.ui.theme.FhiontTheme
-import com.fhiont.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.tooling.preview.Preview
 import com.fhiont.feature.search.presentation.SearchStrings
+import com.fhiont.ui.theme.ControlAccent
+import com.fhiont.ui.theme.OnControlAccent
 
 @Composable
 fun HomeScreen(
@@ -155,8 +155,8 @@ internal fun HomeContent(
                     showMap = !showMap
                     if (showMap) mapStarted = true
                 },
-                containerColor = Accent,
-                contentColor = White,
+                containerColor = ControlAccent,
+                contentColor = OnControlAccent,
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(bottom = BOTTOM_NAV_CLEARANCE)
