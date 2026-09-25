@@ -114,7 +114,9 @@ internal fun HomeContent(
     modifier: Modifier = Modifier
 ) {
     val featuredList = remember(featuredProperties) {
-        featuredProperties.map(Property::toFeaturedProperty)
+        featuredProperties
+            .distinctBy { it.documentId ?: it.id }
+            .map(Property::toFeaturedProperty)
     }
     val propertyById = remember(featuredProperties) {
         featuredProperties.associateBy { it.documentId ?: it.id }

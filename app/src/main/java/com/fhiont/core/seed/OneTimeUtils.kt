@@ -40,6 +40,8 @@ private const val KEY_DELHI_FILTER_SEEDED = "delhi_filter_coverage_seeded"
 private const val KEY_BENGALURU_FEATURED_PROMO_SEEDED = "bengaluru_featured_promo_seeded"
 private const val KEY_BENGALURU_PROMO_BUY_SEEDED = "bengaluru_promo_buy_seeded"
 private const val KEY_GOA_SEEDED = "goa_all_types_seeded"
+private const val KEY_GOA_PROMO_SEEDED = "goa_promotional_seeded"
+private const val KEY_GOA_FEATURED_SEEDED = "goa_featured_seeded"
 private const val KEY_PHP_TEST_USER_SEEDED = "php_test_user_seeded"
 private const val KEY_PHP_TEST_USER_EMAIL = "php_test_user_email"
 private const val KEY_PHP_TEST_USER_PASSWORD = "php_test_user_password"
@@ -163,6 +165,44 @@ private val GOA_SEED_PROPERTIES = listOf(
 )
 
 private val GOA_PINCODES = listOf("403001", "403002", "403507", "403511", "403516", "403519")
+
+/**
+ * Five additional PROMOTIONAL-only Goa properties. All names, views, localities
+ * and coordinates are unique and distinct from [GOA_SEED_PROPERTIES]. Split
+ * across BUY and RENT so the home banner shows content in both toggle states.
+ */
+private val GOA_PROMO_SEED_PROPERTIES = listOf(
+    GoaSeedSpec("Arambol Dunes", "Dune View", "Arambol", 15.6869, 73.7045,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.VILLA, BedroomType.THREE_BHK, 3, 18_500_000.0),
+    GoaSeedSpec("Assagao Vale", "Valley View", "Assagao", 15.5928, 73.7789,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.INDEPENDENT_HOUSE, BedroomType.FOUR_BHK, 4, 27_000_000.0),
+    GoaSeedSpec("Mandrem Breeze", "Estuary View", "Mandrem", 15.6531, 73.7160,
+        RentBuy.RENT, ListingCategory.PROMOTIONAL, PropertyType.APARTMENT, BedroomType.TWO_BHK, 2, 65_000.0),
+    GoaSeedSpec("Benaulim Palms", "Coconut Grove View", "Benaulim", 15.2610, 73.9274,
+        RentBuy.RENT, ListingCategory.PROMOTIONAL, PropertyType.VILLA, BedroomType.THREE_BHK, 3, 95_000.0),
+    GoaSeedSpec("Palolem Crest", "Bay Panorama", "Palolem", 15.0098, 74.0232,
+        RentBuy.BUY, ListingCategory.PROMOTIONAL, PropertyType.APARTMENT, BedroomType.TWO_BHK, 2, 13_200_000.0)
+)
+
+/**
+ * Six FEATURED-only Goa properties: three BUY then three RENT. All names,
+ * views, localities and coordinates are unique and distinct from
+ * [GOA_SEED_PROPERTIES] and [GOA_PROMO_SEED_PROPERTIES].
+ */
+private val GOA_FEATURED_SEED_PROPERTIES = listOf(
+    GoaSeedSpec("Porvorim Heights", "Skyline View", "Porvorim", 15.5406, 73.8190,
+        RentBuy.BUY, ListingCategory.FEATURED, PropertyType.APARTMENT, BedroomType.THREE_BHK, 3, 22_500_000.0),
+    GoaSeedSpec("Saligao Meadows", "Orchard View", "Saligao", 15.5544, 73.7792,
+        RentBuy.BUY, ListingCategory.FEATURED, PropertyType.INDEPENDENT_HOUSE, BedroomType.THREE_BHK, 3, 16_800_000.0),
+    GoaSeedSpec("Pilerne Villa Sol", "Countryside View", "Pilerne", 15.5366, 73.7961,
+        RentBuy.BUY, ListingCategory.FEATURED, PropertyType.VILLA, BedroomType.FOUR_BHK, 4, 36_000_000.0),
+    GoaSeedSpec("Majorda Sands", "Sea Breeze View", "Majorda", 15.3029, 73.9251,
+        RentBuy.RENT, ListingCategory.FEATURED, PropertyType.APARTMENT, BedroomType.TWO_BHK, 2, 72_000.0),
+    GoaSeedSpec("Varca Beach House", "Seafront View", "Varca", 15.2150, 73.9399,
+        RentBuy.RENT, ListingCategory.FEATURED, PropertyType.INDEPENDENT_HOUSE, BedroomType.THREE_BHK, 3, 110_000.0),
+    GoaSeedSpec("Cavelossim Retreat", "River Mouth View", "Cavelossim", 15.1749, 73.9427,
+        RentBuy.RENT, ListingCategory.FEATURED, PropertyType.VILLA, BedroomType.FOUR_BHK, 4, 140_000.0)
+)
 
 class OneTimeUtils(
     context: Context,
@@ -670,6 +710,91 @@ class OneTimeUtils(
             Logger.d(TAG, "Goa property seeding complete. Total: $successCount")
         } else {
             Logger.w(TAG, "Goa property seeding incomplete. Success: $successCount / ${GOA_SEED_PROPERTIES.size}")
+        }
+    }
+
+    /**
+     * Seeds [GOA_PROMO_SEED_PROPERTIES] — five unique PROMOTIONAL Goa
+     * properties — into the PHP backend via properties.php. Uses a separate
+     * prefs flag so it runs once even though [seedGoaPropertiesIfNeeded]
+     * already completed.
+     */
+    suspend fun seedGoaPromotionalIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_GOA_PROMO_SEEDED, false)) {
+            Logger.d(TAG, "Goa promotional properties already seeded, skipping.")
+            return@withContext
+        }
+
+        val token = ensureSeedSessionToken()
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "Goa promotional seeding aborted: no session token for seed user")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Goa promotional property seeding via PHP API...")
+        val images = buildImageUrls("goa_promo")
+        var successCount = 0
+
+        for ((index, spec) in GOA_PROMO_SEED_PROPERTIES.withIndex()) {
+            val form = spec.toPropertyForm(index, images)
+            when (val result = phpPropertyApi.addProperty(token, form)) {
+                is Result.Success -> {
+                    successCount++
+                    Logger.d(TAG, "Seeded Goa promotional property '${spec.name}' (${spec.rentBuy}) -> ${result.data}")
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "Failed to seed Goa promotional property '${spec.name}': ${result.message}")
+                }
+            }
+        }
+
+        if (successCount == GOA_PROMO_SEED_PROPERTIES.size) {
+            prefs.edit().putBoolean(KEY_GOA_PROMO_SEEDED, true).apply()
+            Logger.d(TAG, "Goa promotional seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Goa promotional seeding incomplete. Success: $successCount / ${GOA_PROMO_SEED_PROPERTIES.size}")
+        }
+    }
+
+    /**
+     * Seeds [GOA_FEATURED_SEED_PROPERTIES] — six unique FEATURED Goa
+     * properties, three BUY and three RENT — into the PHP backend via
+     * properties.php. Uses a separate prefs flag so it runs exactly once.
+     */
+    suspend fun seedGoaFeaturedIfNeeded() = withContext(Dispatchers.IO) {
+        if (prefs.getBoolean(KEY_GOA_FEATURED_SEEDED, false)) {
+            Logger.d(TAG, "Goa featured properties already seeded, skipping.")
+            return@withContext
+        }
+
+        val token = ensureSeedSessionToken()
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "Goa featured seeding aborted: no session token for seed user")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Starting Goa featured property seeding via PHP API...")
+        val images = buildImageUrls("goa_featured")
+        var successCount = 0
+
+        for ((index, spec) in GOA_FEATURED_SEED_PROPERTIES.withIndex()) {
+            val form = spec.toPropertyForm(index, images)
+            when (val result = phpPropertyApi.addProperty(token, form)) {
+                is Result.Success -> {
+                    successCount++
+                    Logger.d(TAG, "Seeded Goa featured property '${spec.name}' (${spec.rentBuy}) -> ${result.data}")
+                }
+                is Result.Error -> {
+                    Logger.e(TAG, "Failed to seed Goa featured property '${spec.name}': ${result.message}")
+                }
+            }
+        }
+
+        if (successCount == GOA_FEATURED_SEED_PROPERTIES.size) {
+            prefs.edit().putBoolean(KEY_GOA_FEATURED_SEEDED, true).apply()
+            Logger.d(TAG, "Goa featured seeding complete. Total: $successCount")
+        } else {
+            Logger.w(TAG, "Goa featured seeding incomplete. Success: $successCount / ${GOA_FEATURED_SEED_PROPERTIES.size}")
         }
     }
 

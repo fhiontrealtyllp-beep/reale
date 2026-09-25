@@ -83,6 +83,11 @@ internal object SearchStrings {
     const val SUGGESTIONS_DEBOUNCE_MS = 300L
     const val SAVED_TOAST_FORMAT = "%s saved"
     const val REMOVED_FROM_SAVED_TOAST_FORMAT = "%s removed from saved"
+
+    const val MAP_VIEW_TITLE = "Map view"
+    const val MAP_PLACEHOLDER_HINT = "Set MAPS_API_KEY in AndroidManifest to enable Google Maps."
+    const val CD_ZOOM_IN = "Zoom in"
+    const val CD_ZOOM_OUT = "Zoom out"
 }
 
 /**
@@ -172,6 +177,47 @@ internal object SearchDims {
     val CHIP_DIALOG_SECTION_SPACING = 12.dp
     val CHIP_DIALOG_SEARCH_HEIGHT = 48.dp
     val CHIP_DIALOG_SEARCH_CORNER_RADIUS = 24.dp
+
+    val MAP_FAB_PADDING = 16.dp
+    val MAP_FAB_SIZE = 40.dp
+    val MAP_FAB_SPACING = 8.dp
+    val MAP_PLACEHOLDER_PADDING = 16.dp
+    val MAP_PLACEHOLDER_ITEM_SPACING = 12.dp
+    val MAP_PLACEHOLDER_HEADER_SPACING = 4.dp
+    val MAP_PLACEHOLDER_HEADER_BOTTOM_SPACING = 8.dp
+    val MAP_PLACEHOLDER_ICON_SIZE = 32.dp
+    val MAP_PLACEHOLDER_TEXT_SPACING = 2.dp
+    val MAP_PLACEHOLDER_TITLE_FONT = 20.sp
+    val MAP_PLACEHOLDER_HINT_FONT = 14.sp
+    val MAP_PLACEHOLDER_NAME_FONT = 14.sp
+    val MAP_PLACEHOLDER_LOCATION_FONT = 12.sp
+    val MAP_PLACEHOLDER_PRICE_FONT = 13.sp
+
+    const val MAP_BOUNDS_PADDING_PX = 80
+    const val MAP_DEFAULT_LATITUDE = 12.97
+    const val MAP_DEFAULT_LONGITUDE = 77.75
+    const val MAP_DEFAULT_ZOOM = 10f
+    const val MAP_FIRST_PROPERTY_ZOOM = 12f
+}
+
+/**
+ * Metrics for the Booking.com-style price-pill map markers in MapViewContent.
+ * Values are raw floats multiplied by the display's scaledDensity when the
+ * marker bitmap is drawn, so they behave like sp/dp on any screen density.
+ */
+internal object MapMarkerDims {
+    const val TEXT_SIZE = 14f
+    const val HORIZONTAL_PADDING = 11f
+    const val VERTICAL_PADDING = 8f
+    const val CORNER_RADIUS = 6f
+    const val TAIL_HALF_WIDTH = 5f
+    const val TAIL_HEIGHT = 7f
+    const val STROKE_WIDTH = 1.5f
+    const val TAIL_OVERLAP = 1f
+    const val HEART_SIZE = 12f
+    const val HEART_TEXT_GAP = 5f
+    const val FAVORITE_Z_INDEX = 1f
+    const val DEFAULT_Z_INDEX = 0f
 }
 
 /**

@@ -58,6 +58,8 @@ class FhiontApplication : Application() {
             val oneTimeUtils = OneTimeUtils(this@FhiontApplication)
             //oneTimeUtils.seedPhpTestUserIfNeeded()
             oneTimeUtils.seedGoaPropertiesIfNeeded()
+            oneTimeUtils.seedGoaPromotionalIfNeeded()
+            oneTimeUtils.seedGoaFeaturedIfNeeded()
 
         }
     }

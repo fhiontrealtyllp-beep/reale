@@ -248,7 +248,7 @@ private fun PropertiesScreenContent(
                 } else {
                     itemsIndexed(
                         items = properties,
-                        key = { _, property -> property.id }
+                        key = { _, property -> property.documentId ?: property.id }
                     ) { _, property ->
                         PropertyResultCard(
                             property = property,

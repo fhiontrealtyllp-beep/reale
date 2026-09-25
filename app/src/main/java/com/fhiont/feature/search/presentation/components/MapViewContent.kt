@@ -2,6 +2,12 @@ package com.fhiont.feature.search.presentation.components
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.RectF
+import android.graphics.Typeface
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,11 +38,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -47,11 +56,18 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.presentation.MapMarkerDims
+import com.fhiont.feature.search.presentation.SearchDims
+import com.fhiont.feature.search.presentation.SearchStrings
 import com.fhiont.ui.theme.Accent
 import com.fhiont.ui.theme.White
 import com.fhiont.ui.theme.IsDarkAppTheme
 import com.fhiont.ui.theme.Black
+import com.fhiont.ui.theme.ControlAccent
 import com.fhiont.ui.theme.HomeTextSecondary
+import com.fhiont.ui.theme.MapMarker
+import com.fhiont.ui.theme.OnControlAccent
+import kotlin.math.roundToInt
 
 @Composable
 fun MapViewContent(
@@ -76,12 +92,27 @@ fun MapViewContent(
         return
     }
 
+    // Booking.com-style pills: filled accent bubble, contrasting price text.
+    // Favorites flip to the pink MapMarker fill and gain a heart prefix.
+    val pillArgb = ControlAccent.toArgb()
+    val onPillArgb = OnControlAccent.toArgb()
+    val favoriteArgb = MapMarker.toArgb()
+    // Marker bitmaps must scale with display density (like dp), not just font
+    // scale — otherwise pills render tiny on high-density screens.
+    val markerScale = context.resources.displayMetrics.scaledDensity
+
     val first = properties.firstOrNull { it.latitude != null && it.longitude != null }
     val cameraPositionState = rememberCameraPositionState {
         position = if (first != null) {
-            CameraPosition.fromLatLngZoom(LatLng(first.latitude!!, first.longitude!!), 12f)
+            CameraPosition.fromLatLngZoom(
+                LatLng(first.latitude!!, first.longitude!!),
+                SearchDims.MAP_FIRST_PROPERTY_ZOOM
+            )
         } else {
-            CameraPosition.fromLatLngZoom(LatLng(12.97, 77.75), 10f)
+            CameraPosition.fromLatLngZoom(
+                LatLng(SearchDims.MAP_DEFAULT_LATITUDE, SearchDims.MAP_DEFAULT_LONGITUDE),
+                SearchDims.MAP_DEFAULT_ZOOM
+            )
         }
     }
 
@@ -91,7 +122,9 @@ fun MapViewContent(
         if (isMapLoaded) {
             val bounds = buildBounds(properties)
             if (bounds != null) {
-                cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 80))
+                cameraPositionState.animate(
+                    CameraUpdateFactory.newLatLngBounds(bounds, SearchDims.MAP_BOUNDS_PADDING_PX)
+                )
             }
         }
     }
@@ -111,10 +144,37 @@ fun MapViewContent(
             properties.forEach { property ->
                 val lat = property.latitude ?: return@forEach
                 val lng = property.longitude ?: return@forEach
+                val isFavorite = property.isLiked == true
+                val markerIcon = remember(
+                    property.documentId,
+                    property.id,
+                    property.price,
+                    property.isRentProperty(),
+                    isFavorite,
+                    markerScale,
+                    pillArgb,
+                    onPillArgb,
+                    favoriteArgb
+                ) {
+                    BitmapDescriptorFactory.fromBitmap(
+                        createPriceMarkerBitmap(
+                            label = formatIndianPrice(property.price, false),
+                            isFavorite = isFavorite,
+                            markerScale = markerScale,
+                            pillArgb = pillArgb,
+                            onPillArgb = onPillArgb,
+                            favoriteArgb = favoriteArgb
+                        )
+                    )
+                }
                 Marker(
                     state = MarkerState(position = LatLng(lat, lng)),
-                    title = property.title,
-                    snippet = formatIndianPrice(property.price, property.isRentProperty()),
+                    icon = markerIcon,
+                    zIndex = if (isFavorite) {
+                        MapMarkerDims.FAVORITE_Z_INDEX
+                    } else {
+                        MapMarkerDims.DEFAULT_Z_INDEX
+                    },
                     onClick = { _ ->
                         onPropertyTap(property)
                         true
@@ -133,24 +193,30 @@ fun MapViewContent(
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(SearchDims.MAP_FAB_PADDING),
+            verticalArrangement = Arrangement.spacedBy(SearchDims.MAP_FAB_SPACING)
         ) {
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomIn()) },
                 containerColor = White,
                 contentColor = Black,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(SearchDims.MAP_FAB_SIZE)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom in")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = SearchStrings.CD_ZOOM_IN
+                )
             }
             FloatingActionButton(
                 onClick = { cameraPositionState.move(CameraUpdateFactory.zoomOut()) },
                 containerColor = White,
                 contentColor = Black,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(SearchDims.MAP_FAB_SIZE)
             ) {
-                Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom out")
+                Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = SearchStrings.CD_ZOOM_OUT
+                )
             }
         }
     }
@@ -165,54 +231,58 @@ private fun PlaceholderMapContent(
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(SearchDims.MAP_PLACEHOLDER_PADDING),
+            verticalArrangement = Arrangement.spacedBy(SearchDims.MAP_PLACEHOLDER_ITEM_SPACING)
         ) {
             item {
                 Text(
-                    text = "Map view",
+                    text = SearchStrings.MAP_VIEW_TITLE,
                     color = Black,
-                    fontSize = 20.sp,
+                    fontSize = SearchDims.MAP_PLACEHOLDER_TITLE_FONT,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(SearchDims.MAP_PLACEHOLDER_HEADER_SPACING))
                 Text(
-                    text = "Set MAPS_API_KEY in AndroidManifest to enable Google Maps.",
+                    text = SearchStrings.MAP_PLACEHOLDER_HINT,
                     color = HomeTextSecondary,
-                    fontSize = 14.sp
+                    fontSize = SearchDims.MAP_PLACEHOLDER_HINT_FONT
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(SearchDims.MAP_PLACEHOLDER_HEADER_BOTTOM_SPACING))
             }
-            items(properties, key = { it.id }) { property ->
+            items(properties, key = { it.documentId ?: it.id }) { property ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(SearchDims.MAP_PLACEHOLDER_ITEM_SPACING)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
+                        imageVector = if (property.isLiked == true) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.LocationOn
+                        },
                         contentDescription = null,
                         tint = Accent,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(SearchDims.MAP_PLACEHOLDER_ICON_SIZE)
                     )
                     Column(
                         modifier = Modifier.clickable { onPropertyTap(property) },
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                        verticalArrangement = Arrangement.spacedBy(SearchDims.MAP_PLACEHOLDER_TEXT_SPACING)
                     ) {
                         Text(
                             text = property.title,
                             color = Black,
-                            fontSize = 14.sp,
+                            fontSize = SearchDims.MAP_PLACEHOLDER_NAME_FONT,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = "${property.locality}, ${property.city}",
                             color = HomeTextSecondary,
-                            fontSize = 12.sp
+                            fontSize = SearchDims.MAP_PLACEHOLDER_LOCATION_FONT
                         )
                         Text(
                             text = formatIndianPrice(property.price, property.isRentProperty()),
                             color = HomeTextSecondary,
-                            fontSize = 13.sp
+                            fontSize = SearchDims.MAP_PLACEHOLDER_PRICE_FONT
                         )
                     }
                 }
@@ -245,4 +315,97 @@ private fun buildBounds(properties: List<Property>): LatLngBounds? {
         }
     }
     return if (hasPoint) builder.build() else null
+}
+
+/**
+ * Draws a Booking.com-style price-pill marker: a filled rounded bubble with
+ * the price in bold and a small tail pointing down to the property's exact
+ * coordinate (default marker anchor is bottom-center). Favorites get the
+ * [favoriteArgb] fill plus a heart prefix next to the price.
+ */
+private fun createPriceMarkerBitmap(
+    label: String,
+    isFavorite: Boolean,
+    markerScale: Float,
+    pillArgb: Int,
+    onPillArgb: Int,
+    favoriteArgb: Int
+): Bitmap {
+    fun Float.scaled(): Float = this * markerScale
+
+    val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = MapMarkerDims.TEXT_SIZE.scaled()
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    }
+
+    val heartSize = if (isFavorite) MapMarkerDims.HEART_SIZE.scaled() else 0f
+    val heartGap = if (isFavorite) MapMarkerDims.HEART_TEXT_GAP.scaled() else 0f
+    val contentWidth = heartSize + heartGap + textPaint.measureText(label)
+
+    val bubbleWidth = contentWidth + MapMarkerDims.HORIZONTAL_PADDING.scaled() * 2
+    val bubbleHeight = textPaint.textSize + MapMarkerDims.VERTICAL_PADDING.scaled() * 2
+    val tailHeight = MapMarkerDims.TAIL_HEIGHT.scaled()
+
+    val bitmap = Bitmap.createBitmap(
+        bubbleWidth.roundToInt(),
+        (bubbleHeight + tailHeight).roundToInt(),
+        Bitmap.Config.ARGB_8888
+    )
+    val canvas = Canvas(bitmap)
+
+    val fillArgb = if (isFavorite) favoriteArgb else pillArgb
+    val contentArgb = onPillArgb
+
+    val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = fillArgb
+        style = Paint.Style.FILL
+    }
+    val cornerRadius = MapMarkerDims.CORNER_RADIUS.scaled()
+    canvas.drawRoundRect(
+        RectF(0f, 0f, bubbleWidth, bubbleHeight),
+        cornerRadius,
+        cornerRadius,
+        fillPaint
+    )
+
+    // Tail triangle overlapping the bubble edge so the seam never shows.
+    val tailHalfWidth = MapMarkerDims.TAIL_HALF_WIDTH.scaled()
+    val tailPath = Path().apply {
+        moveTo(bubbleWidth / 2f - tailHalfWidth, bubbleHeight - MapMarkerDims.TAIL_OVERLAP.scaled())
+        lineTo(bubbleWidth / 2f + tailHalfWidth, bubbleHeight - MapMarkerDims.TAIL_OVERLAP.scaled())
+        lineTo(bubbleWidth / 2f, bubbleHeight + tailHeight)
+        close()
+    }
+    canvas.drawPath(tailPath, fillPaint)
+
+    val contentLeft = (bubbleWidth - contentWidth) / 2f
+    if (isFavorite) {
+        val heartTop = (bubbleHeight - heartSize) / 2f
+        canvas.drawPath(
+            heartPath(contentLeft, heartTop, heartSize),
+            Paint(Paint.ANTI_ALIAS_FLAG).apply { color = contentArgb }
+        )
+    }
+
+    val metrics = textPaint.fontMetrics
+    val textX = contentLeft + heartSize + heartGap
+    val textY = bubbleHeight / 2f - (metrics.ascent + metrics.descent) / 2f
+    textPaint.color = contentArgb
+    canvas.drawText(label, textX, textY, textPaint)
+
+    return bitmap
+}
+
+/** Heart silhouette inside a square box, used as the favorite marker prefix. */
+private fun heartPath(left: Float, top: Float, size: Float): Path {
+    val w = size
+    val h = size
+    return Path().apply {
+        moveTo(left + w / 2f, top + h)
+        cubicTo(left, top + h * 0.6f, left + w * 0.05f, top, left + w * 0.3f, top)
+        cubicTo(left + w * 0.42f, top, left + w / 2f, top + h * 0.08f, left + w / 2f, top + h * 0.3f)
+        cubicTo(left + w / 2f, top + h * 0.08f, left + w * 0.58f, top, left + w * 0.7f, top)
+        cubicTo(left + w * 0.95f, top, left + w, top + h * 0.6f, left + w / 2f, top + h)
+        close()
+    }
 }

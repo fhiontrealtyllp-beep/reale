@@ -536,7 +536,7 @@ private fun MyPropertiesContent(
             property.city.lowercase().contains(query) ||
             property.propertyType?.label?.lowercase()?.contains(query) == true
         matchesTab && matchesSearch
-    }
+    }.distinctBy { it.documentId ?: it.id }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -696,7 +696,7 @@ private fun MyPropertiesContent(
         else {
             items(
                 items = filtered,
-                key = { it.id }
+                key = { it.documentId ?: it.id }
             ) { property ->
 
                 MyListingCard(

@@ -270,7 +270,7 @@ private fun SavedPropertyList(
             } else {
                 items(
                     items = filteredProperties,
-                    key = { it.id }
+                    key = { it.documentId ?: it.id }
                 ) { property ->
                     PropertyResultCard(
                         property = property,

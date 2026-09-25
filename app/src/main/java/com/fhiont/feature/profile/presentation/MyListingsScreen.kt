@@ -133,7 +133,7 @@ internal fun MyListingsScreen(
                 listing.location.contains(query, ignoreCase = true) ||
                 listing.type.contains(query, ignoreCase = true)
             matchesFilter && matchesQuery
-        }
+        }.distinctBy { it.id }
     }
 
     Scaffold(

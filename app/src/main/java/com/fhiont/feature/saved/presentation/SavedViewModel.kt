@@ -85,7 +85,9 @@ class SavedViewModel(
             }
         }
         val merged = newlyLiked + current.properties
-        val filtered = merged.filter { likeStateManager.isLiked(it.documentId ?: it.id) }
+        val filtered = merged
+            .distinctBy { it.documentId ?: it.id }
+            .filter { likeStateManager.isLiked(it.documentId ?: it.id) }
         Logger.d(TAG, "rebuildSavedList: merged=${merged.size}, filtered=${filtered.size}")
         return filtered
     }
@@ -108,7 +110,10 @@ class SavedViewModel(
             when (val result = getLikedPropertiesUseCase(userId)) {
                 is Result.Success -> {
                     Logger.d(TAG, "load: got ${result.data.size} liked properties")
-                    val properties = result.data.map { it.copy(isLiked = true) }.reversed()
+                    val properties = result.data
+                        .distinctBy { it.documentId ?: it.id }
+                        .map { it.copy(isLiked = true) }
+                        .reversed()
                     val likedIds = properties.map { it.documentId ?: it.id }.toSet()
                     likeStateManager.syncLikedIds(likedIds)
                     likeStateManager.syncLikedProperties(properties)
