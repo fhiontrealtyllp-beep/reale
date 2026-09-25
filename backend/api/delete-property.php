@@ -28,8 +28,8 @@ if (!is_array($imageUrls)) {
     $imageUrls = [];
 }
 
-$deleteImages = $pdo->prepare('DELETE FROM likes WHERE property_id = :property_id');
-$deleteImages->execute(['property_id' => (string) $propertyId]);
+$deleteLikes = $pdo->prepare('DELETE FROM likes WHERE property_id = :property_id');
+$deleteLikes->execute(['property_id' => (string) $propertyId]);
 
 $deleteEnquiries = $pdo->prepare('DELETE FROM enquiries WHERE property_id = :property_id');
 $deleteEnquiries->execute(['property_id' => (string) $propertyId]);
