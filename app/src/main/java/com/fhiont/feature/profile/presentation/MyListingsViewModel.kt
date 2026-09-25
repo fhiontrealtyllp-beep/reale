@@ -9,8 +9,11 @@ import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUseCase
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.utils.Result
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,9 @@ internal class MyListingsViewModel(
 
     private val _uiState = MutableStateFlow(MyListingsUiState())
     val uiState: StateFlow<MyListingsUiState> = _uiState.asStateFlow()
+
+    private val _sideEffect = MutableSharedFlow<String>()
+    val sideEffect: SharedFlow<String> = _sideEffect.asSharedFlow()
 
     fun load() {
         val userId = userSession.getUserId()
@@ -81,12 +87,15 @@ internal class MyListingsViewModel(
                         properties = _uiState.value.properties.filterNot { it.id == propertyId },
                         deletingPropertyId = null
                     )
+                    _sideEffect.emit(MyListingsStrings.MSG_PROPERTY_DELETED)
                 }
                 is Result.Error -> {
+                    val message = result.message ?: MyListingsStrings.ERROR_DELETE
                     _uiState.value = _uiState.value.copy(
                         deletingPropertyId = null,
-                        errorMessage = result.message ?: MyListingsStrings.ERROR_DELETE
+                        errorMessage = message
                     )
+                    _sideEffect.emit(message)
                 }
             }
         }

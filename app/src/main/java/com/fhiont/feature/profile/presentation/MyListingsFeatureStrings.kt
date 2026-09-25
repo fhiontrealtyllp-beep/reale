@@ -54,6 +54,7 @@ internal object MyListingsStrings {
     const val DELETE_DIALOG_CONFIRM = "Delete"
     const val DELETE_DIALOG_CANCEL = "Cancel"
     const val ERROR_DELETE = "Unable to delete the property."
+    const val MSG_PROPERTY_DELETED = "Property deleted"
 
     const val EMPTY_TITLE = "No properties found"
     const val EMPTY_SUBTITLE = "Your listed properties will appear here."
