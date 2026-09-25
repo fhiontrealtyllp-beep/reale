@@ -143,6 +143,7 @@ import com.fhiont.ui.theme.OnControlAccent
 import com.fhiont.ui.theme.OnMediaContent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -158,6 +159,7 @@ private const val DISPLAY_TIMESTAMP_PATTERN = "dd MMM yyyy, hh:mm a"
 private const val DOUBLE_TAP_ZOOM = 2.5f
 private const val MAP_ZOOM_LEVEL = 15f
 private const val MAX_VISIBLE_THUMBS = 5
+private const val HERO_AUTO_ADVANCE_MS = 3000L
 private const val MAX_STATS = 5
 private const val DESCRIPTION_COLLAPSED_LINES = 3
 private const val ITEMS_BEFORE_SECTIONS = 3
@@ -185,6 +187,16 @@ fun PropertyDetailScreen(
     var selectedImage by remember(property.id) { mutableIntStateOf(0) }
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
     var showEnquire by remember { mutableStateOf(false) }
+
+    // Auto-rotate the hero every few seconds, looping back to the first image.
+    // Keyed on selectedImage so a manual thumbnail tap restarts the timer;
+    // pauses while the fullscreen viewer is open or there's only one image.
+    LaunchedEffect(images.size, selectedImage, fullScreenPage) {
+        if (images.size > 1 && fullScreenPage == null) {
+            delay(HERO_AUTO_ADVANCE_MS)
+            selectedImage = (selectedImage + 1) % images.size
+        }
+    }
 
     val hasDetails = propertyHasDetails(property)
     val hasOverview = property.description.isNotBlank()
