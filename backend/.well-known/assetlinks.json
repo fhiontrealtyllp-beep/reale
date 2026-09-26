@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.fhiont",
+      "sha256_cert_fingerprints": [
+        "76:F3:6B:3B:40:0A:BF:D8:68:55:50:43:F0:EC:31:7F:7F:3C:5B:AC:D0:8B:17:B6:0C:59:A9:24:89:A4:7F:42",
+        "REPLACE_WITH_RELEASE_SHA256"
+      ]
+    }
+  }
+]
