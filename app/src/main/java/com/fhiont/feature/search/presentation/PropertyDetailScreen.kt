@@ -135,7 +135,10 @@ import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.ListingCategory
 import com.fhiont.feature.search.data.session.UserSession
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
+import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.feature.search.presentation.components.formatIndianPrice
 import com.fhiont.ui.theme.FilterChipSelectedContainer
 import com.fhiont.ui.theme.FilterChipSelectedLabel
@@ -157,7 +160,6 @@ import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -186,6 +188,7 @@ fun PropertyDetailScreen(
     enquiryCount: Int? = null,
     onViewEnquiries: (() -> Unit)? = null,
     onViewChats: (() -> Unit)? = null,
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -199,6 +202,23 @@ fun PropertyDetailScreen(
         property.userId == koinInject<UserSession>().getUserId()
     }
 
+    var existingEnquiry by remember { mutableStateOf<Enquiry?>(null) }
+    if (!LocalInspectionMode.current) {
+        val userSession = koinInject<UserSession>()
+        val getMyEnquiriesUseCase = koinInject<GetMyEnquiriesUseCase>()
+        LaunchedEffect(property.id, userSession.getUserId()) {
+            val userId = userSession.getUserId() ?: return@LaunchedEffect
+            when (val result = getMyEnquiriesUseCase(userId)) {
+                is Result.Success -> {
+                    existingEnquiry = result.data.firstOrNull { it.propertyId == property.id }
+                }
+                is Result.Error -> {
+                    existingEnquiry = null
+                }
+            }
+        }
+    }
+
     val images = remember(property.id, property.images) {
         property.images.filter { it.isNotBlank() }
             .ifEmpty {
@@ -208,6 +228,7 @@ fun PropertyDetailScreen(
     var selectedImage by remember(property.id) { mutableIntStateOf(0) }
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
     var showEnquire by remember { mutableStateOf(false) }
+    val enquiry = existingEnquiry
 
     // Auto-rotate the hero every few seconds, looping back to the first image.
     // Keyed on selectedImage so a manual thumbnail tap restarts the timer;
@@ -238,6 +259,9 @@ fun PropertyDetailScreen(
                 phone = property.agentPhone,
                 onCall = { dialAgent(context, property.agentPhone) },
                 onEnquire = { showEnquire = true },
+                onChat = if (!isOwnProperty && enquiry != null) {
+                    { onOpenChat(enquiry) }
+                } else null,
                 onChats = if (isOwnProperty) onViewChats else null
             )
         }
@@ -268,10 +292,12 @@ fun PropertyDetailScreen(
                     onSelectImage = { selectedImage = it },
                     enquiryCount = enquiryCount,
                     onViewEnquiries = onViewEnquiries,
-                    onChatClick = if (isOwnProperty) {
-                        onViewChats ?: {}
-                    } else {
-                        { showEnquire = true }
+                    onChatClick = {
+                        when {
+                            isOwnProperty -> onViewChats?.invoke()
+                            enquiry != null -> onOpenChat(enquiry)
+                            else -> showEnquire = true
+                        }
                     }
                 )
             }
@@ -1141,12 +1167,13 @@ private fun LocationContent(property: Property) {
     }
 }
 
-// Sticky bottom bar with "Call" and "Enquire Now" buttons.
+// Sticky bottom bar with "Call" and the primary chat/enquire action.
 @Composable
 private fun DetailBottomBar(
     phone: String,
     onCall: () -> Unit,
     onEnquire: () -> Unit,
+    onChat: (() -> Unit)? = null,
     onChats: (() -> Unit)? = null
 ) {
     Surface(
@@ -1182,12 +1209,13 @@ private fun DetailBottomBar(
                     fontWeight = FontWeight.Bold
                 )
             }
-            // Filled primary action: "Enquire Now" for buyers, "Chats" for owners.
-            val primaryAction = onChats ?: onEnquire
-            val primaryLabel = if (onChats != null) {
-                DetailStrings.ACTION_CHATS
-            } else {
-                DetailStrings.ACTION_ENQUIRE
+            // Filled primary action: owner sees "Chats", buyer with an enquiry sees "Chat",
+            // otherwise "Enquire Now".
+            val primaryAction = onChats ?: onChat ?: onEnquire
+            val primaryLabel = when {
+                onChats != null -> DetailStrings.ACTION_CHATS
+                onChat != null -> DetailStrings.ACTION_CHAT
+                else -> DetailStrings.ACTION_ENQUIRE
             }
             Button(
                 onClick = primaryAction,
@@ -1451,7 +1479,8 @@ private fun PropertyDetailScreenPreview() {
     FhiontTheme {
         PropertyDetailScreen(
             property = PreviewData.sampleProperty,
-            onClose = {}
+            onClose = {},
+            onOpenChat = {}
         )
     }
 }

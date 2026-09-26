@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.fhiont.feature.search.domain.model.BedroomType
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.presentation.PropertyDetailScreen
@@ -103,6 +104,7 @@ internal fun MyListingsScreen(
     onAddProperty: () -> Unit = {},
     onViewDetails: (MyListing) -> Unit = {},
     onViewEnquiries: (String) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     viewModel: MyListingsViewModel = koinViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -294,6 +296,10 @@ internal fun MyListingsScreen(
                     onViewChats = {
                         selectedListing = null
                         onViewEnquiries(listing.id)
+                    },
+                    onOpenChat = { enquiry ->
+                        selectedListing = null
+                        onOpenChat(enquiry)
                     },
                     modifier = Modifier.fillMaxSize()
                 )

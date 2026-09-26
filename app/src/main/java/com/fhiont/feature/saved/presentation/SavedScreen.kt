@@ -53,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.presentation.PropertyDetailScreen
@@ -90,6 +91,7 @@ private enum class SavedFilter(val label: String) {
 fun SavedScreen(
     onLoginClick: () -> Unit,
     onViewChats: (Property) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SavedViewModel = koinViewModel()
 ) {
@@ -192,6 +194,10 @@ fun SavedScreen(
                         onViewChats = {
                             selectedProperty = null
                             onViewChats(property)
+                        },
+                        onOpenChat = { enquiry ->
+                            selectedProperty = null
+                            onOpenChat(enquiry)
                         },
                         modifier = Modifier.fillMaxSize()
                     )

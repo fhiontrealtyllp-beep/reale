@@ -64,6 +64,7 @@ import androidx.lifecycle.compose.currentStateAsState
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import com.fhiont.R
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.presentation.EmptyResults
@@ -709,7 +710,8 @@ internal fun PropertyDetailDialog(
     property: Property,
     onClose: () -> Unit,
     onLike: () -> Unit,
-    onViewChats: () -> Unit = {}
+    onViewChats: () -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {}
 ) {
     Dialog(
         onDismissRequest = onClose,
@@ -724,6 +726,7 @@ internal fun PropertyDetailDialog(
                 onClose = onClose,
                 onLike = onLike,
                 onViewChats = onViewChats,
+                onOpenChat = onOpenChat,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -917,7 +920,8 @@ private fun PropertyDetailDialogPreview() {
             PropertyDetailScreen(
                 property = PreviewData.sampleProperties.first(),
                 onClose = {},
-                onLike = {}
+                onLike = {},
+                onOpenChat = {}
             )
         }
     }

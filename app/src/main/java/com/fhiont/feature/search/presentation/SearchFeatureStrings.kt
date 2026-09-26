@@ -243,6 +243,7 @@ internal object DetailStrings {
 
     const val ACTION_CALL = "Call"
     const val ACTION_ENQUIRE = "Enquire Now"
+    const val ACTION_CHAT = "Chat"
     const val ACTION_CHATS = "Chats"
 
     const val LABEL_ENQUIRIES = "Enquiries"

@@ -99,6 +99,7 @@ import java.util.Locale
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.tooling.preview.Preview
 import com.fhiont.feature.search.domain.model.BedroomType
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.presentation.PropertyDetailScreen
 import com.fhiont.ui.components.LoginPrompt
@@ -109,6 +110,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AddScreen(
     onLoginClick: () -> Unit,
     onViewChats: (Property) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     startWithAddForm: Boolean = false,
     onExitForm: () -> Unit = {},
@@ -329,6 +331,10 @@ fun AddScreen(
                     onViewChats = {
                         selectedProperty = null
                         onViewChats(property)
+                    },
+                    onOpenChat = { enquiry ->
+                        selectedProperty = null
+                        onOpenChat(enquiry)
                     },
                     modifier = Modifier.fillMaxSize()
                 )

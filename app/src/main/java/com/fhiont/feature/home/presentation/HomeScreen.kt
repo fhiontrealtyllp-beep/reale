@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fhiont.feature.search.domain.model.BedroomType
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.presentation.HomeCategory
@@ -53,6 +54,7 @@ fun HomeScreen(
     onChangeCity: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onViewChats: (Property) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -88,6 +90,7 @@ fun HomeScreen(
         },
         onChangeCity = onChangeCity,
         onViewChats = onViewChats,
+        onOpenChat = onOpenChat,
         modifier = modifier
     )
 
@@ -118,6 +121,7 @@ internal fun HomeContent(
     onLike: (Property) -> Unit = {},
     onChangeCity: () -> Unit = {},
     onViewChats: (Property) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val featuredList = remember(featuredProperties) {
@@ -251,6 +255,10 @@ internal fun HomeContent(
             onViewChats = {
                 selectedProperty = null
                 onViewChats(property)
+            },
+            onOpenChat = { enquiry ->
+                selectedProperty = null
+                onOpenChat(enquiry)
             }
         )
     }

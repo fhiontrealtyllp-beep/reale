@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.PropertyFilter
@@ -71,6 +72,7 @@ fun SearchScreen(
     onChangeCity: () -> Unit = {},
     onLoginClick: () -> Unit = {},
     onViewChats: (Property) -> Unit = {},
+    onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -208,6 +210,10 @@ fun SearchScreen(
                     onViewChats = {
                         selectedProperty = null
                         onViewChats(property)
+                    },
+                    onOpenChat = { enquiry ->
+                        selectedProperty = null
+                        onOpenChat(enquiry)
                     },
                     modifier = Modifier.fillMaxSize()
                 )

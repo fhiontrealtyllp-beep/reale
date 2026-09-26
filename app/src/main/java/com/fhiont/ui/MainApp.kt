@@ -263,6 +263,9 @@ fun MainApp(
                                 showMyEnquiries = true
                                 mainViewModel.selectTab(AppScreen.Profile)
                             }
+                            val openChat: (Enquiry) -> Unit = { enquiry ->
+                                activeChatEnquiry = enquiry
+                            }
 
                             when (selectedTab) {
                                 AppScreen.Home -> HomeScreen(
@@ -273,18 +276,21 @@ fun MainApp(
                                     onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) },
                                     onChangeCity = { showCityScreen = true },
                                     onLoginClick = { authScreen = AuthScreen.Welcome },
-                                    onViewChats = openPropertyChats
+                                    onViewChats = openPropertyChats,
+                                    onOpenChat = openChat
                                 )
                                 AppScreen.Search -> SearchScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onChangeCity = { showCityScreen = true },
                                     onLoginClick = { authScreen = AuthScreen.Welcome },
-                                    onViewChats = openPropertyChats
+                                    onViewChats = openPropertyChats,
+                                    onOpenChat = openChat
                                 )
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onLoginClick = { authScreen = AuthScreen.Welcome },
-                                    onViewChats = openPropertyChats
+                                    onViewChats = openPropertyChats,
+                                    onOpenChat = openChat
                                 )
                                /* AppScreen.Add -> AddScreen(
                                     modifier = Modifier.fillMaxSize(),
@@ -296,6 +302,7 @@ fun MainApp(
                                             modifier = Modifier.fillMaxSize(),
                                             onLoginClick = { authScreen = AuthScreen.Welcome },
                                             onViewChats = openPropertyChats,
+                                            onOpenChat = openChat,
                                             startWithAddForm = true,
                                             onExitForm = { showAddProperty = false }
                                         )
@@ -316,7 +323,8 @@ fun MainApp(
                                                 Logger.d(TAG, "View enquiries clicked for property: $propertyId")
                                                 selectedEnquiryPropertyId = propertyId
                                                 showMyEnquiries = true
-                                            }
+                                            },
+                                            onOpenChat = { enquiry -> activeChatEnquiry = enquiry }
                                         )
                                         else -> ProfileScreen(
                                             modifier = Modifier.fillMaxSize(),
@@ -404,6 +412,11 @@ fun MainApp(
                                     selectedEnquiryPropertyId = property.id
                                     showMyEnquiries = true
                                     mainViewModel.selectTab(AppScreen.Profile)
+                                },
+                                onOpenChat = { enquiry ->
+                                    deepLinkProperty = null
+                                    deepLinkPropertyId = null
+                                    activeChatEnquiry = enquiry
                                 },
                                 modifier = Modifier.fillMaxSize()
                             )
