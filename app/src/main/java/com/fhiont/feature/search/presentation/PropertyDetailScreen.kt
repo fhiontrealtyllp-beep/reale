@@ -162,9 +162,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.net.URL
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToLong
+import com.fhiont.BuildConfig
 
 
 private const val MIN_ZOOM = 1f
@@ -1442,14 +1444,29 @@ private fun messageAgent(context: Context, phone: String) {
 }
 
 private fun shareProperty(context: Context, property: Property) {
+    val shareLink = buildPropertyShareLink(property.id)
     val shareText = property.title + "\n" +
         formatIndianPrice(property.price, property.isRentProperty()) + "\n" +
-        buildLocationString(property)
+        buildLocationString(property) + "\n\n" + shareLink
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = DetailStrings.SHARE_MIME_TYPE
         putExtra(Intent.EXTRA_TEXT, shareText)
     }
     context.startActivity(Intent.createChooser(intent, null))
+}
+
+private fun buildPropertyShareLink(propertyId: String): String {
+    val apiUrl = BuildConfig.API_BASE_URL.trim().takeIf { it.isNotBlank() }
+    val baseUrl = apiUrl?.let {
+        try {
+            val url = URL(it.trimEnd('/'))
+            val authority = url.authority.orEmpty().takeIf { authority -> authority.isNotBlank() }
+            authority?.let { "${url.protocol}://$authority" }
+        } catch (_: Exception) {
+            null
+        }
+    } ?: DetailStrings.SHARE_BASE_URL_FALLBACK
+    return baseUrl.trimEnd('/') + DetailStrings.SHARE_LINK_PATH + propertyId
 }
 
 private fun openInMaps(context: Context, property: Property) {

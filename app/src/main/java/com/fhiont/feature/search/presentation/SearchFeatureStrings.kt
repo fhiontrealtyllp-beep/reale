@@ -307,6 +307,8 @@ internal object DetailStrings {
     const val FALLBACK_IMAGE_SUFFIX = "/600/400"
 
     const val SHARE_MIME_TYPE = "text/plain"
+    const val SHARE_LINK_PATH = "/property/"
+    const val SHARE_BASE_URL_FALLBACK = "https://fhiont.com"
     const val TEL_URI_PREFIX = "tel:"
     const val SMS_URI_PREFIX = "smsto:"
     const val GEO_URI_PREFIX = "geo:"

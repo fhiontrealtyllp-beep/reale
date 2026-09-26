@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestNotificationPermission()
         enableEdgeToEdge()
-        handleNotificationIntent(intent)
+        handleLaunchIntent(intent)
         setContent {
             MainApp(
                 pendingPropertyId = pendingPropertyId.value,
@@ -52,15 +52,35 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleNotificationIntent(intent)
+        setIntent(intent)
+        handleLaunchIntent(intent)
     }
 
-    private fun handleNotificationIntent(intent: Intent?) {
+    private fun handleLaunchIntent(intent: Intent?) {
+        val deepLinkPropertyId = extractDeepLinkPropertyId(intent?.data)
+        if (!deepLinkPropertyId.isNullOrBlank()) {
+            pendingPropertyId.value = deepLinkPropertyId
+            return
+        }
+
         val propertyId = intent?.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_ID)
             ?.takeIf { it.isNotBlank() }
         if (propertyId != null) {
             pendingPropertyId.value = propertyId
         }
+    }
+
+    private fun extractDeepLinkPropertyId(data: Uri?): String? {
+        if (data == null) return null
+        val scheme = data.scheme?.lowercase() ?: return null
+        if (scheme != "https" && scheme != "fhiont") return null
+
+        val segments = data.pathSegments
+        return when {
+            scheme == "https" && segments.size >= 2 && segments[0] == "property" -> segments[1]
+            scheme == "fhiont" && data.host == "property" && segments.isNotEmpty() -> segments.last()
+            else -> null
+        }?.takeIf { it.isNotBlank() }
     }
 
     private fun requestNotificationPermission() {

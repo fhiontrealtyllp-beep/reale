@@ -56,6 +56,19 @@ class PhpPropertyApi {
         }
     )
 
+    /**
+     * Public single-property lookup used by shared deep links. Does not require
+     * a session token so recipients can view the property before signing in.
+     */
+    suspend fun getSharedProperty(propertyId: String): Result<Property> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "property-share.php?id=${URLEncoder.encode(propertyId, "UTF-8")}",
+        token = null,
+        parse = { response ->
+            PropertyMapper.fromMap(response.getJSONObject("data").getJSONObject("property").toMap())
+        }
+    )
+
     suspend fun getMyProperties(token: String): Result<List<Property>> = apiCall(
         method = HTTP_METHOD_GET,
         endpoint = "properties.php",

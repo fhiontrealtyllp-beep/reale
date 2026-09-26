@@ -50,12 +50,18 @@ class MainViewModel(
     }
 
     /**
-     * Loads a property by ID for a push-notification deep link. Returns null
-     * when the user is not signed in or the lookup fails.
+     * Loads a property by ID for a deep link (push notification or shared link).
+     * Authenticated users use the private endpoint; guests use the public share
+     * endpoint so the property can still be opened.
      */
     suspend fun getPropertyById(propertyId: String): Property? {
-        val token = userSession.getUser()?.sessionId?.takeIf { it.isNotBlank() } ?: return null
-        return when (val result = phpPropertyApi.getPropertyById(token, propertyId)) {
+        val token = userSession.getUser()?.sessionId?.takeIf { it.isNotBlank() }
+        val result = if (!token.isNullOrBlank()) {
+            phpPropertyApi.getPropertyById(token, propertyId)
+        } else {
+            phpPropertyApi.getSharedProperty(propertyId)
+        }
+        return when (result) {
             is Result.Success -> result.data
             is Result.Error -> {
                 Logger.e("MainViewModel", "getPropertyById failed for $propertyId: ${result.message}")
