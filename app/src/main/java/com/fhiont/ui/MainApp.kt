@@ -346,7 +346,7 @@ fun MainApp(
                         }
                     }
 
-                    if (!showAddProperty) {
+                    if (!showMyListings && !showMyEnquiries && !showAddProperty) {
                         BottomNavBar(
                             tabs = AppScreen.all,
                             selectedTab = selectedTab,
