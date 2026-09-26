@@ -28,11 +28,11 @@ class PhpEnquiryApi {
     suspend fun sendEnquiry(
         property: Property,
         message: String,
-        userId: String?
+        token: String
     ): Result<Unit> = apiCall(
         method = HTTP_METHOD_POST,
         endpoint = "enquiry.php",
-        token = null,
+        token = token,
         body = JSONObject().apply {
             put("propertyId", property.id)
             put("propertyTitle", property.title)
@@ -40,7 +40,6 @@ class PhpEnquiryApi {
             put("propertyImage", property.images.firstOrNull().orEmpty())
             put("agentPhone", property.agentPhone)
             put("message", message.trim())
-            putOpt("userId", userId?.toLongOrNull())
         },
         parse = { }
     )

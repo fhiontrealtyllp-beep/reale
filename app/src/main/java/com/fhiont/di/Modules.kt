@@ -77,6 +77,8 @@ import com.fhiont.core.firebase.FirebaseProvider
 import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.core.network.PhpEnquiryApi
 import com.fhiont.core.network.PhpPropertyApi
+import com.fhiont.core.notification.PushTokenApi
+import com.fhiont.core.notification.PushTokenManager
 import com.fhiont.feature.search.data.local.PropertyLocationSuggestionRepository
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSourceImpl
@@ -119,6 +121,8 @@ val appModule = module {
     single { PhpAuthApi() }
     single { PhpEnquiryApi() }
     single { PhpPropertyApi() }
+    single { PushTokenApi() }
+    single { PushTokenManager(androidContext(), get(), get()) }
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }

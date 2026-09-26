@@ -20,7 +20,12 @@ class EnquiryRemoteDataSourceImpl(
         userId: String?
     ): Result<Unit> {
         Logger.d(TAG, "sendEnquiry: propertyId=${property.id}, userId=$userId")
-        return phpEnquiryApi.sendEnquiry(property, message, userId)
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "sendEnquiry: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpEnquiryApi.sendEnquiry(property, message, token)
     }
 
     override suspend fun getEnquiriesByUser(userId: String): Result<List<Enquiry>> {

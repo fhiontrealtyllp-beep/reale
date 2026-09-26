@@ -16,6 +16,11 @@ return [
     'auth' => [
         'token_ttl_days' => 30,
     ],
+    'firebase' => [
+        'project_id' => getenv('FIREBASE_PROJECT_ID') ?: '',
+        'client_email' => getenv('FIREBASE_CLIENT_EMAIL') ?: '',
+        'private_key' => str_replace('\\n', "\n", getenv('FIREBASE_PRIVATE_KEY') ?: ''),
+    ],
     'cors' => [
         'allowed_origins' => ['*'],
     ],

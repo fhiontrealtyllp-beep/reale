@@ -163,3 +163,108 @@ function authenticatedUser(PDO $pdo): array
     }
     return $user;
 }
+
+function base64UrlEncode(string $value): string
+{
+    return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+}
+
+function firebaseAccessToken(): ?string
+{
+    global $config;
+    $firebase = $config['firebase'] ?? [];
+    $clientEmail = (string) ($firebase['client_email'] ?? '');
+    $privateKey = (string) ($firebase['private_key'] ?? '');
+    if ($clientEmail === '' || $privateKey === '') {
+        error_log('Firebase service account is not configured');
+        return null;
+    }
+    $now = time();
+    $header = base64UrlEncode(json_encode(['alg' => 'RS256', 'typ' => 'JWT'], JSON_FLAGS));
+    $claims = base64UrlEncode(json_encode([
+        'iss' => $clientEmail,
+        'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+        'aud' => 'https://oauth2.googleapis.com/token',
+        'iat' => $now,
+        'exp' => $now + 3600,
+    ], JSON_FLAGS));
+    $unsignedToken = $header . '.' . $claims;
+    $signature = '';
+    if (!openssl_sign($unsignedToken, $signature, $privateKey, OPENSSL_ALGO_SHA256)) {
+        error_log('Unable to sign Firebase access token');
+        return null;
+    }
+    $request = curl_init('https://oauth2.googleapis.com/token');
+    curl_setopt_array($request, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        CURLOPT_POSTFIELDS => http_build_query([
+            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion' => $unsignedToken . '.' . base64UrlEncode($signature),
+        ]),
+        CURLOPT_TIMEOUT => 15,
+    ]);
+    $response = curl_exec($request);
+    $status = (int) curl_getinfo($request, CURLINFO_HTTP_CODE);
+    curl_close($request);
+    $payload = is_string($response) ? json_decode($response, true) : null;
+    if ($status !== 200 || !is_array($payload) || !is_string($payload['access_token'] ?? null)) {
+        error_log('Unable to obtain Firebase access token: HTTP ' . $status);
+        return null;
+    }
+    return $payload['access_token'];
+}
+
+function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propertyId, string $propertyTitle): void
+{
+    global $config;
+    $projectId = (string) ($config['firebase']['project_id'] ?? '');
+    $accessToken = firebaseAccessToken();
+    if ($projectId === '' || $accessToken === null) {
+        return;
+    }
+    $statement = $pdo->prepare('SELECT token FROM device_tokens WHERE user_id = :user_id');
+    $statement->execute(['user_id' => $ownerId]);
+    $tokens = $statement->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($tokens as $token) {
+        $payload = json_encode([
+            'message' => [
+                'token' => (string) $token,
+                'notification' => [
+                    'title' => 'New property enquiry',
+                    'body' => 'You received an enquiry for ' . $propertyTitle,
+                ],
+                'data' => [
+                    'propertyId' => $propertyId,
+                    'enquiryId' => (string) $enquiryId,
+                ],
+                'android' => [
+                    'priority' => 'high',
+                    'notification' => ['channel_id' => 'enquiries'],
+                ],
+            ],
+        ], JSON_FLAGS);
+        $request = curl_init('https://fcm.googleapis.com/v1/projects/' . rawurlencode($projectId) . '/messages:send');
+        curl_setopt_array($request, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json; charset=utf-8',
+            ],
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_TIMEOUT => 15,
+        ]);
+        $response = curl_exec($request);
+        $status = (int) curl_getinfo($request, CURLINFO_HTTP_CODE);
+        curl_close($request);
+        if ($status >= 400) {
+            error_log('Firebase message failed: HTTP ' . $status . ' ' . (is_string($response) ? $response : ''));
+            if ($status === 404) {
+                $delete = $pdo->prepare('DELETE FROM device_tokens WHERE token = :token');
+                $delete->execute(['token' => $token]);
+            }
+        }
+    }
+}

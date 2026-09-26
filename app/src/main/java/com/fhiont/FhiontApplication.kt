@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.fhiont.core.seed.OneTimeUtils
+import com.fhiont.core.notification.PushTokenManager
 import com.fhiont.di.addModule
 import com.fhiont.di.appModule
 import com.fhiont.di.authModule
@@ -37,7 +38,7 @@ class FhiontApplication : Application() {
             e.printStackTrace()
         }
 
-        startKoin {
+        val koinApplication = startKoin {
             androidContext(this@FhiontApplication)
             modules(
                 appModule,
@@ -48,6 +49,7 @@ class FhiontApplication : Application() {
                 profileModule
             )
         }
+        koinApplication.koin.get<PushTokenManager>().start()
 
         seedProperties()
     }
