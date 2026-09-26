@@ -89,6 +89,7 @@ private enum class SavedFilter(val label: String) {
 @Composable
 fun SavedScreen(
     onLoginClick: () -> Unit,
+    onViewChats: (Property) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SavedViewModel = koinViewModel()
 ) {
@@ -188,6 +189,10 @@ fun SavedScreen(
                         property = property,
                         onClose = { selectedProperty = null },
                         onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
+                        onViewChats = {
+                            selectedProperty = null
+                            onViewChats(property)
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

@@ -64,6 +64,7 @@ sendEnquiryPush(
     (int) $property['user_id'],
     $enquiryId,
     $propertyId,
-    (string) $property['title']
+    (string) $property['title'],
+    $message
 );
 respond(201, true, 'Enquiry sent successfully', ['enquiryId' => (string) $enquiryId]);

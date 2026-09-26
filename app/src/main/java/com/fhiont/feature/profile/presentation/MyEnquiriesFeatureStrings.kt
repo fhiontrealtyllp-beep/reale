@@ -11,6 +11,7 @@ internal object MyEnquiriesStrings {
     const val ERROR_NOT_LOGGED_IN = "Please log in to view your enquiries."
     const val ERROR_LOADING = "Unable to load enquiries."
     const val CD_PROPERTY_IMAGE = "Property image"
+    const val CD_OPEN_CHAT = "Open chat"
     const val STATUS_NEW = "New"
 }
 
@@ -30,6 +31,7 @@ internal object MyEnquiriesDims {
     val IMAGE_CORNER_RADIUS = 12.dp
     val IMAGE_PLACEHOLDER_ICON_SIZE = 32.dp
     val IMAGE_TO_CONTENT_SPACING = 12.dp
+    val CHAT_ICON_SIZE = 20.dp
     val TITLE_FONT_SIZE = 15.sp
     val LOCATION_FONT_SIZE = 13.sp
     val MESSAGE_FONT_SIZE = 13.sp

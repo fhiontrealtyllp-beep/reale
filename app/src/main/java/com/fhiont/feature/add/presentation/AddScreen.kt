@@ -108,6 +108,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AddScreen(
     onLoginClick: () -> Unit,
+    onViewChats: (Property) -> Unit = {},
     modifier: Modifier = Modifier,
     startWithAddForm: Boolean = false,
     onExitForm: () -> Unit = {},
@@ -325,6 +326,10 @@ fun AddScreen(
                 PropertyDetailScreen(
                     property = property,
                     onClose = { selectedProperty = null },
+                    onViewChats = {
+                        selectedProperty = null
+                        onViewChats(property)
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }

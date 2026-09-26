@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.fhiont.AppStrings
@@ -38,6 +39,10 @@ import com.fhiont.feature.profile.presentation.MyListingsScreen
 import com.fhiont.feature.profile.presentation.ProfileScreen
 import com.fhiont.feature.home.presentation.HomeScreen
 import com.fhiont.feature.saved.presentation.SavedScreen
+import com.fhiont.feature.search.domain.model.Enquiry
+import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.presentation.ChatScreen
+import com.fhiont.feature.search.presentation.PropertyDetailScreen
 import com.fhiont.feature.search.presentation.SearchScreen
 import com.fhiont.feature.onboarding.presentation.OnboardingScreen
 import com.fhiont.ui.components.BottomNavBar
@@ -60,12 +65,35 @@ private enum class AuthScreen {
 }
 
 @Composable
-fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
+fun MainApp(
+    mainViewModel: MainViewModel = koinViewModel(),
+    pendingPropertyId: String? = null,
+    onPendingPropertyHandled: () -> Unit = {}
+) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
     var authScreen by rememberSaveable { mutableStateOf(AuthScreen.Main) }
     val phoneAuthViewModel: PhoneAuthViewModel = koinViewModel()
     val showOnboarding by mainViewModel.showOnboarding.collectAsStateWithLifecycle()
+
+    // Property resolved from a tapped enquiry push notification.
+    // Stage 1: move the incoming ID into local state without suspending, so
+    // clearing pendingPropertyId can't cancel the lookup launched in stage 2.
+    var deepLinkPropertyId by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(pendingPropertyId) {
+        val id = pendingPropertyId ?: return@LaunchedEffect
+        onPendingPropertyHandled()
+        deepLinkPropertyId = id
+    }
+
+    // Stage 2: resolve the property. Keyed only on the local ID, so the
+    // coroutine survives pendingPropertyId being cleared above.
+    var deepLinkProperty by remember { mutableStateOf<Property?>(null) }
+    LaunchedEffect(deepLinkPropertyId) {
+        val id = deepLinkPropertyId ?: return@LaunchedEffect
+        Logger.d(TAG, "Deep link: resolving property $id")
+        deepLinkProperty = mainViewModel.getPropertyById(id)
+    }
 
     val darkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
@@ -181,6 +209,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                     var selectedEnquiryPropertyId by rememberSaveable { mutableStateOf<String?>(null) }
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
                     var showCityScreen by rememberSaveable { mutableStateOf(false) }
+                    var activeChatEnquiry by remember { mutableStateOf<Enquiry?>(null) }
 
                     BackHandler(enabled = !showExitDialog && !showMyListings && !showMyEnquiries && !showAddProperty && !showCityScreen) {
                         showExitDialog = true
@@ -203,6 +232,15 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                         showCityScreen = false
                     }
 
+                    BackHandler(enabled = deepLinkProperty != null || deepLinkPropertyId != null) {
+                        deepLinkProperty = null
+                        deepLinkPropertyId = null
+                    }
+
+                    BackHandler(enabled = activeChatEnquiry != null) {
+                        activeChatEnquiry = null
+                    }
+
                     // The glass nav capsule overlays content (screens scroll
                     // behind it) instead of living in Scaffold's bottomBar.
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -220,6 +258,12 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 .padding(innerPadding)
                                 .statusBarsPadding()
                         ) {
+                            val openPropertyChats: (Property) -> Unit = { property ->
+                                selectedEnquiryPropertyId = property.id
+                                showMyEnquiries = true
+                                mainViewModel.selectTab(AppScreen.Profile)
+                            }
+
                             when (selectedTab) {
                                 AppScreen.Home -> HomeScreen(
                                     modifier = Modifier.fillMaxSize(),
@@ -228,16 +272,19 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                     //onAddClick = { mainViewModel.selectTab(AppScreen.Add) },
                                     onProfileClick = { mainViewModel.selectTab(AppScreen.Profile) },
                                     onChangeCity = { showCityScreen = true },
-                                    onLoginClick = { authScreen = AuthScreen.Welcome }
+                                    onLoginClick = { authScreen = AuthScreen.Welcome },
+                                    onViewChats = openPropertyChats
                                 )
                                 AppScreen.Search -> SearchScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     onChangeCity = { showCityScreen = true },
-                                    onLoginClick = { authScreen = AuthScreen.Welcome }
+                                    onLoginClick = { authScreen = AuthScreen.Welcome },
+                                    onViewChats = openPropertyChats
                                 )
                                 AppScreen.Saved -> SavedScreen(
                                     modifier = Modifier.fillMaxSize(),
-                                    onLoginClick = { authScreen = AuthScreen.Welcome }
+                                    onLoginClick = { authScreen = AuthScreen.Welcome },
+                                    onViewChats = openPropertyChats
                                 )
                                /* AppScreen.Add -> AddScreen(
                                     modifier = Modifier.fillMaxSize(),
@@ -248,6 +295,7 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                         showAddProperty -> AddScreen(
                                             modifier = Modifier.fillMaxSize(),
                                             onLoginClick = { authScreen = AuthScreen.Welcome },
+                                            onViewChats = openPropertyChats,
                                             startWithAddForm = true,
                                             onExitForm = { showAddProperty = false }
                                         )
@@ -257,7 +305,8 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                             onBack = {
                                                 showMyEnquiries = false
                                                 selectedEnquiryPropertyId = null
-                                            }
+                                            },
+                                            onChatClick = { enquiry -> activeChatEnquiry = enquiry }
                                         )
                                         showMyListings -> MyListingsScreen(
                                             modifier = Modifier.fillMaxSize(),
@@ -326,6 +375,39 @@ fun MainApp(mainViewModel: MainViewModel = koinViewModel()) {
                                 showCityScreen = false
                             }
                         )
+                    }
+
+                    // Full-screen enquiry chat overlay (buyer <-> owner thread).
+                    activeChatEnquiry?.let { enquiry ->
+                        ChatScreen(
+                            enquiry = enquiry,
+                            onBack = { activeChatEnquiry = null },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    // Full-screen property details opened from a push notification.
+                    deepLinkProperty?.let { property ->
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = AppBackground
+                        ) {
+                            PropertyDetailScreen(
+                                property = property,
+                                onClose = {
+                                    deepLinkProperty = null
+                                    deepLinkPropertyId = null
+                                },
+                                onViewChats = {
+                                    deepLinkProperty = null
+                                    deepLinkPropertyId = null
+                                    selectedEnquiryPropertyId = property.id
+                                    showMyEnquiries = true
+                                    mainViewModel.selectTab(AppScreen.Profile)
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

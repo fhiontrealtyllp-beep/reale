@@ -1,6 +1,7 @@
 package com.fhiont.core.network
 
 import com.fhiont.BuildConfig
+import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.utils.Result
@@ -85,6 +86,39 @@ class PhpEnquiryApi {
             }
             map
         }
+    )
+
+    suspend fun getChatMessages(token: String, enquiryId: String): Result<List<ChatMessage>> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "chat-messages.php?enquiryId=${URLEncoder.encode(enquiryId, "UTF-8")}",
+        token = token,
+        parse = { response ->
+            val array = response.getJSONObject("data").getJSONArray("messages")
+            List(array.length()) { index ->
+                array.getJSONObject(index).toChatMessage()
+            }
+        }
+    )
+
+    suspend fun sendChatMessage(token: String, enquiryId: String, message: String): Result<ChatMessage> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "chat-messages.php",
+        token = token,
+        body = JSONObject()
+            .put("enquiryId", enquiryId)
+            .put("message", message.trim()),
+        parse = { response ->
+            response.getJSONObject("data").getJSONObject("message").toChatMessage()
+        }
+    )
+
+    private fun JSONObject.toChatMessage(): ChatMessage = ChatMessage(
+        id = optString("id"),
+        enquiryId = optString("enquiryId"),
+        senderId = optString("senderId"),
+        senderName = optString("senderName"),
+        message = optString("message"),
+        createdAt = optString("createdAt")
     )
 
     private fun JSONObject.toEnquiry(): Enquiry = Enquiry(

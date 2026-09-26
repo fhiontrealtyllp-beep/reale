@@ -7,28 +7,7 @@ requireMethod('GET');
 $pdo = database();
 authenticatedUser($pdo);
 
-$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
-$limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT);
-$page = $page !== false && $page !== null && $page >= 0 ? $page : 0;
-$limit = $limit !== false && $limit !== null && $limit >= 1 ? min($limit, 100) : 10;
-$offset = $page * $limit;
-
-$countStatement = $pdo->prepare(
-    'SELECT COUNT(*) FROM properties WHERE status = :status'
-);
-$countStatement->execute(['status' => 'live']);
-$total = (int) $countStatement->fetchColumn();
-
-$statement = $pdo->prepare(
-    'SELECT * FROM properties WHERE status = :status ORDER BY created_at DESC, id DESC LIMIT :limit OFFSET :offset'
-);
-$statement->bindValue(':status', 'live', PDO::PARAM_STR);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->bindValue(':offset', $offset, PDO::PARAM_INT);
-$statement->execute();
-$rows = $statement->fetchAll();
-
-$properties = array_map(function (array $row): array {
+$mapRow = function (array $row): array {
     return [
         'id' => (string) $row['id'],
         'userId' => (string) $row['user_id'],
@@ -60,7 +39,42 @@ $properties = array_map(function (array $row): array {
         'agentPhone' => (string) $row['agent_phone'],
         'createdAt' => (string) $row['created_at'],
     ];
-}, $rows);
+};
+
+// Single-property lookup used by push-notification deep links.
+$id = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+if ($id !== '') {
+    $statement = $pdo->prepare('SELECT * FROM properties WHERE id = :id LIMIT 1');
+    $statement->execute(['id' => $id]);
+    $row = $statement->fetch();
+    if (!$row) {
+        respond(404, false, 'Property not found');
+    }
+    respond(200, true, 'Property loaded', ['property' => $mapRow($row)]);
+}
+
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT);
+$limit = filter_input(INPUT_GET, 'limit', FILTER_VALIDATE_INT);
+$page = $page !== false && $page !== null && $page >= 0 ? $page : 0;
+$limit = $limit !== false && $limit !== null && $limit >= 1 ? min($limit, 100) : 10;
+$offset = $page * $limit;
+
+$countStatement = $pdo->prepare(
+    'SELECT COUNT(*) FROM properties WHERE status = :status'
+);
+$countStatement->execute(['status' => 'live']);
+$total = (int) $countStatement->fetchColumn();
+
+$statement = $pdo->prepare(
+    'SELECT * FROM properties WHERE status = :status ORDER BY created_at DESC, id DESC LIMIT :limit OFFSET :offset'
+);
+$statement->bindValue(':status', 'live', PDO::PARAM_STR);
+$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+$statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+$statement->execute();
+$rows = $statement->fetchAll();
+
+$properties = array_map($mapRow, $rows);
 
 respond(200, true, 'Properties loaded', [
     'properties' => $properties,

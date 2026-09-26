@@ -1,6 +1,7 @@
 package com.fhiont.feature.search.data.repository
 
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
+import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.repository.EnquiryRepository
@@ -27,5 +28,13 @@ class EnquiryRepositoryImpl(
 
     override suspend fun getEnquiryCountsForPropertyIds(propertyIds: List<String>): Result<Map<String, Int>> {
         return remoteDataSource.getEnquiryCountsForPropertyIds(propertyIds)
+    }
+
+    override suspend fun getChatMessages(enquiryId: String): Result<List<ChatMessage>> {
+        return remoteDataSource.getChatMessages(enquiryId)
+    }
+
+    override suspend fun sendChatMessage(enquiryId: String, message: String): Result<ChatMessage> {
+        return remoteDataSource.sendChatMessage(enquiryId, message)
     }
 }

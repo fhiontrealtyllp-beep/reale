@@ -291,6 +291,10 @@ internal fun MyListingsScreen(
                         selectedListing = null
                         onViewEnquiries(listing.id)
                     },
+                    onViewChats = {
+                        selectedListing = null
+                        onViewEnquiries(listing.id)
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }

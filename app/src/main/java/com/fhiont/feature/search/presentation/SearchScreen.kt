@@ -70,6 +70,7 @@ import org.koin.androidx.compose.koinViewModel
 fun SearchScreen(
     onChangeCity: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onViewChats: (Property) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -203,6 +204,10 @@ fun SearchScreen(
                             }
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         }
+                    },
+                    onViewChats = {
+                        selectedProperty = null
+                        onViewChats(property)
                     },
                     modifier = Modifier.fillMaxSize()
                 )

@@ -227,6 +227,7 @@ internal object MapMarkerDims {
 internal object DetailStrings {
     const val BADGE_FOR_SALE = "For Sale"
     const val BADGE_FOR_RENT = "For Rent"
+    const val CD_CHAT = "Open chat"
     const val PER_SQ_FT_SUFFIX = " per sq ft"
     const val ACTION_GET_HOME_LOAN = "Get Home Loan"
 
@@ -242,6 +243,7 @@ internal object DetailStrings {
 
     const val ACTION_CALL = "Call"
     const val ACTION_ENQUIRE = "Enquire Now"
+    const val ACTION_CHATS = "Chats"
 
     const val LABEL_ENQUIRIES = "Enquiries"
     const val CD_VIEW_ENQUIRIES = "View enquiries"

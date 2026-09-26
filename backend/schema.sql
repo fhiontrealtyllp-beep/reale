@@ -131,5 +131,18 @@ CREATE TABLE IF NOT EXISTS device_tokens (
     CONSTRAINT device_tokens_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS enquiry_messages (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    enquiry_id BIGINT UNSIGNED NOT NULL,
+    sender_id BIGINT UNSIGNED NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY enquiry_messages_enquiry_index (enquiry_id),
+    KEY enquiry_messages_sender_index (sender_id),
+    CONSTRAINT enquiry_messages_enquiry_foreign FOREIGN KEY (enquiry_id) REFERENCES enquiries (id) ON DELETE CASCADE,
+    CONSTRAINT enquiry_messages_sender_foreign FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Migration for databases created before the password_set column existed:
 -- ALTER TABLE users ADD COLUMN password_set TINYINT(1) NOT NULL DEFAULT 1 AFTER image;

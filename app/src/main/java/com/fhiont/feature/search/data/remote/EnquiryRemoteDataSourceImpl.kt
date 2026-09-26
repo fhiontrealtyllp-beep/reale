@@ -2,6 +2,7 @@ package com.fhiont.feature.search.data.remote
 
 import com.fhiont.core.network.PhpEnquiryApi
 import com.fhiont.feature.search.data.session.UserSession
+import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.utils.Result
@@ -61,5 +62,24 @@ class EnquiryRemoteDataSourceImpl(
             return Result.Error("User not logged in")
         }
         return phpEnquiryApi.getEnquiryCountsForPropertyIds(token, propertyIds)
+    }
+
+    override suspend fun getChatMessages(enquiryId: String): Result<List<ChatMessage>> {
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "getChatMessages: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpEnquiryApi.getChatMessages(token, enquiryId)
+    }
+
+    override suspend fun sendChatMessage(enquiryId: String, message: String): Result<ChatMessage> {
+        Logger.d(TAG, "sendChatMessage: enquiryId=$enquiryId")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "sendChatMessage: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpEnquiryApi.sendChatMessage(token, enquiryId, message)
     }
 }

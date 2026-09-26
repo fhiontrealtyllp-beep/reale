@@ -52,6 +52,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onChangeCity: () -> Unit = {},
     onLoginClick: () -> Unit = {},
+    onViewChats: (Property) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel()
 ) {
@@ -86,6 +87,7 @@ fun HomeScreen(
             }
         },
         onChangeCity = onChangeCity,
+        onViewChats = onViewChats,
         modifier = modifier
     )
 
@@ -115,6 +117,7 @@ internal fun HomeContent(
     onCategorySelected: (HomeCategory) -> Unit = {},
     onLike: (Property) -> Unit = {},
     onChangeCity: () -> Unit = {},
+    onViewChats: (Property) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val featuredList = remember(featuredProperties) {
@@ -244,7 +247,11 @@ internal fun HomeContent(
         PropertyDetailDialog(
             property = property,
             onClose = { selectedProperty = null },
-            onLike = { onLike(property) }
+            onLike = { onLike(property) },
+            onViewChats = {
+                selectedProperty = null
+                onViewChats(property)
+            }
         )
     }
 }

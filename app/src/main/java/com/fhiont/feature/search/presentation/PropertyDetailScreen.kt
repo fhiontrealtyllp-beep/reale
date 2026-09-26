@@ -120,6 +120,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import org.koin.compose.koinInject
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.ComposeMapColorScheme
@@ -133,6 +134,7 @@ import com.fhiont.R
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.ListingCategory
+import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.presentation.components.formatIndianPrice
 import com.fhiont.ui.theme.FilterChipSelectedContainer
@@ -155,6 +157,7 @@ import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -182,11 +185,19 @@ fun PropertyDetailScreen(
     onLike: (() -> Unit)? = null,
     enquiryCount: Int? = null,
     onViewEnquiries: (() -> Unit)? = null,
+    onViewChats: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
+    // Koin isn't started inside @Preview, so guard the session lookup.
+    val isOwnProperty = if (LocalInspectionMode.current) {
+        false
+    } else {
+        property.userId == koinInject<UserSession>().getUserId()
+    }
 
     val images = remember(property.id, property.images) {
         property.images.filter { it.isNotBlank() }
@@ -226,7 +237,8 @@ fun PropertyDetailScreen(
             DetailBottomBar(
                 phone = property.agentPhone,
                 onCall = { dialAgent(context, property.agentPhone) },
-                onEnquire = { showEnquire = true }
+                onEnquire = { showEnquire = true },
+                onChats = if (isOwnProperty) onViewChats else null
             )
         }
     ) { innerPadding ->
@@ -255,7 +267,12 @@ fun PropertyDetailScreen(
                     onImageClick = { fullScreenPage = selectedImage },
                     onSelectImage = { selectedImage = it },
                     enquiryCount = enquiryCount,
-                    onViewEnquiries = onViewEnquiries
+                    onViewEnquiries = onViewEnquiries,
+                    onChatClick = if (isOwnProperty) {
+                        onViewChats ?: {}
+                    } else {
+                        { showEnquire = true }
+                    }
                 )
             }
 
@@ -325,7 +342,8 @@ private fun HeroSection(
     onImageClick: () -> Unit,
     onSelectImage: (Int) -> Unit,
     enquiryCount: Int? = null,
-    onViewEnquiries: (() -> Unit)? = null
+    onViewEnquiries: (() -> Unit)? = null,
+    onChatClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -398,16 +416,15 @@ private fun HeroSection(
                     onClick = onClose
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(DetailDims.HERO_BUTTON_SPACING)) {
-                    if (enquiryCount != null && onViewEnquiries != null) {
-                        // Owner-only enquiries shortcut: chat button with a red
-                        // notification badge showing the unread enquiry count.
-                        Box {
-                            HeroCircleButton(
-                                icon = Icons.AutoMirrored.Filled.Chat,
-                                contentDescription = DetailStrings.CD_VIEW_ENQUIRIES,
-                                onClick = onViewEnquiries
-                            )
-                            if (enquiryCount > 0) {
+                    // Chat/enquiries shortcut: owners see their enquiries list;
+                    // buyers open the enquire sheet to start a conversation.
+                    Box {
+                        HeroCircleButton(
+                            icon = Icons.AutoMirrored.Filled.Chat,
+                            contentDescription = DetailStrings.CD_CHAT,
+                            onClick = onChatClick
+                        )
+                        if (enquiryCount != null && enquiryCount > 0) {
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
@@ -453,8 +470,6 @@ private fun HeroSection(
                     )
                 }
             }
-
-        }
 
         ThumbnailStrip(
             images = images,
@@ -1131,7 +1146,8 @@ private fun LocationContent(property: Property) {
 private fun DetailBottomBar(
     phone: String,
     onCall: () -> Unit,
-    onEnquire: () -> Unit
+    onEnquire: () -> Unit,
+    onChats: (() -> Unit)? = null
 ) {
     Surface(
         color = White,
@@ -1166,9 +1182,15 @@ private fun DetailBottomBar(
                     fontWeight = FontWeight.Bold
                 )
             }
-            // Filled "Enquire Now" button, e.g. "💬 Enquire Now"
+            // Filled primary action: "Enquire Now" for buyers, "Chats" for owners.
+            val primaryAction = onChats ?: onEnquire
+            val primaryLabel = if (onChats != null) {
+                DetailStrings.ACTION_CHATS
+            } else {
+                DetailStrings.ACTION_ENQUIRE
+            }
             Button(
-                onClick = onEnquire,
+                onClick = primaryAction,
                 enabled = true,
                 modifier = Modifier
                     .weight(1f)
@@ -1186,7 +1208,7 @@ private fun DetailBottomBar(
                 )
                 Spacer(modifier = Modifier.width(DetailDims.BOTTOM_BUTTON_ICON_SPACING))
                 Text(
-                    text = DetailStrings.ACTION_ENQUIRE,
+                    text = primaryLabel,
                     fontWeight = FontWeight.Bold
                 )
             }

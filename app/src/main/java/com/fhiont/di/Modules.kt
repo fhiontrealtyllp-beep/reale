@@ -99,6 +99,8 @@ import com.fhiont.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
 import com.fhiont.feature.search.domain.usecase.GetFeaturedPropertiesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetLocationSuggestionsUseCase
 import com.fhiont.feature.search.domain.usecase.GetLocationSuggestionsUseCaseImpl
+import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCase
+import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUseCase
@@ -107,10 +109,14 @@ import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetPromotionalPropertiesUseCase
 import com.fhiont.feature.search.domain.usecase.GetPromotionalPropertiesUseCaseImpl
+import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCase
+import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.SendEnquiryUseCase
 import com.fhiont.feature.search.domain.usecase.SendEnquiryUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.UpdatePropertyLikeUseCase
 import com.fhiont.feature.search.domain.usecase.UpdatePropertyLikeUseCaseImpl
+import com.fhiont.feature.search.domain.model.Enquiry
+import com.fhiont.feature.search.presentation.ChatViewModel
 import com.fhiont.feature.search.presentation.EnquireViewModel
 import com.fhiont.feature.search.presentation.SearchViewModel
 import com.fhiont.ui.viewmodel.MainViewModel
@@ -137,7 +143,7 @@ val appModule = module {
     single<SetOnboardingCityUseCase> { SetOnboardingCityUseCaseImpl(get()) }
     single<SetOnboardingAddressUseCase> { SetOnboardingAddressUseCaseImpl(get()) }
     single<SetOnboardingCompletedUseCase> { SetOnboardingCompletedUseCaseImpl(get()) }
-    viewModel { MainViewModel(get(), get(), get(), get()) }
+    viewModel { MainViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { CityViewModel(get(), get()) }
 }
 
@@ -169,8 +175,11 @@ val searchModule = module {
     single<GetMyEnquiriesUseCase> { GetMyEnquiriesUseCaseImpl(get()) }
     single<GetEnquiriesByPropertyUseCase> { GetEnquiriesByPropertyUseCaseImpl(get()) }
     single<GetEnquiryCountsForPropertiesUseCase> { GetEnquiryCountsForPropertiesUseCaseImpl(get()) }
+    single<GetChatMessagesUseCase> { GetChatMessagesUseCaseImpl(get()) }
+    single<SendChatMessageUseCase> { SendChatMessageUseCaseImpl(get()) }
     viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
+    viewModel { (enquiry: Enquiry) -> ChatViewModel(get(), get(), get(), enquiry) }
 }
 
 val savedModule = module {

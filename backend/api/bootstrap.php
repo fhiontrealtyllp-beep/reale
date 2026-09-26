@@ -217,7 +217,16 @@ function firebaseAccessToken(): ?string
     return $payload['access_token'];
 }
 
-function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propertyId, string $propertyTitle): void
+function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propertyId, string $propertyTitle, string $message): void
+{
+    sendPushToUser($pdo, $ownerId, 'New enquiry: ' . $propertyTitle, $message, [
+        'propertyId' => $propertyId,
+        'enquiryId' => (string) $enquiryId,
+        'message' => $message,
+    ]);
+}
+
+function sendPushToUser(PDO $pdo, int $userId, string $title, string $body, array $data): void
 {
     global $config;
     $projectId = (string) ($config['firebase']['project_id'] ?? '');
@@ -226,20 +235,17 @@ function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propert
         return;
     }
     $statement = $pdo->prepare('SELECT token FROM device_tokens WHERE user_id = :user_id');
-    $statement->execute(['user_id' => $ownerId]);
+    $statement->execute(['user_id' => $userId]);
     $tokens = $statement->fetchAll(PDO::FETCH_COLUMN);
     foreach ($tokens as $token) {
         $payload = json_encode([
             'message' => [
                 'token' => (string) $token,
                 'notification' => [
-                    'title' => 'New property enquiry',
-                    'body' => 'You received an enquiry for ' . $propertyTitle,
+                    'title' => $title,
+                    'body' => $body,
                 ],
-                'data' => [
-                    'propertyId' => $propertyId,
-                    'enquiryId' => (string) $enquiryId,
-                ],
+                'data' => array_map('strval', $data),
                 'android' => [
                     'priority' => 'high',
                     'notification' => ['channel_id' => 'enquiries'],

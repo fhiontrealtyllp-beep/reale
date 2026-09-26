@@ -12,6 +12,7 @@ import com.fhiont.util.Logger
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -43,6 +44,15 @@ class PhpPropertyApi {
             List(array.length()) { index ->
                 PropertyMapper.fromMap(array.getJSONObject(index).toMap())
             }
+        }
+    )
+
+    suspend fun getPropertyById(token: String, propertyId: String): Result<Property> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "properties-all.php?id=${URLEncoder.encode(propertyId, "UTF-8")}",
+        token = token,
+        parse = { response ->
+            PropertyMapper.fromMap(response.getJSONObject("data").getJSONObject("property").toMap())
         }
     )
 

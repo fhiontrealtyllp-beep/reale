@@ -1,6 +1,7 @@
 package com.fhiont.feature.profile.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import coil.compose.AsyncImage
@@ -64,6 +66,7 @@ import org.koin.core.parameter.parametersOf
 fun MyEnquiriesScreen(
     onBack: () -> Unit,
     filterPropertyId: String? = null,
+    onChatClick: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: MyEnquiriesViewModel = koinViewModel { parametersOf(filterPropertyId) }
 ) {
@@ -143,7 +146,10 @@ fun MyEnquiriesScreen(
                             items = uiState.enquiries,
                             key = { it.id }
                         ) { enquiry ->
-                            EnquiryCard(enquiry = enquiry)
+                            EnquiryCard(
+                                enquiry = enquiry,
+                                onClick = { onChatClick(enquiry) }
+                            )
                         }
                     }
                 }
@@ -155,10 +161,13 @@ fun MyEnquiriesScreen(
 @Composable
 private fun EnquiryCard(
     enquiry: Enquiry,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(MyEnquiriesDims.CARD_CORNER_RADIUS),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = MyEnquiriesDims.CARD_ELEVATION)
@@ -236,6 +245,15 @@ private fun EnquiryCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+
+            Spacer(modifier = Modifier.width(MyEnquiriesDims.IMAGE_TO_CONTENT_SPACING))
+
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Chat,
+                contentDescription = MyEnquiriesStrings.CD_OPEN_CHAT,
+                tint = ControlAccent,
+                modifier = Modifier.size(MyEnquiriesDims.CHAT_ICON_SIZE)
+            )
         }
     }
 }

@@ -12,9 +12,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fhiont.core.notification.NotificationStrings
+import com.fhiont.core.notification.PushNotificationConstants
 import com.fhiont.ui.MainApp
 
 class MainActivity : ComponentActivity() {
@@ -32,12 +34,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Holds the propertyId carried by a tapped enquiry push notification.
+    private val pendingPropertyId = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestNotificationPermission()
         enableEdgeToEdge()
+        handleNotificationIntent(intent)
         setContent {
-            MainApp()
+            MainApp(
+                pendingPropertyId = pendingPropertyId.value,
+                onPendingPropertyHandled = { pendingPropertyId.value = null }
+            )
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        val propertyId = intent?.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_ID)
+            ?.takeIf { it.isNotBlank() }
+        if (propertyId != null) {
+            pendingPropertyId.value = propertyId
         }
     }
 

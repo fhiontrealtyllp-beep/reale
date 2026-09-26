@@ -708,7 +708,8 @@ internal fun HomePropertyFeed(
 internal fun PropertyDetailDialog(
     property: Property,
     onClose: () -> Unit,
-    onLike: () -> Unit
+    onLike: () -> Unit,
+    onViewChats: () -> Unit = {}
 ) {
     Dialog(
         onDismissRequest = onClose,
@@ -722,6 +723,7 @@ internal fun PropertyDetailDialog(
                 property = property,
                 onClose = onClose,
                 onLike = onLike,
+                onViewChats = onViewChats,
                 modifier = Modifier.fillMaxSize()
             )
         }
