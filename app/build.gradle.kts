@@ -14,8 +14,8 @@ android {
         applicationId = "com.fhiont"
         minSdk = 24
         targetSdk = 37
-        versionCode = 6//update app
-        versionName = "6.0"// update app
+        versionCode = 7//update app
+        versionName = "7.0"// update app
         val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
             .orElse(providers.environmentVariable("API_BASE_URL"))
             .getOrElse("")
