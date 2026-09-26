@@ -323,6 +323,9 @@ internal object DetailDims {
     val HERO_BUTTON_SIZE = 40.dp
     val HERO_BUTTON_ICON_SIZE = 20.dp
     val HERO_BUTTON_SPACING = 10.dp
+    val ENQUIRY_BADGE_SIZE = 18.dp
+    val ENQUIRY_BADGE_FONT_SIZE = 10.sp
+    val ENQUIRY_BADGE_OFFSET = 4.dp
 
     val BADGE_CORNER_RADIUS = 20.dp
     val BADGE_ICON_SIZE = 16.dp

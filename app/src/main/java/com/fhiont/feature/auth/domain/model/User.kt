@@ -11,5 +11,6 @@ data class User(
     val address: String,
     val password: String,
     val sessionId: String,
-    val image: String? = null
+    val image: String? = null,
+    val hasPassword: Boolean = true
 )

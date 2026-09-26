@@ -1,10 +1,13 @@
 package com.fhiont.feature.profile.data.remote
 
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.fhiont.core.firebase.FirebaseConstants
 import com.fhiont.core.firebase.FirebaseProvider
 import com.fhiont.core.network.PhpAuthApi
 import com.fhiont.feature.auth.data.mapper.UserMapper
 import com.fhiont.feature.auth.domain.model.User
+import com.fhiont.feature.profile.presentation.ProfileStrings
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.util.Logger
@@ -107,6 +110,37 @@ class ProfileRemoteDataSourceImpl(
         } catch (e: Exception) {
             Logger.e(TAG, "logout() failed: ${e.message}")
             Result.Error("Logout failed: ${e.message}")
+        }
+    }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        val token = userSession.getUser()?.sessionId?.takeIf { it.isNotBlank() }
+        if (token != null) {
+            Logger.d(TAG, "changePassword: updating via PHP session")
+            return phpAuthApi.changePassword(token, currentPassword, newPassword)
+        }
+        return changePasswordInFirebase(currentPassword, newPassword)
+    }
+
+    private suspend fun changePasswordInFirebase(
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit> {
+        return try {
+            val firebaseUser = auth.currentUser
+                ?: return Result.Error(ProfileStrings.ERROR_NOT_LOGGED_IN)
+            val email = firebaseUser.email
+                ?: return Result.Error(ProfileStrings.ERROR_PASSWORD_CHANGE_FAILED)
+
+            firebaseUser.reauthenticate(
+                EmailAuthProvider.getCredential(email, currentPassword)
+            ).await()
+            firebaseUser.updatePassword(newPassword).await()
+            Result.Success(Unit)
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Result.Error(ProfileStrings.ERROR_WRONG_CURRENT_PASSWORD)
+        } catch (e: Exception) {
+            Result.Error(ProfileStrings.ERROR_PASSWORD_CHANGE_FAILED)
         }
     }
 

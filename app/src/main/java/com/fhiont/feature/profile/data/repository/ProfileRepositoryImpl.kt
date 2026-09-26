@@ -36,4 +36,8 @@ class ProfileRepositoryImpl(
     override suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String> {
         return remoteDataSource.uploadImage(bytes, filename)
     }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        return remoteDataSource.changePassword(currentPassword, newPassword)
+    }
 }

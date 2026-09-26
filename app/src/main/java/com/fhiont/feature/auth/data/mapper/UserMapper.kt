@@ -1,5 +1,6 @@
 package com.fhiont.feature.auth.data.mapper
 
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.fhiont.feature.auth.domain.model.User
 
@@ -21,7 +22,8 @@ object UserMapper {
             address = extra["address"].toString().orEmpty(),
             password = fallbackPassword,
             sessionId = user.uid,
-            image = user.photoUrl?.toString() ?: extra["image"].toString().takeIf { it.isNotBlank() }
+            image = user.photoUrl?.toString() ?: extra["image"].toString().takeIf { it.isNotBlank() },
+            hasPassword = user.providerData.any { it.providerId == EmailAuthProvider.PROVIDER_ID }
         )
     }
 

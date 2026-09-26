@@ -116,6 +116,7 @@ function publicUser(array $user, string $token = ''): array
         'location' => (string) $user['location'],
         'address' => (string) $user['address'],
         'image' => $user['image'] === null ? null : (string) $user['image'],
+        'hasPassword' => (int) ($user['password_set'] ?? 1) === 1,
         'sessionId' => $token,
     ];
 }

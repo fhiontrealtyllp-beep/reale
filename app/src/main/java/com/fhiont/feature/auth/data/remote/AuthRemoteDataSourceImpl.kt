@@ -242,6 +242,15 @@ class AuthRemoteDataSourceImpl(
             val idToken = googleIdTokenCredential.idToken
             Logger.d(TAG, "Google ID token length=${idToken.length}, email=${googleIdTokenCredential.id}")
 
+            if (phpAuthApi.isConfigured) {
+                return phpAuthApi.googleLogin(idToken).also { loginResult ->
+                    when (loginResult) {
+                        is Result.Success -> Logger.d(TAG, "$TICK PHP google login succeeded: userId=${loginResult.data.id}")
+                        is Result.Error -> Logger.e(TAG, "$CROSS PHP google login failed: ${loginResult.message}")
+                    }
+                }
+            }
+
             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
             Logger.d(TAG, "Signing in with Firebase credential...")
             val authResult = auth.signInWithCredential(firebaseCredential).await()

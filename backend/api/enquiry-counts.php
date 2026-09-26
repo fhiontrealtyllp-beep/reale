@@ -25,4 +25,4 @@ foreach ($statement->fetchAll() as $row) {
     $counts[(string) $row['property_id']] = (int) $row['count'];
 }
 
-respond(200, true, 'Enquiry counts loaded', ['counts' => $counts]);
+respond(200, true, 'Enquiry counts loaded', ['counts' => (object) $counts]);

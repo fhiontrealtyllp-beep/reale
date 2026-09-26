@@ -8,4 +8,5 @@ interface ProfileRemoteDataSource {
     suspend fun updateProfileField(userId: String, field: String, value: String): Result<String>
     suspend fun logout(sessionId: String): Result<Unit>
     suspend fun uploadImage(bytes: ByteArray, filename: String): Result<String>
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit>
 }

@@ -28,6 +28,7 @@ class UserSessionImpl(private val context: Context) : UserSession {
         const val KEY_PASSWORD = "password"
         const val KEY_SESSION_ID = "session_id"
         const val KEY_IMAGE = "image"
+        const val KEY_HAS_PASSWORD = "has_password"
     }
 
     private val appContext = context.applicationContext
@@ -128,6 +129,7 @@ class UserSessionImpl(private val context: Context) : UserSession {
             putString(KEY_PASSWORD, user.password)
             putString(KEY_SESSION_ID, user.sessionId)
             putString(KEY_IMAGE, user.image)
+            putBoolean(KEY_HAS_PASSWORD, user.hasPassword)
         }
     }
 
@@ -153,7 +155,8 @@ class UserSessionImpl(private val context: Context) : UserSession {
             address = prefs.getString(KEY_ADDRESS, "").orEmpty(),
             password = prefs.getString(KEY_PASSWORD, "").orEmpty(),
             sessionId = sessionId,
-            image = prefs.getString(KEY_IMAGE, null)
+            image = prefs.getString(KEY_IMAGE, null),
+            hasPassword = prefs.getBoolean(KEY_HAS_PASSWORD, true)
         )
         _user.value = currentUser
     }

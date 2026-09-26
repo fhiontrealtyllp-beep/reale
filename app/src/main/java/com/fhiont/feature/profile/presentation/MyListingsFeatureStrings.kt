@@ -47,6 +47,8 @@ internal object MyListingsStrings {
     const val CD_REACTIVATE = "Reactivate listing"
     const val CD_MORE = "More options"
 
+    const val ACTION_VIEW_ENQUIRIES = "View Enquiries"
+
     const val ACTION_DELETE = "Delete"
     const val CD_DELETE = "Delete listing"
     const val DELETE_DIALOG_TITLE = "Delete property?"
@@ -130,6 +132,8 @@ internal object MyListingsDims {
     val SPEC_ITEM_SPACING = 6.dp
 
     val STATS_VERTICAL_PADDING = 8.dp
+    val ENQUIRY_BADGE_SIZE = 20.dp
+    val ENQUIRY_BADGE_FONT_SIZE = 11.sp
     val STAT_VALUE_FONT_SIZE = 15.sp
     val STAT_LABEL_FONT_SIZE = 10.sp
     val STAT_SPACING = 2.dp

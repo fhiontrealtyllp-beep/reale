@@ -91,6 +91,23 @@ internal object ProfileStrings {
     const val MSG_LOGGED_OUT = "Logged out successfully"
     const val MSG_ADDRESS_SAVED = "Address saved"
 
+    const val CHANGE_PASSWORD = "Change Password"
+    const val SET_PASSWORD = "Set Password"
+    const val CHANGE_PASSWORD_SUBTITLE = "Update your account password"
+    const val SET_PASSWORD_SUBTITLE = "Create a password to log in with email"
+    const val CD_PASSWORD = "Change password"
+    const val LABEL_CURRENT_PASSWORD = "Current password"
+    const val LABEL_NEW_PASSWORD = "New password"
+    const val LABEL_CONFIRM_PASSWORD = "Confirm new password"
+    const val MSG_PASSWORD_UPDATED = "Password updated"
+    const val ERROR_NOT_LOGGED_IN = "User not logged in"
+    const val ERROR_WRONG_CURRENT_PASSWORD = "Current password is incorrect"
+    const val ERROR_PASSWORD_REQUIRED = "Enter your current password"
+    const val ERROR_PASSWORD_TOO_SHORT = "Password must be at least 8 characters"
+    const val ERROR_PASSWORD_MISMATCH = "Passwords do not match"
+    const val ERROR_PASSWORD_CHANGE_FAILED = "Failed to update password"
+    const val PASSWORD_MIN_LENGTH = 8
+
     // Profile field keys sent to the update API.
     const val FIELD_NAME = "name"
     const val FIELD_EMAIL = "email"

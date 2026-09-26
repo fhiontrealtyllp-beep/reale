@@ -42,6 +42,28 @@ class PhpAuthApi {
         parse = { it.userJson().toUser() }
     )
 
+    suspend fun googleLogin(idToken: String): Result<User> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "google-login.php",
+        body = JSONObject()
+            .put("idToken", idToken),
+        parse = { it.userJson().toUser() }
+    )
+
+    suspend fun changePassword(
+        token: String,
+        currentPassword: String,
+        newPassword: String
+    ): Result<Unit> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "change-password.php",
+        token = token,
+        body = JSONObject()
+            .put("currentPassword", currentPassword)
+            .put("newPassword", newPassword),
+        parse = { }
+    )
+
     suspend fun me(token: String): Result<User> = apiCall(
         method = HTTP_METHOD_GET,
         endpoint = "me.php",
@@ -128,6 +150,7 @@ class PhpAuthApi {
         address = optString("address"),
         password = "",
         sessionId = sessionId ?: optString("sessionId"),
-        image = optString("image").takeIf { it.isNotBlank() && it != "null" }
+        image = optString("image").takeIf { it.isNotBlank() && it != "null" },
+        hasPassword = optBoolean("hasPassword", true)
     )
 }

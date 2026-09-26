@@ -55,6 +55,8 @@ import com.fhiont.feature.profile.data.remote.ProfileRemoteDataSource
 import com.fhiont.feature.profile.data.remote.ProfileRemoteDataSourceImpl
 import com.fhiont.feature.profile.data.repository.ProfileRepositoryImpl
 import com.fhiont.feature.profile.domain.repository.ProfileRepository
+import com.fhiont.feature.profile.domain.usecase.ChangePasswordUseCase
+import com.fhiont.feature.profile.domain.usecase.ChangePasswordUseCaseImpl
 import com.fhiont.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.fhiont.feature.profile.domain.usecase.GetUserDetailsUseCaseImpl
 import com.fhiont.feature.profile.domain.usecase.LogoutUseCase
@@ -195,8 +197,9 @@ val profileModule = module {
     single<GetUserDetailsUseCase> { GetUserDetailsUseCaseImpl(get()) }
     single<UpdateProfileUseCase> { UpdateProfileUseCaseImpl(get()) }
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
+    single<ChangePasswordUseCase> { ChangePasswordUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }

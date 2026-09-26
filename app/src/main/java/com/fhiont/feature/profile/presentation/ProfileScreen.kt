@@ -47,6 +47,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.VerifiedUser
@@ -54,6 +55,7 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.MarkEmailRead
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
@@ -95,6 +97,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -257,6 +261,7 @@ fun ProfileScreen(
                     onHelpSupportClick = { launchEmail(context) },
                     onLogoutClick = { showLogoutDialog = true },
                     onUpdateField = { field, value -> viewModel.updateProfileField(field, value) },
+                    onChangePassword = { current, new -> viewModel.changePassword(current, new) },
                     themeMode = themeMode,
                     onThemeModeSelected = viewModel::setThemeMode,
                     modifier = Modifier.fillMaxSize()
@@ -325,6 +330,7 @@ private fun ProfileContent(
     onHelpSupportClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onUpdateField: (String, String) -> Unit,
+    onChangePassword: (String, String) -> Unit,
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier
@@ -332,6 +338,8 @@ private fun ProfileContent(
     var showEditDialog by rememberSaveable { mutableStateOf(false) }
     var showAddressDialog by rememberSaveable { mutableStateOf(false) }
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
+    var showPasswordDialog by rememberSaveable { mutableStateOf(false) }
+    val hasPassword = user?.hasPassword != false
 
     val activityItems = if (isLoggedIn) {
         buildList {
@@ -372,6 +380,15 @@ private fun ProfileContent(
                     subtitle = ProfileStrings.PERSONAL_INFORMATION_SUBTITLE,
                     contentDescription = ProfileStrings.CD_PERSONAL_INFO,
                     onClick = onPersonalInfoClick
+                )
+            )
+            add(
+                ProfileMenuItem(
+                    icon = Icons.Outlined.Lock,
+                    title = if (hasPassword) ProfileStrings.CHANGE_PASSWORD else ProfileStrings.SET_PASSWORD,
+                    subtitle = if (hasPassword) ProfileStrings.CHANGE_PASSWORD_SUBTITLE else ProfileStrings.SET_PASSWORD_SUBTITLE,
+                    contentDescription = ProfileStrings.CD_PASSWORD,
+                    onClick = { showPasswordDialog = true }
                 )
             )
             add(
@@ -500,6 +517,14 @@ private fun ProfileContent(
             ),
             onSave = onSaveAddress,
             onDismiss = { showAddressDialog = false }
+        )
+    }
+
+    if (showPasswordDialog) {
+        ChangePasswordDialog(
+            hasPassword = hasPassword,
+            onSubmit = { current, new -> onChangePassword(current, new) },
+            onDismiss = { showPasswordDialog = false }
         )
     }
 
@@ -1296,6 +1321,123 @@ private fun AddressDialog(
         }
     )
 }
+
+// Change/set password dialog. Shows the current-password field only when the
+// account already has one (email/password users); Google-only accounts set a
+// new password directly.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChangePasswordDialog(
+    hasPassword: Boolean,
+    onSubmit: (String, String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var currentPassword by rememberSaveable { mutableStateOf("") }
+    var newPassword by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(ProfileDims.DIALOG_CORNER_RADIUS),
+        containerColor = White,
+        title = {
+            Text(
+                text = if (hasPassword) ProfileStrings.CHANGE_PASSWORD else ProfileStrings.SET_PASSWORD,
+                color = Black,
+                fontSize = ProfileDims.DIALOG_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(ProfileDims.FIELD_SPACING)
+            ) {
+                if (hasPassword) {
+                    EditProfileField(
+                        value = currentPassword,
+                        onValueChange = { currentPassword = it },
+                        label = ProfileStrings.LABEL_CURRENT_PASSWORD,
+                        icon = Icons.Filled.Lock,
+                        keyboardType = KeyboardType.Password,
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                }
+                EditProfileField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = ProfileStrings.LABEL_NEW_PASSWORD,
+                    icon = Icons.Filled.Lock,
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                EditProfileField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = ProfileStrings.LABEL_CONFIRM_PASSWORD,
+                    icon = Icons.Filled.Lock,
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
+                )
+                errorMessage?.let {
+                    Text(
+                        text = it,
+                        color = Error,
+                        fontSize = ProfileDims.MENU_ITEM_SUBTITLE_FONT_SIZE
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    errorMessage = when {
+                        hasPassword && currentPassword.isBlank() -> ProfileStrings.ERROR_PASSWORD_REQUIRED
+                        newPassword.length < ProfileStrings.PASSWORD_MIN_LENGTH -> ProfileStrings.ERROR_PASSWORD_TOO_SHORT
+                        newPassword != confirmPassword -> ProfileStrings.ERROR_PASSWORD_MISMATCH
+                        else -> null
+                    }
+                    if (errorMessage == null) {
+                        onSubmit(currentPassword, newPassword)
+                        onDismiss()
+                    }
+                },
+                modifier = Modifier.height(ProfileDims.DIALOG_BUTTON_HEIGHT),
+                shape = RoundedCornerShape(ProfileDims.DIALOG_BUTTON_CORNER_RADIUS),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = ControlAccent,
+                    contentColor = OnControlAccent
+                )
+            ) {
+                Text(
+                    text = ProfileStrings.ACTION_SAVE,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = ProfileStrings.ACTION_CANCEL,
+                    color = HomeTextSecondary
+                )
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChangePasswordDialogPreview() {
+    FhiontTheme {
+        ChangePasswordDialog(
+            hasPassword = true,
+            onSubmit = { _, _ -> },
+            onDismiss = {}
+        )
+    }
+}
 @Preview(
     name = "Address Dialog - Light",
     showBackground = true,
@@ -1316,13 +1458,15 @@ private fun EditProfileField(
     onValueChange: (String) -> Unit,
     label: String,
     icon: ImageVector,
-    keyboardType: KeyboardType
+    keyboardType: KeyboardType,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = Modifier.fillMaxWidth(),
         label = { Text(label) },
+        visualTransformation = visualTransformation,
         leadingIcon = {
             Icon(
                 imageVector = icon,
@@ -1449,6 +1593,7 @@ private fun ProfileContentPreview() {
             onHelpSupportClick = {},
             onLogoutClick = {},
             onUpdateField = { _, _ -> },
+            onChangePassword = { _, _ -> },
             themeMode = ThemeMode.SYSTEM,
             onThemeModeSelected = {}
         )
@@ -1479,6 +1624,7 @@ private fun ProfileContentGuestPreview() {
             onHelpSupportClick = {},
             onLogoutClick = {},
             onUpdateField = { _, _ -> },
+            onChangePassword = { _, _ -> },
             themeMode = ThemeMode.SYSTEM,
             onThemeModeSelected = {}
         )

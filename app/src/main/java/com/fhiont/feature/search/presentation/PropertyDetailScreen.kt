@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -252,7 +253,9 @@ fun PropertyDetailScreen(
                         }
                     },
                     onImageClick = { fullScreenPage = selectedImage },
-                    onSelectImage = { selectedImage = it }
+                    onSelectImage = { selectedImage = it },
+                    enquiryCount = enquiryCount,
+                    onViewEnquiries = onViewEnquiries
                 )
             }
 
@@ -320,7 +323,9 @@ private fun HeroSection(
     onShowPhotos: () -> Unit,
     onShowMap: () -> Unit,
     onImageClick: () -> Unit,
-    onSelectImage: (Int) -> Unit
+    onSelectImage: (Int) -> Unit,
+    enquiryCount: Int? = null,
+    onViewEnquiries: (() -> Unit)? = null
 ) {
     Box(
         modifier = Modifier
@@ -393,6 +398,38 @@ private fun HeroSection(
                     onClick = onClose
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(DetailDims.HERO_BUTTON_SPACING)) {
+                    if (enquiryCount != null && onViewEnquiries != null) {
+                        // Owner-only enquiries shortcut: chat button with a red
+                        // notification badge showing the unread enquiry count.
+                        Box {
+                            HeroCircleButton(
+                                icon = Icons.AutoMirrored.Filled.Chat,
+                                contentDescription = DetailStrings.CD_VIEW_ENQUIRIES,
+                                onClick = onViewEnquiries
+                            )
+                            if (enquiryCount > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(
+                                            x = DetailDims.ENQUIRY_BADGE_OFFSET,
+                                            y = -DetailDims.ENQUIRY_BADGE_OFFSET
+                                        )
+                                        .size(DetailDims.ENQUIRY_BADGE_SIZE)
+                                        .clip(CircleShape)
+                                        .background(Error),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = enquiryCount.toString(),
+                                        color = OnMediaContent,
+                                        fontSize = DetailDims.ENQUIRY_BADGE_FONT_SIZE,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
                     if (onLike != null) {
                         if (property.isLiked == true) {
                             HeroCircleButton(

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR(255) NOT NULL DEFAULT '',
     address TEXT NOT NULL,
     image VARCHAR(500) NULL,
+    -- 1 = user can log in with email/password, 0 = Google-only account with a random unusable hash.
+    password_set TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -128,3 +130,6 @@ CREATE TABLE IF NOT EXISTS device_tokens (
     KEY device_tokens_user_id_index (user_id),
     CONSTRAINT device_tokens_user_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Migration for databases created before the password_set column existed:
+-- ALTER TABLE users ADD COLUMN password_set TINYINT(1) NOT NULL DEFAULT 1 AFTER image;

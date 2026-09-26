@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -37,6 +38,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -67,6 +69,7 @@ import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.ControlAccent
+import com.fhiont.ui.theme.Error
 import com.fhiont.ui.theme.HomeSearchBarBorder
 import com.fhiont.ui.theme.HomeTextSecondary
 import com.fhiont.ui.theme.OnControlAccent
@@ -213,7 +216,8 @@ internal fun MyListingsScreen(
                                     selectedListing = listing
                                     onViewDetails(listing)
                                 },
-                                onDelete = { listingPendingDelete = listing }
+                                onDelete = { listingPendingDelete = listing },
+                                onViewEnquiries = { onViewEnquiries(listing.id) }
                             )
                         }
                     }
@@ -546,12 +550,19 @@ private fun ListingCard(
     listing: MyListing,
     onViewDetails: () -> Unit,
     onDelete: () -> Unit,
+    onViewEnquiries: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     PropertyResultCard(
         property = listing.toProperty(),
         onClick = onViewDetails,
         modifier = modifier,
+        footerContent = {
+            ListingEnquiriesFooter(
+                enquiries = listing.enquiries,
+                onViewEnquiries = onViewEnquiries
+            )
+        },
         trailingContent = {
             var menuExpanded by remember { mutableStateOf(false) }
             Box {
@@ -591,6 +602,64 @@ private fun ListingCard(
             }
         }
     )
+}
+
+// Footer strip on each listing card: enquiry count on the left and a
+// "View Enquiries" shortcut on the right.
+@Composable
+private fun ListingEnquiriesFooter(
+    enquiries: Int,
+    onViewEnquiries: () -> Unit
+) {
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = MyListingsDims.CARD_PADDING),
+        thickness = MyListingsDims.STAT_DIVIDER_WIDTH,
+        color = HomeSearchBarBorder
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = MyListingsDims.CARD_PADDING,
+                vertical = MyListingsDims.STATS_VERTICAL_PADDING
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MyListingsDims.SPEC_ITEM_SPACING)
+        ) {
+            // Red notification-style badge with the enquiry count.
+            Box(
+                modifier = Modifier
+                    .size(MyListingsDims.ENQUIRY_BADGE_SIZE)
+                    .clip(CircleShape)
+                    .background(if (enquiries > 0) Error else HomeSearchBarBorder),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = enquiries.toString(),
+                    color = if (enquiries > 0) White else HomeTextSecondary,
+                    fontSize = MyListingsDims.ENQUIRY_BADGE_FONT_SIZE,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = MyListingsStrings.STAT_ENQUIRIES,
+                color = if (enquiries > 0) Black else HomeTextSecondary,
+                fontSize = MyListingsDims.SPEC_FONT_SIZE,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Text(
+            text = MyListingsStrings.ACTION_VIEW_ENQUIRIES,
+            color = ControlAccent,
+            fontSize = MyListingsDims.SPEC_FONT_SIZE,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.clickable(onClick = onViewEnquiries)
+        )
+    }
 }
 
 @Preview(showBackground = true)

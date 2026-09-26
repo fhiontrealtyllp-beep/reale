@@ -10,6 +10,7 @@ import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingLocationUseCase
 import com.fhiont.feature.onboarding.domain.usecase.SetOnboardingAddressUseCase
+import com.fhiont.feature.profile.domain.usecase.ChangePasswordUseCase
 import com.fhiont.feature.profile.domain.usecase.GetUserDetailsUseCase
 import com.fhiont.feature.profile.domain.usecase.LogoutUseCase
 import com.fhiont.feature.profile.domain.usecase.UpdateProfileUseCase
@@ -31,6 +32,7 @@ private const val TAG = "ProfileViewModel"
 class ProfileViewModel(
     private val getUserDetailsUseCase: GetUserDetailsUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val changePasswordUseCase: ChangePasswordUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
     private val userSession: UserSession,
@@ -198,6 +200,33 @@ class ProfileViewModel(
                         errorMessage = uploadResult.message
                     )
                     _sideEffect.emit(uploadResult.message)
+                }
+            }
+        }
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String) {
+        val currentUser = _uiState.value.user ?: return
+        _uiState.value = _uiState.value.copy(isChangingPassword = true, errorMessage = null)
+
+        viewModelScope.launch {
+            when (val result = changePasswordUseCase(currentPassword, newPassword)) {
+                is Result.Success -> {
+                    val updated = currentUser.copy(hasPassword = true)
+                    userSession.setUser(updated)
+                    _uiState.value = _uiState.value.copy(
+                        user = updated,
+                        isChangingPassword = false,
+                        updateSuccessMessage = ProfileStrings.MSG_PASSWORD_UPDATED
+                    )
+                    _sideEffect.emit(ProfileStrings.MSG_PASSWORD_UPDATED)
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isChangingPassword = false,
+                        errorMessage = result.message
+                    )
+                    _sideEffect.emit(result.message)
                 }
             }
         }

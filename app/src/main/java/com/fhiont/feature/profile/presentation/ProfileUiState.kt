@@ -6,6 +6,7 @@ data class ProfileUiState(
     val user: User? = null,
     val isLoading: Boolean = true,
     val isImageUploading: Boolean = false,
+    val isChangingPassword: Boolean = false,
     val updatingField: String? = null,
     val isLoggedIn: Boolean = false,
     val hasDraft: Boolean = false,
