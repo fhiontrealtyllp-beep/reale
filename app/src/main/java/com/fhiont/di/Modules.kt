@@ -179,7 +179,7 @@ val searchModule = module {
     single<SendChatMessageUseCase> { SendChatMessageUseCaseImpl(get()) }
     viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
-    viewModel { (enquiry: Enquiry) -> ChatViewModel(get(), get(), get(), enquiry) }
+    viewModel { (enquiry: Enquiry) -> ChatViewModel(get(), get(), get(), get(), enquiry) }
 }
 
 val savedModule = module {

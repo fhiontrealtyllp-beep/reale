@@ -49,13 +49,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.fhiont.feature.auth.domain.model.User
-import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
-import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCase
-import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCase
-import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.ControlAccent
@@ -72,8 +67,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -89,6 +82,27 @@ fun ChatScreen(
     viewModel: ChatViewModel = koinViewModel { parametersOf(enquiry) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ChatScreenContent(
+        enquiry = enquiry,
+        uiState = uiState,
+        onBack = onBack,
+        onRetry = viewModel::refresh,
+        onInputChanged = viewModel::onInputChanged,
+        onSend = viewModel::sendMessage,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun ChatScreenContent(
+    enquiry: Enquiry,
+    uiState: ChatUiState,
+    onBack: () -> Unit,
+    onRetry: () -> Unit,
+    onInputChanged: (String) -> Unit,
+    onSend: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val listState = rememberLazyListState()
 
     // Keep the latest message visible when the thread grows.
@@ -116,7 +130,7 @@ fun ChatScreen(
 
                 uiState.errorMessage != null -> ChatError(
                     message = uiState.errorMessage.orEmpty(),
-                    onRetry = viewModel::refresh,
+                    onRetry = onRetry,
                     modifier = Modifier.align(Alignment.Center)
                 )
 
@@ -163,8 +177,8 @@ fun ChatScreen(
         ChatComposer(
             value = uiState.inputText,
             isSending = uiState.isSending,
-            onValueChange = viewModel::onInputChanged,
-            onSend = viewModel::sendMessage
+            onValueChange = onInputChanged,
+            onSend = onSend
         )
     }
 }
@@ -461,83 +475,48 @@ private fun formatChatTimestamp(createdAt: String): String {
 @Preview(showBackground = true)
 @Composable
 private fun ChatScreenPreview() {
+    val previewEnquiry = Enquiry(
+        id = "1",
+        propertyId = "p1",
+        propertyTitle = "2 BHK Apartment",
+        propertyLocation = "Porvorim, Goa",
+        propertyImage = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
+        agentPhone = "1234567890",
+        message = "I am interested in this property.",
+        userId = "u1",
+        status = "new",
+        createdAt = "2026-09-10 10:00:00"
+    )
+
     FhiontTheme {
-        ChatScreen(
-            enquiry = Enquiry(
-                id = "1",
-                propertyId = "p1",
-                propertyTitle = "2 BHK Apartment",
-                propertyLocation = "Porvorim, Goa",
-                propertyImage = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
-                agentPhone = "1234567890",
-                message = "I am interested in this property.",
-                userId = "u1",
-                status = "new",
-                createdAt = "2026-09-10 10:00:00"
+        ChatScreenContent(
+            enquiry = previewEnquiry,
+            uiState = ChatUiState(
+                isLoading = false,
+                myUserId = "u1",
+                messages = listOf(
+                    ChatMessage(
+                        id = "m1",
+                        enquiryId = "1",
+                        senderId = "u1",
+                        senderName = "Rahul",
+                        message = "Hi, is this property still available?",
+                        createdAt = "2026-09-26 10:00:00"
+                    ),
+                    ChatMessage(
+                        id = "m2",
+                        enquiryId = "1",
+                        senderId = "u2",
+                        senderName = "Priya",
+                        message = "Yes, it is. Would you like to schedule a visit?",
+                        createdAt = "2026-09-26 10:02:00"
+                    )
+                )
             ),
             onBack = {},
-            viewModel = ChatViewModel(
-                getChatMessagesUseCase = object : GetChatMessagesUseCase {
-                    override suspend fun invoke(enquiryId: String): Result<List<ChatMessage>> {
-                        return Result.Success(
-                            listOf(
-                                ChatMessage(
-                                    id = "m1",
-                                    enquiryId = "1",
-                                    senderId = "u1",
-                                    senderName = "Rahul",
-                                    message = "Hi, is this property still available?",
-                                    createdAt = "2026-09-26 10:00:00"
-                                ),
-                                ChatMessage(
-                                    id = "m2",
-                                    enquiryId = "1",
-                                    senderId = "u2",
-                                    senderName = "Priya",
-                                    message = "Yes, it is. Would you like to schedule a visit?",
-                                    createdAt = "2026-09-26 10:02:00"
-                                )
-                            )
-                        )
-                    }
-                },
-                sendChatMessageUseCase = object : SendChatMessageUseCase {
-                    override suspend fun invoke(
-                        enquiryId: String,
-                        message: String
-                    ): Result<ChatMessage> {
-                        return Result.Success(
-                            ChatMessage(
-                                id = "m3",
-                                enquiryId = enquiryId,
-                                senderId = "u1",
-                                senderName = "Me",
-                                message = message,
-                                createdAt = "2026-09-26 10:05:00"
-                            )
-                        )
-                    }
-                },
-                userSession = object : UserSession {
-                    override val user: StateFlow<User?> = MutableStateFlow(null)
-                    override fun getUserId(): String? = "u1"
-                    override fun getUser(): User? = null
-                    override fun setUser(user: User?) {}
-                    override fun clear() {}
-                },
-                enquiry = Enquiry(
-                    id = "1",
-                    propertyId = "p1",
-                    propertyTitle = "2 BHK Apartment",
-                    propertyLocation = "Porvorim, Goa",
-                    propertyImage = "",
-                    agentPhone = "1234567890",
-                    message = "I am interested in this property.",
-                    userId = "u1",
-                    status = "new",
-                    createdAt = "2026-09-10 10:00:00"
-                )
-            )
+            onRetry = {},
+            onInputChanged = {},
+            onSend = {}
         )
     }
 }

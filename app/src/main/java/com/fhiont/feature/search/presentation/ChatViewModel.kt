@@ -6,6 +6,7 @@ import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCase
+import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
 import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCase
 import com.fhiont.feature.search.domain.utils.Result
 import kotlinx.coroutines.delay
@@ -14,6 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 private const val POLL_INTERVAL_MS = 4_000L
 
@@ -23,6 +27,7 @@ private const val POLL_INTERVAL_MS = 4_000L
  */
 class ChatViewModel(
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
+    private val getEnquiriesByPropertyUseCase: GetEnquiriesByPropertyUseCase,
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val userSession: UserSession,
     private val enquiry: Enquiry
@@ -85,23 +90,64 @@ class ChatViewModel(
         if (showSpinner) {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
         }
-        when (val result = getChatMessagesUseCase(enquiry.id)) {
-            is Result.Success -> {
-                _uiState.value = _uiState.value.copy(
-                    messages = result.data,
-                    isLoading = false,
-                    errorMessage = null
-                )
+
+        // The backend can create multiple enquiry rows for the same user-property
+        // pair, so collect message IDs across the whole thread.
+        val relatedIds = fetchRelatedEnquiryIds()
+
+        val allMessages = mutableListOf<ChatMessage>()
+        var firstError: String? = null
+        for (id in relatedIds) {
+            when (val result = getChatMessagesUseCase(id)) {
+                is Result.Success -> allMessages.addAll(result.data)
+                is Result.Error -> if (firstError == null) firstError = result.message
             }
-            is Result.Error -> {
-                // Only surface poll failures when there is nothing to show yet;
-                // a transient error should not wipe an existing conversation.
-                if (_uiState.value.messages.isEmpty()) {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
-                }
+        }
+
+        if (allMessages.isNotEmpty() || firstError == null) {
+            _uiState.value = _uiState.value.copy(
+                messages = allMessages.sortedBy { it.createdAt.toChatTimestamp() },
+                isLoading = false,
+                errorMessage = null
+            )
+        } else if (_uiState.value.messages.isEmpty()) {
+            // Only surface poll failures when there is nothing to show yet.
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                errorMessage = firstError
+            )
+        }
+    }
+
+    private suspend fun fetchRelatedEnquiryIds(): List<String> {
+        return when (val result = getEnquiriesByPropertyUseCase(enquiry.propertyId)) {
+            is Result.Success -> {
+                result.data
+                    .filter { it.userId == enquiry.userId && it.userId != null }
+                    .map { it.id }
+                    .ifEmpty { listOf(enquiry.id) }
+            }
+            is Result.Error -> listOf(enquiry.id)
+        }
+    }
+}
+
+private fun String?.toChatTimestamp(): Long {
+    if (isNullOrBlank()) return 0L
+    return try {
+        val parser = SimpleDateFormat(ChatStrings.SERVER_TIMESTAMP_FORMAT, Locale.US).apply {
+            timeZone = TimeZone.getTimeZone(ChatStrings.UTC_ZONE)
+        }
+        parser.parse(this)?.time ?: 0L
+    } catch (_: Exception) {
+        try {
+            val numeric = trim().toDouble().toLong()
+            if (numeric < 1_000_000_000_000L) numeric * 1000L else numeric
+        } catch (_: NumberFormatException) {
+            try {
+                java.time.Instant.parse(this).toEpochMilli()
+            } catch (_: Exception) {
+                0L
             }
         }
     }
