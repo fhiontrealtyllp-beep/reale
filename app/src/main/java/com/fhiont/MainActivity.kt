@@ -38,6 +38,9 @@ class MainActivity : ComponentActivity() {
     // Holds the propertyId carried by a tapped enquiry push notification.
     private val pendingPropertyId = mutableStateOf<String?>(null)
 
+    // Holds the enquiry carried by a tapped chat push notification.
+    private val pendingEnquiry = mutableStateOf<Enquiry?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestNotificationPermission()
@@ -46,7 +49,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainApp(
                 pendingPropertyId = pendingPropertyId.value,
-                onPendingPropertyHandled = { pendingPropertyId.value = null }
+                onPendingPropertyHandled = { pendingPropertyId.value = null },
+                pendingEnquiry = pendingEnquiry.value,
+                onPendingEnquiryHandled = { pendingEnquiry.value = null }
             )
         }
     }
@@ -61,6 +66,25 @@ class MainActivity : ComponentActivity() {
         val deepLinkPropertyId = extractDeepLinkPropertyId(intent?.data)
         if (!deepLinkPropertyId.isNullOrBlank()) {
             pendingPropertyId.value = deepLinkPropertyId
+            return
+        }
+
+        val enquiryId = intent?.getStringExtra(PushNotificationConstants.EXTRA_ENQUIRY_ID)
+            ?.takeIf { it.isNotBlank() }
+        if (enquiryId != null) {
+            pendingEnquiry.value = Enquiry(
+                id = enquiryId,
+                propertyId = intent.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_ID).orEmpty(),
+                propertyTitle = intent.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_TITLE).orEmpty(),
+                propertyLocation = intent.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_LOCATION).orEmpty(),
+                propertyImage = intent.getStringExtra(PushNotificationConstants.EXTRA_PROPERTY_IMAGE).orEmpty(),
+                agentPhone = intent.getStringExtra(PushNotificationConstants.EXTRA_AGENT_PHONE).orEmpty(),
+                message = intent.getStringExtra(PushNotificationConstants.EXTRA_MESSAGE).orEmpty(),
+                userId = intent.getStringExtra(PushNotificationConstants.EXTRA_USER_ID)?.takeIf { it.isNotBlank() },
+                userName = intent.getStringExtra(PushNotificationConstants.EXTRA_USER_NAME).orEmpty(),
+                status = intent.getStringExtra(PushNotificationConstants.EXTRA_STATUS).orEmpty(),
+                createdAt = intent.getStringExtra(PushNotificationConstants.EXTRA_CREATED_AT).orEmpty()
+            )
             return
         }
 

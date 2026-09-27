@@ -69,7 +69,9 @@ private enum class AuthScreen {
 fun MainApp(
     mainViewModel: MainViewModel = koinViewModel(),
     pendingPropertyId: String? = null,
-    onPendingPropertyHandled: () -> Unit = {}
+    onPendingPropertyHandled: () -> Unit = {},
+    pendingEnquiry: Enquiry? = null,
+    onPendingEnquiryHandled: () -> Unit = {}
 ) {
     val selectedTab by mainViewModel.selectedTab.collectAsStateWithLifecycle()
     val themeMode by mainViewModel.themeMode.collectAsStateWithLifecycle()
@@ -212,6 +214,14 @@ fun MainApp(
                     var showCityScreen by rememberSaveable { mutableStateOf(false) }
                     var activeChatEnquiry by remember { mutableStateOf<Enquiry?>(null) }
                     var myEnquiriesRefreshTrigger by remember { mutableIntStateOf(0) }
+
+                    LaunchedEffect(pendingEnquiry) {
+                        val enquiry = pendingEnquiry ?: return@LaunchedEffect
+                        deepLinkProperty = null
+                        deepLinkPropertyId = null
+                        activeChatEnquiry = enquiry
+                        onPendingEnquiryHandled()
+                    }
 
                     BackHandler(enabled = !showExitDialog && !showMyListings && !showMyEnquiries && !showAddProperty && !showCityScreen) {
                         showExitDialog = true

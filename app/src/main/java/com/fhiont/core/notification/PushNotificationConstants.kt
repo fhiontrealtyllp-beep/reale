@@ -9,6 +9,15 @@ internal object PushNotificationConstants {
     const val DEFAULT_MESSAGE = "Someone is interested in your property"
     const val EXTRA_PROPERTY_ID = "propertyId"
     const val EXTRA_ENQUIRY_ID = "enquiryId"
+    const val EXTRA_PROPERTY_TITLE = "propertyTitle"
+    const val EXTRA_PROPERTY_LOCATION = "propertyLocation"
+    const val EXTRA_PROPERTY_IMAGE = "propertyImage"
+    const val EXTRA_AGENT_PHONE = "agentPhone"
+    const val EXTRA_MESSAGE = "message"
+    const val EXTRA_USER_ID = "userId"
+    const val EXTRA_USER_NAME = "userName"
+    const val EXTRA_STATUS = "status"
+    const val EXTRA_CREATED_AT = "createdAt"
     const val PLATFORM_ANDROID = "android"
     const val NOTIFICATION_ID_BASE = 10_000
 }
