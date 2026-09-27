@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -175,10 +176,12 @@ fun MyEnquiriesScreen(
                     )
                 }
                 else -> {
+                    val listState = rememberLazyListState()
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .navigationBarsPadding(),
+                        state = listState,
                         // Extra bottom space so the last card clears the floating glass nav capsule.
                         contentPadding = PaddingValues(
                             start = MyEnquiriesDims.SCREEN_PADDING,

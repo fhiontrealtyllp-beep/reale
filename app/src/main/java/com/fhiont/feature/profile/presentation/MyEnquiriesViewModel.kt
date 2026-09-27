@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 class MyEnquiriesViewModel(
     private val getMyEnquiriesUseCase: GetMyEnquiriesUseCase,
@@ -90,7 +93,7 @@ class MyEnquiriesViewModel(
             }
 
             _uiState.value = _uiState.value.copy(
-                enquiries = enquiries.distinctBy { it.id }.groupByUserPropertyThread().withLocalReadState(chatReadStore),
+                enquiries = enquiries.groupByUserPropertyThread().withLocalReadState(chatReadStore),
                 isLoading = false,
                 errorMessage = if (enquiries.isEmpty()) errorMessage else null
             )
@@ -102,7 +105,7 @@ class MyEnquiriesViewModel(
         _uiState.value = _uiState.value.copy(
             enquiries = _uiState.value.enquiries.map { item ->
                 if (item.id == enquiry.id) item.copy(unreadCount = 0) else item
-            }
+            }.withLocalReadState(chatReadStore)
         )
     }
 
@@ -138,29 +141,36 @@ private fun List<Enquiry>.groupByUserPropertyThread(): List<Enquiry> {
         .mapNotNull { (_, thread) ->
             thread.maxByOrNull { it.createdAt.toEnquiryTimestamp() }
         }
+        .sortedByDescending { it.createdAt.toEnquiryTimestamp() }
 }
 
 private fun List<Enquiry>.withLocalReadState(chatReadStore: ChatReadStore): List<Enquiry> {
     return map { enquiry ->
         val isUnread = chatReadStore.isUnread(enquiry.id, enquiry.createdAt)
         enquiry.copy(unreadCount = if (isUnread) 1 else 0)
-    }
+    }.sortedWith(
+        compareByDescending<Enquiry> { it.unreadCount > 0 }
+            .thenByDescending { it.createdAt.toEnquiryTimestamp() }
+    )
 }
 
 private fun String?.toEnquiryTimestamp(): Long {
     if (isNullOrBlank()) return 0L
     return try {
-        // Accept Unix timestamps in milliseconds or seconds.
-        val numeric = trim().toDouble().toLong()
-        // Seconds-since-epoch values are before year 2286; promote to ms.
-        if (numeric < 1_000_000_000_000L) numeric * 1000L else numeric
-    } catch (_: NumberFormatException) {
+        val parser = SimpleDateFormat(MyEnquiriesStrings.SERVER_TIMESTAMP_FORMAT, Locale.US).apply {
+            timeZone = TimeZone.getTimeZone(MyEnquiriesStrings.UTC_ZONE)
+        }
+        parser.parse(this)?.time ?: 0L
+    } catch (_: Exception) {
         try {
-            // Fall back to ISO-8601 style strings; lexicographic compare works
-            // for the standard "yyyy-MM-ddTHH:mm:ss" format.
-            java.time.Instant.parse(this).toEpochMilli()
-        } catch (_: Exception) {
-            0L
+            val numeric = trim().toDouble().toLong()
+            if (numeric < 1_000_000_000_000L) numeric * 1000L else numeric
+        } catch (_: NumberFormatException) {
+            try {
+                java.time.Instant.parse(this).toEpochMilli()
+            } catch (_: Exception) {
+                0L
+            }
         }
     }
 }

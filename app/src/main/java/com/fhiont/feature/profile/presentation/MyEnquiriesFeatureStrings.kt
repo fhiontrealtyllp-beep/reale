@@ -19,6 +19,8 @@ internal object MyEnquiriesStrings {
     const val CD_OPEN_CHAT = "Open chat"
     const val CD_UNREAD_MESSAGES = "Unread messages"
     const val STATUS_NEW = "New"
+    const val SERVER_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss"
+    const val UTC_ZONE = "UTC"
 }
 
 internal object MyEnquiriesDims {
