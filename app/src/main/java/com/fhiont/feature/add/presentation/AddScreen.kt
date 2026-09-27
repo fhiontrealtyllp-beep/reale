@@ -141,8 +141,19 @@ fun AddScreen(
 
     // System back from any step asks whether to keep the draft before
     // leaving; in-step navigation stays on the on-screen Previous button.
+    // When nothing was filled in, exit straight away without prompting.
+    fun exitFormOrPromptDraft() {
+        if (viewModel.isFormEmpty()) {
+            viewModel.discardDraft()
+            viewModel.onHideAddForm()
+            onExitForm()
+        } else {
+            showSaveDraftDialog = true
+        }
+    }
+
     BackHandler(enabled = isFormVisible) {
-        showSaveDraftDialog = true
+        exitFormOrPromptDraft()
     }
 
     if (showSaveDraftDialog) {
@@ -202,7 +213,7 @@ fun AddScreen(
                                 viewModel.onDismissSuccess()
                                 onExitForm()
                             } else if (uiState.currentStep.isFirst) {
-                                showSaveDraftDialog = true
+                                exitFormOrPromptDraft()
                             } else {
                                 viewModel.previousStep()
                             }

@@ -505,6 +505,12 @@ class AddViewModel(
     }
 
     /**
+     * True when no field in the form differs from the defaults. Used to skip
+     * the save-draft prompt when the user backs out of a pristine Step 1.
+     */
+    fun isFormEmpty(): Boolean = _uiState.value.form == PropertyForm()
+
+    /**
      * Explicit "Save Draft" action from the form header. The draft is already
      * auto-persisted on every change; this just confirms it to the user.
      */
