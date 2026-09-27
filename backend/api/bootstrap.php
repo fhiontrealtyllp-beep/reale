@@ -170,16 +170,48 @@ function base64UrlEncode(string $value): string
     return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
 }
 
-function firebaseAccessToken(): ?string
+function firebaseServiceAccount(): ?array
 {
     global $config;
+
     $firebase = $config['firebase'] ?? [];
-    $clientEmail = (string) ($firebase['client_email'] ?? '');
-    $privateKey = (string) ($firebase['private_key'] ?? '');
-    if ($clientEmail === '' || $privateKey === '') {
+    $serviceAccountPath = (string) ($firebase['service_account_path']
+        ?? dirname(__DIR__) . '/homefinder-b7907-firebase-adminsdk-fbsvc-f6552f32ff.json');
+
+    if (!is_readable($serviceAccountPath)) {
+        $dir = dirname($serviceAccountPath);
+        $files = is_dir($dir) ? glob($dir . '/*.json') : [];
+        error_log('Firebase service-account file not found: ' . $serviceAccountPath
+            . ' | available JSON files: ' . implode(', ', $files));
+        return null;
+    }
+
+    $json = file_get_contents($serviceAccountPath);
+    $decoded = is_string($json) ? json_decode($json, true) : null;
+    if (!is_array($decoded)
+        || !isset($decoded['project_id'])
+        || !isset($decoded['client_email'])
+        || !isset($decoded['private_key'])) {
+        error_log('Firebase service-account JSON is invalid: ' . $serviceAccountPath);
+        return null;
+    }
+
+    return $decoded;
+}
+
+function firebaseAccessToken(): ?string
+{
+    $serviceAccount = firebaseServiceAccount();
+    if ($serviceAccount === null) {
         error_log('Firebase service account is not configured');
         return null;
     }
+
+    $clientEmail = (string) $serviceAccount['client_email'];
+    $privateKey = (string) $serviceAccount['private_key'];
+
+    // Some JSON files contain indented/escaped keys; normalize the PEM block.
+    $privateKey = implode("\n", array_map('trim', preg_split('/\R/', $privateKey)));
     $now = time();
     $header = base64UrlEncode(json_encode(['alg' => 'RS256', 'typ' => 'JWT'], JSON_FLAGS));
     $claims = base64UrlEncode(json_encode([
@@ -211,7 +243,7 @@ function firebaseAccessToken(): ?string
     curl_close($request);
     $payload = is_string($response) ? json_decode($response, true) : null;
     if ($status !== 200 || !is_array($payload) || !is_string($payload['access_token'] ?? null)) {
-        error_log('Unable to obtain Firebase access token: HTTP ' . $status);
+        error_log('Unable to obtain Firebase access token: HTTP ' . $status . ' ' . (is_string($response) ? $response : ''));
         return null;
     }
     return $payload['access_token'];
@@ -228,12 +260,12 @@ function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propert
 
 function sendPushToUser(PDO $pdo, int $userId, string $title, string $body, array $data): void
 {
-    global $config;
-    $projectId = (string) ($config['firebase']['project_id'] ?? '');
+    $serviceAccount = firebaseServiceAccount();
     $accessToken = firebaseAccessToken();
-    if ($projectId === '' || $accessToken === null) {
+    if ($serviceAccount === null || $accessToken === null) {
         return;
     }
+    $projectId = (string) $serviceAccount['project_id'];
     $statement = $pdo->prepare('SELECT token FROM device_tokens WHERE user_id = :user_id');
     $statement->execute(['user_id' => $userId]);
     $tokens = $statement->fetchAll(PDO::FETCH_COLUMN);
