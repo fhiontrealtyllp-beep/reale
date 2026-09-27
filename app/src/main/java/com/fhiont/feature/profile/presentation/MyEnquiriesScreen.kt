@@ -1,9 +1,8 @@
 package com.fhiont.feature.profile.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
-import coil.compose.AsyncImage
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,28 +34,38 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.ControlAccent
+import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.Gray
 import com.fhiont.ui.theme.HomeSearchBarBorder
 import com.fhiont.ui.theme.HomeTextSecondary
 import com.fhiont.ui.theme.OnControlAccent
-import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -71,6 +80,30 @@ fun MyEnquiriesScreen(
     viewModel: MyEnquiriesViewModel = koinViewModel { parametersOf(filterPropertyId) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var enquiryToDelete by remember { mutableStateOf<Enquiry?>(null) }
+
+    enquiryToDelete?.let { enquiry ->
+        AlertDialog(
+            onDismissRequest = { enquiryToDelete = null },
+            title = { Text(MyEnquiriesStrings.DELETE_THREAD_TITLE) },
+            text = { Text(MyEnquiriesStrings.DELETE_THREAD_MESSAGE) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteEnquiryThread(enquiry)
+                        enquiryToDelete = null
+                    }
+                ) {
+                    Text(MyEnquiriesStrings.DELETE_THREAD_CONFIRM)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { enquiryToDelete = null }) {
+                    Text(MyEnquiriesStrings.DELETE_THREAD_CANCEL)
+                }
+            }
+        )
+    }
 
     Scaffold(
         modifier = modifier,
@@ -148,7 +181,8 @@ fun MyEnquiriesScreen(
                         ) { enquiry ->
                             EnquiryCard(
                                 enquiry = enquiry,
-                                onClick = { onChatClick(enquiry) }
+                                onClick = { onChatClick(enquiry) },
+                                onLongClick = { enquiryToDelete = enquiry }
                             )
                         }
                     }
@@ -162,12 +196,16 @@ fun MyEnquiriesScreen(
 private fun EnquiryCard(
     enquiry: Enquiry,
     onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(MyEnquiriesDims.CARD_CORNER_RADIUS),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = MyEnquiriesDims.CARD_ELEVATION)
@@ -215,6 +253,16 @@ private fun EnquiryCard(
                                 horizontal = MyEnquiriesDims.STATUS_BADGE_HORIZONTAL_PADDING,
                                 vertical = MyEnquiriesDims.STATUS_BADGE_VERTICAL_PADDING
                             )
+                    )
+                }
+
+                if (enquiry.userName.isNotBlank()) {
+                    Text(
+                        text = enquiry.userName,
+                        color = HomeTextSecondary,
+                        fontSize = MyEnquiriesDims.LOCATION_FONT_SIZE,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -324,46 +372,63 @@ private fun ErrorMessage(
     )
 }
 
+private val previewMyEnquiriesViewModelFactory = object : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(
+        modelClass: Class<T>,
+        extras: CreationExtras
+    ): T {
+        @Suppress("UNCHECKED_CAST")
+        return MyEnquiriesViewModel(
+            getMyEnquiriesUseCase = object : com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase {
+                override suspend fun invoke(userId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
+                    return com.fhiont.feature.search.domain.utils.Result.Success(
+                        listOf(
+                            Enquiry(
+                                id = "1",
+                                propertyId = "p1",
+                                propertyTitle = "2 BHK Apartment",
+                                propertyLocation = "Porvorim, Goa",
+                                propertyImage = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
+                                agentPhone = "1234567890",
+                                message = "I am interested in this property. Please contact me.",
+                                userId = "u1",
+                                userName = "Rahul",
+                                status = "new",
+                                createdAt = "2026-09-10T10:00:00.000Z"
+                            )
+                        )
+                    )
+                }
+            },
+            getEnquiriesByPropertyUseCase = object : com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase {
+                override suspend fun invoke(propertyId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
+                    return com.fhiont.feature.search.domain.utils.Result.Success(emptyList())
+                }
+            },
+            deleteEnquiryThreadUseCase = object : com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase {
+                override suspend fun invoke(propertyId: String, userId: String): com.fhiont.feature.search.domain.utils.Result<Unit> {
+                    return com.fhiont.feature.search.domain.utils.Result.Success(Unit)
+                }
+            },
+            userSession = object : com.fhiont.feature.search.data.session.UserSession {
+                override val user: kotlinx.coroutines.flow.StateFlow<com.fhiont.feature.auth.domain.model.User?> = kotlinx.coroutines.flow.MutableStateFlow(null)
+                override fun getUserId(): String? = "u1"
+                override fun getUser(): com.fhiont.feature.auth.domain.model.User? = null
+                override fun setUser(user: com.fhiont.feature.auth.domain.model.User?) {}
+                override fun clear() {}
+            }
+        ) as T
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MyEnquiriesScreenPreview() {
+    val viewModel: MyEnquiriesViewModel = viewModel(factory = previewMyEnquiriesViewModelFactory)
     FhiontTheme {
         MyEnquiriesScreen(
             onBack = {},
-            viewModel = MyEnquiriesViewModel(
-                getMyEnquiriesUseCase = object : com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase {
-                    override suspend fun invoke(userId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
-                        return com.fhiont.feature.search.domain.utils.Result.Success(
-                            listOf(
-                                Enquiry(
-                                    id = "1",
-                                    propertyId = "p1",
-                                    propertyTitle = "2 BHK Apartment",
-                                    propertyLocation = "Porvorim, Goa",
-                                    propertyImage = "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80",
-                                    agentPhone = "1234567890",
-                                    message = "I am interested in this property. Please contact me.",
-                                    userId = "u1",
-                                    status = "new",
-                                    createdAt = "2026-09-10T10:00:00.000Z"
-                                )
-                            )
-                        )
-                    }
-                },
-                getEnquiriesByPropertyUseCase = object : com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase {
-                    override suspend fun invoke(propertyId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
-                        return com.fhiont.feature.search.domain.utils.Result.Success(emptyList())
-                    }
-                },
-                userSession = object : com.fhiont.feature.search.data.session.UserSession {
-                    override val user: kotlinx.coroutines.flow.StateFlow<com.fhiont.feature.auth.domain.model.User?> = kotlinx.coroutines.flow.MutableStateFlow(null)
-                    override fun getUserId(): String? = "u1"
-                    override fun getUser(): com.fhiont.feature.auth.domain.model.User? = null
-                    override fun setUser(user: com.fhiont.feature.auth.domain.model.User?) {}
-                    override fun clear() {}
-                }
-            )
+            viewModel = viewModel
         )
     }
 }

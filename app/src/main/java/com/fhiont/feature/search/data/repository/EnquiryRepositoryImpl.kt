@@ -37,4 +37,8 @@ class EnquiryRepositoryImpl(
     override suspend fun sendChatMessage(enquiryId: String, message: String): Result<ChatMessage> {
         return remoteDataSource.sendChatMessage(enquiryId, message)
     }
+
+    override suspend fun deleteEnquiryThread(propertyId: String, userId: String): Result<Unit> {
+        return remoteDataSource.deleteEnquiryThread(propertyId, userId)
+    }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Enquiry
+import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
 import com.fhiont.feature.search.domain.utils.Result
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class MyEnquiriesViewModel(
     private val getMyEnquiriesUseCase: GetMyEnquiriesUseCase,
     private val getEnquiriesByPropertyUseCase: GetEnquiriesByPropertyUseCase,
+    private val deleteEnquiryThreadUseCase: DeleteEnquiryThreadUseCase,
     private val userSession: UserSession,
     private val filterPropertyId: String? = null
 ) : ViewModel() {
@@ -56,6 +58,26 @@ class MyEnquiriesViewModel(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message
+                    )
+                }
+            }
+        }
+    }
+
+    fun deleteEnquiryThread(enquiry: Enquiry) {
+        val userId = enquiry.userId ?: return
+        viewModelScope.launch {
+            when (deleteEnquiryThreadUseCase(enquiry.propertyId, userId)) {
+                is Result.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        enquiries = _uiState.value.enquiries.filterNot {
+                            it.propertyId == enquiry.propertyId && it.userId == userId
+                        }
+                    )
+                }
+                is Result.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = MyEnquiriesStrings.ERROR_DELETING_THREAD
                     )
                 }
             }

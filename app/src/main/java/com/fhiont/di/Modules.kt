@@ -99,6 +99,8 @@ import com.fhiont.feature.search.domain.usecase.GetFeaturedPropertiesUseCase
 import com.fhiont.feature.search.domain.usecase.GetFeaturedPropertiesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetLocationSuggestionsUseCase
 import com.fhiont.feature.search.domain.usecase.GetLocationSuggestionsUseCaseImpl
+import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase
+import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCase
 import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
@@ -209,6 +211,7 @@ val profileModule = module {
     single<ChangePasswordUseCase> { ChangePasswordUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), filterPropertyId) }
+    single<DeleteEnquiryThreadUseCase> { DeleteEnquiryThreadUseCaseImpl(get()) }
+    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }

@@ -82,4 +82,14 @@ class EnquiryRemoteDataSourceImpl(
         }
         return phpEnquiryApi.sendChatMessage(token, enquiryId, message)
     }
+
+    override suspend fun deleteEnquiryThread(propertyId: String, userId: String): Result<Unit> {
+        Logger.d(TAG, "deleteEnquiryThread: propertyId=$propertyId, userId=$userId")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "deleteEnquiryThread: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpEnquiryApi.deleteEnquiryThread(token, propertyId, userId)
+    }
 }

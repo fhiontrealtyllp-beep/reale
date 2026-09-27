@@ -12,4 +12,5 @@ interface EnquiryRepository {
     suspend fun getEnquiryCountsForPropertyIds(propertyIds: List<String>): Result<Map<String, Int>>
     suspend fun getChatMessages(enquiryId: String): Result<List<ChatMessage>>
     suspend fun sendChatMessage(enquiryId: String, message: String): Result<ChatMessage>
+    suspend fun deleteEnquiryThread(propertyId: String, userId: String): Result<Unit>
 }

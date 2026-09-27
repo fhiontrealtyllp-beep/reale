@@ -69,6 +69,21 @@ class PhpEnquiryApi {
         }
     )
 
+    suspend fun deleteEnquiryThread(
+        token: String,
+        propertyId: String,
+        userId: String
+    ): Result<Unit> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "delete-enquiry-thread.php",
+        token = token,
+        body = JSONObject().apply {
+            put("propertyId", propertyId)
+            put("userId", userId)
+        },
+        parse = { }
+    )
+
     suspend fun getEnquiryCountsForPropertyIds(
         token: String,
         propertyIds: List<String>
@@ -130,6 +145,7 @@ class PhpEnquiryApi {
         agentPhone = optString("agentPhone"),
         message = optString("message"),
         userId = if (has("userId") && !isNull("userId")) optString("userId") else null,
+        userName = optString("userName"),
         status = optString("status"),
         createdAt = optString("createdAt")
     )

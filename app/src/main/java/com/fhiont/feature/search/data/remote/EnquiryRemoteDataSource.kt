@@ -21,4 +21,6 @@ interface EnquiryRemoteDataSource {
     suspend fun getChatMessages(enquiryId: String): Result<List<ChatMessage>>
 
     suspend fun sendChatMessage(enquiryId: String, message: String): Result<ChatMessage>
+
+    suspend fun deleteEnquiryThread(propertyId: String, userId: String): Result<Unit>
 }

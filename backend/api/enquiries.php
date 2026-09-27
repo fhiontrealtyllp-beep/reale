@@ -11,7 +11,9 @@ $type = $_GET['type'] ?? '';
 
 if ($type === 'user') {
     $statement = $pdo->prepare(
-        'SELECT * FROM enquiries WHERE user_id = :user_id ORDER BY created_at DESC'
+        'SELECT e.*, u.name AS user_name FROM enquiries e '
+        . 'LEFT JOIN users u ON e.user_id = u.id '
+        . 'WHERE e.user_id = :user_id ORDER BY e.created_at DESC'
     );
     $statement->execute(['user_id' => $user['id']]);
 } elseif ($type === 'property') {
@@ -21,7 +23,9 @@ if ($type === 'user') {
     }
 
     $statement = $pdo->prepare(
-        'SELECT * FROM enquiries WHERE property_id = :property_id ORDER BY created_at DESC'
+        'SELECT e.*, u.name AS user_name FROM enquiries e '
+        . 'LEFT JOIN users u ON e.user_id = u.id '
+        . 'WHERE e.property_id = :property_id ORDER BY e.created_at DESC'
     );
     $statement->execute(['property_id' => $propertyId]);
 } else {
@@ -40,9 +44,9 @@ $enquiries = array_map(function (array $row): array {
         'agentPhone' => (string) $row['agent_phone'],
         'message' => (string) $row['message'],
         'userId' => $row['user_id'] !== null ? (string) $row['user_id'] : null,
+        'userName' => (string) ($row['user_name'] ?? ''),
         'status' => (string) $row['status'],
         'createdAt' => (string) $row['created_at'],
     ];
 }, $rows);
-
 respond(200, true, 'Enquiries loaded', ['enquiries' => $enquiries]);

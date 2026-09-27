@@ -79,7 +79,7 @@ fun ChatScreen(
     enquiry: Enquiry,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ChatViewModel = koinViewModel { parametersOf(enquiry) }
+    viewModel: ChatViewModel = koinViewModel(key = enquiry.id) { parametersOf(enquiry) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     ChatScreenContent(
@@ -484,6 +484,7 @@ private fun ChatScreenPreview() {
         agentPhone = "1234567890",
         message = "I am interested in this property.",
         userId = "u1",
+        userName = "Rahul",
         status = "new",
         createdAt = "2026-09-10 10:00:00"
     )

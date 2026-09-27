@@ -87,3 +87,9 @@ App icon
 
 Feature graphic
 PNG or JPEG 1024 px by 500 px.
+
+
+cleansenseproject@gmail.com s9 owner
+
+S23+ john@gmail.com inquirer
+

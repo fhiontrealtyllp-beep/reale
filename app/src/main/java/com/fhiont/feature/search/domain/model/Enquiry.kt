@@ -9,6 +9,7 @@ data class Enquiry(
     val agentPhone: String,
     val message: String,
     val userId: String?,
+    val userName: String,
     val status: String,
     val createdAt: String
 )
