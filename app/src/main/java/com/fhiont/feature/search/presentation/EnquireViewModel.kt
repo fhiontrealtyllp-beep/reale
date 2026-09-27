@@ -47,7 +47,8 @@ class EnquireViewModel(
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        isSuccess = true
+                        isSuccess = true,
+                        enquiryId = result.data
                     )
                 }
                 is Result.Error -> {

@@ -9,7 +9,7 @@ class SendEnquiryUseCaseImpl(
     private val enquiryRepository: EnquiryRepository,
     private val userSession: UserSession
 ) : SendEnquiryUseCase {
-    override suspend fun invoke(property: Property, message: String): Result<Unit> {
+    override suspend fun invoke(property: Property, message: String): Result<String> {
         return enquiryRepository.sendEnquiry(
             property = property,
             message = message,

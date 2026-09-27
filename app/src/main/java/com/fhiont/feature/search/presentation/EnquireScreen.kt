@@ -476,8 +476,8 @@ private fun buildShortLocation(property: Property): String {
 }
 
 private val PreviewSendEnquiryUseCase = object : SendEnquiryUseCase {
-    override suspend fun invoke(property: Property, message: String): com.fhiont.feature.search.domain.utils.Result<Unit> {
-        return com.fhiont.feature.search.domain.utils.Result.Success(Unit)
+    override suspend fun invoke(property: Property, message: String): com.fhiont.feature.search.domain.utils.Result<String> {
+        return com.fhiont.feature.search.domain.utils.Result.Success("1")
     }
 }
 

@@ -245,6 +245,7 @@ internal object DetailStrings {
     const val ACTION_ENQUIRE = "Enquire Now"
     const val ACTION_CHAT = "Chat"
     const val ACTION_CHATS = "Chats"
+    const val DEFAULT_CHAT_FIRST_MESSAGE = "Hello, I'm interested in this property."
 
     const val LABEL_ENQUIRIES = "Enquiries"
     const val CD_VIEW_ENQUIRIES = "View enquiries"

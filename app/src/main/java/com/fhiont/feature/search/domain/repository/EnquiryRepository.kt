@@ -6,7 +6,7 @@ import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.utils.Result
 
 interface EnquiryRepository {
-    suspend fun sendEnquiry(property: Property, message: String, userId: String?): Result<Unit>
+    suspend fun sendEnquiry(property: Property, message: String, userId: String?): Result<String>
     suspend fun getEnquiriesByUser(userId: String): Result<List<Enquiry>>
     suspend fun getEnquiriesByProperty(propertyId: String): Result<List<Enquiry>>
     suspend fun getEnquiriesByOwner(userId: String): Result<List<Enquiry>>

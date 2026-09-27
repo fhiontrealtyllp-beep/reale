@@ -14,7 +14,7 @@ class EnquiryRepositoryImpl(
         property: Property,
         message: String,
         userId: String?
-    ): Result<Unit> {
+    ): Result<String> {
         return remoteDataSource.sendEnquiry(property, message, userId)
     }
 

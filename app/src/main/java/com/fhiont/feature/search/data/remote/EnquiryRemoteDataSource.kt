@@ -10,7 +10,7 @@ interface EnquiryRemoteDataSource {
         property: Property,
         message: String,
         userId: String?
-    ): Result<Unit>
+    ): Result<String>
 
     suspend fun getEnquiriesByUser(userId: String): Result<List<Enquiry>>
 

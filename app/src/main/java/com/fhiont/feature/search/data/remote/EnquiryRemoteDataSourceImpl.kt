@@ -19,7 +19,7 @@ class EnquiryRemoteDataSourceImpl(
         property: Property,
         message: String,
         userId: String?
-    ): Result<Unit> {
+    ): Result<String> {
         Logger.d(TAG, "sendEnquiry: propertyId=${property.id}, userId=$userId")
         val token = userSession.getUser()?.sessionId
         if (token.isNullOrBlank()) {

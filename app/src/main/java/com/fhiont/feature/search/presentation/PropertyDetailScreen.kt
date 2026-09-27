@@ -132,6 +132,7 @@ import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
+import com.fhiont.feature.search.domain.usecase.SendEnquiryUseCase
 import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.feature.search.presentation.components.formatIndianPrice
 import com.fhiont.ui.theme.FilterChipSelectedContainer
@@ -157,6 +158,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.net.URL
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToLong
@@ -199,9 +201,12 @@ fun PropertyDetailScreen(
     }
 
     var existingEnquiry by remember { mutableStateOf<Enquiry?>(null) }
-    if (!LocalInspectionMode.current) {
-        val userSession = koinInject<UserSession>()
-        val getMyEnquiriesUseCase = koinInject<GetMyEnquiriesUseCase>()
+    var isStartingChat by remember { mutableStateOf(false) }
+    val userSession = if (LocalInspectionMode.current) null else koinInject<UserSession>()
+    val getMyEnquiriesUseCase = if (LocalInspectionMode.current) null else koinInject<GetMyEnquiriesUseCase>()
+    val sendEnquiryUseCase = if (LocalInspectionMode.current) null else koinInject<SendEnquiryUseCase>()
+
+    if (userSession != null && getMyEnquiriesUseCase != null) {
         LaunchedEffect(property.id, userSession.getUserId()) {
             val userId = userSession.getUserId() ?: return@LaunchedEffect
             when (val result = getMyEnquiriesUseCase(userId)) {
@@ -223,8 +228,52 @@ fun PropertyDetailScreen(
     }
     var selectedImage by remember(property.id) { mutableIntStateOf(0) }
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
-    var showEnquire by remember { mutableStateOf(false) }
     val enquiry = existingEnquiry
+
+    fun startChat() {
+        if (isStartingChat) return
+        val currentEnquiry = existingEnquiry
+        if (currentEnquiry != null) {
+            onOpenChat(currentEnquiry)
+            return
+        }
+        val session = userSession ?: return
+        val sendUseCase = sendEnquiryUseCase ?: return
+        val userId = session.getUserId() ?: return
+        coroutineScope.launch {
+            isStartingChat = true
+            val defaultMessage = DetailStrings.DEFAULT_CHAT_FIRST_MESSAGE
+            when (val result = sendUseCase(property, defaultMessage)) {
+                is Result.Success -> {
+                    val createdAt = SimpleDateFormat(
+                        ChatStrings.SERVER_TIMESTAMP_FORMAT,
+                        Locale.getDefault()
+                    ).apply {
+                        timeZone = TimeZone.getTimeZone(ChatStrings.UTC_ZONE)
+                    }.format(Date())
+                    val newEnquiry = Enquiry(
+                        id = result.data,
+                        propertyId = property.id,
+                        propertyTitle = property.title,
+                        propertyLocation = buildShortLocation(property),
+                        propertyImage = property.images.firstOrNull().orEmpty(),
+                        agentPhone = property.agentPhone,
+                        message = defaultMessage,
+                        userId = userId,
+                        userName = session.getUser()?.name.orEmpty(),
+                        status = "new",
+                        createdAt = createdAt,
+                        unreadCount = 0
+                    )
+                    existingEnquiry = newEnquiry
+                    onOpenChat(newEnquiry)
+                }
+                is Result.Error -> {
+                }
+            }
+            isStartingChat = false
+        }
+    }
 
     // Auto-rotate the hero every few seconds, looping back to the first image.
     // Keyed on selectedImage so a manual thumbnail tap restarts the timer;
@@ -254,9 +303,8 @@ fun PropertyDetailScreen(
             DetailBottomBar(
                 phone = property.agentPhone,
                 onCall = { dialAgent(context, property.agentPhone) },
-                onEnquire = { showEnquire = true },
-                onChat = if (!isOwnProperty && enquiry != null) {
-                    { onOpenChat(enquiry) }
+                onChat = if (!isOwnProperty) {
+                    { startChat() }
                 } else null,
                 onChats = if (isOwnProperty) onViewChats else null
             )
@@ -291,8 +339,7 @@ fun PropertyDetailScreen(
                     onChatClick = {
                         when {
                             isOwnProperty -> onViewChats?.invoke()
-                            enquiry != null -> onOpenChat(enquiry)
-                            else -> showEnquire = true
+                            else -> startChat()
                         }
                     }
                 )
@@ -343,12 +390,6 @@ fun PropertyDetailScreen(
         )
     }
 
-    if (showEnquire) {
-        EnquireBottomSheet(
-            property = property,
-            onDismiss = { showEnquire = false }
-        )
-    }
 }
 
 @Composable
@@ -1181,7 +1222,6 @@ private fun LocationContent(property: Property) {
 private fun DetailBottomBar(
     phone: String,
     onCall: () -> Unit,
-    onEnquire: () -> Unit,
     onChat: (() -> Unit)? = null,
     onChats: (() -> Unit)? = null
 ) {
@@ -1218,14 +1258,9 @@ private fun DetailBottomBar(
                     fontWeight = FontWeight.Bold
                 )
             }
-            // Filled primary action: owner sees "Chats", buyer with an enquiry sees "Chat",
-            // otherwise "Enquire Now".
-            val primaryAction = onChats ?: onChat ?: onEnquire
-            val primaryLabel = when {
-                onChats != null -> DetailStrings.ACTION_CHATS
-                onChat != null -> DetailStrings.ACTION_CHAT
-                else -> DetailStrings.ACTION_ENQUIRE
-            }
+            // Filled primary action: owner sees "Chats", buyer sees "Chat".
+            val primaryAction: () -> Unit = onChats ?: onChat ?: {}
+            val primaryLabel = if (onChats != null) DetailStrings.ACTION_CHATS else DetailStrings.ACTION_CHAT
             Button(
                 onClick = primaryAction,
                 enabled = true,

@@ -31,7 +31,7 @@ class PhpEnquiryApi {
         property: Property,
         message: String,
         token: String
-    ): Result<Unit> = apiCall(
+    ): Result<String> = apiCall(
         method = HTTP_METHOD_POST,
         endpoint = "enquiry.php",
         token = token,
@@ -43,7 +43,9 @@ class PhpEnquiryApi {
             put("agentPhone", property.agentPhone)
             put("message", message.trim())
         },
-        parse = { }
+        parse = { response ->
+            response.getJSONObject("data").getString("enquiryId")
+        }
     )
 
     suspend fun getEnquiriesByUser(token: String): Result<List<Enquiry>> = apiCall(
