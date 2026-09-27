@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
@@ -284,6 +286,8 @@ private fun FeaturedPropertyCard(
                 )
             }
 
+            FeaturedRibbon(modifier = Modifier.align(Alignment.TopStart))
+
             IconButton(
                 onClick = onLikeToggle,
                 modifier = Modifier
@@ -338,6 +342,49 @@ private fun FeaturedPropertyCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+        }
+    }
+}
+
+/**
+ * Diagonal "Featured" ribbon draped over the top-left corner of the card
+ * image. The modifier is offset left/up and rotated -45° so the bar crosses
+ * the corner; the rounded image clip trims the ribbon's overhang.
+ */
+@Composable
+private fun FeaturedRibbon(modifier: Modifier = Modifier) {
+    Text(
+        text = HomeStrings.BADGE_FEATURED,
+        color = OnMediaContent,
+        fontSize = HomeDims.FEATURED_RIBBON_FONT_SIZE,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = HomeDims.FEATURED_RIBBON_LETTER_SPACING,
+        modifier = modifier
+            .offset(
+                x = HomeDims.FEATURED_RIBBON_OFFSET_X,
+                y = HomeDims.FEATURED_RIBBON_OFFSET_Y
+            )
+            .rotate(HomeDims.FEATURED_RIBBON_ROTATION)
+            .shadow(HomeDims.FEATURED_RIBBON_ELEVATION)
+            .background(BrandCoral)
+            .padding(
+                horizontal = HomeDims.FEATURED_RIBBON_HORIZONTAL_PADDING,
+                vertical = HomeDims.FEATURED_RIBBON_VERTICAL_PADDING
+            )
+    )
+}
+
+@Preview
+@Composable
+private fun FeaturedRibbonPreview() {
+    FhiontTheme {
+        Box(
+            modifier = Modifier
+                .size(HomeDims.FEATURED_CARD_SIZE)
+                .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
+                .background(HomeTextSecondary)
+        ) {
+            FeaturedRibbon(modifier = Modifier.align(Alignment.TopStart))
         }
     }
 }

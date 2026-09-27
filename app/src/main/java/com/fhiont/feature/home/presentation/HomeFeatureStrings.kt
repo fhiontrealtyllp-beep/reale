@@ -115,6 +115,18 @@ internal object HomeDims {
     val FEATURED_BADGE_HORIZONTAL_PADDING = 8.dp
     val FEATURED_BADGE_VERTICAL_PADDING = 4.dp
 
+    // Diagonal "Featured" ribbon draped over the top-left corner of the card
+    // image. The horizontal offset is tuned so the full label stays inside the
+    // card while the bar's ends still clip at the edges for the ribbon look.
+    const val FEATURED_RIBBON_ROTATION = -45f
+    val FEATURED_RIBBON_OFFSET_X = (-14).dp
+    val FEATURED_RIBBON_OFFSET_Y = 16.dp
+    val FEATURED_RIBBON_HORIZONTAL_PADDING = 20.dp
+    val FEATURED_RIBBON_VERTICAL_PADDING = 3.dp
+    val FEATURED_RIBBON_FONT_SIZE = 10.sp
+    val FEATURED_RIBBON_LETTER_SPACING = 0.5.sp
+    val FEATURED_RIBBON_ELEVATION = 4.dp
+
     val HEART_BUTTON_SIZE = 36.dp
     val HEART_ICON_SIZE = 27.dp
     val HEART_PADDING = 8.dp
