@@ -1,6 +1,7 @@
 package com.fhiont.feature.auth.data.remote
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.credentials.CredentialManager
@@ -44,7 +45,8 @@ private const val VERIFICATION_TIMEOUT_SECONDS = 60L
 
 class AuthRemoteDataSourceImpl(
     private val firebaseProvider: FirebaseProvider,
-    private val phpAuthApi: PhpAuthApi
+    private val phpAuthApi: PhpAuthApi,
+    private val context: Context
 ) : AuthRemoteDataSource {
 
     private val auth = firebaseProvider.auth
@@ -52,6 +54,7 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun login(email: String, password: String): Result<User> {
         Logger.d(TAG, "$ARROW login() called for email: $email")
+        logAppSignature()
         if (phpAuthApi.isConfigured) {
             return phpAuthApi.login(email, password).also { result ->
                 when (result) {
@@ -81,6 +84,7 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun register(name: String, email: String, password: String): Result<User> {
         Logger.d(TAG, "$ARROW register() called for name: $name, email: $email")
+        logAppSignature()
         if (phpAuthApi.isConfigured) {
             return phpAuthApi.register(name, email, password).also { result ->
                 when (result) {
@@ -126,6 +130,7 @@ class AuthRemoteDataSourceImpl(
 
     override suspend fun sendPhoneOtp(activity: Activity?, phone: String): Result<String> {
         Logger.d(TAG, "$ARROW sendPhoneOtp() called for phone: $phone")
+        logAppSignature()
 
         val currentActivity = activity ?: run {
             Logger.e(TAG, "$CROSS sendPhoneOtp() failed: no Activity provided")
@@ -189,6 +194,7 @@ class AuthRemoteDataSourceImpl(
         dob: String
     ): Result<User> {
         Logger.d(TAG, "$ARROW verifyPhoneOtp() called")
+        logAppSignature()
         return try {
             val credential = PhoneAuthProvider.getCredential(verificationId, secret)
             val authResult = auth.signInWithCredential(credential).await()
@@ -222,7 +228,7 @@ class AuthRemoteDataSourceImpl(
     override suspend fun signInWithGoogle(activity: Activity): Result<User> {
         Logger.d(TAG, "$ARROW signInWithGoogle() called")
         Logger.d(TAG, "packageName=${activity.packageName}, serverClientId=${activity.getString(R.string.default_web_client_id)}")
-        logAppSignature(activity)
+        logAppSignature()
 
         return try {
             val credentialManager = CredentialManager.create(activity)
@@ -284,30 +290,36 @@ class AuthRemoteDataSourceImpl(
         }
     }
 
-    private fun logAppSignature(activity: Activity) {
+    private fun logAppSignature() {
         try {
             val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                activity.packageManager
-                    .getPackageInfo(activity.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                context.packageManager
+                    .getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
                     .signingInfo
                     ?.apkContentsSigners
             } else {
                 @Suppress("DEPRECATION")
-                activity.packageManager
-                    .getPackageInfo(activity.packageName, PackageManager.GET_SIGNATURES)
+                context.packageManager
+                    .getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
                     .signatures
             }
 
             signatures?.forEachIndexed { index, signature ->
-                val sha1 = MessageDigest.getInstance("SHA-1")
-                    .apply { update(signature.toByteArray()) }
-                    .digest()
-                    .joinToString(":") { "%02X".format(it) }
+                val sha1 = digestToHex(signature.toByteArray(), "SHA-1")
+                val sha256 = digestToHex(signature.toByteArray(), "SHA-256")
                 Logger.d(TAG, "App signing certificate #$index SHA-1: $sha1")
+                Logger.d(TAG, "App signing certificate #$index SHA-256: $sha256")
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Failed to log app signature", e)
         }
+    }
+
+    private fun digestToHex(bytes: ByteArray, algorithm: String): String {
+        return MessageDigest.getInstance(algorithm)
+            .apply { update(bytes) }
+            .digest()
+            .joinToString(":") { "%02X".format(it) }
     }
 
     private suspend fun fetchUser(firebaseUser: FirebaseUser): User {

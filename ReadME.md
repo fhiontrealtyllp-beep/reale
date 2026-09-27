@@ -70,7 +70,12 @@ Play console keys:
 SHA1 AAB internal app sharing
 17:32:16:DE:A1:65:C8:47:5A:59:8A:74:74:3F:8E:63:1C:CF:E2:01
 
-Privacy Policy
+App signing certificate #0 
+SHA-1: 
+17:32:16:DE:A1:65:C8:47:5A:59:8A:74:74:3F:8E:63:1C:CF:E2:01
+
+SHA-256: 
+3E:A5:42:8E:C1:6A:06:DF:A0:65:1A:75:79:44:AD:C3:B0:2E:6B:06:F6:F8:57:C5:61:90:DA:6D:50:11:83:9D
 https://sites.google.com/view/fhiont-privacy-policy/home
 
 sample account

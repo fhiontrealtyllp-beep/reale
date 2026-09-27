@@ -148,7 +148,7 @@ val appModule = module {
 }
 
 val authModule = module {
-    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get(), get()) }
+    single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get(), get(), androidContext()) }
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<LoginUseCase> { LoginUseCaseImpl(get()) }
     single<RegisterUseCase> { RegisterUseCaseImpl(get()) }
