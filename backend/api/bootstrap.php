@@ -249,13 +249,15 @@ function firebaseAccessToken(): ?string
     return $payload['access_token'];
 }
 
-function sendEnquiryPush(PDO $pdo, int $ownerId, int $enquiryId, string $propertyId, string $propertyTitle, string $message): void
+function sendEnquiryPush(PDO $pdo, int $ownerId, string $propertyTitle, array $data): void
 {
-    sendPushToUser($pdo, $ownerId, 'New enquiry: ' . $propertyTitle, $message, [
-        'propertyId' => $propertyId,
-        'enquiryId' => (string) $enquiryId,
-        'message' => $message,
-    ]);
+    sendPushToUser(
+        $pdo,
+        $ownerId,
+        'New enquiry: ' . $propertyTitle,
+        (string) ($data['message'] ?? ''),
+        $data
+    );
 }
 
 function sendPushToUser(PDO $pdo, int $userId, string $title, string $body, array $data): void

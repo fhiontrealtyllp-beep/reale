@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fhiont.core.notification.NotificationStrings
 import com.fhiont.core.notification.PushNotificationConstants
+import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.ui.MainApp
 
 class MainActivity : ComponentActivity() {

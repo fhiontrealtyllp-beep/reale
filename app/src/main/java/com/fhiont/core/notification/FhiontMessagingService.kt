@@ -39,8 +39,9 @@ class FhiontMessagingService : FirebaseMessagingService() {
         createChannel()
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            putExtra(PushNotificationConstants.EXTRA_PROPERTY_ID, message.data[PushNotificationConstants.EXTRA_PROPERTY_ID])
-            putExtra(PushNotificationConstants.EXTRA_ENQUIRY_ID, message.data[PushNotificationConstants.EXTRA_ENQUIRY_ID])
+            message.data.forEach { (key, value) ->
+                putExtra(key, value)
+            }
         }
         val pendingIntent = PendingIntent.getActivity(
             this,

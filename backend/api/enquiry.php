@@ -59,12 +59,18 @@ try {
     throw $exception;
 }
 
-sendEnquiryPush(
-    $pdo,
-    (int) $property['user_id'],
-    $enquiryId,
-    $propertyId,
-    (string) $property['title'],
-    $message
-);
+$pushData = [
+    'enquiryId' => (string) $enquiryId,
+    'propertyId' => $propertyId,
+    'propertyTitle' => $propertyTitle,
+    'propertyLocation' => $propertyLocation,
+    'propertyImage' => $propertyImage,
+    'agentPhone' => $agentPhone,
+    'message' => $message,
+    'userId' => (string) $user['id'],
+    'userName' => (string) ($user['name'] ?? ''),
+    'status' => 'new',
+    'createdAt' => (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+];
+sendEnquiryPush($pdo, (int) $property['user_id'], (string) $property['title'], $pushData);
 respond(201, true, 'Enquiry sent successfully', ['enquiryId' => (string) $enquiryId]);

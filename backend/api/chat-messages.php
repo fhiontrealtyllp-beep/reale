@@ -135,9 +135,17 @@ if ($method === 'POST') {
             'New message: ' . (string) $enquiry['property_title'],
             $message,
             [
-                'propertyId' => (string) $enquiry['property_id'],
                 'enquiryId' => (string) $enquiry['id'],
-                'message' => $message,
+                'propertyId' => (string) $enquiry['property_id'],
+                'propertyTitle' => (string) $enquiry['property_title'],
+                'propertyLocation' => (string) $enquiry['property_location'],
+                'propertyImage' => (string) $enquiry['property_image'],
+                'agentPhone' => (string) $enquiry['agent_phone'],
+                'message' => (string) $message,
+                'userId' => (string) $enquiry['user_id'],
+                'userName' => (string) ($enquiry['enquirer_name'] ?? ''),
+                'status' => (string) $enquiry['status'],
+                'createdAt' => (string) $enquiry['created_at'],
             ]
         );
     }
