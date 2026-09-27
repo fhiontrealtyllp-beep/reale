@@ -448,6 +448,7 @@ private fun previewMyEnquiriesViewModelFactory(chatReadStore: ChatReadStore) = o
                 }
             },
             chatReadStore = chatReadStore,
+            enquiryNotificationUpdates = com.fhiont.core.notification.EnquiryNotificationUpdates(),
             userSession = object : com.fhiont.feature.search.data.session.UserSession {
                 override val user: kotlinx.coroutines.flow.StateFlow<com.fhiont.feature.auth.domain.model.User?> = kotlinx.coroutines.flow.MutableStateFlow(null)
                 override fun getUserId(): String? = "u1"

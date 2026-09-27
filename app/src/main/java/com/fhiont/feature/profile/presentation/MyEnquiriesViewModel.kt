@@ -3,6 +3,7 @@ package com.fhiont.feature.profile.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.feature.search.data.local.ChatReadStore
+import com.fhiont.core.notification.EnquiryNotificationUpdates
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase
@@ -13,6 +14,7 @@ import com.fhiont.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class MyEnquiriesViewModel(
@@ -22,6 +24,7 @@ class MyEnquiriesViewModel(
     private val deleteEnquiryThreadUseCase: DeleteEnquiryThreadUseCase,
     private val userSession: UserSession,
     private val chatReadStore: ChatReadStore,
+    private val enquiryNotificationUpdates: EnquiryNotificationUpdates,
     private val filterPropertyId: String? = null
 ) : ViewModel() {
 
@@ -30,6 +33,11 @@ class MyEnquiriesViewModel(
 
     init {
         load()
+        viewModelScope.launch {
+            enquiryNotificationUpdates.updates.collect {
+                load()
+            }
+        }
     }
 
     fun load() {

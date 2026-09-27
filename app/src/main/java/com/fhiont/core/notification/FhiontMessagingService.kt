@@ -22,6 +22,7 @@ private const val TAG = "FhiontMessagingService"
 
 class FhiontMessagingService : FirebaseMessagingService() {
     private val pushTokenManager: PushTokenManager by inject()
+    private val enquiryNotificationUpdates: EnquiryNotificationUpdates by inject()
 
     override fun onNewToken(token: String) {
         Logger.d(TAG, "FCM token refreshed")
@@ -30,6 +31,9 @@ class FhiontMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         Logger.d(TAG, "Message received from: ${message.from}")
+        if (!message.data[PushNotificationConstants.EXTRA_ENQUIRY_ID].isNullOrBlank()) {
+            enquiryNotificationUpdates.notifyReceived()
+        }
         val title = message.notification?.title
             ?: message.data["title"]
             ?: PushNotificationConstants.DEFAULT_TITLE

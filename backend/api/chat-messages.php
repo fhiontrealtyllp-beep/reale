@@ -118,6 +118,7 @@ if ($method === 'POST') {
         'message' => $message,
     ]);
     $messageId = (int) $pdo->lastInsertId();
+    $messageCreatedAt = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
     // Mark the enquiry as replied when the owner answers for the first time.
     if ((int) $user['id'] === (int) $enquiry['owner_id'] && $enquiry['status'] === 'new') {
@@ -145,7 +146,7 @@ if ($method === 'POST') {
                 'userId' => (string) $enquiry['user_id'],
                 'userName' => (string) ($enquiry['enquirer_name'] ?? ''),
                 'status' => (string) $enquiry['status'],
-                'createdAt' => (string) $enquiry['created_at'],
+                'createdAt' => $messageCreatedAt,
             ]
         );
     }
@@ -157,7 +158,7 @@ if ($method === 'POST') {
             'senderId' => (string) $user['id'],
             'senderName' => (string) $user['name'],
             'message' => $message,
-            'createdAt' => (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+            'createdAt' => $messageCreatedAt,
         ],
     ]);
 }

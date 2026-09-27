@@ -81,6 +81,7 @@ import com.fhiont.core.network.PhpEnquiryApi
 import com.fhiont.core.network.PhpPropertyApi
 import com.fhiont.core.notification.PushTokenApi
 import com.fhiont.core.notification.PushTokenManager
+import com.fhiont.core.notification.EnquiryNotificationUpdates
 import com.fhiont.feature.search.data.local.PropertyLocationSuggestionRepository
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSourceImpl
@@ -136,6 +137,7 @@ val appModule = module {
     single { PhpPropertyApi() }
     single { PushTokenApi() }
     single { PushTokenManager(androidContext(), get(), get()) }
+    single { EnquiryNotificationUpdates() }
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }
@@ -217,6 +219,6 @@ val profileModule = module {
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single<DeleteEnquiryThreadUseCase> { DeleteEnquiryThreadUseCaseImpl(get()) }
-    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), get(), filterPropertyId) }
+    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }
