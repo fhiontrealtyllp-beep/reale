@@ -3,6 +3,8 @@ package com.fhiont.core.notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import com.fhiont.feature.search.data.session.UserSession
 import com.google.firebase.messaging.FirebaseMessaging
@@ -44,13 +46,25 @@ class PushTokenManager(
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val notificationManager = appContext.getSystemService(NotificationManager::class.java)
+        notificationManager.deleteNotificationChannel(PushNotificationConstants.OLD_CHANNEL_ID)
+        val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val channel = NotificationChannel(
             PushNotificationConstants.CHANNEL_ID,
             PushNotificationConstants.CHANNEL_NAME,
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = PushNotificationConstants.CHANNEL_DESCRIPTION
+            setSound(
+                soundUri,
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 250, 100, 250)
         }
-        appContext.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        notificationManager.createNotificationChannel(channel)
     }
 }

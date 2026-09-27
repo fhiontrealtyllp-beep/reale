@@ -280,7 +280,7 @@ function sendPushToUser(PDO $pdo, int $userId, string $title, string $body, arra
                 'data' => array_map('strval', $data),
                 'android' => [
                     'priority' => 'high',
-                    'notification' => ['channel_id' => 'enquiries'],
+                    'notification' => ['channel_id' => 'enquiries_v2'],
                 ],
             ],
         ], JSON_FLAGS);

@@ -1,7 +1,8 @@
 package com.fhiont.core.notification
 
 internal object PushNotificationConstants {
-    const val CHANNEL_ID = "enquiries"
+    const val CHANNEL_ID = "enquiries_v2"
+    const val OLD_CHANNEL_ID = "enquiries"
     const val CHANNEL_NAME = "Property enquiries"
     const val CHANNEL_DESCRIPTION = "Notifications when someone enquires about your property"
     const val DEFAULT_TITLE = "New property enquiry"
