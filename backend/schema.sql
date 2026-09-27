@@ -110,8 +110,6 @@ CREATE TABLE IF NOT EXISTS enquiries (
     message TEXT NOT NULL DEFAULT '',
     user_id BIGINT UNSIGNED NULL,
     status VARCHAR(30) NOT NULL DEFAULT 'new',
-    read_by_owner TINYINT(1) NOT NULL DEFAULT 0,
-    read_by_user TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
@@ -138,14 +136,10 @@ CREATE TABLE IF NOT EXISTS enquiry_messages (
     enquiry_id BIGINT UNSIGNED NOT NULL,
     sender_id BIGINT UNSIGNED NOT NULL,
     message TEXT NOT NULL,
-    read_by_owner TINYINT(1) NOT NULL DEFAULT 0,
-    read_by_user TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY enquiry_messages_enquiry_index (enquiry_id),
     KEY enquiry_messages_sender_index (sender_id),
-    KEY enquiry_messages_read_owner_index (enquiry_id, read_by_owner),
-    KEY enquiry_messages_read_user_index (enquiry_id, read_by_user),
     CONSTRAINT enquiry_messages_enquiry_foreign FOREIGN KEY (enquiry_id) REFERENCES enquiries (id) ON DELETE CASCADE,
     CONSTRAINT enquiry_messages_sender_foreign FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -153,8 +147,3 @@ CREATE TABLE IF NOT EXISTS enquiry_messages (
 -- Migration for databases created before the password_set column existed:
 -- ALTER TABLE users ADD COLUMN password_set TINYINT(1) NOT NULL DEFAULT 1 AFTER image;
 
--- Migrations for read receipts:
--- ALTER TABLE enquiries ADD COLUMN read_by_owner TINYINT(1) NOT NULL DEFAULT 0;
--- ALTER TABLE enquiries ADD COLUMN read_by_user TINYINT(1) NOT NULL DEFAULT 0;
--- ALTER TABLE enquiry_messages ADD COLUMN read_by_owner TINYINT(1) NOT NULL DEFAULT 0;
--- ALTER TABLE enquiry_messages ADD COLUMN read_by_user TINYINT(1) NOT NULL DEFAULT 0;

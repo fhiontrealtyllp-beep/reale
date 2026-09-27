@@ -56,11 +56,10 @@ if (empty($rows)) {
 }
 
 $enquiryIds = array_map('intval', array_column($rows, 'id'));
-$propertyIds = array_values(array_unique(array_map('intval', array_column($rows, 'property_id'))));
 
 $enquiryIdPlaceholders = implode(',', array_fill(0, count($enquiryIds), '?'));
 $messagesStatement = $pdo->prepare(
-    'SELECT id, enquiry_id, sender_id, message, created_at, read_by_owner, read_by_user '
+    'SELECT enquiry_id, message, created_at '
     . "FROM enquiry_messages WHERE enquiry_id IN ($enquiryIdPlaceholders) "
     . 'ORDER BY created_at ASC, id ASC'
 );
@@ -71,19 +70,8 @@ foreach ($messagesStatement->fetchAll() as $messageRow) {
     $messagesByEnquiry[$eid][] = $messageRow;
 }
 
-$propertyIdPlaceholders = implode(',', array_fill(0, count($propertyIds), '?'));
-$ownersStatement = $pdo->prepare("SELECT id, user_id FROM properties WHERE id IN ($propertyIdPlaceholders)");
-$ownersStatement->execute($propertyIds);
-$ownersByProperty = [];
-foreach ($ownersStatement->fetchAll() as $propertyRow) {
-    $ownersByProperty[(int) $propertyRow['id']] = (int) $propertyRow['user_id'];
-}
-
-$enquiries = array_map(function (array $row) use ($user, $messagesByEnquiry, $ownersByProperty): array {
+$enquiries = array_map(function (array $row) use ($messagesByEnquiry): array {
     $enquiryId = (int) $row['id'];
-    $propertyId = (int) $row['property_id'];
-    $ownerId = $ownersByProperty[$propertyId] ?? 0;
-    $viewerIsOwner = (int) $user['id'] === $ownerId;
 
     $latestMessage = (string) $row['message'];
     $latestAt = (string) $row['created_at'];
@@ -93,27 +81,6 @@ $enquiries = array_map(function (array $row) use ($user, $messagesByEnquiry, $ow
         if ((string) $messageRow['created_at'] > $latestAt) {
             $latestMessage = (string) $messageRow['message'];
             $latestAt = (string) $messageRow['created_at'];
-        }
-    }
-
-    $unreadCount = 0;
-    if ($viewerIsOwner) {
-        if ((int) $row['read_by_owner'] === 0) {
-            $unreadCount++;
-        }
-        foreach ($messages as $messageRow) {
-            if ((int) $messageRow['sender_id'] !== (int) $user['id'] && (int) $messageRow['read_by_owner'] === 0) {
-                $unreadCount++;
-            }
-        }
-    } else {
-        if ((int) $row['read_by_user'] === 0) {
-            $unreadCount++;
-        }
-        foreach ($messages as $messageRow) {
-            if ((int) $messageRow['sender_id'] !== (int) $user['id'] && (int) $messageRow['read_by_user'] === 0) {
-                $unreadCount++;
-            }
         }
     }
 
@@ -129,7 +96,6 @@ $enquiries = array_map(function (array $row) use ($user, $messagesByEnquiry, $ow
         'userName' => (string) ($row['user_name'] ?? ''),
         'status' => (string) $row['status'],
         'createdAt' => $latestAt,
-        'unreadCount' => $unreadCount,
     ];
 }, $rows);
 respond(200, true, 'Enquiries loaded', ['enquiries' => $enquiries]);
