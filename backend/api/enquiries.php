@@ -77,12 +77,15 @@ $enquiries = array_map(function (array $row) use ($messagesByEnquiry): array {
     $latestAt = (string) $row['created_at'];
     $messages = $messagesByEnquiry[$enquiryId] ?? [];
 
+    $messageTimestamps = [(string) $row['created_at']];
     foreach ($messages as $messageRow) {
+        $messageTimestamps[] = (string) $messageRow['created_at'];
         if ((string) $messageRow['created_at'] > $latestAt) {
             $latestMessage = (string) $messageRow['message'];
             $latestAt = (string) $messageRow['created_at'];
         }
     }
+    sort($messageTimestamps);
 
     return [
         'id' => (string) $row['id'],
@@ -96,6 +99,7 @@ $enquiries = array_map(function (array $row) use ($messagesByEnquiry): array {
         'userName' => (string) ($row['user_name'] ?? ''),
         'status' => (string) $row['status'],
         'createdAt' => $latestAt,
+        'messageTimestamps' => $messageTimestamps,
     ];
 }, $rows);
 respond(200, true, 'Enquiries loaded', ['enquiries' => $enquiries]);

@@ -47,8 +47,9 @@ internal object MyEnquiriesDims {
     val STATUS_BADGE_CORNER_RADIUS = 8.dp
     val STATUS_BADGE_HORIZONTAL_PADDING = 8.dp
     val STATUS_BADGE_VERTICAL_PADDING = 2.dp
-    val UNREAD_INDICATOR_SIZE = 8.dp
+    val UNREAD_INDICATOR_SIZE = 16.dp
     val UNREAD_INDICATOR_OFFSET = 4.dp
+    val UNREAD_INDICATOR_TEXT_SIZE = 10.sp
     val LOADING_SIZE = 40.dp
     val LOADING_STROKE = 3.dp
 }

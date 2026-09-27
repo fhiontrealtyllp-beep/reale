@@ -139,15 +139,22 @@ class MyEnquiriesViewModel(
 private fun List<Enquiry>.groupByUserPropertyThread(): List<Enquiry> {
     return groupBy { it.propertyId to it.userId }
         .mapNotNull { (_, thread) ->
-            thread.maxByOrNull { it.createdAt.toEnquiryTimestamp() }
+            val latest = thread.maxByOrNull { it.createdAt.toEnquiryTimestamp() } ?: return@mapNotNull null
+            latest.copy(
+                messageTimestamps = thread.flatMap { it.messageTimestamps }.distinct().sorted()
+            )
         }
         .sortedByDescending { it.createdAt.toEnquiryTimestamp() }
 }
 
 private fun List<Enquiry>.withLocalReadState(chatReadStore: ChatReadStore): List<Enquiry> {
     return map { enquiry ->
-        val isUnread = chatReadStore.isUnread(enquiry.id, enquiry.createdAt)
-        enquiry.copy(unreadCount = if (isUnread) 1 else 0)
+        val unreadCount = if (enquiry.messageTimestamps.isNotEmpty()) {
+            chatReadStore.getUnreadCount(enquiry.id, enquiry.messageTimestamps)
+        } else {
+            if (chatReadStore.isUnread(enquiry.id, enquiry.createdAt)) 1 else 0
+        }
+        enquiry.copy(unreadCount = unreadCount)
     }.sortedWith(
         compareByDescending<Enquiry> { it.unreadCount > 0 }
             .thenByDescending { it.createdAt.toEnquiryTimestamp() }

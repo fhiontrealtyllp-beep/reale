@@ -12,5 +12,6 @@ data class Enquiry(
     val userName: String,
     val status: String,
     val createdAt: String,
-    val unreadCount: Int = 0
+    val unreadCount: Int = 0,
+    val messageTimestamps: List<String> = emptyList()
 )

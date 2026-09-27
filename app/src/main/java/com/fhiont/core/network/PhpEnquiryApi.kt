@@ -12,6 +12,7 @@ import java.net.URL
 import java.net.URLEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 private const val CONNECT_TIMEOUT_MS = 15_000
@@ -160,8 +161,13 @@ class PhpEnquiryApi {
         userName = optString("userName"),
         status = optString("status"),
         createdAt = optString("createdAt"),
-        unreadCount = optInt("unreadCount", 0)
+        unreadCount = optInt("unreadCount", 0),
+        messageTimestamps = optJSONArray("messageTimestamps")?.toStringList() ?: emptyList()
     )
+
+    private fun JSONArray.toStringList(): List<String> {
+        return List(length()) { index -> optString(index, "") }.filter { it.isNotBlank() }
+    }
 
     private fun buildShortLocation(property: Property): String {
         return listOf(property.locality, property.city)

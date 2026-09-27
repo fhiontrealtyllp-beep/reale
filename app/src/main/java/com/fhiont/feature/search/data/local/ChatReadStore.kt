@@ -22,6 +22,12 @@ class ChatReadStore(context: Context) {
         return latestTimestamp > lastRead
     }
 
+    fun getUnreadCount(enquiryId: String, timestamps: List<String>): Int {
+        if (timestamps.isEmpty()) return 0
+        val lastRead = getLastReadTimestamp(enquiryId) ?: return timestamps.size
+        return timestamps.count { it > lastRead }
+    }
+
     fun clear(enquiryId: String) {
         preferences.edit { remove(keyFor(enquiryId)) }
     }

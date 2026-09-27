@@ -334,6 +334,12 @@ private fun EnquiryCard(
                             .background(BrandCoral, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
+                        Text(
+                            text = enquiry.unreadCount.toString(),
+                            color = White,
+                            fontSize = MyEnquiriesDims.UNREAD_INDICATOR_TEXT_SIZE,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
