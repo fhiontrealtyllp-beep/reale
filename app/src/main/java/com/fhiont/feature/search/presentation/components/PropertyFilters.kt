@@ -61,18 +61,29 @@ private data class RangeOption(
 )
 
 private val priceOptions = listOf(
-    RangeOption(SearchStrings.FILTER_PRICE_UNDER_25_LAKH, 0.0, 2_500_000.0),
-    RangeOption(SearchStrings.FILTER_PRICE_25_TO_50_LAKH, 2_500_000.0, 5_000_000.0),
-    RangeOption(SearchStrings.FILTER_PRICE_50_LAKH_TO_1_CRORE, 5_000_000.0, 10_000_000.0),
-    RangeOption(SearchStrings.FILTER_PRICE_1_TO_5_CRORE, 10_000_000.0, 50_000_000.0),
-    RangeOption(SearchStrings.FILTER_PRICE_5_CRORE_PLUS, 50_000_000.0, Double.MAX_VALUE)
+    RangeOption(SearchStrings.FILTER_PRICE_UNDER_20_LAKH, 0.0, 2_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_20_TO_40_LAKH, 2_000_000.0, 4_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_40_TO_60_LAKH, 4_000_000.0, 6_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_60_TO_80_LAKH, 6_000_000.0, 8_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_80_LAKH_TO_1_CRORE, 8_000_000.0, 10_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_1_TO_1_5_CRORE, 10_000_000.0, 15_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_1_5_TO_2_CRORE, 15_000_000.0, 20_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_2_TO_3_CRORE, 20_000_000.0, 30_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_3_TO_5_CRORE, 30_000_000.0, 50_000_000.0),
+    RangeOption(SearchStrings.FILTER_PRICE_ABOVE_5_CRORE, 50_000_000.0, Double.MAX_VALUE)
 )
 
 private val rentOptions = listOf(
     RangeOption(SearchStrings.FILTER_RENT_UNDER_10_THOUSAND, 0.0, 10_000.0),
-    RangeOption(SearchStrings.FILTER_RENT_10_TO_25_THOUSAND, 10_000.0, 25_000.0),
-    RangeOption(SearchStrings.FILTER_RENT_25_TO_50_THOUSAND, 25_000.0, 50_000.0),
-    RangeOption(SearchStrings.FILTER_RENT_50_THOUSAND_PLUS, 50_000.0, Double.MAX_VALUE)
+    RangeOption(SearchStrings.FILTER_RENT_10_TO_20_THOUSAND, 10_000.0, 20_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_20_TO_30_THOUSAND, 20_000.0, 30_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_30_TO_40_THOUSAND, 30_000.0, 40_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_40_TO_50_THOUSAND, 40_000.0, 50_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_50_TO_75_THOUSAND, 50_000.0, 75_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_75_THOUSAND_TO_1_LAKH, 75_000.0, 100_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_1_TO_1_5_LAKH, 100_000.0, 150_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_1_5_TO_2_LAKH, 150_000.0, 200_000.0),
+    RangeOption(SearchStrings.FILTER_RENT_ABOVE_2_LAKH, 200_000.0, Double.MAX_VALUE)
 )
 
 private val areaOptions = listOf(
