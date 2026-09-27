@@ -4,12 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -393,13 +387,23 @@ private fun HeroSection(
                         .clickable(onClick = onImageClick)
                 )
             } else {
-                AnimatedContent(
-                    targetState = selectedImage.coerceIn(0, images.lastIndex),
-                    transitionSpec = {
-                        slideInHorizontally { it } + fadeIn() togetherWith
-                            slideOutHorizontally { -it } + fadeOut()
-                    },
-                    label = "heroImage",
+                val pagerState = rememberPagerState(pageCount = { images.size })
+
+                LaunchedEffect(selectedImage) {
+                    val page = selectedImage.coerceIn(0, images.lastIndex)
+                    if (pagerState.currentPage != page) {
+                        pagerState.animateScrollToPage(page)
+                    }
+                }
+
+                LaunchedEffect(pagerState.currentPage) {
+                    if (pagerState.currentPage != selectedImage) {
+                        onSelectImage(pagerState.currentPage)
+                    }
+                }
+
+                HorizontalPager(
+                    state = pagerState,
                     modifier = Modifier.fillMaxSize()
                 ) { imageIndex ->
                     AsyncImage(
@@ -737,18 +741,21 @@ private fun FullScreenImageViewer(
                                 }
                             )
                         }
-                        .pointerInput(isCurrentPage) {
-                            if (!isCurrentPage) return@pointerInput
-                            detectTransformGestures { _, pan, zoomChange, _ ->
-                                scale = (scale * zoomChange).coerceIn(MIN_ZOOM, MAX_ZOOM)
-                                val maxX = (size.width * (scale - 1f)) / 2f
-                                val maxY = (size.height * (scale - 1f)) / 2f
-                                offset = Offset(
-                                    x = (offset.x + pan.x * scale).coerceIn(-maxX, maxX),
-                                    y = (offset.y + pan.y * scale).coerceIn(-maxY, maxY)
-                                )
-                            }
-                        }
+                        .then(
+                            if (isCurrentPage && scale > 1f) {
+                                Modifier.pointerInput(Unit) {
+                                    detectTransformGestures { _, pan, zoomChange, _ ->
+                                        scale = (scale * zoomChange).coerceIn(MIN_ZOOM, MAX_ZOOM)
+                                        val maxX = (size.width * (scale - 1f)) / 2f
+                                        val maxY = (size.height * (scale - 1f)) / 2f
+                                        offset = Offset(
+                                            x = (offset.x + pan.x * scale).coerceIn(-maxX, maxX),
+                                            y = (offset.y + pan.y * scale).coerceIn(-maxY, maxY)
+                                        )
+                                    }
+                                }
+                            } else Modifier
+                        )
                         .graphicsLayer(
                             scaleX = if (isCurrentPage) scale else 1f,
                             scaleY = if (isCurrentPage) scale else 1f,
