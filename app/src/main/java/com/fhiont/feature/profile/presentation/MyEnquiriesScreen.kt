@@ -400,6 +400,11 @@ private val previewMyEnquiriesViewModelFactory = object : ViewModelProvider.Fact
                     )
                 }
             },
+            getOwnerEnquiriesUseCase = object : com.fhiont.feature.search.domain.usecase.GetOwnerEnquiriesUseCase {
+                override suspend fun invoke(userId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
+                    return com.fhiont.feature.search.domain.utils.Result.Success(emptyList())
+                }
+            },
             getEnquiriesByPropertyUseCase = object : com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase {
                 override suspend fun invoke(propertyId: String): com.fhiont.feature.search.domain.utils.Result<List<Enquiry>> {
                     return com.fhiont.feature.search.domain.utils.Result.Success(emptyList())

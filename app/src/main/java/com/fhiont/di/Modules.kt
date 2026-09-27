@@ -109,6 +109,8 @@ import com.fhiont.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUse
 import com.fhiont.feature.search.domain.usecase.GetEnquiryCountsForPropertiesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCaseImpl
+import com.fhiont.feature.search.domain.usecase.GetOwnerEnquiriesUseCase
+import com.fhiont.feature.search.domain.usecase.GetOwnerEnquiriesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.GetPromotionalPropertiesUseCase
 import com.fhiont.feature.search.domain.usecase.GetPromotionalPropertiesUseCaseImpl
 import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCase
@@ -175,6 +177,7 @@ val searchModule = module {
     single<UpdatePropertyLikeUseCase> { UpdatePropertyLikeUseCaseImpl(get()) }
     single<SendEnquiryUseCase> { SendEnquiryUseCaseImpl(get(), get()) }
     single<GetMyEnquiriesUseCase> { GetMyEnquiriesUseCaseImpl(get()) }
+    single<GetOwnerEnquiriesUseCase> { GetOwnerEnquiriesUseCaseImpl(get()) }
     single<GetEnquiriesByPropertyUseCase> { GetEnquiriesByPropertyUseCaseImpl(get()) }
     single<GetEnquiryCountsForPropertiesUseCase> { GetEnquiryCountsForPropertiesUseCaseImpl(get()) }
     single<GetChatMessagesUseCase> { GetChatMessagesUseCaseImpl(get()) }
@@ -212,6 +215,6 @@ val profileModule = module {
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single<DeleteEnquiryThreadUseCase> { DeleteEnquiryThreadUseCaseImpl(get()) }
-    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), filterPropertyId) }
+    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }

@@ -42,6 +42,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
@@ -352,6 +353,18 @@ private fun ProfileContent(
                     onClick = {
                         Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
                         onMyListingsClick()
+                    }
+                )
+            )
+            add(
+                ProfileMenuItem(
+                    icon = Icons.AutoMirrored.Filled.Chat,
+                    title = ProfileStrings.MY_ENQUIRIES,
+                    subtitle = ProfileStrings.MY_ENQUIRIES_SUBTITLE,
+                    contentDescription = ProfileStrings.CD_MY_ENQUIRIES,
+                    onClick = {
+                        Logger.d(PROFILE_MENU_TAG, "My Enquiries row tapped")
+                        onMyEnquiriesClick()
                     }
                 )
             )

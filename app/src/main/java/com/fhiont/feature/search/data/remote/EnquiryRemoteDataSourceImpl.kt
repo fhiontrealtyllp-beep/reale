@@ -49,6 +49,16 @@ class EnquiryRemoteDataSourceImpl(
         return phpEnquiryApi.getEnquiriesByProperty(token, propertyId)
     }
 
+    override suspend fun getEnquiriesByOwner(userId: String): Result<List<Enquiry>> {
+        Logger.d(TAG, "getEnquiriesByOwner: userId=$userId")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "getEnquiriesByOwner: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpEnquiryApi.getEnquiriesByOwner(token)
+    }
+
     override suspend fun getEnquiryCountsForPropertyIds(
         propertyIds: List<String>
     ): Result<Map<String, Int>> {

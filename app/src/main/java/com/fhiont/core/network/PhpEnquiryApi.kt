@@ -69,6 +69,18 @@ class PhpEnquiryApi {
         }
     )
 
+    suspend fun getEnquiriesByOwner(token: String): Result<List<Enquiry>> = apiCall(
+        method = HTTP_METHOD_GET,
+        endpoint = "enquiries.php?type=owner",
+        token = token,
+        parse = { response ->
+            val array = response.getJSONObject("data").getJSONArray("enquiries")
+            List(array.length()) { index ->
+                array.getJSONObject(index).toEnquiry()
+            }
+        }
+    )
+
     suspend fun deleteEnquiryThread(
         token: String,
         propertyId: String,

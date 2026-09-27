@@ -28,6 +28,23 @@ if ($type === 'user') {
         . 'WHERE e.property_id = :property_id ORDER BY e.created_at DESC'
     );
     $statement->execute(['property_id' => $propertyId]);
+} elseif ($type === 'owner') {
+    $propertyStatement = $pdo->prepare('SELECT id FROM properties WHERE user_id = :owner_id');
+    $propertyStatement->execute(['owner_id' => $user['id']]);
+    $propertyIds = array_map('strval', array_column($propertyStatement->fetchAll(), 'id'));
+
+    if (empty($propertyIds)) {
+        respond(200, true, 'Enquiries loaded', ['enquiries' => []]);
+    }
+
+    $placeholders = implode(',', array_fill(0, count($propertyIds), '?'));
+    $statement = $pdo->prepare(
+        'SELECT e.*, u.name AS user_name FROM enquiries e '
+        . 'LEFT JOIN users u ON e.user_id = u.id '
+        . "WHERE e.property_id IN ($placeholders) "
+        . 'ORDER BY e.created_at DESC'
+    );
+    $statement->execute($propertyIds);
 } else {
     respond(400, false, 'Invalid type parameter');
 }

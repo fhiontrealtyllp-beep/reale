@@ -7,6 +7,7 @@ import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
+import com.fhiont.feature.search.domain.usecase.GetOwnerEnquiriesUseCase
 import com.fhiont.feature.search.domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 
 class MyEnquiriesViewModel(
     private val getMyEnquiriesUseCase: GetMyEnquiriesUseCase,
+    private val getOwnerEnquiriesUseCase: GetOwnerEnquiriesUseCase,
     private val getEnquiriesByPropertyUseCase: GetEnquiriesByPropertyUseCase,
     private val deleteEnquiryThreadUseCase: DeleteEnquiryThreadUseCase,
     private val userSession: UserSession,
@@ -32,35 +34,56 @@ class MyEnquiriesViewModel(
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
-            val result = if (filterPropertyId != null) {
-                getEnquiriesByPropertyUseCase(filterPropertyId)
-            } else {
-                val userId = userSession.getUserId()
-                if (userId.isNullOrBlank()) {
-                    _uiState.value = MyEnquiriesUiState(
-                        isLoading = false,
-                        errorMessage = MyEnquiriesStrings.ERROR_NOT_LOGGED_IN
-                    )
-                    return@launch
+            if (filterPropertyId != null) {
+                when (val result = getEnquiriesByPropertyUseCase(filterPropertyId)) {
+                    is Result.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            enquiries = result.data.groupByUserPropertyThread(),
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
+                    is Result.Error -> {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
                 }
-                getMyEnquiriesUseCase(userId)
+                return@launch
             }
 
-            when (result) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        enquiries = result.data.groupByUserPropertyThread(),
-                        isLoading = false,
-                        errorMessage = null
-                    )
-                }
+            val userId = userSession.getUserId()
+            if (userId.isNullOrBlank()) {
+                _uiState.value = MyEnquiriesUiState(
+                    isLoading = false,
+                    errorMessage = MyEnquiriesStrings.ERROR_NOT_LOGGED_IN
+                )
+                return@launch
+            }
+
+            val myResult = getMyEnquiriesUseCase(userId)
+            val ownerResult = getOwnerEnquiriesUseCase(userId)
+
+            val enquiries = mutableListOf<Enquiry>()
+            var errorMessage: String? = null
+
+            when (myResult) {
+                is Result.Success -> enquiries += myResult.data
+                is Result.Error -> errorMessage = myResult.message
+            }
+            when (ownerResult) {
+                is Result.Success -> enquiries += ownerResult.data
                 is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
+                    if (enquiries.isEmpty()) errorMessage = ownerResult.message
                 }
             }
+
+            _uiState.value = _uiState.value.copy(
+                enquiries = enquiries.distinctBy { it.id }.groupByUserPropertyThread(),
+                isLoading = false,
+                errorMessage = if (enquiries.isEmpty()) errorMessage else null
+            )
         }
     }
 

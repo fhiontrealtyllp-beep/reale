@@ -16,6 +16,8 @@ interface EnquiryRemoteDataSource {
 
     suspend fun getEnquiriesByProperty(propertyId: String): Result<List<Enquiry>>
 
+    suspend fun getEnquiriesByOwner(userId: String): Result<List<Enquiry>>
+
     suspend fun getEnquiryCountsForPropertyIds(propertyIds: List<String>): Result<Map<String, Int>>
 
     suspend fun getChatMessages(enquiryId: String): Result<List<ChatMessage>>
