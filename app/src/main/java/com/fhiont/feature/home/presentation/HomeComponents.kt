@@ -1,6 +1,10 @@
 package com.fhiont.feature.home.presentation
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +53,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -269,6 +276,7 @@ private fun FeaturedPropertyCard(
                 .fillMaxWidth()
                 .height(HomeDims.FEATURED_CARD_SIZE)
                 .clip(RoundedCornerShape(HomeDims.FEATURED_CARD_CORNER_RADIUS))
+                .featuredShimmer()
         ) {
             if (LocalInspectionMode.current) {
                 Image(
@@ -342,6 +350,48 @@ private fun FeaturedPropertyCard(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+        }
+    }
+}
+
+/**
+ * Soft diagonal brightness sweep across the element, run once per cycle and
+ * then idle so the effect highlights without continuous flashing. The band is
+ * drawn in the draw phase via [drawWithContent], so per-frame animation never
+ * triggers recomposition — safe during scroll and cheap enough for 60 FPS.
+ */
+@Composable
+private fun Modifier.featuredShimmer(): Modifier {
+    val transition = rememberInfiniteTransition(label = "featuredShimmer")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = HomeDims.FEATURED_SHIMMER_PERIOD_MS,
+                easing = LinearEasing
+            )
+        ),
+        label = "featuredShimmerProgress"
+    )
+    return this.drawWithContent {
+        drawContent()
+        val activeFraction = HomeDims.FEATURED_SHIMMER_ACTIVE_FRACTION
+        if (progress < activeFraction) {
+            val t = progress / activeFraction
+            val bandWidth = size.width * HomeDims.FEATURED_SHIMMER_BAND_WIDTH_FRACTION
+            val centerX = lerp(-bandWidth, size.width + bandWidth, t)
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.White.copy(alpha = HomeDims.FEATURED_SHIMMER_PEAK_ALPHA),
+                        Color.Transparent
+                    ),
+                    start = Offset(centerX - bandWidth / 2f, size.height),
+                    end = Offset(centerX + bandWidth / 2f, 0f)
+                )
+            )
         }
     }
 }

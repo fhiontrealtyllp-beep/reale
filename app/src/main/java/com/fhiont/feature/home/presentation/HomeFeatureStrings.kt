@@ -127,6 +127,13 @@ internal object HomeDims {
     val FEATURED_RIBBON_LETTER_SPACING = 0.5.sp
     val FEATURED_RIBBON_ELEVATION = 4.dp
 
+    // Periodic shimmer sweep over featured cards: one soft brightness sweep
+    // per cycle, then the card returns to normal for the rest of the period.
+    const val FEATURED_SHIMMER_PERIOD_MS = 5_000
+    const val FEATURED_SHIMMER_ACTIVE_FRACTION = 0.28f
+    const val FEATURED_SHIMMER_BAND_WIDTH_FRACTION = 0.6f
+    const val FEATURED_SHIMMER_PEAK_ALPHA = 0.35f
+
     val HEART_BUTTON_SIZE = 36.dp
     val HEART_ICON_SIZE = 27.dp
     val HEART_PADDING = 8.dp
