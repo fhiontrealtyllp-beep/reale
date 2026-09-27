@@ -38,13 +38,15 @@ class MyEnquiriesViewModel(
         load()
         viewModelScope.launch {
             enquiryNotificationUpdates.updates.collect {
-                load()
+                load(silent = true)
             }
         }
     }
 
-    fun load() {
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+    fun load(silent: Boolean = false) {
+        if (!silent) {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+        }
 
         viewModelScope.launch {
             if (filterPropertyId != null) {
