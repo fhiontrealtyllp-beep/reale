@@ -84,6 +84,7 @@ import com.fhiont.core.notification.PushTokenManager
 import com.fhiont.feature.search.data.local.PropertyLocationSuggestionRepository
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSource
 import com.fhiont.feature.search.data.remote.EnquiryRemoteDataSourceImpl
+import com.fhiont.feature.search.data.local.ChatReadStore
 import com.fhiont.feature.search.data.remote.PropertyRemoteDataSource
 import com.fhiont.feature.search.data.remote.PropertyRemoteDataSourceImpl
 import com.fhiont.feature.search.data.repository.EnquiryRepositoryImpl
@@ -138,6 +139,7 @@ val appModule = module {
     single<UserSession> { UserSessionImpl(androidContext()) }
     single { LikeStateManager }
     single { ThemePreferences(androidContext()) }
+    single { ChatReadStore(androidContext()) }
     single { OnboardingPreferences(androidContext()) }
     single<OnboardingRepository> { OnboardingRepositoryImpl(get()) }
     single<GetOnboardingCityUseCase> { GetOnboardingCityUseCaseImpl(get()) }
@@ -184,7 +186,7 @@ val searchModule = module {
     single<SendChatMessageUseCase> { SendChatMessageUseCaseImpl(get()) }
     viewModel { SearchViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { EnquireViewModel(get()) }
-    viewModel { (enquiry: Enquiry) -> ChatViewModel(get(), get(), get(), get(), enquiry) }
+    viewModel { (enquiry: Enquiry) -> ChatViewModel(get(), get(), get(), get(), get(), enquiry) }
 }
 
 val savedModule = module {
@@ -215,6 +217,6 @@ val profileModule = module {
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
     viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single<DeleteEnquiryThreadUseCase> { DeleteEnquiryThreadUseCaseImpl(get()) }
-    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), filterPropertyId) }
+    viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }
 }

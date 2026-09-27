@@ -35,10 +35,10 @@ try {
     $statement = $pdo->prepare(
         'INSERT INTO enquiries (
             property_id, property_title, property_location, property_image,
-            agent_phone, message, user_id, status
+            agent_phone, message, user_id, status, read_by_owner, read_by_user
         ) VALUES (
             :property_id, :property_title, :property_location, :property_image,
-            :agent_phone, :message, :user_id, :status
+            :agent_phone, :message, :user_id, :status, :read_by_owner, :read_by_user
         )'
     );
 
@@ -51,6 +51,8 @@ try {
         'message' => $message,
         'user_id' => $user['id'],
         'status' => 'new',
+        'read_by_owner' => 0,
+        'read_by_user' => 1,
     ]);
     $enquiryId = (int) $pdo->lastInsertId();
     $pdo->commit();

@@ -2,6 +2,7 @@ package com.fhiont.feature.search.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fhiont.feature.search.data.local.ChatReadStore
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.ChatMessage
 import com.fhiont.feature.search.domain.model.Enquiry
@@ -30,6 +31,7 @@ class ChatViewModel(
     private val getEnquiriesByPropertyUseCase: GetEnquiriesByPropertyUseCase,
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val userSession: UserSession,
+    private val chatReadStore: ChatReadStore,
     private val enquiry: Enquiry
 ) : ViewModel() {
 
@@ -110,6 +112,9 @@ class ChatViewModel(
                 isLoading = false,
                 errorMessage = null
             )
+            allMessages.maxByOrNull { it.createdAt.toChatTimestamp() }?.createdAt?.let { latest ->
+                chatReadStore.markRead(enquiry.id, latest)
+            }
         } else if (_uiState.value.messages.isEmpty()) {
             // Only surface poll failures when there is nothing to show yet.
             _uiState.value = _uiState.value.copy(

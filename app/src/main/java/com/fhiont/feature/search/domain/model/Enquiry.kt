@@ -11,5 +11,6 @@ data class Enquiry(
     val userId: String?,
     val userName: String,
     val status: String,
-    val createdAt: String
+    val createdAt: String,
+    val unreadCount: Int = 0
 )

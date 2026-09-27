@@ -2,6 +2,7 @@ package com.fhiont.feature.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fhiont.feature.search.data.local.ChatReadStore
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.usecase.DeleteEnquiryThreadUseCase
@@ -20,6 +21,7 @@ class MyEnquiriesViewModel(
     private val getEnquiriesByPropertyUseCase: GetEnquiriesByPropertyUseCase,
     private val deleteEnquiryThreadUseCase: DeleteEnquiryThreadUseCase,
     private val userSession: UserSession,
+    private val chatReadStore: ChatReadStore,
     private val filterPropertyId: String? = null
 ) : ViewModel() {
 
@@ -38,7 +40,7 @@ class MyEnquiriesViewModel(
                 when (val result = getEnquiriesByPropertyUseCase(filterPropertyId)) {
                     is Result.Success -> {
                         _uiState.value = _uiState.value.copy(
-                            enquiries = result.data.groupByUserPropertyThread(),
+                            enquiries = result.data.groupByUserPropertyThread().withLocalReadState(chatReadStore),
                             isLoading = false,
                             errorMessage = null
                         )
@@ -80,15 +82,25 @@ class MyEnquiriesViewModel(
             }
 
             _uiState.value = _uiState.value.copy(
-                enquiries = enquiries.distinctBy { it.id }.groupByUserPropertyThread(),
+                enquiries = enquiries.distinctBy { it.id }.groupByUserPropertyThread().withLocalReadState(chatReadStore),
                 isLoading = false,
                 errorMessage = if (enquiries.isEmpty()) errorMessage else null
             )
         }
     }
 
+    fun markThreadRead(enquiry: Enquiry) {
+        chatReadStore.markRead(enquiry.id, enquiry.createdAt)
+        _uiState.value = _uiState.value.copy(
+            enquiries = _uiState.value.enquiries.map { item ->
+                if (item.id == enquiry.id) item.copy(unreadCount = 0) else item
+            }
+        )
+    }
+
     fun deleteEnquiryThread(enquiry: Enquiry) {
         val userId = enquiry.userId ?: return
+        chatReadStore.clear(enquiry.id)
         viewModelScope.launch {
             when (deleteEnquiryThreadUseCase(enquiry.propertyId, userId)) {
                 is Result.Success -> {
@@ -118,6 +130,13 @@ private fun List<Enquiry>.groupByUserPropertyThread(): List<Enquiry> {
         .mapNotNull { (_, thread) ->
             thread.maxByOrNull { it.createdAt.toEnquiryTimestamp() }
         }
+}
+
+private fun List<Enquiry>.withLocalReadState(chatReadStore: ChatReadStore): List<Enquiry> {
+    return map { enquiry ->
+        val isUnread = chatReadStore.isUnread(enquiry.id, enquiry.createdAt)
+        enquiry.copy(unreadCount = if (isUnread) 1 else 0)
+    }
 }
 
 private fun String?.toEnquiryTimestamp(): Long {

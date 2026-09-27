@@ -159,7 +159,8 @@ class PhpEnquiryApi {
         userId = if (has("userId") && !isNull("userId")) optString("userId") else null,
         userName = optString("userName"),
         status = optString("status"),
-        createdAt = optString("createdAt")
+        createdAt = optString("createdAt"),
+        unreadCount = optInt("unreadCount", 0)
     )
 
     private fun buildShortLocation(property: Property): String {

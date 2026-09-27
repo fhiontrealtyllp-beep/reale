@@ -3,6 +3,7 @@ package com.fhiont.feature.profile.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -38,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,11 +58,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
+import com.fhiont.feature.search.data.local.ChatReadStore
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.ui.components.BOTTOM_NAV_CLEARANCE
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
+import com.fhiont.ui.theme.BrandCoral
 import com.fhiont.ui.theme.ControlAccent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.Gray
@@ -75,12 +81,19 @@ import org.koin.core.parameter.parametersOf
 fun MyEnquiriesScreen(
     onBack: () -> Unit,
     filterPropertyId: String? = null,
+    refreshTrigger: Int = 0,
     onChatClick: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: MyEnquiriesViewModel = koinViewModel { parametersOf(filterPropertyId) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var enquiryToDelete by remember { mutableStateOf<Enquiry?>(null) }
+
+    LaunchedEffect(refreshTrigger) {
+        if (refreshTrigger > 0) {
+            viewModel.load()
+        }
+    }
 
     enquiryToDelete?.let { enquiry ->
         AlertDialog(
@@ -181,7 +194,10 @@ fun MyEnquiriesScreen(
                         ) { enquiry ->
                             EnquiryCard(
                                 enquiry = enquiry,
-                                onClick = { onChatClick(enquiry) },
+                                onClick = {
+                                    viewModel.markThreadRead(enquiry)
+                                    onChatClick(enquiry)
+                                },
                                 onLongClick = { enquiryToDelete = enquiry }
                             )
                         }
@@ -289,6 +305,7 @@ private fun EnquiryCard(
                     text = enquiry.message,
                     color = Gray,
                     fontSize = MyEnquiriesDims.MESSAGE_FONT_SIZE,
+                    fontWeight = if (enquiry.unreadCount > 0) FontWeight.Bold else FontWeight.Normal,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -296,12 +313,27 @@ private fun EnquiryCard(
 
             Spacer(modifier = Modifier.width(MyEnquiriesDims.IMAGE_TO_CONTENT_SPACING))
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Chat,
-                contentDescription = MyEnquiriesStrings.CD_OPEN_CHAT,
-                tint = ControlAccent,
-                modifier = Modifier.size(MyEnquiriesDims.CHAT_ICON_SIZE)
-            )
+            Box(contentAlignment = Alignment.TopEnd) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = MyEnquiriesStrings.CD_OPEN_CHAT,
+                    tint = ControlAccent,
+                    modifier = Modifier.size(MyEnquiriesDims.CHAT_ICON_SIZE)
+                )
+                if (enquiry.unreadCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(MyEnquiriesDims.UNREAD_INDICATOR_SIZE)
+                            .offset(
+                                x = MyEnquiriesDims.UNREAD_INDICATOR_OFFSET,
+                                y = -MyEnquiriesDims.UNREAD_INDICATOR_OFFSET
+                            )
+                            .background(BrandCoral, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                    }
+                }
+            }
         }
     }
 }
@@ -372,7 +404,7 @@ private fun ErrorMessage(
     )
 }
 
-private val previewMyEnquiriesViewModelFactory = object : ViewModelProvider.Factory {
+private fun previewMyEnquiriesViewModelFactory(chatReadStore: ChatReadStore) = object : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(
         modelClass: Class<T>,
         extras: CreationExtras
@@ -415,6 +447,7 @@ private val previewMyEnquiriesViewModelFactory = object : ViewModelProvider.Fact
                     return com.fhiont.feature.search.domain.utils.Result.Success(Unit)
                 }
             },
+            chatReadStore = chatReadStore,
             userSession = object : com.fhiont.feature.search.data.session.UserSession {
                 override val user: kotlinx.coroutines.flow.StateFlow<com.fhiont.feature.auth.domain.model.User?> = kotlinx.coroutines.flow.MutableStateFlow(null)
                 override fun getUserId(): String? = "u1"
@@ -429,7 +462,10 @@ private val previewMyEnquiriesViewModelFactory = object : ViewModelProvider.Fact
 @Preview(showBackground = true)
 @Composable
 private fun MyEnquiriesScreenPreview() {
-    val viewModel: MyEnquiriesViewModel = viewModel(factory = previewMyEnquiriesViewModelFactory)
+    val context = LocalContext.current
+    val viewModel: MyEnquiriesViewModel = viewModel(
+        factory = previewMyEnquiriesViewModelFactory(ChatReadStore(context))
+    )
     FhiontTheme {
         MyEnquiriesScreen(
             onBack = {},

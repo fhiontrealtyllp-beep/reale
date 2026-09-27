@@ -65,6 +65,23 @@ if ($method === 'GET') {
         respond(403, false, 'Not a participant of this enquiry');
     }
 
+    $isOwnerViewer = (int) $user['id'] === (int) $enquiry['owner_id'];
+    if ($isOwnerViewer) {
+        $update = $pdo->prepare(
+            'UPDATE enquiry_messages SET read_by_owner = 1 WHERE enquiry_id = :enquiry_id AND sender_id != :owner_id'
+        );
+        $update->execute(['enquiry_id' => $enquiryId, 'owner_id' => $user['id']]);
+        $updateEnquiry = $pdo->prepare('UPDATE enquiries SET read_by_owner = 1 WHERE id = :id');
+        $updateEnquiry->execute(['id' => $enquiryId]);
+    } else {
+        $update = $pdo->prepare(
+            'UPDATE enquiry_messages SET read_by_user = 1 WHERE enquiry_id = :enquiry_id AND sender_id != :user_id'
+        );
+        $update->execute(['enquiry_id' => $enquiryId, 'user_id' => $user['id']]);
+        $updateEnquiry = $pdo->prepare('UPDATE enquiries SET read_by_user = 1 WHERE id = :id');
+        $updateEnquiry->execute(['id' => $enquiryId]);
+    }
+
     // The original enquiry text is the first message of the thread.
     $messages = [[
         'id' => 'e' . (string) $enquiry['id'],
@@ -108,14 +125,17 @@ if ($method === 'POST') {
         respond(403, false, 'Not a participant of this enquiry');
     }
 
+    $isOwnerSender = (int) $user['id'] === (int) $enquiry['owner_id'];
     $statement = $pdo->prepare(
-        'INSERT INTO enquiry_messages (enquiry_id, sender_id, message)
-         VALUES (:enquiry_id, :sender_id, :message)'
+        'INSERT INTO enquiry_messages (enquiry_id, sender_id, message, read_by_owner, read_by_user)
+         VALUES (:enquiry_id, :sender_id, :message, :read_by_owner, :read_by_user)'
     );
     $statement->execute([
         'enquiry_id' => $enquiryId,
         'sender_id' => $user['id'],
         'message' => $message,
+        'read_by_owner' => $isOwnerSender ? 1 : 0,
+        'read_by_user' => $isOwnerSender ? 0 : 1,
     ]);
     $messageId = (int) $pdo->lastInsertId();
 

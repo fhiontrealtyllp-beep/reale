@@ -18,6 +18,7 @@ import com.fhiont.ui.components.ConfirmationDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -210,6 +211,7 @@ fun MainApp(
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
                     var showCityScreen by rememberSaveable { mutableStateOf(false) }
                     var activeChatEnquiry by remember { mutableStateOf<Enquiry?>(null) }
+                    var myEnquiriesRefreshTrigger by remember { mutableIntStateOf(0) }
 
                     BackHandler(enabled = !showExitDialog && !showMyListings && !showMyEnquiries && !showAddProperty && !showCityScreen) {
                         showExitDialog = true
@@ -309,6 +311,7 @@ fun MainApp(
                                         showMyEnquiries -> MyEnquiriesScreen(
                                             modifier = Modifier.fillMaxSize(),
                                             filterPropertyId = selectedEnquiryPropertyId,
+                                            refreshTrigger = myEnquiriesRefreshTrigger,
                                             onBack = {
                                                 showMyEnquiries = false
                                                 selectedEnquiryPropertyId = null
@@ -389,7 +392,10 @@ fun MainApp(
                     activeChatEnquiry?.let { enquiry ->
                         ChatScreen(
                             enquiry = enquiry,
-                            onBack = { activeChatEnquiry = null },
+                            onBack = {
+                                activeChatEnquiry = null
+                                myEnquiriesRefreshTrigger++
+                            },
                             modifier = Modifier.fillMaxSize()
                         )
                     }
