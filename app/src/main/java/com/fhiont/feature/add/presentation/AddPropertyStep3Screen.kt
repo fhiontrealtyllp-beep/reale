@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,24 +31,19 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.fhiont.ui.theme.ControlAccent
-import com.fhiont.ui.theme.HomeCategoryUnselected
 import com.fhiont.ui.theme.Error
-import com.fhiont.ui.theme.OnControlAccent
-import com.fhiont.ui.theme.OnMediaContent
-import com.fhiont.ui.theme.Black
+import com.fhiont.ui.theme.HomeCategoryUnselected
 import com.fhiont.ui.theme.HomeTextSecondary
+import com.fhiont.ui.theme.OnMediaContent
 import com.fhiont.ui.preview.PreviewData
 import com.fhiont.ui.theme.FhiontTheme
 
 private val photoSuggestions = AddStrings.PHOTO_SUGGESTIONS
-
-private val photoTips = AddStrings.PHOTO_TIPS
 
 @Composable
 internal fun AddPropertyStep3Screen(
@@ -64,16 +58,6 @@ internal fun AddPropertyStep3Screen(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader(AddStrings.SECTION_PROPERTY_PHOTOS)
-
-        Text(
-            text = AddStrings.PHOTOS_VISIBILITY_HINT,
-            color = HomeTextSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-
         PhotoGrid(
             images = images,
             isUploadingImage = isUploadingImage,
@@ -90,8 +74,6 @@ internal fun AddPropertyStep3Screen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-
-        PhotoTipsCard()
     }
 }
 
@@ -131,7 +113,6 @@ private fun PhotoGrid(
                         PhotoCell(
                             url = url,
                             label = photoSuggestions.getOrElse(index) { AddStrings.PHOTO_LABEL_PREFIX + (index + 1) },
-                            isCover = index == 0,
                             onRemove = { onRemoveImage(url) },
                             modifier = cellModifier
                         )
@@ -149,61 +130,37 @@ private fun PhotoGrid(
 private fun PhotoCell(
     url: String,
     label: String,
-    isCover: Boolean,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(HomeCategoryUnselected)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(140.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(HomeCategoryUnselected)
-        ) {
-            AsyncImage(
-                model = url,
-                contentDescription = label,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-            if (isCover) {
-                Text(
-                    text = AddStrings.BADGE_COVER,
-                    color = OnControlAccent,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(ControlAccent, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                )
-            }
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(6.dp)
-                    .size(24.dp)
-                    .background(HomeCategoryUnselected, CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = AddStrings.CD_REMOVE_PREFIX + label,
-                    tint = OnMediaContent,
-                    modifier = Modifier.size(14.dp)
-                )
-            }
-        }
-        Text(
-            text = label,
-            color = Black,
-            style = MaterialTheme.typography.bodySmall
+        AsyncImage(
+            model = url,
+            contentDescription = label,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
+        IconButton(
+            onClick = onRemove,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(6.dp)
+                .size(24.dp)
+                .background(HomeCategoryUnselected, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = AddStrings.CD_REMOVE_PREFIX + label,
+                tint = OnMediaContent,
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
 }
 
@@ -238,61 +195,12 @@ private fun AddMoreTile(
                 color = ControlAccent,
                 strokeWidth = 2.dp
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = AddStrings.UPLOADING_PHOTOS,
-                color = ControlAccent,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium
-            )
         } else {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = AddStrings.CD_ADD_MORE_PHOTOS,
                 tint = ControlAccent,
                 modifier = Modifier.size(32.dp)
-            )
-            Text(
-                text = AddStrings.ACTION_ADD_MORE,
-                color = ControlAccent,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
-private fun PhotoTipsCard(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(HomeCategoryUnselected, RoundedCornerShape(12.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Lightbulb,
-                contentDescription = null,
-                tint = ControlAccent,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = AddStrings.TIPS_TITLE,
-                color = Black,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        photoTips.forEach { tip ->
-            Text(
-                text = AddStrings.BULLET_PREFIX + tip,
-                color = HomeTextSecondary,
-                style = MaterialTheme.typography.bodySmall
             )
         }
     }
