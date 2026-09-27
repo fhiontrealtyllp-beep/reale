@@ -23,6 +23,7 @@ private const val TAG = "FhiontMessagingService"
 class FhiontMessagingService : FirebaseMessagingService() {
     private val pushTokenManager: PushTokenManager by inject()
     private val enquiryNotificationUpdates: EnquiryNotificationUpdates by inject()
+    private val notificationPreferences: NotificationPreferences by inject()
 
     override fun onNewToken(token: String) {
         Logger.d(TAG, "FCM token refreshed")
@@ -31,6 +32,11 @@ class FhiontMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         Logger.d(TAG, "Message received from: ${message.from}")
+        val notificationSettings = notificationPreferences.settings.value
+        if (!notificationSettings.enabled) {
+            Logger.d(TAG, "Notifications disabled by user preference; skipping notification")
+            return
+        }
         if (!message.data[PushNotificationConstants.EXTRA_ENQUIRY_ID].isNullOrBlank()) {
             enquiryNotificationUpdates.notifyReceived()
         }
@@ -40,7 +46,10 @@ class FhiontMessagingService : FirebaseMessagingService() {
         val body = message.notification?.body
             ?: message.data["body"]
             ?: PushNotificationConstants.DEFAULT_MESSAGE
-        createChannel()
+        createChannel(
+            soundEnabled = notificationSettings.soundEnabled,
+            vibrationEnabled = notificationSettings.vibrationEnabled
+        )
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             message.data.forEach { (key, value) ->
@@ -64,7 +73,8 @@ class FhiontMessagingService : FirebaseMessagingService() {
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setSound(if (notificationSettings.soundEnabled) RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) else null)
+            .setVibrate(if (notificationSettings.vibrationEnabled) longArrayOf(0, 250, 100, 250) else longArrayOf(0))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
@@ -76,19 +86,12 @@ class FhiontMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            val vibrator = getSystemService(Vibrator::class.java)
-            if (vibrator?.hasVibrator() == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE))
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator?.vibrate(250)
-            }
-            return
-        }
+    private fun createChannel(soundEnabled: Boolean, vibrationEnabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.deleteNotificationChannel(PushNotificationConstants.OLD_CHANNEL_ID)
+        notificationManager.deleteNotificationChannel(PushNotificationConstants.CHANNEL_ID)
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val channel = NotificationChannel(
             PushNotificationConstants.CHANNEL_ID,
@@ -97,14 +100,18 @@ class FhiontMessagingService : FirebaseMessagingService() {
         ).apply {
             description = PushNotificationConstants.CHANNEL_DESCRIPTION
             setSound(
-                soundUri,
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
+                if (soundEnabled) soundUri else null,
+                if (soundEnabled) {
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                } else {
+                    null
+                }
             )
-            enableVibration(true)
-            vibrationPattern = longArrayOf(0, 250, 100, 250)
+            enableVibration(vibrationEnabled)
+            vibrationPattern = if (vibrationEnabled) longArrayOf(0, 250, 100, 250) else longArrayOf(0)
         }
         notificationManager.createNotificationChannel(channel)
     }

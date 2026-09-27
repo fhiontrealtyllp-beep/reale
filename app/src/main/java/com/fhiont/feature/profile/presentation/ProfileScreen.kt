@@ -79,6 +79,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -102,9 +104,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.fhiont.R
+import com.fhiont.core.notification.NotificationSettings
 import com.fhiont.core.theme.ThemeMode
 import com.fhiont.feature.add.presentation.ImageSourceDialog
 import com.fhiont.feature.add.presentation.toJpegBytes
@@ -127,8 +132,6 @@ import com.fhiont.ui.preview.PreviewData
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.util.Logger
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun ProfileScreen(
@@ -144,6 +147,7 @@ fun ProfileScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val notificationSettings by viewModel.notificationSettings.collectAsStateWithLifecycle()
     val savedAddress by viewModel.savedAddress.collectAsStateWithLifecycle()
     val savedCity by viewModel.savedCity.collectAsStateWithLifecycle()
     val savedLocation by viewModel.savedLocation.collectAsStateWithLifecycle()
@@ -162,6 +166,7 @@ fun ProfileScreen(
 
     var showImageSourceDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showNotificationDialog by rememberSaveable { mutableStateOf(false) }
     var cameraOutputUri by remember { mutableStateOf<Uri?>(null) }
 
     val cropLauncher = rememberLauncherForActivityResult(
@@ -257,7 +262,10 @@ fun ProfileScreen(
                     onMyListingsClick = onMyListingsClick,
                     onMyEnquiriesClick = onMyEnquiriesClick,
                     onPersonalInfoClick = onPersonalInfoClick,
-                    onNotificationsClick = onNotificationsClick,
+                    onNotificationsClick = {
+                        showNotificationDialog = true
+                        onNotificationsClick()
+                    },
                     onSettingsClick = onSettingsClick,
                     onHelpSupportClick = { launchEmail(context) },
                     onLogoutClick = { showLogoutDialog = true },
@@ -296,6 +304,16 @@ fun ProfileScreen(
                         viewModel.logout()
                     },
                     onDismiss = { showLogoutDialog = false }
+                )
+            }
+
+            if (showNotificationDialog) {
+                NotificationPreferencesDialog(
+                    settings = notificationSettings,
+                    onEnabledChanged = viewModel::setNotificationsEnabled,
+                    onSoundChanged = viewModel::setNotificationSoundEnabled,
+                    onVibrationChanged = viewModel::setNotificationVibrationEnabled,
+                    onDismiss = { showNotificationDialog = false }
                 )
             }
         }
@@ -1189,7 +1207,6 @@ private fun ProfileMenuRow(item: ProfileMenuItem) {
     }
 }
 
-// Edit profile dialog with name, phone (max 10 digits), email, and address fields.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileDialog(
@@ -1335,9 +1352,6 @@ private fun AddressDialog(
     )
 }
 
-// Change/set password dialog. Shows the current-password field only when the
-// account already has one (email/password users); Google-only accounts set a
-// new password directly.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChangePasswordDialog(
@@ -1440,30 +1454,101 @@ private fun ChangePasswordDialog(
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun ChangePasswordDialogPreview() {
-    FhiontTheme {
-        ChangePasswordDialog(
-            hasPassword = true,
-            onSubmit = { _, _ -> },
-            onDismiss = {}
+private fun NotificationPreferencesDialog(
+    settings: NotificationSettings,
+    onEnabledChanged: (Boolean) -> Unit,
+    onSoundChanged: (Boolean) -> Unit,
+    onVibrationChanged: (Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(ProfileDims.DIALOG_CORNER_RADIUS),
+        containerColor = White,
+        title = {
+            Text(
+                text = ProfileStrings.NOTIFICATION_DIALOG_TITLE,
+                color = Black,
+                fontSize = ProfileDims.DIALOG_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                NotificationPreferenceRow(
+                    title = ProfileStrings.NOTIFICATION_MASTER,
+                    subtitle = ProfileStrings.NOTIFICATION_MASTER_SUBTITLE,
+                    checked = settings.enabled,
+                    onCheckedChange = onEnabledChanged
+                )
+                NotificationPreferenceRow(
+                    title = ProfileStrings.NOTIFICATION_SOUND,
+                    subtitle = ProfileStrings.NOTIFICATION_SOUND_SUBTITLE,
+                    checked = settings.soundEnabled,
+                    enabled = settings.enabled,
+                    onCheckedChange = onSoundChanged
+                )
+                NotificationPreferenceRow(
+                    title = ProfileStrings.NOTIFICATION_VIBRATION,
+                    subtitle = ProfileStrings.NOTIFICATION_VIBRATION_SUBTITLE,
+                    checked = settings.vibrationEnabled,
+                    enabled = settings.enabled,
+                    onCheckedChange = onVibrationChanged
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = ProfileStrings.ACTION_DONE, color = ControlAccent)
+            }
+        }
+    )
+}
+
+@Composable
+private fun NotificationPreferenceRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = ProfileDims.NOTIFICATION_OPTION_VERTICAL_PADDING),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(ProfileDims.NOTIFICATION_OPTION_TEXT_SPACING)
+        ) {
+            Text(
+                text = title,
+                color = if (enabled) Black else HomeTextSecondary,
+                fontSize = ProfileDims.NOTIFICATION_OPTION_TITLE_FONT_SIZE,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = subtitle,
+                color = HomeTextSecondary,
+                fontSize = ProfileDims.NOTIFICATION_OPTION_SUBTITLE_FONT_SIZE
+            )
+        }
+        Spacer(modifier = Modifier.width(ProfileDims.NOTIFICATION_OPTION_SWITCH_SPACING))
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = OnControlAccent,
+                checkedTrackColor = ControlAccent
+            )
         )
     }
 }
-@Preview(
-    name = "Address Dialog - Light",
-    showBackground = true,
-    backgroundColor = 0xFFF5F5F5
-)
-@Composable
-private fun AddressDialogPreview() {
-    AddressDialog(
-        initialAddress = "Manish Nagar, Nagpur, Maharashtra",
-        onSave = {},
-        onDismiss = {}
-    )
-}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditProfileField(

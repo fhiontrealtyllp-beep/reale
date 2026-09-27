@@ -38,6 +38,13 @@ internal object ProfileStrings {
     const val PERSONAL_INFORMATION_SUBTITLE = "Name, phone, email"
     const val NOTIFICATIONS = "Notifications"
     const val NOTIFICATIONS_SUBTITLE = "Manage your preferences"
+    const val NOTIFICATION_DIALOG_TITLE = "Notification Preferences"
+    const val NOTIFICATION_MASTER = "Allow Notifications"
+    const val NOTIFICATION_MASTER_SUBTITLE = "Receive property enquiry and chat updates"
+    const val NOTIFICATION_SOUND = "Sound"
+    const val NOTIFICATION_SOUND_SUBTITLE = "Play a sound for new notifications"
+    const val NOTIFICATION_VIBRATION = "Vibration"
+    const val NOTIFICATION_VIBRATION_SUBTITLE = "Vibrate for new notifications"
     const val SETTINGS = "Settings"
     const val SETTINGS_SUBTITLE = "App settings and privacy"
     const val APPEARANCE = "Appearance"
@@ -49,6 +56,7 @@ internal object ProfileStrings {
     const val HELP_SUPPORT = "Help & Support"
     const val HELP_SUPPORT_SUBTITLE = "FAQs, support and contact us"
     const val LOGOUT = "Logout"
+    const val ACTION_DONE = "Done"
 
     const val LOGOUT_DIALOG_TITLE = "Logout"
     const val LOGOUT_DIALOG_MESSAGE = "Are you sure you want to logout?"
@@ -208,6 +216,11 @@ internal object ProfileDims {
     val THEME_OPTION_VERTICAL_PADDING = 12.dp
     val THEME_OPTION_RADIO_TEXT_SPACING = 12.dp
     val THEME_OPTION_FONT_SIZE = 15.sp
+    val NOTIFICATION_OPTION_VERTICAL_PADDING = 10.dp
+    val NOTIFICATION_OPTION_TEXT_SPACING = 2.dp
+    val NOTIFICATION_OPTION_SWITCH_SPACING = 12.dp
+    val NOTIFICATION_OPTION_TITLE_FONT_SIZE = 15.sp
+    val NOTIFICATION_OPTION_SUBTITLE_FONT_SIZE = 12.sp
     val DIALOG_BUTTON_CORNER_RADIUS = 12.dp
     val DIALOG_BUTTON_HEIGHT = 48.dp
     val DIALOG_FIELD_CORNER_RADIUS = 12.dp

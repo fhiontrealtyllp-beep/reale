@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.core.theme.ThemeMode
 import com.fhiont.core.theme.ThemePreferences
+import com.fhiont.core.notification.NotificationPreferences
+import com.fhiont.core.notification.NotificationSettings
 import com.fhiont.feature.add.data.local.PropertyDraftStore
 import com.fhiont.feature.auth.domain.model.User
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
@@ -41,7 +43,8 @@ class ProfileViewModel(
     private val getOnboardingLocationUseCase: GetOnboardingLocationUseCase,
     private val setOnboardingAddressUseCase: SetOnboardingAddressUseCase,
     private val themePreferences: ThemePreferences,
-    private val draftStore: PropertyDraftStore
+    private val draftStore: PropertyDraftStore,
+    private val notificationPreferences: NotificationPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -51,6 +54,7 @@ class ProfileViewModel(
     val sideEffect: SharedFlow<String> = _sideEffect.asSharedFlow()
 
     val themeMode: StateFlow<ThemeMode> = themePreferences.themeMode
+    val notificationSettings: StateFlow<NotificationSettings> = notificationPreferences.settings
 
     // Locally cached address used when there is no logged-in user.
     val savedAddress: StateFlow<String> = getOnboardingAddressUseCase()
@@ -271,6 +275,18 @@ class ProfileViewModel(
 
     fun setThemeMode(mode: ThemeMode) {
         themePreferences.setThemeMode(mode)
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        notificationPreferences.setEnabled(enabled)
+    }
+
+    fun setNotificationSoundEnabled(enabled: Boolean) {
+        notificationPreferences.setSoundEnabled(enabled)
+    }
+
+    fun setNotificationVibrationEnabled(enabled: Boolean) {
+        notificationPreferences.setVibrationEnabled(enabled)
     }
 
     fun getCurrentUser(): User? = _uiState.value.user
