@@ -45,6 +45,7 @@ internal fun AddPropertyStep4Screen(
             value = form.agentPhone,
             onValueChange = { onAgentPhoneChanged(it.filter(Char::isDigit).take(AppStrings.PHONE_MAX_LENGTH)) },
             label = AddStrings.LABEL_AGENT_PHONE,
+            isRequired = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Done

@@ -213,11 +213,29 @@ class AddViewModel(
                     if (form.title.isBlank()) add(AddStrings.ERR_TITLE_REQUIRED)
                     if (form.propertyType == null) add(AddStrings.ERR_PROPERTY_TYPE_REQUIRED)
                     if (form.rentBuy == null) add(AddStrings.ERR_LISTING_TYPE_REQUIRED)
+                    if (form.description.isBlank()) add(AddStrings.ERR_DESCRIPTION_REQUIRED)
                     if (form.city.isBlank()) add(AddStrings.ERR_CITY_REQUIRED)
                     if (form.locality.isBlank()) add(AddStrings.ERR_LOCALITY_REQUIRED)
+                    if (form.pincode.isBlank()) add(AddStrings.ERR_PINCODE_REQUIRED)
+                    if (form.address.isBlank()) add(AddStrings.ERR_ADDRESS_REQUIRED)
+                    if (form.latitude.isBlank()) add(AddStrings.ERR_LATITUDE_REQUIRED)
+                    else if (form.latitude.toDoubleOrNull() == null) add(AddStrings.ERR_LATITUDE_INVALID)
+                    if (form.longitude.isBlank()) add(AddStrings.ERR_LONGITUDE_REQUIRED)
+                    else if (form.longitude.toDoubleOrNull() == null) add(AddStrings.ERR_LONGITUDE_INVALID)
                 }
             }
-            AddPropertyStep.PROPERTY_DETAILS -> emptyList()
+            AddPropertyStep.PROPERTY_DETAILS -> {
+                buildList {
+                    if (form.bedroomType == null) add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
+                    if (form.bathrooms < 1) add(AddStrings.ERR_BATHROOMS_REQUIRED)
+                    if (form.furnishing == null) add(AddStrings.ERR_FURNISHING_REQUIRED)
+                    if (form.facing == null) add(AddStrings.ERR_FACING_REQUIRED)
+                    if (form.age == null) add(AddStrings.ERR_AGE_REQUIRED)
+                    if (form.carpetArea.isBlank() && form.builtUpArea.isBlank() && form.superBuiltUpArea.isBlank()) {
+                        add(AddStrings.ERR_AREA_REQUIRED)
+                    }
+                }
+            }
             AddPropertyStep.PHOTOS_MEDIA -> buildList {
                 if (form.images.size < 2) add(AddStrings.ERR_MIN_PHOTOS)
                 if (form.images.size > AddStrings.MAX_PROPERTY_PHOTOS) add(AddStrings.ERR_MAX_PHOTOS)
@@ -226,6 +244,7 @@ class AddViewModel(
                 buildList {
                     if (form.price.isBlank()) add(AddStrings.ERR_PRICE_REQUIRED)
                     else if (form.price.toDoubleOrNull() == null) add(AddStrings.ERR_PRICE_INVALID)
+                    if (form.agentPhone.isBlank()) add(AddStrings.ERR_AGENT_PHONE_REQUIRED)
                 }
             }
             AddPropertyStep.REVIEW_PUBLISH -> form.validate()

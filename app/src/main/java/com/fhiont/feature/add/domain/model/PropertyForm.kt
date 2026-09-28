@@ -49,6 +49,7 @@ data class PropertyForm(
         if (residentialCommercial == null) errors.add(AddStrings.ERR_RESIDENTIAL_COMMERCIAL_REQUIRED)
         if (propertyType == null) errors.add(AddStrings.ERR_PROPERTY_TYPE_REQUIRED)
         if (title.isBlank()) errors.add(AddStrings.ERR_TITLE_REQUIRED)
+        if (description.isBlank()) errors.add(AddStrings.ERR_DESCRIPTION_REQUIRED)
         if (price.isBlank()) {
             errors.add(AddStrings.ERR_PRICE_REQUIRED)
         } else if (price.toDoubleOrNull() == null) {
@@ -56,12 +57,27 @@ data class PropertyForm(
         }
         if (city.isBlank()) errors.add(AddStrings.ERR_CITY_REQUIRED)
         if (locality.isBlank()) errors.add(AddStrings.ERR_LOCALITY_REQUIRED)
-        if (latitude.isNotBlank() && latitude.toDoubleOrNull() == null) {
+        if (pincode.isBlank()) errors.add(AddStrings.ERR_PINCODE_REQUIRED)
+        if (address.isBlank()) errors.add(AddStrings.ERR_ADDRESS_REQUIRED)
+        if (latitude.isBlank()) {
+            errors.add(AddStrings.ERR_LATITUDE_REQUIRED)
+        } else if (latitude.toDoubleOrNull() == null) {
             errors.add(AddStrings.ERR_LATITUDE_INVALID)
         }
-        if (longitude.isNotBlank() && longitude.toDoubleOrNull() == null) {
+        if (longitude.isBlank()) {
+            errors.add(AddStrings.ERR_LONGITUDE_REQUIRED)
+        } else if (longitude.toDoubleOrNull() == null) {
             errors.add(AddStrings.ERR_LONGITUDE_INVALID)
         }
+        if (bedroomType == null) errors.add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
+        if (bathrooms < 1) errors.add(AddStrings.ERR_BATHROOMS_REQUIRED)
+        if (furnishing == null) errors.add(AddStrings.ERR_FURNISHING_REQUIRED)
+        if (facing == null) errors.add(AddStrings.ERR_FACING_REQUIRED)
+        if (age == null) errors.add(AddStrings.ERR_AGE_REQUIRED)
+        if (carpetArea.isBlank() && builtUpArea.isBlank() && superBuiltUpArea.isBlank()) {
+            errors.add(AddStrings.ERR_AREA_REQUIRED)
+        }
+        if (agentPhone.isBlank()) errors.add(AddStrings.ERR_AGENT_PHONE_REQUIRED)
         if (images.size < 2) {
             errors.add(AddStrings.ERR_MIN_PHOTOS)
         }

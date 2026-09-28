@@ -245,7 +245,7 @@ internal fun AddPropertyStep1Screen(
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
-            Step1FieldLabel(text = AddStrings.LABEL_PINCODE, isRequired = false)
+            Step1FieldLabel(text = AddStrings.LABEL_PINCODE, isRequired = true)
             Step1Field(
                 value = form.pincode,
                 onValueChange = onPincodeChanged,

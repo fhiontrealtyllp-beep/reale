@@ -82,12 +82,14 @@ internal fun AddPropertyStep2Screen(
                 count = form.bedroomType.toBedroomCount(),
                 onCountChange = onBedroomCountChanged,
                 max = 7,
+                isRequired = true,
                 modifier = Modifier.weight(1f)
             )
             CountStepper(
                 label = AddStrings.LABEL_BATHROOMS,
                 count = form.bathrooms,
                 onCountChange = onBathroomsChanged,
+                isRequired = true,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -98,6 +100,7 @@ internal fun AddPropertyStep2Screen(
             value = form.carpetArea,
             onValueChange = onCarpetAreaChanged,
             label = AddStrings.LABEL_CARPET_AREA_SQFT,
+            isRequired = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
@@ -108,6 +111,7 @@ internal fun AddPropertyStep2Screen(
             value = form.builtUpArea,
             onValueChange = onBuiltUpAreaChanged,
             label = AddStrings.LABEL_BUILT_UP_AREA_SQFT,
+            isRequired = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
@@ -118,6 +122,7 @@ internal fun AddPropertyStep2Screen(
             value = form.superBuiltUpArea,
             onValueChange = onSuperBuiltUpAreaChanged,
             label = AddStrings.LABEL_SUPER_BUILT_UP_AREA_SQFT,
+            isRequired = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
@@ -137,6 +142,7 @@ internal fun AddPropertyStep2Screen(
                 selected = form.furnishing,
                 optionLabel = { it.label },
                 onSelected = onFurnishingChanged,
+                isRequired = true,
                 modifier = Modifier.weight(1f)
             )
             FormDropdown(
@@ -145,6 +151,7 @@ internal fun AddPropertyStep2Screen(
                 selected = form.age,
                 optionLabel = { it.label },
                 onSelected = onAgeChanged,
+                isRequired = true,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -155,6 +162,7 @@ internal fun AddPropertyStep2Screen(
             selected = form.facing,
             optionLabel = { it.label },
             onSelected = onFacingChanged,
+            isRequired = true,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -178,13 +186,14 @@ private fun CountStepper(
     onCountChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     min: Int = 0,
-    max: Int = 10
+    max: Int = 10,
+    isRequired: Boolean = false
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        FieldLabel(text = label)
+        FieldLabel(text = label, isRequired = isRequired)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
