@@ -24,6 +24,17 @@ class AddPropertyRepositoryImpl(
         }
     }
 
+    override suspend fun updateProperty(userId: String, propertyId: String, form: PropertyForm): Result<String> {
+        return when (val result = remoteDataSource.updateProperty(userId, propertyId, form)) {
+            is Result.Success -> {
+                // Invalidate the cache so the next my-properties load fetches the updated listing.
+                myPropertiesCache.remove(userId)
+                result
+            }
+            is Result.Error -> result
+        }
+    }
+
     override suspend fun uploadImage(
         bytes: ByteArray,
         filename: String,

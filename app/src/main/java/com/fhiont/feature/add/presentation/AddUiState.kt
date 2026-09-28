@@ -19,5 +19,6 @@ data class AddUiState(
     val isLoadingMyProperties: Boolean = false,
     val myPropertiesError: String? = null,
     val isShowingAddForm: Boolean = false,
+    val isEditing: Boolean = false,
     val currentStep: AddPropertyStep = AddPropertyStep.BASIC_DETAILS
 )

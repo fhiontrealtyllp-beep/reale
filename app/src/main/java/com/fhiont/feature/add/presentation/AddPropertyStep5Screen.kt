@@ -62,6 +62,7 @@ internal fun AddPropertyStep5Screen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
     isSubmitting: Boolean,
+    submitButtonText: String = AddStrings.ACTION_PUBLISH_LISTING,
     modifier: Modifier = Modifier
 ) {
     var confirmed by remember { mutableStateOf(false) }
@@ -241,7 +242,7 @@ internal fun AddPropertyStep5Screen(
                 )
             }
             ContinueButton(
-                text = AddStrings.ACTION_PUBLISH_LISTING,
+                text = submitButtonText,
                 onClick = onSubmit,
                 enabled = confirmed,
                 isLoading = isSubmitting,

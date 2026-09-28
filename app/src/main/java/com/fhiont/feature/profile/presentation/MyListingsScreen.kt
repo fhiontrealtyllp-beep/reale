@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -104,6 +105,7 @@ internal data class MyListing(
 internal fun MyListingsScreen(
     onBack: () -> Unit,
     onAddProperty: () -> Unit = {},
+    onEditProperty: (Property) -> Unit = {},
     onViewDetails: (MyListing) -> Unit = {},
     onViewEnquiries: (String) -> Unit = {},
     onOpenChat: (Enquiry) -> Unit = {},
@@ -214,12 +216,16 @@ internal fun MyListingsScreen(
                         contentPadding = PaddingValues(bottom = MyListingsDims.SCREEN_PADDING + BOTTOM_NAV_CLEARANCE)
                     ) {
                         items(filteredListings, key = { it.id }) { listing ->
+                            val property = remember(listing.id, uiState.properties) {
+                                uiState.properties.find { it.id == listing.id } ?: listing.toProperty()
+                            }
                             ListingCard(
                                 listing = listing,
                                 onViewDetails = {
                                     selectedListing = listing
                                     onViewDetails(listing)
                                 },
+                                onEdit = { onEditProperty(property) },
                                 onDelete = { listingPendingDelete = listing },
                                 onViewEnquiries = { onViewEnquiries(listing.id) }
                             )
@@ -560,6 +566,7 @@ private fun ListingsSearchBar(
 private fun ListingCard(
     listing: MyListing,
     onViewDetails: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit,
     onViewEnquiries: () -> Unit,
     modifier: Modifier = Modifier
@@ -590,6 +597,20 @@ private fun ListingCard(
                     onDismissRequest = { menuExpanded = false },
                     containerColor = White
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(MyListingsStrings.ACTION_EDIT) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = MyListingsStrings.CD_EDIT,
+                                tint = Black
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onEdit()
+                        }
+                    )
                     DropdownMenuItem(
                         text = {
                             Text(

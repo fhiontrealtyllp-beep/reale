@@ -83,6 +83,7 @@ import com.fhiont.ui.theme.OnControlAccent
 import com.fhiont.ui.theme.OnMediaContent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
+import com.fhiont.feature.add.presentation.AddStrings
 import androidx.core.content.FileProvider
 import com.fhiont.util.Logger
 import java.io.ByteArrayOutputStream
@@ -94,6 +95,7 @@ internal fun StepIndicator(
     steps: List<AddPropertyStep>,
     currentStep: AddPropertyStep,
     onStepClick: (AddPropertyStep) -> Unit,
+    reviewStepLabel: String = AddStrings.STEP_LABEL_REVIEW,
     modifier: Modifier = Modifier
 ) {
     // Each step column draws half-connector lines on both sides of its circle so
@@ -161,7 +163,7 @@ internal fun StepIndicator(
                 }
                 Spacer(modifier = Modifier.height(AddDims.STEP_LABEL_TOP_SPACING))
                 Text(
-                    text = step.shortLabel,
+                    text = if (step == AddPropertyStep.REVIEW_PUBLISH) reviewStepLabel else step.shortLabel,
                     color = if (isCurrent) ControlAccent else HomeTextSecondary,
                     fontSize = AddDims.STEP_LABEL_FONT_SIZE,
                     fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,

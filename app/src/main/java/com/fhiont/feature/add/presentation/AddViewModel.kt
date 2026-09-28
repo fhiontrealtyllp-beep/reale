@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fhiont.feature.add.data.local.PropertyDraftStore
 import com.fhiont.feature.add.data.mapper.toProperty
+import com.fhiont.feature.add.data.mapper.toPropertyForm
 import com.fhiont.feature.add.domain.model.PropertyForm
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCase
+import com.fhiont.feature.add.domain.usecase.UpdatePropertyUseCase
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
 import com.fhiont.feature.add.domain.usecase.UploadImageUseCase
 import com.fhiont.feature.search.data.session.SessionObserver
@@ -17,6 +19,7 @@ import com.fhiont.feature.search.domain.model.ListingCategory
 import com.fhiont.feature.search.domain.model.NearbyPlace
 import com.fhiont.feature.search.domain.model.Facing
 import com.fhiont.feature.search.domain.model.Furnishing
+import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
@@ -33,6 +36,7 @@ import java.util.UUID
 
 class AddViewModel(
     private val addPropertyUseCase: AddPropertyUseCase,
+    private val updatePropertyUseCase: UpdatePropertyUseCase,
     private val uploadImageUseCase: UploadImageUseCase,
     private val getMyPropertiesUseCase: GetMyPropertiesUseCase,
     private val userSession: UserSession,
@@ -128,10 +132,26 @@ class AddViewModel(
         )
     }
 
+    fun startEditing(property: Property) {
+        newUploadGroup()
+        _uiState.value = _uiState.value.copy(
+            isShowingAddForm = true,
+            isEditing = true,
+            currentStep = AddPropertyStep.BASIC_DETAILS,
+            form = property.toPropertyForm(),
+            fieldErrors = emptyList(),
+            errorMessage = null,
+            successMessage = null,
+            isSubmitSuccess = false,
+            submittedProperty = null
+        )
+    }
+
     fun onHideAddForm() {
         newUploadGroup()
         _uiState.value = _uiState.value.copy(
             isShowingAddForm = false,
+            isEditing = false,
             currentStep = AddPropertyStep.BASIC_DETAILS,
             form = PropertyForm(),
             fieldErrors = emptyList(),
@@ -459,29 +479,57 @@ class AddViewModel(
         )
 
         viewModelScope.launch {
-            when (val result = addPropertyUseCase(userId, form)) {
+            val editingPropertyId = form.editingPropertyId
+            val result = if (editingPropertyId.isNullOrBlank()) {
+                addPropertyUseCase(userId, form)
+            } else {
+                updatePropertyUseCase(userId, editingPropertyId, form)
+            }
+            when (result) {
                 is Result.Success -> {
                     newUploadGroup()
-                    val newProperty = form.toProperty(result.data, userId)
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isLoggedIn = true,
-                        isSubmitting = false,
-                        isSubmitSuccess = true,
-                        submittedProperty = newProperty,
-                        isShowingAddForm = false,
-                        successMessage = AddStrings.MSG_PROPERTY_ADDED,
-                        form = PropertyForm(),
-                        errorMessage = null,
-                        fieldErrors = emptyList(),
-                        myProperties = listOf(newProperty) + _uiState.value.myProperties
-                    )
                     draftStore.clearDraft()
-                    // The backend registered the form's city/locality in the
-                    // location catalog; drop the cached copy so the city picker
-                    // and suggestion chips see the new values immediately.
                     locationSuggestionRepository.invalidateCache()
-                    _sideEffect.emit(AddStrings.MSG_PROPERTY_ADDED)
+                    if (editingPropertyId.isNullOrBlank()) {
+                        val newProperty = form.toProperty(result.data, userId)
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isLoggedIn = true,
+                            isSubmitting = false,
+                            isSubmitSuccess = true,
+                            submittedProperty = newProperty,
+                            isShowingAddForm = false,
+                            isEditing = false,
+                            successMessage = AddStrings.MSG_PROPERTY_ADDED,
+                            form = PropertyForm(),
+                            errorMessage = null,
+                            fieldErrors = emptyList(),
+                            myProperties = listOf(newProperty) + _uiState.value.myProperties
+                        )
+                        _sideEffect.emit(AddStrings.MSG_PROPERTY_ADDED)
+                    } else {
+                        val refreshed = getMyPropertiesUseCase(userId)
+                        val updatedList = when (refreshed) {
+                            is Result.Success -> refreshed.data
+                            is Result.Error -> _uiState.value.myProperties
+                        }
+                        val updatedProperty = updatedList.find { it.id == editingPropertyId }
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isLoggedIn = true,
+                            isSubmitting = false,
+                            isSubmitSuccess = true,
+                            submittedProperty = updatedProperty,
+                            isShowingAddForm = false,
+                            isEditing = false,
+                            successMessage = AddStrings.MSG_PROPERTY_UPDATED,
+                            form = PropertyForm(),
+                            errorMessage = null,
+                            fieldErrors = emptyList(),
+                            myProperties = updatedList
+                        )
+                        _sideEffect.emit(AddStrings.MSG_PROPERTY_UPDATED)
+                    }
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
@@ -553,7 +601,7 @@ class AddViewModel(
 
     private fun persistDraft() {
         val state = _uiState.value
-        if (state.isShowingAddForm) {
+        if (state.isShowingAddForm && !state.isEditing) {
             draftStore.saveDraft(state.form, state.currentStep.name)
         }
     }

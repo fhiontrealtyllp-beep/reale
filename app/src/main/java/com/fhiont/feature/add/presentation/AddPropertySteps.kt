@@ -122,6 +122,7 @@ fun AddPropertySteps(
                 steps = AddPropertyStep.all,
                 currentStep = uiState.currentStep,
                 onStepClick = viewModel::onStepClicked,
+                reviewStepLabel = if (uiState.isEditing) AddStrings.STEP_LABEL_REVIEW_EDIT else AddStrings.STEP_LABEL_REVIEW,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -176,7 +177,8 @@ fun AddPropertySteps(
                     onSubmit = viewModel::submit,
                     onBack = viewModel::previousStep,
                     onEdit = { viewModel.goToStep(AddPropertyStep.PHOTOS_MEDIA) },
-                    isSubmitting = uiState.isSubmitting
+                    isSubmitting = uiState.isSubmitting,
+                    submitButtonText = if (uiState.isEditing) AddStrings.ACTION_UPDATE_LISTING else AddStrings.ACTION_PUBLISH_LISTING
                 )
             }
 

@@ -37,7 +37,8 @@ data class PropertyForm(
     val agentPhone: String = "",
     val listingCategory: ListingCategory = ListingCategory.NORMAL,
     val nearbyPlaces: List<NearbyPlace> = emptyList(),
-    val images: List<String> = emptyList()
+    val images: List<String> = emptyList(),
+    val editingPropertyId: String? = null
 ) {
     fun isValid(): Boolean {
         return validate().isEmpty()

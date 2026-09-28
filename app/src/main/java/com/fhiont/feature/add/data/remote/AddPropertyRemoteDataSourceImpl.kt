@@ -24,6 +24,16 @@ class AddPropertyRemoteDataSourceImpl(
         return phpPropertyApi.addProperty(token, form)
     }
 
+    override suspend fun updateProperty(userId: String, propertyId: String, form: PropertyForm): Result<String> {
+        Logger.d(TAG, "updateProperty() called for user: $userId, property: $propertyId")
+        val token = userSession.getUser()?.sessionId
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "updateProperty() failed: no session token")
+            return Result.Error("User not logged in")
+        }
+        return phpPropertyApi.updateProperty(token, propertyId, form)
+    }
+
     override suspend fun uploadImage(
         bytes: ByteArray,
         filename: String,

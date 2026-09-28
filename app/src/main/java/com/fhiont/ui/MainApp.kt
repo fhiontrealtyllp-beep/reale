@@ -213,6 +213,7 @@ fun MainApp(
                     var showMyEnquiries by rememberSaveable { mutableStateOf(false) }
                     var selectedEnquiryPropertyId by rememberSaveable { mutableStateOf<String?>(null) }
                     var showAddProperty by rememberSaveable { mutableStateOf(false) }
+                    var propertyToEdit by remember { mutableStateOf<Property?>(null) }
                     var showCityScreen by rememberSaveable { mutableStateOf(false) }
                     var activeChatEnquiry by remember { mutableStateOf<Enquiry?>(null) }
                     var myEnquiriesRefreshTrigger by remember { mutableIntStateOf(0) }
@@ -318,6 +319,8 @@ fun MainApp(
                                             onViewChats = openPropertyChats,
                                             onOpenChat = openChat,
                                             startWithAddForm = true,
+                                            propertyToEdit = propertyToEdit,
+                                            onEditStarted = { propertyToEdit = null },
                                             onExitForm = { showAddProperty = false }
                                         )
                                         showMyEnquiries -> MyEnquiriesScreen(
@@ -334,6 +337,11 @@ fun MainApp(
                                             modifier = Modifier.fillMaxSize(),
                                             onBack = { showMyListings = false },
                                             onAddProperty = { showAddProperty = true },
+                                            onEditProperty = { property ->
+                                                Logger.d(TAG, "Edit property clicked: ${property.id}")
+                                                propertyToEdit = property
+                                                showAddProperty = true
+                                            },
                                             onViewEnquiries = { propertyId ->
                                                 Logger.d(TAG, "View enquiries clicked for property: $propertyId")
                                                 selectedEnquiryPropertyId = propertyId

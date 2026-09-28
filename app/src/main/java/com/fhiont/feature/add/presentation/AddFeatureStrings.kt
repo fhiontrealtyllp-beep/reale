@@ -100,6 +100,7 @@ internal object AddStrings {
     const val STEP_LABEL_PHOTOS = "Photos & Media"
     const val STEP_LABEL_PRICING = "Pricing"
     const val STEP_LABEL_REVIEW = "Review & Publish"
+    const val STEP_LABEL_REVIEW_EDIT = "Review & Update"
 
     // Step 2 — Property details
     const val FLOOR_GROUND = "Ground"
@@ -192,6 +193,7 @@ internal object AddStrings {
     const val ACTION_SHOW_MORE = "Show More"
     const val ACTION_SHOW_LESS = "Show Less"
     const val ACTION_PUBLISH_LISTING = "Publish Listing"
+    const val ACTION_UPDATE_LISTING = "Update Listing"
     const val CONFIRM_ACCURACY_PREFIX =
         "I confirm that the information provided is accurate and I agree to the "
     const val TERMS_AND_CONDITIONS = "Terms & Conditions"
@@ -246,6 +248,7 @@ internal object AddStrings {
 
     // My Listings screen
     const val TITLE_ADD_PROPERTY = "Add Property"
+    const val TITLE_EDIT_PROPERTY = "Edit Property"
     const val TITLE_MY_LISTINGS = "My Listings"
     const val SUBTITLE_MANAGE_PROPERTIES = "Manage your properties"
     const val ACTION_ADD_PROPERTY = "Add Property"
@@ -319,6 +322,7 @@ internal object AddStrings {
     const val ERR_AGENT_PHONE_REQUIRED = "Agent phone is required"
     const val ERR_LOGIN_REQUIRED = "Please log in to add a property"
     const val MSG_PROPERTY_ADDED = "Property added successfully"
+    const val MSG_PROPERTY_UPDATED = "Property updated successfully"
     const val MSG_DRAFT_SAVED = "Draft saved"
     const val ACTION_SUBMIT_PROPERTY = "Submit Property"
     const val LOGIN_PROMPT_TITLE = "Please Login to Add a Property"

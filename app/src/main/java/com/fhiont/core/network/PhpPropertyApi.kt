@@ -35,6 +35,14 @@ class PhpPropertyApi {
         parse = { it.getJSONObject("data").getString("propertyId") }
     )
 
+    suspend fun updateProperty(token: String, propertyId: String, form: PropertyForm): Result<String> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "properties.php",
+        token = token,
+        body = form.toJson().put("id", propertyId),
+        parse = { it.getJSONObject("data").getString("propertyId") }
+    )
+
     suspend fun getAllProperties(token: String, page: Int, limit: Int): Result<List<Property>> = apiCall(
         method = HTTP_METHOD_GET,
         endpoint = "properties-all.php?page=$page&limit=$limit",

@@ -97,6 +97,7 @@ import com.fhiont.ui.theme.FhiontTheme
 import java.text.NumberFormat
 import java.util.Locale
 import androidx.compose.ui.window.DialogProperties
+import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.Enquiry
@@ -113,6 +114,8 @@ fun AddScreen(
     onOpenChat: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
     startWithAddForm: Boolean = false,
+    propertyToEdit: Property? = null,
+    onEditStarted: () -> Unit = {},
     onExitForm: () -> Unit = {},
     viewModel: AddViewModel = koinViewModel()
 ) {
@@ -125,12 +128,19 @@ fun AddScreen(
 
     LaunchedEffect(Unit) {
         // Opened from an external entry point (e.g. Profile "List Your Property") straight into the form.
-        if (startWithAddForm) {
+        if (startWithAddForm && propertyToEdit == null) {
             viewModel.onShowAddForm()
         }
         viewModel.sideEffect.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    LaunchedEffect(propertyToEdit) {
+        propertyToEdit?.let {
+            viewModel.startEditing(it)
+            onEditStarted()
         }
     }
 
@@ -208,6 +218,7 @@ fun AddScreen(
             if (uiState.isLoggedIn) {
                 if (uiState.isShowingAddForm || uiState.isSubmitSuccess || startWithAddForm) {
                     AddFormTopBar(
+                        title = if (uiState.isEditing) AddStrings.TITLE_EDIT_PROPERTY else AddStrings.TITLE_ADD_PROPERTY,
                         onBack = {
                             if (uiState.isSubmitSuccess) {
                                 viewModel.onDismissSuccess()
@@ -320,6 +331,7 @@ fun AddScreen(
                     errorMessage = uiState.myPropertiesError,
                     onRefresh = viewModel::refresh,
                     onPropertyClick = { selectedProperty = it },
+                    onEditProperty = viewModel::startEditing,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -364,6 +376,7 @@ private fun PropertySuccessScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(AppBackground)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -496,9 +509,9 @@ private fun PropertySuccessScreen(
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, Accent),
+            border = BorderStroke(1.dp, Black),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Accent
+                contentColor = Black
             )
         ) {
             Text(
@@ -530,6 +543,7 @@ private fun MyPropertiesContent(
     errorMessage: String?,
     onRefresh: () -> Unit,
     onPropertyClick: (Property) -> Unit,
+    onEditProperty: (Property) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableStateOf(AddStrings.TAB_ALL) }
@@ -725,6 +739,9 @@ private fun MyPropertiesContent(
                     property = property,
                     onViewDetails = {
                         onPropertyClick(property)
+                    },
+                    onEdit = {
+                        onEditProperty(property)
                     }
                 )
             }
@@ -737,6 +754,7 @@ private fun MyPropertiesContent(
 private fun MyListingCard(
     property: Property,
     onViewDetails: () -> Unit,
+    onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -859,6 +877,13 @@ private fun MyListingCard(
                             onClick = {
                                 menuExpanded = false
                                 onViewDetails()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(AddStrings.ACTION_EDIT) },
+                            onClick = {
+                                menuExpanded = false
+                                onEdit()
                             }
                         )
                     }
@@ -1014,10 +1039,11 @@ private fun formatIndianNumber(value: Double): String {
     }.format(value)
 }
 
-// Light-theme header shown while the add-property form (or success view) is open.
+// Header shown while the add-property form (or success view) is open.
 @Composable
 private fun AddFormTopBar(
     onBack: () -> Unit,
+    title: String = AddStrings.TITLE_ADD_PROPERTY,
     modifier: Modifier = Modifier
 ) {
     Surface(modifier = modifier.fillMaxWidth(), color = White) {
@@ -1040,7 +1066,7 @@ private fun AddFormTopBar(
             )
             Spacer(modifier = Modifier.width(AddDims.HEADER_ROW_SPACING))
             Text(
-                text = AddStrings.TITLE_ADD_PROPERTY,
+                text = title,
                 color = Black,
                 fontSize = AddDims.HEADER_TITLE_FONT_SIZE,
                 fontWeight = FontWeight.Bold
@@ -1066,12 +1092,14 @@ private fun MyPropertiesContentPreview() {
             isLoading = false,
             errorMessage = null,
             onRefresh = {},
-            onPropertyClick = {}
+            onPropertyClick = {},
+            onEditProperty = {}
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Success Light")
+@Preview(showBackground = true, name = "Success Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PropertySuccessScreenPreview() {
     FhiontTheme {

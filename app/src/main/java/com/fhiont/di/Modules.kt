@@ -26,6 +26,8 @@ import com.fhiont.feature.add.data.repository.AddPropertyRepositoryImpl
 import com.fhiont.feature.add.domain.repository.AddPropertyRepository
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCase
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCaseImpl
+import com.fhiont.feature.add.domain.usecase.UpdatePropertyUseCase
+import com.fhiont.feature.add.domain.usecase.UpdatePropertyUseCaseImpl
 import com.fhiont.feature.add.domain.usecase.DeletePropertyUseCase
 import com.fhiont.feature.add.domain.usecase.DeletePropertyUseCaseImpl
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
@@ -204,11 +206,12 @@ val addModule = module {
     single<AddPropertyRemoteDataSource> { AddPropertyRemoteDataSourceImpl(get(), get()) }
     single<AddPropertyRepository> { AddPropertyRepositoryImpl(get()) }
     single<AddPropertyUseCase> { AddPropertyUseCaseImpl(get()) }
+    single<UpdatePropertyUseCase> { UpdatePropertyUseCaseImpl(get()) }
     single<AddUploadImageUseCase> { AddUploadImageUseCaseImpl(get()) }
     single<GetMyPropertiesUseCase> { GetMyPropertiesUseCaseImpl(get()) }
     single<DeletePropertyUseCase> { DeletePropertyUseCaseImpl(get()) }
     single { PropertyDraftStore(androidContext()) }
-    viewModel { AddViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { AddViewModel(get(), get(), get(), get(), get(), get(), get()) }
 }
 
 val profileModule = module {

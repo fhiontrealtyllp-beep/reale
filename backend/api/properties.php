@@ -11,6 +11,8 @@ if ($method === 'POST') {
     requireMethod('POST');
     $body = jsonBody();
 
+    $propertyId = is_string($body['id'] ?? null) ? trim($body['id']) : null;
+
     $title = trim(is_string($body['title'] ?? null) ? $body['title'] : '');
     if ($title === '') {
         respond(422, false, 'Title is required');
@@ -54,21 +56,7 @@ if ($method === 'POST') {
     $images = is_array($body['images'] ?? null) ? array_values(array_filter($body['images'], 'is_string')) : [];
     $nearbyPlaces = is_array($body['nearbyPlaces'] ?? null) ? $body['nearbyPlaces'] : [];
 
-    $statement = $pdo->prepare(
-        'INSERT INTO properties (
-            user_id, title, description, price, city, locality, pincode, address,
-            latitude, longitude, status, listing_category, rent_buy, residential_commercial,
-            property_type, bedroom_type, bathrooms, furnishing, facing, age,
-            amenities, nearby_places, images, carpet_area, built_up_area, super_built_up_area, agent_phone
-        ) VALUES (
-            :user_id, :title, :description, :price, :city, :locality, :pincode, :address,
-            :latitude, :longitude, :status, :listing_category, :rent_buy, :residential_commercial,
-            :property_type, :bedroom_type, :bathrooms, :furnishing, :facing, :age,
-            :amenities, :nearby_places, :images, :carpet_area, :built_up_area, :super_built_up_area, :agent_phone
-        )'
-    );
-
-    $statement->execute([
+    $params = [
         'user_id' => $user['id'],
         'title' => $title,
         'description' => $description,
@@ -96,7 +84,63 @@ if ($method === 'POST') {
         'built_up_area' => $builtUpArea,
         'super_built_up_area' => $superBuiltUpArea,
         'agent_phone' => $agentPhone,
-    ]);
+    ];
+
+    $statement = $pdo->prepare(
+        'INSERT INTO properties (
+            user_id, title, description, price, city, locality, pincode, address,
+            latitude, longitude, status, listing_category, rent_buy, residential_commercial,
+            property_type, bedroom_type, bathrooms, furnishing, facing, age,
+            amenities, nearby_places, images, carpet_area, built_up_area, super_built_up_area, agent_phone
+        ) VALUES (
+            :user_id, :title, :description, :price, :city, :locality, :pincode, :address,
+            :latitude, :longitude, :status, :listing_category, :rent_buy, :residential_commercial,
+            :property_type, :bedroom_type, :bathrooms, :furnishing, :facing, :age,
+            :amenities, :nearby_places, :images, :carpet_area, :built_up_area, :super_built_up_area, :agent_phone
+        )'
+    );
+
+    // Update an existing property when an id is supplied and the authenticated
+    // user owns it; otherwise create a new listing.
+    if ($propertyId !== null && $propertyId !== '') {
+        $updateId = filter_var($propertyId, FILTER_VALIDATE_INT);
+        if ($updateId === false) {
+            respond(422, false, 'Invalid property id');
+        }
+
+        $check = $pdo->prepare('SELECT id FROM properties WHERE id = :id AND user_id = :user_id');
+        $check->execute(['id' => $updateId, 'user_id' => $user['id']]);
+        if (!$check->fetch()) {
+            respond(404, false, 'Property not found');
+        }
+
+        try {
+            $statement = $pdo->prepare(
+                'UPDATE properties SET
+                    `title` = :title, `description` = :description, `price` = :price, `city` = :city,
+                    `locality` = :locality, `pincode` = :pincode, `address` = :address, `latitude` = :latitude,
+                    `longitude` = :longitude, `status` = :status, `listing_category` = :listing_category,
+                    `rent_buy` = :rent_buy, `residential_commercial` = :residential_commercial,
+                    `property_type` = :property_type, `bedroom_type` = :bedroom_type, `bathrooms` = :bathrooms,
+                    `furnishing` = :furnishing, `facing` = :facing, `age` = :age, `amenities` = :amenities,
+                    `nearby_places` = :nearby_places, `images` = :images, `carpet_area` = :carpet_area,
+                    `built_up_area` = :built_up_area, `super_built_up_area` = :super_built_up_area,
+                    `agent_phone` = :agent_phone
+                WHERE `id` = :id'
+            );
+            $updateParams = $params;
+            unset($updateParams['user_id']);
+            $updateParams['id'] = $updateId;
+            $statement->execute($updateParams);
+        } catch (Throwable $updateError) {
+            error_log('properties.php update failed for id ' . $updateId . ': ' . $updateError->getMessage());
+            respond(500, false, 'Update failed: ' . $updateError->getMessage());
+        }
+
+        respond(200, true, 'Property updated successfully', ['propertyId' => (string) $updateId]);
+    }
+
+    $statement->execute($params);
 
     $propertyId = (int) $pdo->lastInsertId();
 
