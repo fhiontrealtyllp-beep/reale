@@ -40,7 +40,14 @@ class AddViewModel(
     private val locationSuggestionRepository: LocationSuggestionRepository
 ) : ViewModel() {
 
-    private val uploadGroupId = UUID.randomUUID().toString()
+    // The server caps files per uploads/properties/{userId}/{uploadGroupId}/
+    // directory at MAX_PROPERTY_PHOTOS, so each fresh property draft must
+    // use a new group id or the next submission will hit 409.
+    private var uploadGroupId = UUID.randomUUID().toString()
+
+    private fun newUploadGroup() {
+        uploadGroupId = UUID.randomUUID().toString()
+    }
 
     private val _uiState = MutableStateFlow(AddUiState())
     val uiState: StateFlow<AddUiState> = _uiState.asStateFlow()
@@ -61,6 +68,7 @@ class AddViewModel(
     }
 
     fun load() {
+        newUploadGroup()
         val userId = userSession.getUserId()
         _uiState.value = AddUiState(
             isLoading = false,
@@ -121,6 +129,7 @@ class AddViewModel(
     }
 
     fun onHideAddForm() {
+        newUploadGroup()
         _uiState.value = _uiState.value.copy(
             isShowingAddForm = false,
             currentStep = AddPropertyStep.BASIC_DETAILS,
@@ -448,6 +457,7 @@ class AddViewModel(
         viewModelScope.launch {
             when (val result = addPropertyUseCase(userId, form)) {
                 is Result.Success -> {
+                    newUploadGroup()
                     val newProperty = form.toProperty(result.data, userId)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -528,6 +538,7 @@ class AddViewModel(
      */
     fun discardDraft() {
         draftStore.clearDraft()
+        newUploadGroup()
         _uiState.value = _uiState.value.copy(
             form = PropertyForm(),
             currentStep = AddPropertyStep.BASIC_DETAILS,
