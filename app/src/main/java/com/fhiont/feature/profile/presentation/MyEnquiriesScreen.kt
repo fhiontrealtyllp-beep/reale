@@ -89,7 +89,7 @@ fun MyEnquiriesScreen(
     refreshTrigger: Int = 0,
     onChatClick: (Enquiry) -> Unit = {},
     modifier: Modifier = Modifier,
-    viewModel: MyEnquiriesViewModel = koinViewModel { parametersOf(filterPropertyId) }
+    viewModel: MyEnquiriesViewModel = koinViewModel(key = filterPropertyId ?: "all_enquiries") { parametersOf(filterPropertyId) }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var enquiryToDelete by remember { mutableStateOf<Enquiry?>(null) }
