@@ -102,6 +102,112 @@ internal object SearchStrings {
 }
 
 /**
+ * Centralized UI strings for the property detail screen.
+ */
+internal object DetailStrings {
+    const val BADGE_FOR_SALE = "For Sale"
+    const val BADGE_FOR_RENT = "For Rent"
+    const val CD_CHAT = "Open chat"
+    const val PER_SQ_FT_SUFFIX = " per sq ft"
+    const val ACTION_GET_HOME_LOAN = "Get Home Loan"
+
+    const val SECTION_OVERVIEW = "Overview"
+    const val ACTION_READ_MORE = "Read More"
+    const val ACTION_READ_LESS = "Read Less"
+    const val SECTION_HIGHLIGHTS = "Key Highlights"
+    const val SECTION_LOCATION = "Location"
+    const val SECTION_NEARBY_PLACES = "Nearby Places"
+    const val ACTION_VIEW_ON_MAP = "View on Map"
+    const val NO_NEARBY_PLACES = "No nearby places"
+    const val NEARBY_DISTANCE_FORMAT = "%.1f km"
+
+    const val ACTION_CALL = "Call"
+    const val ACTION_ENQUIRE = "Enquire Now"
+    const val ACTION_CHAT = "Chat"
+    const val ACTION_CHATS = "Chats"
+    const val ACTION_VIEW_ENQUIRIES = "View Enquiries"
+    const val ACTION_ONE_ENQUIRY = "1 Enquiry"
+    const val ACTION_ENQUIRIES_COUNT_FORMAT = "%d Enquiries"
+    const val ACTION_NO_ENQUIRIES = "No Enquiries"
+    const val DEFAULT_CHAT_FIRST_MESSAGE = "Hello, I'm interested in this property."
+
+    const val LABEL_ENQUIRIES = "Enquiries"
+    const val CD_VIEW_ENQUIRIES = "View enquiries"
+
+    const val MEDIA_PHOTOS = "Photos"
+    const val MEDIA_MAP = "Map"
+    const val MEDIA_360 = "360°"
+    const val PHOTOS_COUNT_SUFFIX = " Photos"
+    const val MORE_PHOTOS_PREFIX = "+"
+
+    // Key-highlights display labels
+    const val HL_PRIVATE_POOL = "Private Pool"
+    const val HL_MODULAR_KITCHEN = "Modular Kitchen"
+    const val HL_COVERED_PARKING = "Covered Parking"
+    const val HL_LANDSCAPED_GARDEN = "Landscaped Garden"
+    const val HL_24X7_SECURITY = "24x7 Security"
+    const val HL_CLOSE_TO_SCHOOLS_HOSPITALS = "Close to Schools & Hospitals"
+
+    const val LABEL_BEDS = "Beds"
+    const val LABEL_BATHS = "Baths"
+    const val LABEL_SQ_FT = "sq ft"
+    const val LABEL_TYPE = "Type"
+    const val LABEL_FACING = "Facing"
+    const val LABEL_FURNISHING = "Furnishing"
+
+    const val SECTION_DETAILS = "Property Details"
+
+    const val LABEL_TRANSACTION_TYPE = "Transaction Type"
+    const val LABEL_PROPERTY_CATEGORY = "Property Category"
+    const val LABEL_PROPERTY_TYPE = "Property Type"
+    const val LABEL_CONFIGURATION = "Configuration"
+    const val LABEL_BEDROOMS = "Bedrooms"
+    const val LABEL_BATHROOMS = "Bathrooms"
+    const val LABEL_AGE = "Age of Property"
+    const val LABEL_PINCODE = "Pincode"
+    const val LABEL_ADDRESS = "Address"
+    const val LABEL_CARPET_AREA = "Carpet Area"
+    const val LABEL_BUILT_UP_AREA = "Built-up Area"
+    const val LABEL_SUPER_BUILT_UP_AREA = "Super Built-up Area"
+    const val LABEL_LISTING_CATEGORY = "Listing Category"
+    const val LABEL_STATUS = "Status"
+    const val LABEL_RATING = "Rating"
+    const val LABEL_POSTED_ON = "Posted On"
+    const val VALUE_NOT_AVAILABLE = "—"
+
+    const val SQ_FT_SUFFIX = " sq ft"
+
+    const val SUMMARY_FOR_PREFIX = "for "
+    const val SUMMARY_SEPARATOR = " "
+
+    const val CD_BACK = "Back"
+    const val CD_LIKE = "Like"
+    const val CD_SHARE = "Share"
+    const val CD_CLOSE = "Close"
+    const val CD_PHOTOS = "View photos"
+    const val CD_VIEW_MAP = "View location on map"
+    const val CD_VIRTUAL_TOUR = "360 virtual tour"
+
+    const val FALLBACK_IMAGE_PREFIX = "https://picsum.photos/seed/"
+    const val FALLBACK_IMAGE_SUFFIX = "/600/400"
+
+    const val SHARE_MIME_TYPE = "text/plain"
+    const val SHARE_LINK_PATH = "/property/"
+    const val SHARE_BASE_URL_FALLBACK = "https://fhiont.com"
+    const val TEL_URI_PREFIX = "tel:"
+    const val SMS_URI_PREFIX = "smsto:"
+    const val GEO_URI_PREFIX = "geo:"
+    const val GEO_QUERY_SEPARATOR = "?q="
+    const val GEO_DEFAULT_COORDINATE = "0,0"
+    const val NO_DIALER_APP_TOAST = "No dialer app found on this device"
+    const val NO_SMS_APP_TOAST = "No messaging app found on this device"
+    const val NO_MAPS_APP_TOAST = "No maps app found on this device"
+    const val MAPS_API_KEY_METADATA = "com.google.android.geo.API_KEY"
+    const val MAPS_KEY_PLACEHOLDER = "YOUR_API_KEY"
+    const val INDIA_LOCALE_TAG = "en-IN"
+}
+
+/**
  * Centralized dimensions for the Search feature landing and results screens.
  */
 internal object SearchDims {
@@ -230,108 +336,6 @@ internal object MapMarkerDims {
     const val HEART_TEXT_GAP = 5f
     const val FAVORITE_Z_INDEX = 1f
     const val DEFAULT_Z_INDEX = 0f
-}
-
-/**
- * Centralized UI strings for the property detail screen.
- */
-internal object DetailStrings {
-    const val BADGE_FOR_SALE = "For Sale"
-    const val BADGE_FOR_RENT = "For Rent"
-    const val CD_CHAT = "Open chat"
-    const val PER_SQ_FT_SUFFIX = " per sq ft"
-    const val ACTION_GET_HOME_LOAN = "Get Home Loan"
-
-    const val SECTION_OVERVIEW = "Overview"
-    const val ACTION_READ_MORE = "Read More"
-    const val ACTION_READ_LESS = "Read Less"
-    const val SECTION_HIGHLIGHTS = "Key Highlights"
-    const val SECTION_LOCATION = "Location"
-    const val SECTION_NEARBY_PLACES = "Nearby Places"
-    const val ACTION_VIEW_ON_MAP = "View on Map"
-    const val NO_NEARBY_PLACES = "No nearby places"
-    const val NEARBY_DISTANCE_FORMAT = "%.1f km"
-
-    const val ACTION_CALL = "Call"
-    const val ACTION_ENQUIRE = "Enquire Now"
-    const val ACTION_CHAT = "Chat"
-    const val ACTION_CHATS = "Chats"
-    const val DEFAULT_CHAT_FIRST_MESSAGE = "Hello, I'm interested in this property."
-
-    const val LABEL_ENQUIRIES = "Enquiries"
-    const val CD_VIEW_ENQUIRIES = "View enquiries"
-
-    const val MEDIA_PHOTOS = "Photos"
-    const val MEDIA_MAP = "Map"
-    const val MEDIA_360 = "360°"
-    const val PHOTOS_COUNT_SUFFIX = " Photos"
-    const val MORE_PHOTOS_PREFIX = "+"
-
-    // Key-highlights display labels
-    const val HL_PRIVATE_POOL = "Private Pool"
-    const val HL_MODULAR_KITCHEN = "Modular Kitchen"
-    const val HL_COVERED_PARKING = "Covered Parking"
-    const val HL_LANDSCAPED_GARDEN = "Landscaped Garden"
-    const val HL_24X7_SECURITY = "24x7 Security"
-    const val HL_CLOSE_TO_SCHOOLS_HOSPITALS = "Close to Schools & Hospitals"
-
-    const val LABEL_BEDS = "Beds"
-    const val LABEL_BATHS = "Baths"
-    const val LABEL_SQ_FT = "sq ft"
-    const val LABEL_TYPE = "Type"
-    const val LABEL_FACING = "Facing"
-    const val LABEL_FURNISHING = "Furnishing"
-
-    const val SECTION_DETAILS = "Property Details"
-
-    const val LABEL_TRANSACTION_TYPE = "Transaction Type"
-    const val LABEL_PROPERTY_CATEGORY = "Property Category"
-    const val LABEL_PROPERTY_TYPE = "Property Type"
-    const val LABEL_CONFIGURATION = "Configuration"
-    const val LABEL_BEDROOMS = "Bedrooms"
-    const val LABEL_BATHROOMS = "Bathrooms"
-    const val LABEL_AGE = "Age of Property"
-    const val LABEL_PINCODE = "Pincode"
-    const val LABEL_ADDRESS = "Address"
-    const val LABEL_CARPET_AREA = "Carpet Area"
-    const val LABEL_BUILT_UP_AREA = "Built-up Area"
-    const val LABEL_SUPER_BUILT_UP_AREA = "Super Built-up Area"
-    const val LABEL_LISTING_CATEGORY = "Listing Category"
-    const val LABEL_STATUS = "Status"
-    const val LABEL_RATING = "Rating"
-    const val LABEL_POSTED_ON = "Posted On"
-    const val VALUE_NOT_AVAILABLE = "—"
-
-    const val SQ_FT_SUFFIX = " sq ft"
-
-    const val SUMMARY_FOR_PREFIX = "for "
-    const val SUMMARY_SEPARATOR = " "
-
-    const val CD_BACK = "Back"
-    const val CD_LIKE = "Like"
-    const val CD_SHARE = "Share"
-    const val CD_CLOSE = "Close"
-    const val CD_PHOTOS = "View photos"
-    const val CD_VIEW_MAP = "View location on map"
-    const val CD_VIRTUAL_TOUR = "360 virtual tour"
-
-    const val FALLBACK_IMAGE_PREFIX = "https://picsum.photos/seed/"
-    const val FALLBACK_IMAGE_SUFFIX = "/600/400"
-
-    const val SHARE_MIME_TYPE = "text/plain"
-    const val SHARE_LINK_PATH = "/property/"
-    const val SHARE_BASE_URL_FALLBACK = "https://fhiont.com"
-    const val TEL_URI_PREFIX = "tel:"
-    const val SMS_URI_PREFIX = "smsto:"
-    const val GEO_URI_PREFIX = "geo:"
-    const val GEO_QUERY_SEPARATOR = "?q="
-    const val GEO_DEFAULT_COORDINATE = "0,0"
-    const val NO_DIALER_APP_TOAST = "No dialer app found on this device"
-    const val NO_SMS_APP_TOAST = "No messaging app found on this device"
-    const val NO_MAPS_APP_TOAST = "No maps app found on this device"
-    const val MAPS_API_KEY_METADATA = "com.google.android.geo.API_KEY"
-    const val MAPS_KEY_PLACEHOLDER = "YOUR_API_KEY"
-    const val INDIA_LOCALE_TAG = "en-IN"
 }
 
 /**

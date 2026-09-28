@@ -957,4 +957,24 @@ class OneTimeUtils(
         sdf.timeZone = TimeZone.getTimeZone(TIMEZONE_UTC)
         return sdf.format(Date())
     }
+
+
+
+    /**
+     * Deletes every chat/enquiry thread from the PHP backend for the seed user.
+     * Logs in as the shared seed user first, then calls [delete-all-chats.php].
+     */
+    suspend fun deleteAllChats() = withContext(Dispatchers.IO) {
+        val token = ensureSeedSessionToken()
+        if (token.isNullOrBlank()) {
+            Logger.e(TAG, "deleteAllChats aborted: no session token for seed user")
+            return@withContext
+        }
+
+        Logger.d(TAG, "Deleting all PHP chats...")
+        when (val result = phpPropertyApi.deleteAllChats(token)) {
+            is Result.Success -> Logger.d(TAG, "All PHP chats deleted")
+            is Result.Error -> Logger.e(TAG, "Failed to delete PHP chats: ${result.message}")
+        }
+    }
 }

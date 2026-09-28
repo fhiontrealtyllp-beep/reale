@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,6 +35,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -124,8 +124,8 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.fhiont.R
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
@@ -139,7 +139,6 @@ import com.fhiont.feature.search.domain.utils.Result
 import com.fhiont.feature.search.presentation.components.formatIndianPrice
 import com.fhiont.ui.theme.FilterChipSelectedContainer
 import com.fhiont.ui.theme.FilterChipSelectedLabel
-import com.fhiont.ui.preview.PreviewData
 import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.BrandCoral
@@ -165,7 +164,7 @@ import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToLong
 import com.fhiont.BuildConfig
-
+import com.fhiont.ui.preview.PreviewData
 
 private const val MIN_ZOOM = 1f
 private const val MAX_ZOOM = 5f
@@ -231,6 +230,7 @@ fun PropertyDetailScreen(
     var selectedImage by remember(property.id) { mutableIntStateOf(0) }
     var fullScreenPage by remember { mutableStateOf<Int?>(null) }
     val enquiry = existingEnquiry
+    val viewOwnPropertyEnquiries = onViewEnquiries ?: onViewChats
 
     fun startChat() {
         if (isStartingChat) return
@@ -308,7 +308,8 @@ fun PropertyDetailScreen(
                 onChat = if (!isOwnProperty) {
                     { startChat() }
                 } else null,
-                onChats = if (isOwnProperty) onViewChats else null
+                onChats = if (isOwnProperty) viewOwnPropertyEnquiries else null,
+                enquiryCount = if (isOwnProperty) enquiryCount else null
             )
         }
     ) { innerPadding ->
@@ -337,10 +338,10 @@ fun PropertyDetailScreen(
                     onImageClick = { fullScreenPage = selectedImage },
                     onSelectImage = { selectedImage = it },
                     enquiryCount = enquiryCount,
-                    onViewEnquiries = onViewEnquiries,
+                    onViewEnquiries = viewOwnPropertyEnquiries,
                     onChatClick = {
                         when {
-                            isOwnProperty -> onViewChats?.invoke()
+                            isOwnProperty -> viewOwnPropertyEnquiries?.invoke()
                             else -> startChat()
                         }
                     }
@@ -352,7 +353,7 @@ fun PropertyDetailScreen(
                 InfoSection(
                     property = property,
                     enquiryCount = enquiryCount,
-                    onViewEnquiries = onViewEnquiries
+                    onViewEnquiries = viewOwnPropertyEnquiries
                 )
             }
 
@@ -1148,6 +1149,10 @@ private fun LocationContent(property: Property) {
     // Google Map with pin, e.g. marker at "Luxury 3 BHK Apartment – Panjim, Goa"
     if (lat != null && lng != null && !apiKey.isNullOrBlank() && apiKey != DetailStrings.MAPS_KEY_PLACEHOLDER) {
         val propertyLatLng = LatLng(lat, lng)
+        val markerState = rememberMarkerState(position = propertyLatLng)
+        LaunchedEffect(propertyLatLng) {
+            markerState.position = propertyLatLng
+        }
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(propertyLatLng, MAP_ZOOM_LEVEL)
         }
@@ -1171,7 +1176,7 @@ private fun LocationContent(property: Property) {
                 onMapLoaded = { isMapLoaded = true }
             ) {
                 Marker(
-                    state = MarkerState(position = propertyLatLng),
+                    state = markerState,
                     title = property.title,
                     snippet = buildShortLocation(property)
                 )
@@ -1225,7 +1230,8 @@ private fun DetailBottomBar(
     phone: String,
     onCall: () -> Unit,
     onChat: (() -> Unit)? = null,
-    onChats: (() -> Unit)? = null
+    onChats: (() -> Unit)? = null,
+    enquiryCount: Int? = null
 ) {
     Surface(
         color = White,
@@ -1254,6 +1260,7 @@ private fun DetailBottomBar(
                     contentDescription = null,
                     modifier = Modifier.size(DetailDims.BOTTOM_BUTTON_ICON_SIZE)
                 )
+
                 Spacer(modifier = Modifier.width(DetailDims.BOTTOM_BUTTON_ICON_SPACING))
                 Text(
                     text = DetailStrings.ACTION_CALL,
@@ -1261,11 +1268,19 @@ private fun DetailBottomBar(
                 )
             }
             // Filled primary action: owner sees "Chats", buyer sees "Chat".
+            val isOwnerAction = onChats != null
+            val hasEnquiries = enquiryCount == null || enquiryCount > 0
             val primaryAction: () -> Unit = onChats ?: onChat ?: {}
-            val primaryLabel = if (onChats != null) DetailStrings.ACTION_CHATS else DetailStrings.ACTION_CHAT
+            val primaryLabel = when {
+                !isOwnerAction -> DetailStrings.ACTION_CHAT
+                enquiryCount == null -> DetailStrings.ACTION_VIEW_ENQUIRIES
+                enquiryCount == 0 -> DetailStrings.ACTION_NO_ENQUIRIES
+                enquiryCount == 1 -> DetailStrings.ACTION_ONE_ENQUIRY
+                else -> String.format(DetailStrings.ACTION_ENQUIRIES_COUNT_FORMAT, enquiryCount)
+            }
             Button(
                 onClick = primaryAction,
-                enabled = true,
+                enabled = !isOwnerAction || hasEnquiries,
                 modifier = Modifier
                     .weight(1f)
                     .height(DetailDims.BOTTOM_BUTTON_HEIGHT),

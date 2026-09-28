@@ -89,6 +89,14 @@ class PhpPropertyApi {
         parse = { }
     )
 
+    suspend fun deleteAllChats(token: String): Result<Unit> = apiCall(
+        method = HTTP_METHOD_POST,
+        endpoint = "delete-all-chats.php",
+        token = token,
+        body = JSONObject().put("confirm", true),
+        parse = { }
+    )
+
     suspend fun uploadImage(
         token: String,
         bytes: ByteArray,
