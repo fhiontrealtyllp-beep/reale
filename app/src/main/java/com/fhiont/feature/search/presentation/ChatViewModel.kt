@@ -2,6 +2,7 @@ package com.fhiont.feature.search.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fhiont.core.notification.EnquiryNotificationUpdates
 import com.fhiont.feature.search.data.local.ChatReadStore
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.ChatMessage
@@ -10,8 +11,7 @@ import com.fhiont.feature.search.domain.usecase.GetChatMessagesUseCase
 import com.fhiont.feature.search.domain.usecase.GetEnquiriesByPropertyUseCase
 import com.fhiont.feature.search.domain.usecase.SendChatMessageUseCase
 import com.fhiont.feature.search.domain.utils.Result
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,11 +20,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-private const val POLL_INTERVAL_MS = 4_000L
-
 /**
  * ViewModel for the per-enquiry chat thread between the enquirer and the
- * property owner. Polls the server for new messages while the screen is open.
+ * property owner. Loads messages once on open and refreshes when an FCM push
+ * notification for any enquiry arrives. Manual refresh is also available.
  */
 class ChatViewModel(
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
@@ -32,6 +31,7 @@ class ChatViewModel(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
     private val userSession: UserSession,
     private val chatReadStore: ChatReadStore,
+    private val enquiryNotificationUpdates: EnquiryNotificationUpdates,
     private val enquiry: Enquiry
 ) : ViewModel() {
 
@@ -40,17 +40,29 @@ class ChatViewModel(
     )
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
+    // Cache the set of related enquiry ids so we don't hit enquiries.php on
+    // every poll. They only change when a brand-new enquiry row is created.
+    private var relatedEnquiryIds: List<String>? = null
+
     init {
+        // Initial load.
         viewModelScope.launch {
-            while (isActive) {
-                loadMessages(showSpinner = _uiState.value.messages.isEmpty())
-                delay(POLL_INTERVAL_MS)
+            loadMessages(showSpinner = _uiState.value.messages.isEmpty())
+        }
+        // Refresh when an enquiry-related push notification arrives while
+        // this chat is open.
+        viewModelScope.launch {
+            enquiryNotificationUpdates.updates.collect {
+                loadMessages(showSpinner = false)
             }
         }
     }
 
     fun refresh() {
-        viewModelScope.launch { loadMessages(showSpinner = true) }
+        viewModelScope.launch {
+            relatedEnquiryIds = null
+            loadMessages(showSpinner = true)
+        }
     }
 
     fun onInputChanged(text: String) {
@@ -95,7 +107,7 @@ class ChatViewModel(
 
         // The backend can create multiple enquiry rows for the same user-property
         // pair, so collect message IDs across the whole thread.
-        val relatedIds = fetchRelatedEnquiryIds()
+        val relatedIds = ensureRelatedEnquiryIds()
 
         val allMessages = mutableListOf<ChatMessage>()
         var firstError: String? = null
@@ -124,15 +136,17 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun fetchRelatedEnquiryIds(): List<String> {
+    private suspend fun ensureRelatedEnquiryIds(): List<String> {
+        relatedEnquiryIds?.let { return it }
         return when (val result = getEnquiriesByPropertyUseCase(enquiry.propertyId)) {
             is Result.Success -> {
                 result.data
                     .filter { it.userId == enquiry.userId && it.userId != null }
                     .map { it.id }
                     .ifEmpty { listOf(enquiry.id) }
+                    .also { relatedEnquiryIds = it }
             }
-            is Result.Error -> listOf(enquiry.id)
+            is Result.Error -> listOf(enquiry.id).also { relatedEnquiryIds = it }
         }
     }
 }

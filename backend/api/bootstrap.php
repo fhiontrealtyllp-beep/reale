@@ -60,6 +60,9 @@ function database(): PDO
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
+    // TIMESTAMP columns are stored as UTC; force the session timezone to UTC
+    // so the strings read/written by PHP are consistently in UTC as well.
+    $pdo->exec("SET time_zone = '+00:00'");
     return $pdo;
 }
 
