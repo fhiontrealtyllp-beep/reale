@@ -1480,17 +1480,6 @@ private fun dialAgent(context: Context, phone: String) {
     }
 }
 
-private fun messageAgent(context: Context, phone: String) {
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse(DetailStrings.SMS_URI_PREFIX + phone.trim())
-    }
-    try {
-        context.startActivity(intent)
-    } catch (_: ActivityNotFoundException) {
-        Toast.makeText(context, DetailStrings.NO_SMS_APP_TOAST, Toast.LENGTH_SHORT).show()
-    }
-}
-
 private fun shareProperty(context: Context, property: Property) {
     val shareLink = buildPropertyShareLink(property.id)
     val shareText = property.title + "\n" +
