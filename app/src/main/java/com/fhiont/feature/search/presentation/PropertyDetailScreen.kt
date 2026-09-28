@@ -1,9 +1,11 @@
 package com.fhiont.feature.search.presentation
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -1471,8 +1473,10 @@ private fun dialAgent(context: Context, phone: String) {
     val intent = Intent(Intent.ACTION_DIAL).apply {
         data = Uri.parse(DetailStrings.TEL_URI_PREFIX + phone.trim())
     }
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
         context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context, DetailStrings.NO_DIALER_APP_TOAST, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -1480,8 +1484,10 @@ private fun messageAgent(context: Context, phone: String) {
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = Uri.parse(DetailStrings.SMS_URI_PREFIX + phone.trim())
     }
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
         context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context, DetailStrings.NO_SMS_APP_TOAST, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -1527,8 +1533,10 @@ private fun openInMaps(context: Context, property: Property) {
         )
     }
     val intent = Intent(Intent.ACTION_VIEW, uri)
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
         context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context, DetailStrings.NO_MAPS_APP_TOAST, Toast.LENGTH_SHORT).show()
     }
 }
 
