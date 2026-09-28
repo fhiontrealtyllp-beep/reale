@@ -192,11 +192,9 @@ fun SavedScreen(
                         onClose = { selectedProperty = null },
                         onLike = { viewModel.onLikeClicked(property.documentId ?: property.id) },
                         onViewChats = {
-                            selectedProperty = null
                             onViewChats(property)
                         },
                         onOpenChat = { enquiry ->
-                            selectedProperty = null
                             onOpenChat(enquiry)
                         },
                         modifier = Modifier.fillMaxSize()

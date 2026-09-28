@@ -61,8 +61,8 @@ import com.fhiont.ui.theme.AppBackground
 import com.fhiont.ui.theme.Black
 import com.fhiont.ui.theme.BrandCoral
 import com.fhiont.ui.theme.Error
-import com.fhiont.ui.theme.OnBrandContent
 import com.fhiont.ui.theme.FhiontTheme
+import com.fhiont.ui.theme.OnBrandContent
 import com.fhiont.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 
@@ -208,11 +208,9 @@ fun SearchScreen(
                         }
                     },
                     onViewChats = {
-                        selectedProperty = null
                         onViewChats(property)
                     },
                     onOpenChat = { enquiry ->
-                        selectedProperty = null
                         onOpenChat(enquiry)
                     },
                     modifier = Modifier.fillMaxSize()

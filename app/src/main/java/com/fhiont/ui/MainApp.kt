@@ -13,6 +13,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.fhiont.AppStrings
 import com.fhiont.ui.components.ConfirmationDialog
 import androidx.compose.runtime.Composable
@@ -398,16 +400,23 @@ fun MainApp(
                         )
                     }
 
-                    // Full-screen enquiry chat overlay (buyer <-> owner thread).
                     activeChatEnquiry?.let { enquiry ->
-                        ChatScreen(
-                            enquiry = enquiry,
-                            onBack = {
+                        Dialog(
+                            onDismissRequest = {
                                 activeChatEnquiry = null
                                 myEnquiriesRefreshTrigger++
                             },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                            properties = DialogProperties(usePlatformDefaultWidth = false)
+                        ) {
+                            ChatScreen(
+                                enquiry = enquiry,
+                                onBack = {
+                                    activeChatEnquiry = null
+                                    myEnquiriesRefreshTrigger++
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
 
                     // Full-screen property details opened from a push notification.
@@ -430,8 +439,6 @@ fun MainApp(
                                     mainViewModel.selectTab(AppScreen.Profile)
                                 },
                                 onOpenChat = { enquiry ->
-                                    deepLinkProperty = null
-                                    deepLinkPropertyId = null
                                     activeChatEnquiry = enquiry
                                 },
                                 modifier = Modifier.fillMaxSize()
