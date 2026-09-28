@@ -277,21 +277,6 @@ class AddViewModel(
         updateForm { copy(bathrooms = bathrooms.coerceIn(0, 10)) }
     }
 
-    fun onBedroomCountChanged(count: Int) {
-        val coerced = count.coerceIn(0, 7)
-        val bedroomType = when (coerced) {
-            1 -> BedroomType.ONE_BHK
-            2 -> BedroomType.TWO_BHK
-            3 -> BedroomType.THREE_BHK
-            4 -> BedroomType.FOUR_BHK
-            5 -> BedroomType.FIVE_BHK
-            6 -> BedroomType.SIX_BHK
-            7 -> BedroomType.SIX_PLUS_BHK
-            else -> null
-        }
-        onBedroomTypeChanged(bedroomType)
-    }
-
     fun onBedroomTypeChanged(bedroomType: BedroomType?) {
         updateForm { copy(bedroomType = bedroomType) }
     }

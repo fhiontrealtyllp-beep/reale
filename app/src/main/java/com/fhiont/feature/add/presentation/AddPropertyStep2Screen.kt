@@ -56,7 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 internal fun AddPropertyStep2Screen(
     form: PropertyForm,
-    onBedroomCountChanged: (Int) -> Unit,
+    onBedroomTypeChanged: (BedroomType?) -> Unit,
     onBathroomsChanged: (Int) -> Unit,
     onFurnishingChanged: (Furnishing?) -> Unit,
     onAgeChanged: (Age?) -> Unit,
@@ -77,11 +77,12 @@ internal fun AddPropertyStep2Screen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CountStepper(
+            FormDropdown(
                 label = AddStrings.LABEL_BEDROOMS,
-                count = form.bedroomType.toBedroomCount(),
-                onCountChange = onBedroomCountChanged,
-                max = 7,
+                options = BedroomType.entries,
+                selected = form.bedroomType,
+                optionLabel = { it.label },
+                onSelected = { onBedroomTypeChanged(it) },
                 isRequired = true,
                 modifier = Modifier.weight(1f)
             )
@@ -314,24 +315,13 @@ private fun AmenityFeatureGrid(
     }
 }
 
-private fun BedroomType?.toBedroomCount(): Int = when (this) {
-    BedroomType.ONE_RK, BedroomType.ONE_BHK, BedroomType.STUDIO_APARTMENT -> 1
-    BedroomType.TWO_BHK -> 2
-    BedroomType.THREE_BHK -> 3
-    BedroomType.FOUR_BHK -> 4
-    BedroomType.FIVE_BHK -> 5
-    BedroomType.SIX_BHK -> 6
-    BedroomType.SIX_PLUS_BHK -> 7
-    null -> 0
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun AddPropertyStep2ScreenPreview() {
     FhiontTheme {
         AddPropertyStep2Screen(
             form = PreviewData.samplePropertyForm,
-            onBedroomCountChanged = {},
+            onBedroomTypeChanged = {},
             onBathroomsChanged = {},
             onFurnishingChanged = {},
             onAgeChanged = {},

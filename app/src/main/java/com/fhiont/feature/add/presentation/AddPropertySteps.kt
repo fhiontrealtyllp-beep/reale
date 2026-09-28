@@ -144,7 +144,7 @@ fun AddPropertySteps(
                 // Step 2: bedrooms, bathrooms, furnishing, areas, amenities.
                 AddPropertyStep.PROPERTY_DETAILS -> AddPropertyStep2Screen(
                     form = form,
-                    onBedroomCountChanged = viewModel::onBedroomCountChanged,
+                    onBedroomTypeChanged = viewModel::onBedroomTypeChanged,
                     onBathroomsChanged = viewModel::onBathroomsChanged,
                     onFurnishingChanged = viewModel::onFurnishingChanged,
                     onAgeChanged = viewModel::onAgeChanged,
