@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
+import com.fhiont.feature.search.domain.model.BATHROOMS_FIVE_PLUS
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.CarpetAreaRange
 import com.fhiont.feature.search.domain.model.Facing
@@ -52,7 +53,7 @@ import com.fhiont.ui.theme.OnControlAccent
 import com.fhiont.ui.theme.FhiontTheme
 import com.fhiont.ui.theme.White
 
-private val bathroomOptions = (1..5).toList()
+private val bathroomOptions = (1..5).toList() + BATHROOMS_FIVE_PLUS
 
 private data class RangeOption(
     val label: String,
@@ -193,7 +194,10 @@ fun PropertyFilters(
                 options = bathroomOptions,
                 selected = filter.bathrooms,
                 onSelected = { onFilterChange(filter.copy(bathrooms = it)) },
-                optionLabel = Int::toString
+                optionLabel = { option ->
+                    if (option == BATHROOMS_FIVE_PLUS) SearchStrings.FILTER_BATHROOMS_FIVE_PLUS
+                    else option.toString()
+                }
             )
             Spacer(modifier = Modifier.height(SearchDims.FILTER_SECTION_SPACING))
 

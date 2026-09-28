@@ -1,6 +1,8 @@
 package com.fhiont.feature.search.data.remote
 
 import com.fhiont.feature.search.data.mapper.jsonName
+import com.fhiont.feature.search.domain.model.BATHROOMS_FIVE_PLUS
+import com.fhiont.feature.search.domain.model.BATHROOMS_FIVE_PLUS_MIN
 import com.fhiont.feature.search.domain.model.Property
 import com.fhiont.feature.search.domain.model.PropertyFilter
 
@@ -47,8 +49,16 @@ object PropertyQueryBuilder {
         if (filter.bedroomType != null && property.bedroomType != filter.bedroomType) {
             return "bedroomType(${property.bedroomType} != ${filter.bedroomType})"
         }
-        if (filter.bathrooms != null && property.bathrooms != filter.bathrooms) {
-            return "bathrooms(${property.bathrooms} != ${filter.bathrooms})"
+        filter.bathrooms?.let { wanted ->
+            val actual = property.bathrooms ?: return "bathrooms(null)"
+            val matches = if (wanted == BATHROOMS_FIVE_PLUS) {
+                actual >= BATHROOMS_FIVE_PLUS_MIN
+            } else {
+                actual == wanted
+            }
+            if (!matches) {
+                return "bathrooms(${property.bathrooms} !~ $wanted)"
+            }
         }
         if (filter.furnishing != null && property.furnishing != filter.furnishing) {
             return "furnishing(${property.furnishing} != ${filter.furnishing})"

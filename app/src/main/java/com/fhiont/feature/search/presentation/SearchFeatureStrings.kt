@@ -43,6 +43,7 @@ internal object SearchStrings {
     const val FILTER_PROPERTY_TYPE = "Property type"
     const val FILTER_BEDROOMS = "Bedrooms"
     const val FILTER_BATHROOMS = "Bathrooms"
+    const val FILTER_BATHROOMS_FIVE_PLUS = "5+"
     const val FILTER_FURNISHING = "Furnishing"
     const val FILTER_FACING = "Facing"
     const val FILTER_AGE = "Property age"

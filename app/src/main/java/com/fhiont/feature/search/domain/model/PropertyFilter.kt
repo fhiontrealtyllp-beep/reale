@@ -1,5 +1,13 @@
 package com.fhiont.feature.search.domain.model
 
+/**
+ * Sentinel [PropertyFilter.bathrooms] value meaning "5 or more bathrooms".
+ * Values 1-5 are exact counts; this value matches any property with
+ * bathrooms >= [BATHROOMS_FIVE_PLUS_MIN].
+ */
+const val BATHROOMS_FIVE_PLUS = 6
+const val BATHROOMS_FIVE_PLUS_MIN = 5
+
 data class PropertyFilter(
     val city: String? = null,
     val cityLatLng: CityLatLng? = null,
