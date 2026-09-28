@@ -406,7 +406,10 @@ fun MainApp(
                                 activeChatEnquiry = null
                                 myEnquiriesRefreshTrigger++
                             },
-                            properties = DialogProperties(usePlatformDefaultWidth = false)
+                            properties = DialogProperties(
+                                usePlatformDefaultWidth = false,
+                                decorFitsSystemWindows = false
+                            )
                         ) {
                             ChatScreen(
                                 enquiry = enquiry,

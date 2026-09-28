@@ -117,6 +117,8 @@ private fun ChatScreenContent(
             .fillMaxSize()
             .background(AppBackground)
             .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding()
     ) {
         ChatHeader(enquiry = enquiry, onBack = onBack)
 
@@ -340,8 +342,6 @@ private fun ChatComposer(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
-            .imePadding()
             .padding(ChatDims.COMPOSER_PADDING),
         verticalAlignment = Alignment.Bottom
     ) {

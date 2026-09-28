@@ -58,7 +58,7 @@ class FhiontApplication : Application() {
     private fun seedProperties() {
         GlobalScope.launch(Dispatchers.IO) {
             val oneTimeUtils = OneTimeUtils(this@FhiontApplication)
-           oneTimeUtils.deleteAllChats()
+          // oneTimeUtils.deleteAllChats()
 
         }
     }
