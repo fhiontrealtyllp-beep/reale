@@ -7,6 +7,7 @@ import com.fhiont.core.theme.ThemePreferences
 import com.fhiont.core.notification.NotificationPreferences
 import com.fhiont.core.notification.NotificationSettings
 import com.fhiont.feature.add.data.local.PropertyDraftStore
+import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
 import com.fhiont.feature.auth.domain.model.User
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingAddressUseCase
 import com.fhiont.feature.onboarding.domain.usecase.GetOnboardingCityUseCase
@@ -44,7 +45,8 @@ class ProfileViewModel(
     private val setOnboardingAddressUseCase: SetOnboardingAddressUseCase,
     private val themePreferences: ThemePreferences,
     private val draftStore: PropertyDraftStore,
-    private val notificationPreferences: NotificationPreferences
+    private val notificationPreferences: NotificationPreferences,
+    private val getMyPropertiesUseCase: GetMyPropertiesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -82,7 +84,7 @@ class ProfileViewModel(
                 // Draft belongs to the logged-out account; drop it so a
                 // different user never resumes someone else's listing.
                 draftStore.clearDraft()
-                _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false)
+                _uiState.value = ProfileUiState(isLoading = false, isLoggedIn = false, hasListings = false)
             }
         )
     }
@@ -119,11 +121,37 @@ class ProfileViewModel(
                     )
                 }
             }
+            refreshListings()
         }
     }
 
     fun refresh() {
         load()
+    }
+
+    /**
+     * Re-checks whether the user owns at least one property. Called together
+     * with [refreshDraft] when the profile screen becomes visible again so
+     * the "My Listings" row appears or disappears right after the user adds
+     * or deletes a listing.
+     */
+    fun refreshListings() {
+        val userId = _uiState.value.user?.id ?: userSession.getUserId()
+        if (userId.isNullOrBlank()) {
+            if (_uiState.value.hasListings) {
+                _uiState.value = _uiState.value.copy(hasListings = false)
+            }
+            return
+        }
+        viewModelScope.launch {
+            val hasListings = when (val result = getMyPropertiesUseCase(userId)) {
+                is Result.Success -> result.data.isNotEmpty()
+                is Result.Error -> _uiState.value.hasListings
+            }
+            if (_uiState.value.hasListings != hasListings) {
+                _uiState.value = _uiState.value.copy(hasListings = hasListings)
+            }
+        }
     }
 
     /**

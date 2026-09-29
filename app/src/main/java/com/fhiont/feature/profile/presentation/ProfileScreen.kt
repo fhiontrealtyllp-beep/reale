@@ -159,6 +159,7 @@ fun ProfileScreen(
         // the "Property Draft" row reflects the latest state (e.g. after the
         // user publishes or leaves the add form).
         viewModel.refreshDraft()
+        viewModel.refreshListings()
         viewModel.sideEffect.collect { message ->
             snackbarHostState.showSnackbar(message)
         }
@@ -251,6 +252,7 @@ fun ProfileScreen(
                     user = uiState.user,
                     isLoggedIn = uiState.isLoggedIn,
                     hasDraft = uiState.hasDraft,
+                    hasListings = uiState.hasListings,
                     onLoginClick = onLoginClick,
                     savedAddress = savedAddress,
                     savedCity = savedCity,
@@ -333,6 +335,7 @@ private fun ProfileContent(
     user: User?,
     isLoggedIn: Boolean,
     hasDraft: Boolean,
+    hasListings: Boolean,
     onLoginClick: () -> Unit,
     savedAddress: String,
     savedCity: String,
@@ -362,18 +365,20 @@ private fun ProfileContent(
 
     val activityItems = if (isLoggedIn) {
         buildList {
-            add(
-                ProfileMenuItem(
-                    icon = Icons.Outlined.Home,
-                    title = ProfileStrings.MY_LISTINGS,
-                    subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
-                    contentDescription = ProfileStrings.MY_LISTINGS,
-                    onClick = {
-                        Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
-                        onMyListingsClick()
-                    }
+            if (hasListings) {
+                add(
+                    ProfileMenuItem(
+                        icon = Icons.Outlined.Home,
+                        title = ProfileStrings.MY_LISTINGS,
+                        subtitle = ProfileStrings.MY_LISTINGS_SUBTITLE,
+                        contentDescription = ProfileStrings.MY_LISTINGS,
+                        onClick = {
+                            Logger.d(PROFILE_MENU_TAG, "My Listings row tapped")
+                            onMyListingsClick()
+                        }
+                    )
                 )
-            )
+            }
             add(
                 ProfileMenuItem(
                     icon = Icons.AutoMirrored.Filled.Chat,
@@ -1675,6 +1680,7 @@ private fun ProfileContentPreview() {
             user = PreviewData.sampleUser,
             isLoggedIn = true,
             hasDraft = true,
+            hasListings = true,
             onLoginClick = {},
             savedAddress = "",
             savedCity = "",
@@ -1706,6 +1712,7 @@ private fun ProfileContentGuestPreview() {
             user = null,
             isLoggedIn = false,
             hasDraft = false,
+            hasListings = false,
             onLoginClick = {},
             savedAddress = "",
             savedCity = "Porvorim",

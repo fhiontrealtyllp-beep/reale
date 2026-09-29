@@ -222,7 +222,7 @@ val profileModule = module {
     single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
     single<ChangePasswordUseCase> { ChangePasswordUseCaseImpl(get()) }
     single<ProfileUploadImageUseCase> { ProfileUploadImageUseCaseImpl(get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single<DeleteEnquiryThreadUseCase> { DeleteEnquiryThreadUseCaseImpl(get()) }
     viewModel { (filterPropertyId: String?) -> MyEnquiriesViewModel(get(), get(), get(), get(), get(), get(), get(), filterPropertyId) }
     viewModel { MyListingsViewModel(get(), get(), get(), get()) }

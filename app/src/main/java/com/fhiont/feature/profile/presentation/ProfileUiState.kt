@@ -10,6 +10,7 @@ data class ProfileUiState(
     val updatingField: String? = null,
     val isLoggedIn: Boolean = false,
     val hasDraft: Boolean = false,
+    val hasListings: Boolean = false,
     val errorMessage: String? = null,
     val updateSuccessMessage: String? = null
 )
