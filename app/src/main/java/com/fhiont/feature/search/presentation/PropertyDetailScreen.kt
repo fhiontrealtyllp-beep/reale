@@ -127,12 +127,15 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import com.fhiont.R
+import com.fhiont.feature.add.domain.model.PropertyFormConfig
+import com.fhiont.feature.add.domain.model.formConfig
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.ListingCategory
 import com.fhiont.feature.search.data.session.UserSession
 import com.fhiont.feature.search.domain.model.Enquiry
 import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.usecase.GetMyEnquiriesUseCase
 import com.fhiont.feature.search.domain.usecase.SendEnquiryUseCase
 import com.fhiont.feature.search.domain.utils.Result
@@ -909,7 +912,8 @@ private fun InfoSection(
         }
 
         // Key highlights below price, e.g. "🏊 Private Pool", "🅿 Parking", "🏋 Gymnasium"
-        if (property.amenities.isNotEmpty()) {
+        val config = property.propertyType?.formConfig() ?: PropertyFormConfig()
+        if (config.showAmenities && property.amenities.isNotEmpty()) {
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SearchDims.FILTER_ITEM_SPACING),
@@ -969,26 +973,35 @@ private data class StatItem(
 
 @Composable
 private fun StatsCard(property: Property) {
-    val stats = listOfNotNull(
-        bedroomCount(property.bedroomType).takeIf { it > 0 }?.let {
-            StatItem(Icons.Filled.KingBed, it.toString(), DetailStrings.LABEL_BEDS)
-        },
-        property.bathrooms?.takeIf { it > 0 }?.let {
-            StatItem(Icons.Filled.Bathtub, it.toString(), DetailStrings.LABEL_BATHS)
-        },
-        primaryArea(property)?.let {
-            StatItem(Icons.Filled.SquareFoot, formatAreaValue(it), DetailStrings.LABEL_SQ_FT)
-        },
-        property.propertyType?.let {
-            StatItem(Icons.Filled.Home, it.label, DetailStrings.LABEL_TYPE)
-        },
-        property.facing?.let {
-            StatItem(Icons.Filled.Explore, it.label, DetailStrings.LABEL_FACING)
-        },
-        property.furnishing?.let {
-            StatItem(Icons.Filled.Chair, it.label, DetailStrings.LABEL_FURNISHING)
+    val config = property.propertyType?.formConfig() ?: PropertyFormConfig()
+    val stats = buildList {
+        if (config.showBedrooms) {
+            bedroomCount(property.bedroomType).takeIf { it > 0 }?.let {
+                add(StatItem(Icons.Filled.KingBed, it.toString(), DetailStrings.LABEL_BEDS))
+            }
         }
-    ).take(MAX_STATS)
+        if (config.showBathrooms) {
+            property.bathrooms?.takeIf { it > 0 }?.let {
+                add(StatItem(Icons.Filled.Bathtub, it.toString(), DetailStrings.LABEL_BATHS))
+            }
+        }
+        primaryArea(property)?.let {
+            add(StatItem(Icons.Filled.SquareFoot, formatAreaValue(it), DetailStrings.LABEL_SQ_FT))
+        }
+        property.propertyType?.let {
+            add(StatItem(Icons.Filled.Home, it.label, DetailStrings.LABEL_TYPE))
+        }
+        if (config.showFacing) {
+            property.facing?.let {
+                add(StatItem(Icons.Filled.Explore, it.label, DetailStrings.LABEL_FACING))
+            }
+        }
+        if (config.showFurnishing) {
+            property.furnishing?.let {
+                add(StatItem(Icons.Filled.Chair, it.label, DetailStrings.LABEL_FURNISHING))
+            }
+        }
+    }.take(MAX_STATS)
 
     if (stats.isEmpty()) return
 
@@ -1306,32 +1319,51 @@ private fun DetailBottomBar(
 }
 
 private fun propertyHasDetails(property: Property): Boolean {
-    return property.bedroomType != null ||
-        property.bathrooms?.takeIf { it > 0 } != null ||
-        property.furnishing != null ||
-        property.facing != null ||
-        property.age != null ||
-        property.carpetArea?.takeIf { it > 0 } != null ||
-        property.builtUpArea?.takeIf { it > 0 } != null ||
-        property.superBuiltUpArea?.takeIf { it > 0 } != null ||
-        !property.pincode.isNullOrBlank() ||
-        !property.address.isNullOrBlank() ||
-        property.listingCategory != ListingCategory.NORMAL ||
-        !property.status.isNullOrBlank() ||
-        property.rating != null ||
-        !property.createdAt.isNullOrBlank()
+    return detailRows(property).isNotEmpty()
 }
 
 private fun detailRows(property: Property): List<Pair<String, String>> = buildList {
-    add(DetailStrings.LABEL_CONFIGURATION to (property.bedroomType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_BEDROOMS to (bedroomCount(property.bedroomType).takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_BATHROOMS to (property.bathrooms?.takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_FURNISHING to (property.furnishing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_FACING to (property.facing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_AGE to (property.age?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_CARPET_AREA to (property.carpetArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_BUILT_UP_AREA to (property.builtUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
-    add(DetailStrings.LABEL_SUPER_BUILT_UP_AREA to (property.superBuiltUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    val config = property.propertyType?.formConfig() ?: PropertyFormConfig()
+    val isPlot = property.propertyType == PropertyType.PLOT || property.propertyType == PropertyType.LAND
+
+    if (config.showBedrooms) {
+        add(DetailStrings.LABEL_CONFIGURATION to (property.bedroomType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+        add(DetailStrings.LABEL_BEDROOMS to (bedroomCount(property.bedroomType).takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showBathrooms) {
+        add(DetailStrings.LABEL_BATHROOMS to (property.bathrooms?.takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showFurnishing) {
+        add(DetailStrings.LABEL_FURNISHING to (property.furnishing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showFacing) {
+        add(DetailStrings.LABEL_FACING to (property.facing?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showAge) {
+        add(DetailStrings.LABEL_AGE to (property.age?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showCarpetArea) {
+        add(DetailStrings.LABEL_CARPET_AREA to (property.carpetArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showBuiltUpArea) {
+        val areaLabel = if (isPlot) DetailStrings.LABEL_PLOT_AREA else DetailStrings.LABEL_BUILT_UP_AREA
+        add(areaLabel to (property.builtUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showSuperBuiltUpArea) {
+        add(DetailStrings.LABEL_SUPER_BUILT_UP_AREA to (property.superBuiltUpArea?.takeIf { it > 0 }?.let { formatAreaValue(it) + DetailStrings.SQ_FT_SUFFIX } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showTotalRooms) {
+        add(DetailStrings.LABEL_TOTAL_ROOMS to (property.totalRooms?.takeIf { it > 0 }?.toString() ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showSharingType) {
+        add(DetailStrings.LABEL_SHARING_TYPE to (property.sharingType?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showPreferredTenant) {
+        add(DetailStrings.LABEL_PREFERRED_TENANT to (property.preferredTenant?.label ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
+    if (config.showFoodAvailable) {
+        add(DetailStrings.LABEL_FOOD_AVAILABLE to (property.foodAvailable?.let { if (it) DetailStrings.VALUE_YES else DetailStrings.VALUE_NO } ?: DetailStrings.VALUE_NOT_AVAILABLE))
+    }
     add(DetailStrings.LABEL_PINCODE to (property.pincode?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_ADDRESS to (property.address?.takeIf { it.isNotBlank() } ?: DetailStrings.VALUE_NOT_AVAILABLE))
     add(DetailStrings.LABEL_LISTING_CATEGORY to property.listingCategory.label)
