@@ -51,6 +51,10 @@ if ($method === 'POST') {
     $carpetArea = is_numeric($body['carpetArea'] ?? null) ? (float) $body['carpetArea'] : null;
     $builtUpArea = is_numeric($body['builtUpArea'] ?? null) ? (float) $body['builtUpArea'] : null;
     $superBuiltUpArea = is_numeric($body['superBuiltUpArea'] ?? null) ? (float) $body['superBuiltUpArea'] : null;
+    $totalRooms = filter_var($body['totalRooms'] ?? null, FILTER_VALIDATE_INT) ?: null;
+    $sharingType = is_string($body['sharingType'] ?? null) ? $body['sharingType'] : null;
+    $preferredTenant = is_string($body['preferredTenant'] ?? null) ? $body['preferredTenant'] : null;
+    $foodAvailable = isset($body['foodAvailable']) ? (bool) $body['foodAvailable'] : null;
 
     $amenities = is_array($body['amenities'] ?? null) ? array_values(array_filter($body['amenities'], 'is_string')) : [];
     $images = is_array($body['images'] ?? null) ? array_values(array_filter($body['images'], 'is_string')) : [];
@@ -83,6 +87,10 @@ if ($method === 'POST') {
         'carpet_area' => $carpetArea,
         'built_up_area' => $builtUpArea,
         'super_built_up_area' => $superBuiltUpArea,
+        'total_rooms' => $totalRooms,
+        'sharing_type' => $sharingType,
+        'preferred_tenant' => $preferredTenant,
+        'food_available' => $foodAvailable === null ? null : (int) $foodAvailable,
         'agent_phone' => $agentPhone,
     ];
 
@@ -91,12 +99,14 @@ if ($method === 'POST') {
             user_id, title, description, price, city, locality, pincode, address,
             latitude, longitude, status, listing_category, rent_buy, residential_commercial,
             property_type, bedroom_type, bathrooms, furnishing, facing, age,
-            amenities, nearby_places, images, carpet_area, built_up_area, super_built_up_area, agent_phone
+            amenities, nearby_places, images, carpet_area, built_up_area, super_built_up_area,
+            total_rooms, sharing_type, preferred_tenant, food_available, agent_phone
         ) VALUES (
             :user_id, :title, :description, :price, :city, :locality, :pincode, :address,
             :latitude, :longitude, :status, :listing_category, :rent_buy, :residential_commercial,
             :property_type, :bedroom_type, :bathrooms, :furnishing, :facing, :age,
-            :amenities, :nearby_places, :images, :carpet_area, :built_up_area, :super_built_up_area, :agent_phone
+            :amenities, :nearby_places, :images, :carpet_area, :built_up_area, :super_built_up_area,
+            :total_rooms, :sharing_type, :preferred_tenant, :food_available, :agent_phone
         )'
     );
 
@@ -125,6 +135,8 @@ if ($method === 'POST') {
                     `furnishing` = :furnishing, `facing` = :facing, `age` = :age, `amenities` = :amenities,
                     `nearby_places` = :nearby_places, `images` = :images, `carpet_area` = :carpet_area,
                     `built_up_area` = :built_up_area, `super_built_up_area` = :super_built_up_area,
+                    `total_rooms` = :total_rooms, `sharing_type` = :sharing_type,
+                    `preferred_tenant` = :preferred_tenant, `food_available` = :food_available,
                     `agent_phone` = :agent_phone
                 WHERE `id` = :id'
             );
@@ -200,6 +212,10 @@ if ($method === 'GET') {
             'carpetArea' => $row['carpet_area'] !== null ? (float) $row['carpet_area'] : null,
             'builtUpArea' => $row['built_up_area'] !== null ? (float) $row['built_up_area'] : null,
             'superBuiltUpArea' => $row['super_built_up_area'] !== null ? (float) $row['super_built_up_area'] : null,
+            'totalRooms' => $row['total_rooms'] !== null ? (int) $row['total_rooms'] : null,
+            'sharingType' => $row['sharing_type'],
+            'preferredTenant' => $row['preferred_tenant'],
+            'foodAvailable' => $row['food_available'] !== null ? (bool) $row['food_available'] : null,
             'agentPhone' => (string) $row['agent_phone'],
             'createdAt' => (string) $row['created_at'],
         ];

@@ -60,6 +60,10 @@ CREATE TABLE IF NOT EXISTS properties (
     carpet_area DECIMAL(10, 2) NULL,
     built_up_area DECIMAL(10, 2) NULL,
     super_built_up_area DECIMAL(10, 2) NULL,
+    total_rooms INT UNSIGNED NULL,
+    sharing_type VARCHAR(30) NULL,
+    preferred_tenant VARCHAR(30) NULL,
+    food_available TINYINT(1) NULL,
     agent_phone VARCHAR(30) NOT NULL DEFAULT '',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -144,6 +148,8 @@ CREATE TABLE IF NOT EXISTS enquiry_messages (
     CONSTRAINT enquiry_messages_sender_foreign FOREIGN KEY (sender_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Migration for databases created before the password_set column existed:
--- ALTER TABLE users ADD COLUMN password_set TINYINT(1) NOT NULL DEFAULT 1 AFTER image;
+-- IMPORTANT: CREATE TABLE IF NOT EXISTS never alters an existing table, so
+-- re-importing this file does NOT add new columns. For databases that were
+-- already created, import migrations.sql instead — it adds any missing
+-- columns (checked via information_schema, so it is safe to re-run).
 

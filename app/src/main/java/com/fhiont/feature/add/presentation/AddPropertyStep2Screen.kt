@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,11 +42,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fhiont.feature.add.domain.model.PropertyForm
+import com.fhiont.feature.add.domain.model.PropertyFormConfig
+import com.fhiont.feature.add.domain.model.formConfig
 import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.Facing
 import com.fhiont.feature.search.domain.model.Furnishing
+import com.fhiont.feature.search.domain.model.PreferredTenant
+import com.fhiont.feature.search.domain.model.PropertyType
+import com.fhiont.feature.search.domain.model.SharingType
 import com.fhiont.ui.theme.ControlAccent
 import com.fhiont.ui.theme.HomeCategoryUnselected
 import com.fhiont.ui.theme.Black
@@ -52,6 +59,8 @@ import com.fhiont.ui.theme.HomeTextSecondary
 import com.fhiont.ui.preview.PreviewData
 import com.fhiont.ui.theme.FhiontTheme
 import androidx.compose.ui.tooling.preview.Preview
+import com.fhiont.ui.theme.HomeSearchBarBorder
+import com.fhiont.ui.theme.White
 
 @Composable
 internal fun AddPropertyStep2Screen(
@@ -65,118 +74,206 @@ internal fun AddPropertyStep2Screen(
     onCarpetAreaChanged: (String) -> Unit,
     onBuiltUpAreaChanged: (String) -> Unit,
     onSuperBuiltUpAreaChanged: (String) -> Unit,
+    onTotalRoomsChanged: (Int) -> Unit,
+    onSharingTypeChanged: (SharingType?) -> Unit,
+    onPreferredTenantChanged: (PreferredTenant?) -> Unit,
+    onFoodAvailableChanged: (Boolean?) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val config = form.propertyType?.formConfig() ?: PropertyFormConfig()
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader(AddStrings.SECTION_CONFIGURATION)
+        if (config.showBedrooms || config.showBathrooms) {
+            SectionHeader(AddStrings.SECTION_CONFIGURATION)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FormDropdown(
-                label = AddStrings.LABEL_BEDROOMS,
-                options = BedroomType.entries,
-                selected = form.bedroomType,
-                optionLabel = { it.label },
-                onSelected = { onBedroomTypeChanged(it) },
-                isRequired = true,
-                modifier = Modifier.weight(1f)
-            )
-            CountStepper(
-                label = AddStrings.LABEL_BATHROOMS,
-                count = form.bathrooms,
-                onCountChange = onBathroomsChanged,
-                isRequired = true,
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (config.showBedrooms) {
+                    FormDropdown(
+                        label = AddStrings.LABEL_BEDROOMS,
+                        options = BedroomType.entries,
+                        selected = form.bedroomType,
+                        optionLabel = { it.label },
+                        onSelected = { onBedroomTypeChanged(it) },
+                        isRequired = config.bedroomsRequired,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (config.showBathrooms) {
+                    CountStepper(
+                        label = AddStrings.LABEL_BATHROOMS,
+                        count = form.bathrooms,
+                        onCountChange = onBathroomsChanged,
+                        isRequired = config.bathroomsRequired,
+                        modifier = if (config.showBedrooms) Modifier.weight(1f) else Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
 
-        SectionHeader(AddStrings.SECTION_AREA_DETAILS)
+        if (config.showCarpetArea || config.showBuiltUpArea || config.showSuperBuiltUpArea) {
+            SectionHeader(AddStrings.SECTION_AREA_DETAILS)
 
-        FormTextField(
-            value = form.carpetArea,
-            onValueChange = onCarpetAreaChanged,
-            label = AddStrings.LABEL_CARPET_AREA_SQFT,
-            isRequired = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        FormTextField(
-            value = form.builtUpArea,
-            onValueChange = onBuiltUpAreaChanged,
-            label = AddStrings.LABEL_BUILT_UP_AREA_SQFT,
-            isRequired = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        FormTextField(
-            value = form.superBuiltUpArea,
-            onValueChange = onSuperBuiltUpAreaChanged,
-            label = AddStrings.LABEL_SUPER_BUILT_UP_AREA_SQFT,
-            isRequired = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Decimal,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        SectionHeader(AddStrings.SECTION_PROPERTY_FEATURES)
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            FormDropdown(
-                label = AddStrings.LABEL_FURNISHING,
-                options = Furnishing.entries,
-                selected = form.furnishing,
-                optionLabel = { it.label },
-                onSelected = onFurnishingChanged,
-                isRequired = true,
-                modifier = Modifier.weight(1f)
-            )
-            FormDropdown(
-                label = AddStrings.LABEL_PROPERTY_AGE,
-                options = Age.entries,
-                selected = form.age,
-                optionLabel = { it.label },
-                onSelected = onAgeChanged,
-                isRequired = true,
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        FormDropdown(
-            label = AddStrings.LABEL_FACING,
-            options = Facing.entries,
-            selected = form.facing,
-            optionLabel = { it.label },
-            onSelected = onFacingChanged,
-            isRequired = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        SectionHeader(AddStrings.SECTION_ADDITIONAL_FEATURES)
-
-        AmenityFeatureGrid(
-            selected = form.amenities,
-            onToggle = { amenity ->
-                onAmenitiesChanged(
-                    if (amenity in form.amenities) form.amenities - amenity else form.amenities + amenity
+            if (config.showCarpetArea) {
+                FormTextField(
+                    value = form.carpetArea,
+                    onValueChange = onCarpetAreaChanged,
+                    label = AddStrings.LABEL_CARPET_AREA_SQFT,
+                    isRequired = config.areaRequired,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
-        )
+            if (config.showBuiltUpArea) {
+                FormTextField(
+                    value = form.builtUpArea,
+                    onValueChange = onBuiltUpAreaChanged,
+                    label = if (form.propertyType in listOf(PropertyType.PLOT, PropertyType.LAND)) {
+                        AddStrings.LABEL_PLOT_AREA_SQFT
+                    } else {
+                        AddStrings.LABEL_BUILT_UP_AREA_SQFT
+                    },
+                    isRequired = config.areaRequired,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            if (config.showSuperBuiltUpArea) {
+                FormTextField(
+                    value = form.superBuiltUpArea,
+                    onValueChange = onSuperBuiltUpAreaChanged,
+                    label = AddStrings.LABEL_SUPER_BUILT_UP_AREA_SQFT,
+                    isRequired = config.areaRequired,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (config.showFurnishing || config.showAge || config.showFacing) {
+            SectionHeader(AddStrings.SECTION_PROPERTY_FEATURES)
+
+            if (config.showFurnishing || config.showAge) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (config.showFurnishing) {
+                        FormDropdown(
+                            label = AddStrings.LABEL_FURNISHING,
+                            options = Furnishing.entries,
+                            selected = form.furnishing,
+                            optionLabel = { it.label },
+                            onSelected = onFurnishingChanged,
+                            isRequired = config.furnishingRequired,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (config.showAge) {
+                        FormDropdown(
+                            label = AddStrings.LABEL_PROPERTY_AGE,
+                            options = Age.entries,
+                            selected = form.age,
+                            optionLabel = { it.label },
+                            onSelected = onAgeChanged,
+                            isRequired = config.ageRequired,
+                            modifier = if (config.showFurnishing) Modifier.weight(1f) else Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            if (config.showFacing) {
+                FormDropdown(
+                    label = AddStrings.LABEL_FACING,
+                    options = Facing.entries,
+                    selected = form.facing,
+                    optionLabel = { it.label },
+                    onSelected = onFacingChanged,
+                    isRequired = config.facingRequired,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (config.showTotalRooms || config.showSharingType || config.showPreferredTenant || config.showFoodAvailable) {
+            SectionHeader(AddStrings.SECTION_ACCOMMODATION_DETAILS)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (config.showTotalRooms) {
+                    CountStepper(
+                        label = AddStrings.LABEL_TOTAL_ROOMS,
+                        count = form.totalRooms,
+                        onCountChange = onTotalRoomsChanged,
+                        max = 1000,
+                        isRequired = config.totalRoomsRequired,
+                        modifier = if (config.showSharingType) Modifier.weight(1f) else Modifier.fillMaxWidth()
+                    )
+                }
+                if (config.showSharingType) {
+                    FormDropdown(
+                        label = AddStrings.LABEL_SHARING_TYPE,
+                        options = SharingType.entries,
+                        selected = form.sharingType,
+                        optionLabel = { it.label },
+                        onSelected = onSharingTypeChanged,
+                        isRequired = config.sharingTypeRequired,
+                        modifier = if (config.showTotalRooms) Modifier.weight(1f) else Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            if (config.showPreferredTenant) {
+                FormDropdown(
+                    label = AddStrings.LABEL_PREFERRED_TENANT,
+                    options = PreferredTenant.entries,
+                    selected = form.preferredTenant,
+                    optionLabel = { it.label },
+                    onSelected = onPreferredTenantChanged,
+                    isRequired = config.preferredTenantRequired,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (config.showFoodAvailable) {
+                BooleanToggle(
+                    label = AddStrings.LABEL_FOOD_AVAILABLE,
+                    selected = form.foodAvailable,
+                    onSelected = onFoodAvailableChanged,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (config.showAmenities) {
+            SectionHeader(AddStrings.SECTION_ADDITIONAL_FEATURES)
+
+            AmenityFeatureGrid(
+                selected = form.amenities,
+                onToggle = { amenity ->
+                    onAmenitiesChanged(
+                        if (amenity in form.amenities) form.amenities - amenity else form.amenities + amenity
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -315,6 +412,41 @@ private fun AmenityFeatureGrid(
     }
 }
 
+@Composable
+private fun BooleanToggle(
+    label: String,
+    selected: Boolean?,
+    onSelected: (Boolean?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS))
+            .border(1.dp, HomeSearchBarBorder, RoundedCornerShape(AddDims.FIELD_CORNER_RADIUS))
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            color = Black,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Switch(
+            checked = selected ?: false,
+            onCheckedChange = { onSelected(it) },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = White,
+                checkedTrackColor = ControlAccent,
+                uncheckedThumbColor = White,
+                uncheckedTrackColor = HomeTextSecondary
+            )
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun AddPropertyStep2ScreenPreview() {
@@ -329,7 +461,11 @@ private fun AddPropertyStep2ScreenPreview() {
             onAmenitiesChanged = {},
             onCarpetAreaChanged = {},
             onBuiltUpAreaChanged = {},
-            onSuperBuiltUpAreaChanged = {}
+            onSuperBuiltUpAreaChanged = {},
+            onTotalRoomsChanged = {},
+            onSharingTypeChanged = {},
+            onPreferredTenantChanged = {},
+            onFoodAvailableChanged = {}
         )
     }
 }

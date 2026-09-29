@@ -153,7 +153,11 @@ fun AddPropertySteps(
                     onAmenitiesChanged = viewModel::onAmenitiesChanged,
                     onCarpetAreaChanged = viewModel::onCarpetAreaChanged,
                     onBuiltUpAreaChanged = viewModel::onBuiltUpAreaChanged,
-                    onSuperBuiltUpAreaChanged = viewModel::onSuperBuiltUpAreaChanged
+                    onSuperBuiltUpAreaChanged = viewModel::onSuperBuiltUpAreaChanged,
+                    onTotalRoomsChanged = viewModel::onTotalRoomsChanged,
+                    onSharingTypeChanged = viewModel::onSharingTypeChanged,
+                    onPreferredTenantChanged = viewModel::onPreferredTenantChanged,
+                    onFoodAvailableChanged = viewModel::onFoodAvailableChanged
                 )
                 // Step 3: photo grid with add/remove and upload progress.
                 AddPropertyStep.PHOTOS_MEDIA -> AddPropertyStep3Screen(

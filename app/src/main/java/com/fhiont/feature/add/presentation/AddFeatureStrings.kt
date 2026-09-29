@@ -44,12 +44,19 @@ internal object AddStrings {
     const val LABEL_BUILT_UP_AREA_SQFT = "Built-up Area (sq ft)"
     const val LABEL_CARPET_AREA_SQFT = "Carpet Area (sq ft)"
     const val LABEL_SUPER_BUILT_UP_AREA_SQFT = "Super Built-up Area (sq ft)"
+    const val LABEL_PLOT_AREA = "Plot Area"
     const val LABEL_PLOT_AREA_SQFT = "Plot Area (sq ft)"
     const val LABEL_AGENT_PHONE = "Agent Phone"
     const val LABEL_FLOOR_NO = "Floor No."
     const val LABEL_TOTAL_FLOORS = "Total Floors"
     const val LABEL_CONFIGURATION = "Configuration"
     const val LABEL_STATUS = "Status"
+    const val LABEL_TOTAL_ROOMS = "Total Rooms"
+    const val LABEL_SHARING_TYPE = "Sharing Type"
+    const val LABEL_PREFERRED_TENANT = "Preferred Tenant"
+    const val LABEL_FOOD_AVAILABLE = "Food Available"
+    const val FOOD_AVAILABLE_YES = "Yes"
+    const val FOOD_AVAILABLE_NO = "No"
     const val LABEL_PHOTOS = "Photos"
     const val LABEL_LISTING_CATEGORY = "Listing Category"
 
@@ -58,6 +65,7 @@ internal object AddStrings {
     const val SECTION_PROPERTY_DETAILS = "Property Details"
     const val SECTION_CONFIGURATION = "Configuration"
     const val SECTION_PROPERTY_FEATURES = "Property Features"
+    const val SECTION_ACCOMMODATION_DETAILS = "Accommodation Details"
     const val SECTION_ADDITIONAL_FEATURES = "Additional Features"
     const val SECTION_PROPERTY_PHOTOS = "Property Photos"
     const val SECTION_PRICE_DETAILS = "Price Details"
@@ -319,6 +327,10 @@ internal object AddStrings {
     const val ERR_FACING_REQUIRED = "Facing is required"
     const val ERR_AGE_REQUIRED = "Age is required"
     const val ERR_AREA_REQUIRED = "At least one area (carpet / built-up / super built-up) is required"
+    const val ERR_TOTAL_ROOMS_REQUIRED = "Total rooms is required"
+    const val ERR_SHARING_TYPE_REQUIRED = "Sharing type is required"
+    const val ERR_PREFERRED_TENANT_REQUIRED = "Preferred tenant is required"
+    const val ERR_FOOD_AVAILABLE_REQUIRED = "Food availability is required"
     const val ERR_AGENT_PHONE_REQUIRED = "Agent phone is required"
     const val ERR_LOGIN_REQUIRED = "Please log in to add a property"
     const val MSG_PROPERTY_ADDED = "Property added successfully"
@@ -372,6 +384,7 @@ internal object AddDims {
     val FIELD_ICON_SIZE = 20.dp
 
     val TYPE_CARD_SPACING = 8.dp
+    val TYPE_CARD_WIDTH = 90.dp
     val TYPE_CARD_HEIGHT = 76.dp
     val TYPE_CARD_CORNER_RADIUS = 12.dp
     val TYPE_CARD_BORDER_WIDTH = 1.dp

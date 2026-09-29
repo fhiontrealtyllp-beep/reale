@@ -5,9 +5,11 @@ import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.Facing
 import com.fhiont.feature.search.domain.model.Furnishing
+import com.fhiont.feature.search.domain.model.PreferredTenant
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
+import com.fhiont.feature.search.domain.model.SharingType
 
 fun Enum<*>.jsonName(): String = when (this) {
     is RentBuy -> when (this) {
@@ -66,6 +68,8 @@ fun Enum<*>.jsonName(): String = when (this) {
     }
     is Facing -> name.lowercase()
     is ResidentialCommercial -> name.lowercase()
+    is SharingType -> name.toCamelCaseFromUnderscore()
+    is PreferredTenant -> name.lowercase()
     else -> name.toCamelCaseFromUnderscore()
 }
 
@@ -88,9 +92,11 @@ internal fun Enum<*>.enumLabel(): String? = when (this) {
     is BedroomType -> label
     is Facing -> label
     is Furnishing -> label
+    is PreferredTenant -> label
     is PropertyType -> label
     is RentBuy -> label
     is ResidentialCommercial -> label
+    is SharingType -> label
     else -> null
 }
 

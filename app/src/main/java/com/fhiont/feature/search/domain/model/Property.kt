@@ -32,7 +32,11 @@ data class Property(
     val nearbyPlaces: List<NearbyPlace> = emptyList(),
     val carpetArea: Double? = null,
     val builtUpArea: Double? = null,
-    val superBuiltUpArea: Double? = null
+    val superBuiltUpArea: Double? = null,
+    val totalRooms: Int? = null,
+    val sharingType: SharingType? = null,
+    val preferredTenant: PreferredTenant? = null,
+    val foodAvailable: Boolean? = null
 ) {
     fun isRentProperty(): Boolean = rentBuy == RentBuy.RENT
 }

@@ -2,8 +2,11 @@ package com.fhiont.feature.add.data.mapper
 
 import com.fhiont.feature.add.domain.model.PropertyForm
 import com.fhiont.feature.add.presentation.AddStrings
+import com.fhiont.feature.search.data.mapper.parseEnumFromJsonName
 import com.fhiont.feature.search.domain.model.LocationNormalizer
+import com.fhiont.feature.search.domain.model.PreferredTenant
 import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.domain.model.SharingType
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,7 +43,11 @@ fun PropertyForm.toProperty(documentId: String, userId: String): Property {
         nearbyPlaces = nearbyPlaces,
         carpetArea = carpetArea.toDoubleOrNull(),
         builtUpArea = builtUpArea.toDoubleOrNull(),
-        superBuiltUpArea = superBuiltUpArea.toDoubleOrNull()
+        superBuiltUpArea = superBuiltUpArea.toDoubleOrNull(),
+        totalRooms = totalRooms.takeIf { it > 0 },
+        sharingType = sharingType,
+        preferredTenant = preferredTenant,
+        foodAvailable = foodAvailable
     )
 }
 
@@ -71,7 +78,11 @@ fun Property.toPropertyForm(): PropertyForm {
         listingCategory = listingCategory,
         nearbyPlaces = nearbyPlaces,
         images = images,
-        editingPropertyId = id
+        editingPropertyId = id,
+        totalRooms = totalRooms ?: 0,
+        sharingType = sharingType,
+        preferredTenant = preferredTenant,
+        foodAvailable = foodAvailable
     )
 }
 

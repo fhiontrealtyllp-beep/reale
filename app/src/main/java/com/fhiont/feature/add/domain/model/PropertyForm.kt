@@ -8,9 +8,11 @@ import com.fhiont.feature.search.domain.model.Facing
 import com.fhiont.feature.search.domain.model.Furnishing
 import com.fhiont.feature.search.domain.model.ListingCategory
 import com.fhiont.feature.search.domain.model.NearbyPlace
+import com.fhiont.feature.search.domain.model.PreferredTenant
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
+import com.fhiont.feature.search.domain.model.SharingType
 
 data class PropertyForm(
     val rentBuy: RentBuy? = RentBuy.RENT,
@@ -38,13 +40,18 @@ data class PropertyForm(
     val listingCategory: ListingCategory = ListingCategory.NORMAL,
     val nearbyPlaces: List<NearbyPlace> = emptyList(),
     val images: List<String> = emptyList(),
-    val editingPropertyId: String? = null
+    val editingPropertyId: String? = null,
+    val totalRooms: Int = 0,
+    val sharingType: SharingType? = null,
+    val preferredTenant: PreferredTenant? = null,
+    val foodAvailable: Boolean? = null
 ) {
     fun isValid(): Boolean {
         return validate().isEmpty()
     }
 
     fun validate(): List<String> {
+        val config = propertyType?.formConfig() ?: PropertyFormConfig()
         val errors = mutableListOf<String>()
         if (rentBuy == null) errors.add(AddStrings.ERR_RENT_BUY_REQUIRED)
         if (residentialCommercial == null) errors.add(AddStrings.ERR_RESIDENTIAL_COMMERCIAL_REQUIRED)
@@ -70,14 +77,18 @@ data class PropertyForm(
         } else if (longitude.toDoubleOrNull() == null) {
             errors.add(AddStrings.ERR_LONGITUDE_INVALID)
         }
-        if (bedroomType == null) errors.add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
-        if (bathrooms < 1) errors.add(AddStrings.ERR_BATHROOMS_REQUIRED)
-        if (furnishing == null) errors.add(AddStrings.ERR_FURNISHING_REQUIRED)
-        if (facing == null) errors.add(AddStrings.ERR_FACING_REQUIRED)
-        if (age == null) errors.add(AddStrings.ERR_AGE_REQUIRED)
-        if (carpetArea.isBlank() && builtUpArea.isBlank() && superBuiltUpArea.isBlank()) {
+        if (config.bedroomsRequired && bedroomType == null) errors.add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
+        if (config.bathroomsRequired && bathrooms < 1) errors.add(AddStrings.ERR_BATHROOMS_REQUIRED)
+        if (config.furnishingRequired && furnishing == null) errors.add(AddStrings.ERR_FURNISHING_REQUIRED)
+        if (config.facingRequired && facing == null) errors.add(AddStrings.ERR_FACING_REQUIRED)
+        if (config.ageRequired && age == null) errors.add(AddStrings.ERR_AGE_REQUIRED)
+        if (config.areaRequired && carpetArea.isBlank() && builtUpArea.isBlank() && superBuiltUpArea.isBlank()) {
             errors.add(AddStrings.ERR_AREA_REQUIRED)
         }
+        if (config.totalRoomsRequired && totalRooms < 1) errors.add(AddStrings.ERR_TOTAL_ROOMS_REQUIRED)
+        if (config.sharingTypeRequired && sharingType == null) errors.add(AddStrings.ERR_SHARING_TYPE_REQUIRED)
+        if (config.preferredTenantRequired && preferredTenant == null) errors.add(AddStrings.ERR_PREFERRED_TENANT_REQUIRED)
+        if (config.foodAvailableRequired && foodAvailable == null) errors.add(AddStrings.ERR_FOOD_AVAILABLE_REQUIRED)
         if (agentPhone.isBlank()) errors.add(AddStrings.ERR_AGENT_PHONE_REQUIRED)
         if (images.size < 2) {
             errors.add(AddStrings.ERR_MIN_PHOTOS)

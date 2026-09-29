@@ -6,6 +6,8 @@ import com.fhiont.feature.add.data.local.PropertyDraftStore
 import com.fhiont.feature.add.data.mapper.toProperty
 import com.fhiont.feature.add.data.mapper.toPropertyForm
 import com.fhiont.feature.add.domain.model.PropertyForm
+import com.fhiont.feature.add.domain.model.PropertyFormConfig
+import com.fhiont.feature.add.domain.model.formConfig
 import com.fhiont.feature.add.domain.usecase.AddPropertyUseCase
 import com.fhiont.feature.add.domain.usecase.UpdatePropertyUseCase
 import com.fhiont.feature.add.domain.usecase.GetMyPropertiesUseCase
@@ -16,6 +18,8 @@ import com.fhiont.feature.search.domain.model.Age
 import com.fhiont.feature.search.domain.model.Amenity
 import com.fhiont.feature.search.domain.model.BedroomType
 import com.fhiont.feature.search.domain.model.ListingCategory
+import com.fhiont.feature.search.domain.model.PreferredTenant
+import com.fhiont.feature.search.domain.model.SharingType
 import com.fhiont.feature.search.domain.model.NearbyPlace
 import com.fhiont.feature.search.domain.model.Facing
 import com.fhiont.feature.search.domain.model.Furnishing
@@ -245,15 +249,20 @@ class AddViewModel(
                 }
             }
             AddPropertyStep.PROPERTY_DETAILS -> {
+                val config = form.propertyType?.formConfig() ?: PropertyFormConfig()
                 buildList {
-                    if (form.bedroomType == null) add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
-                    if (form.bathrooms < 1) add(AddStrings.ERR_BATHROOMS_REQUIRED)
-                    if (form.furnishing == null) add(AddStrings.ERR_FURNISHING_REQUIRED)
-                    if (form.facing == null) add(AddStrings.ERR_FACING_REQUIRED)
-                    if (form.age == null) add(AddStrings.ERR_AGE_REQUIRED)
-                    if (form.carpetArea.isBlank() && form.builtUpArea.isBlank() && form.superBuiltUpArea.isBlank()) {
+                    if (config.bedroomsRequired && form.bedroomType == null) add(AddStrings.ERR_BEDROOM_TYPE_REQUIRED)
+                    if (config.bathroomsRequired && form.bathrooms < 1) add(AddStrings.ERR_BATHROOMS_REQUIRED)
+                    if (config.furnishingRequired && form.furnishing == null) add(AddStrings.ERR_FURNISHING_REQUIRED)
+                    if (config.facingRequired && form.facing == null) add(AddStrings.ERR_FACING_REQUIRED)
+                    if (config.ageRequired && form.age == null) add(AddStrings.ERR_AGE_REQUIRED)
+                    if (config.areaRequired && form.carpetArea.isBlank() && form.builtUpArea.isBlank() && form.superBuiltUpArea.isBlank()) {
                         add(AddStrings.ERR_AREA_REQUIRED)
                     }
+                    if (config.totalRoomsRequired && form.totalRooms < 1) add(AddStrings.ERR_TOTAL_ROOMS_REQUIRED)
+                    if (config.sharingTypeRequired && form.sharingType == null) add(AddStrings.ERR_SHARING_TYPE_REQUIRED)
+                    if (config.preferredTenantRequired && form.preferredTenant == null) add(AddStrings.ERR_PREFERRED_TENANT_REQUIRED)
+                    if (config.foodAvailableRequired && form.foodAvailable == null) add(AddStrings.ERR_FOOD_AVAILABLE_REQUIRED)
                 }
             }
             AddPropertyStep.PHOTOS_MEDIA -> buildList {
@@ -355,6 +364,22 @@ class AddViewModel(
 
     fun onSuperBuiltUpAreaChanged(superBuiltUpArea: String) {
         updateForm { copy(superBuiltUpArea = superBuiltUpArea) }
+    }
+
+    fun onTotalRoomsChanged(totalRooms: Int) {
+        updateForm { copy(totalRooms = totalRooms.coerceIn(0, 1000)) }
+    }
+
+    fun onSharingTypeChanged(sharingType: SharingType?) {
+        updateForm { copy(sharingType = sharingType) }
+    }
+
+    fun onPreferredTenantChanged(preferredTenant: PreferredTenant?) {
+        updateForm { copy(preferredTenant = preferredTenant) }
+    }
+
+    fun onFoodAvailableChanged(foodAvailable: Boolean?) {
+        updateForm { copy(foodAvailable = foodAvailable) }
     }
 
     fun onAgentPhoneChanged(agentPhone: String) {

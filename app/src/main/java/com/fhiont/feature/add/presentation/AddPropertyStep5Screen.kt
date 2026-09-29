@@ -40,7 +40,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.fhiont.feature.add.domain.model.PropertyForm
+import com.fhiont.feature.add.domain.model.PropertyFormConfig
+import com.fhiont.feature.add.domain.model.formConfig
 import com.fhiont.feature.search.domain.model.BedroomType
+import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.ui.theme.ControlAccent
 import com.fhiont.ui.theme.HomeCategoryUnselected
@@ -148,17 +151,56 @@ internal fun AddPropertyStep5Screen(
         }
 
         // Detail rows
+        val config = form.propertyType?.formConfig() ?: PropertyFormConfig()
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             ReviewRow(label = AddStrings.LABEL_PROPERTY_TYPE, value = form.propertyType?.label.orEmpty())
             ReviewRow(label = AddStrings.LABEL_LISTING_TYPE, value = listingTypeLabel(form.rentBuy))
             ReviewRow(label = AddStrings.LABEL_PRICE, value = priceText(form))
-            ReviewRow(label = AddStrings.LABEL_CONFIGURATION, value = configurationText(form))
-            ReviewRow(label = AddStrings.LABEL_CARPET_AREA, value = areaText(form.carpetArea))
-            ReviewRow(label = AddStrings.LABEL_BUILT_UP_AREA, value = areaText(form.builtUpArea))
-            ReviewRow(label = AddStrings.LABEL_SUPER_BUILT_UP, value = areaText(form.superBuiltUpArea))
-            ReviewRow(label = AddStrings.LABEL_FURNISHING, value = form.furnishing?.label.orEmpty())
-            ReviewRow(label = AddStrings.LABEL_FACING, value = form.facing?.label.orEmpty())
-            ReviewRow(label = AddStrings.LABEL_PROPERTY_AGE, value = form.age?.label.orEmpty())
+            if (config.showBedrooms || config.showBathrooms) {
+                ReviewRow(label = AddStrings.LABEL_CONFIGURATION, value = configurationText(form, config))
+            }
+            if (config.showCarpetArea) {
+                ReviewRow(label = AddStrings.LABEL_CARPET_AREA, value = areaText(form.carpetArea))
+            }
+            if (config.showBuiltUpArea) {
+                val areaLabel = if (form.propertyType in listOf(PropertyType.PLOT, PropertyType.LAND)) {
+                    AddStrings.LABEL_PLOT_AREA
+                } else {
+                    AddStrings.LABEL_BUILT_UP_AREA
+                }
+                ReviewRow(label = areaLabel, value = areaText(form.builtUpArea))
+            }
+            if (config.showSuperBuiltUpArea) {
+                ReviewRow(label = AddStrings.LABEL_SUPER_BUILT_UP, value = areaText(form.superBuiltUpArea))
+            }
+            if (config.showFurnishing) {
+                ReviewRow(label = AddStrings.LABEL_FURNISHING, value = form.furnishing?.label.orEmpty())
+            }
+            if (config.showFacing) {
+                ReviewRow(label = AddStrings.LABEL_FACING, value = form.facing?.label.orEmpty())
+            }
+            if (config.showAge) {
+                ReviewRow(label = AddStrings.LABEL_PROPERTY_AGE, value = form.age?.label.orEmpty())
+            }
+            if (config.showTotalRooms) {
+                ReviewRow(label = AddStrings.LABEL_TOTAL_ROOMS, value = form.totalRooms.toString())
+            }
+            if (config.showSharingType) {
+                ReviewRow(label = AddStrings.LABEL_SHARING_TYPE, value = form.sharingType?.label.orEmpty())
+            }
+            if (config.showPreferredTenant) {
+                ReviewRow(label = AddStrings.LABEL_PREFERRED_TENANT, value = form.preferredTenant?.label.orEmpty())
+            }
+            if (config.showFoodAvailable) {
+                ReviewRow(
+                    label = AddStrings.LABEL_FOOD_AVAILABLE,
+                    value = when (form.foodAvailable) {
+                        true -> AddStrings.FOOD_AVAILABLE_YES
+                        false -> AddStrings.FOOD_AVAILABLE_NO
+                        null -> AddStrings.PLACEHOLDER_DASH
+                    }
+                )
+            }
             ReviewRow(label = AddStrings.LABEL_LOCATION, value = locationText(form))
             ReviewRow(label = AddStrings.LABEL_AGENT_PHONE, value = form.agentPhone)
             ReviewRow(label = AddStrings.LABEL_LISTING_CATEGORY, value = form.listingCategory.label)
@@ -292,10 +334,15 @@ private fun bedsCount(bedroomType: BedroomType?): Int = when (bedroomType) {
     null -> 0
 }
 
-private fun configurationText(form: PropertyForm): String {
-    val beds = bedsCount(form.bedroomType)
-    if (beds == 0 && form.bathrooms == 0) return AddStrings.PLACEHOLDER_DASH
-    return "$beds${AddStrings.BEDS_BATHS_SEPARATOR}${form.bathrooms}${AddStrings.BATHS_SUFFIX}"
+private fun configurationText(form: PropertyForm, config: PropertyFormConfig): String {
+    val beds = if (config.showBedrooms) bedsCount(form.bedroomType) else 0
+    val baths = form.bathrooms
+    return when {
+        !config.showBedrooms && !config.showBathrooms -> AddStrings.PLACEHOLDER_DASH
+        config.showBedrooms && config.showBathrooms -> "$beds${AddStrings.BEDS_BATHS_SEPARATOR}${baths}${AddStrings.BATHS_SUFFIX}"
+        config.showBedrooms -> "$beds${AddStrings.BEDS_SUFFIX}"
+        else -> "$baths${AddStrings.BATHS_SUFFIX}"
+    }
 }
 
 private fun priceText(form: PropertyForm): String {

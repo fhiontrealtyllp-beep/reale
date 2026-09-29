@@ -9,7 +9,9 @@ import com.fhiont.feature.search.domain.model.Furnishing
 import com.fhiont.feature.search.domain.model.ListingCategory
 import com.fhiont.feature.search.domain.model.NearbyPlace
 import com.fhiont.feature.search.domain.model.NearbyPlaceType
+import com.fhiont.feature.search.domain.model.PreferredTenant
 import com.fhiont.feature.search.domain.model.Property
+import com.fhiont.feature.search.domain.model.SharingType
 import com.fhiont.feature.search.domain.model.PropertyType
 import com.fhiont.feature.search.domain.model.RentBuy
 import com.fhiont.feature.search.domain.model.ResidentialCommercial
@@ -50,7 +52,16 @@ object PropertyMapper {
             nearbyPlaces = parseNearbyPlaces(map["nearbyPlaces"]),
             carpetArea = getDouble(map, "carpetArea"),
             builtUpArea = getDouble(map, "builtUpArea"),
-            superBuiltUpArea = getDouble(map, "superBuiltUpArea")
+            superBuiltUpArea = getDouble(map, "superBuiltUpArea"),
+            totalRooms = getInt(map, "totalRooms"),
+            sharingType = parseEnumFromJsonName<SharingType>(getString(map, "sharingType")),
+            preferredTenant = parseEnumFromJsonName<PreferredTenant>(getString(map, "preferredTenant")),
+            foodAvailable = when (val value = map["foodAvailable"]) {
+                is Boolean -> value
+                is Number -> value.toInt() != 0
+                is String -> value.toBooleanStrictOrNull()
+                else -> null
+            }
         )
     }
 

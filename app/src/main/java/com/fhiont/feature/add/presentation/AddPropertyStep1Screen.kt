@@ -3,6 +3,7 @@ package com.fhiont.feature.add.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Agriculture
 import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.Bed
+import androidx.compose.material.icons.outlined.Hotel
 import androidx.compose.material.icons.outlined.House
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.MyLocation
@@ -57,12 +62,16 @@ import com.fhiont.ui.preview.PreviewData
 import com.fhiont.ui.theme.FhiontTheme
 import androidx.compose.ui.tooling.preview.Preview
 
-// Property types shown in the design's four-card row.
+// Residential property types shown in the horizontal scrollable row.
 private val STEP1_PROPERTY_TYPES = listOf(
     PropertyType.APARTMENT,
     PropertyType.VILLA,
     PropertyType.PLOT,
-    PropertyType.INDEPENDENT_HOUSE
+    PropertyType.INDEPENDENT_HOUSE,
+    PropertyType.FARM_HOUSE,
+    PropertyType.PAYING_GUEST,
+    PropertyType.HOSTEL,
+    PropertyType.GUEST_HOUSE
 )
 
 // Listing type order: For Rent first (default selected), For Sale second.
@@ -149,7 +158,7 @@ internal fun AddPropertyStep1Screen(
         Column(verticalArrangement = Arrangement.spacedBy(AddDims.FIELD_LABEL_SPACING)) {
             Step1FieldLabel(text = AddStrings.LABEL_PROPERTY_TYPE, isRequired = true)
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(AddDims.TYPE_CARD_SPACING)
             ) {
                 STEP1_PROPERTY_TYPES.forEach { propertyType ->
@@ -157,7 +166,7 @@ internal fun AddPropertyStep1Screen(
                         propertyType = propertyType,
                         isSelected = form.propertyType == propertyType,
                         onClick = { onPropertyTypeChanged(propertyType) },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.width(AddDims.TYPE_CARD_WIDTH)
                     )
                 }
             }
@@ -466,6 +475,10 @@ private fun propertyTypeIcon(propertyType: PropertyType): ImageVector {
         PropertyType.PLOT,
         PropertyType.LAND -> Icons.Outlined.Landscape
         PropertyType.INDEPENDENT_HOUSE -> Icons.Outlined.House
+        PropertyType.FARM_HOUSE -> Icons.Outlined.Agriculture
+        PropertyType.PAYING_GUEST,
+        PropertyType.HOSTEL,
+        PropertyType.GUEST_HOUSE -> Icons.Outlined.Bed
         else -> Icons.Outlined.Apartment
     }
 }
