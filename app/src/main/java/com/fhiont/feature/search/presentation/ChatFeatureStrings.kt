@@ -10,6 +10,7 @@ internal object ChatStrings {
     const val CD_BACK = "Back"
     const val CD_SEND = "Send message"
     const val CD_PROPERTY_IMAGE = "Property image"
+    const val CD_MESSAGE_SENT = "Message sent"
 
     const val HINT_MESSAGE = "Type a message"
     const val EMPTY_TITLE = "No messages yet"
@@ -44,6 +45,8 @@ internal object ChatDims {
     val BUBBLE_TIME_FONT_SIZE = 10.sp
     val BUBBLE_SENDER_FONT_SIZE = 11.sp
     val BUBBLE_TIME_SPACING = 2.dp
+    val BUBBLE_TICK_SIZE = 14.dp
+    val BUBBLE_TICK_SPACING = 3.dp
     const val BUBBLE_MAX_WIDTH_FRACTION = 0.78f
     const val TIME_TEXT_ALPHA = 0.7f
 

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -316,13 +317,28 @@ private fun ChatBubble(
 
                 Spacer(modifier = Modifier.height(ChatDims.BUBBLE_TIME_SPACING))
 
-                Text(
-                    text = formatChatTimestamp(message.createdAt),
-                    color = if (isMine) OnControlAccent.copy(alpha = ChatDims.TIME_TEXT_ALPHA)
-                    else Gray.copy(alpha = ChatDims.TIME_TEXT_ALPHA),
-                    fontSize = ChatDims.BUBBLE_TIME_FONT_SIZE,
-                    modifier = Modifier.align(Alignment.End)
-                )
+                Row(modifier = Modifier.align(Alignment.End)) {
+                    Text(
+                        text = formatChatTimestamp(message.createdAt),
+                        color = if (isMine) OnControlAccent.copy(alpha = ChatDims.TIME_TEXT_ALPHA)
+                        else Gray.copy(alpha = ChatDims.TIME_TEXT_ALPHA),
+                        fontSize = ChatDims.BUBBLE_TIME_FONT_SIZE
+                    )
+
+                    // Sent tick on own messages; messages only appear in the
+                    // list after the server stores them.
+                    if (isMine) {
+                        Spacer(modifier = Modifier.width(ChatDims.BUBBLE_TICK_SPACING))
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = ChatStrings.CD_MESSAGE_SENT,
+                            tint = OnControlAccent.copy(alpha = ChatDims.TIME_TEXT_ALPHA),
+                            modifier = Modifier
+                                .size(ChatDims.BUBBLE_TICK_SIZE)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
             }
 
             if (!isMine) {
